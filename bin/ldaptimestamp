@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+# convert LDAP timestamp to human readable date
+
+# set -o errexit
+# set -o pipefail
+# set -o nounset
+# set -o xtrace
+
+
+date -d "@$(echo $((($1/10000000)-11676009600)))" +"%F %a %T %Z";

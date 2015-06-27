@@ -1,0 +1,30 @@
+- clean: ['~']
+
+- shell:
+    - mkdir -p ~/apps
+    - mkdir -p ~/apps/dotfiles.local
+    - find bin -type f -not -name 'create_bash.model' -exec chmod +x {} \;
+
+- link:
+    ~/.dotfiles: ''
+    ~/.dotfiles.local: ../dotfiles.local/
+    ~/.vimrc:
+        relink: true
+        path: vimrc
+    ~/.vimrc.local:
+        relink: true
+        path: ../dotfiles.local/vimrc.local
+    ~/.tmux.conf:
+        relink: true
+        path: tmux.conf
+    ~/.bashrc:
+        relink: true
+        path: bashrc
+    ~/.bashrc.local:
+        relink: true
+        path: ../dotfiles.local/bashrc.local
+
+- shell:
+    - ["git submodule update --init --recursive", "Installing submodules"]
+    - vim +PluginInstall +qall
+    - vim +PluginClean +qall

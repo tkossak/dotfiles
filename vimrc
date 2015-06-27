@@ -46,10 +46,15 @@ filetype plugin indent on    " required
 " ===================================================
 " source .vimrc.local if it exists
 " ===================================================
-try
-  source ~/.vimrc.local
-catch
-endtry
+let $LOCALFILE=expand("~/.vimrc.local")
+if filereadable($LOCALFILE)
+    source $LOCALFILE
+endif
+
+" try
+"   source ~/.vimrc.local
+" catch
+" endtry
 
 " ===================================================
 " = for plugins
