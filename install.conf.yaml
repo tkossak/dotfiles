@@ -26,5 +26,4 @@
 
 - shell:
     - ["git submodule update --init --recursive", "Installing submodules"]
-    - vim +PluginInstall +qall
-    - vim +PluginClean +qall
+    - vim +PluginInstall +PluginClean +qall
