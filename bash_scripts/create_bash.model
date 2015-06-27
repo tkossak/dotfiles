@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+set -o errexit
+set -o pipefail
+set -o nounset
+# set -o xtrace
+
+# Set magic variables for current file & dir
+__file="${__dir}/$(basename "${BASH_SOURCE[0]}")"
+__dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# __base="$(basename ${__file} .sh)"
+# __root="$(cd "$(dirname "${__dir}")" && pwd)"
+
+# magic variables for links
+__file="$(readlink -f ${BASH_SOURCE[0]})"
+__dir="$(cd "$(dirname "${__file}")" && pwd)"
+
+arg1="${1:-}"
