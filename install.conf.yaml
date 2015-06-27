@@ -11,15 +11,18 @@
     ~/.vimrc:
         relink: true
         path: vimrc
-    ~/.vimrc.local:
-        relink: true
-        path: ../dotfiles.local/vimrc.local
     ~/.tmux.conf:
         relink: true
         path: tmux.conf
     ~/.bashrc:
         relink: true
         path: bashrc
+    ~/.emacs:
+        relink: true
+        path: emacs
+    ~/.vimrc.local:
+        relink: true
+        path: ../dotfiles.local/vimrc.local
     ~/.bashrc.local:
         relink: true
         path: ../dotfiles.local/bashrc.local
