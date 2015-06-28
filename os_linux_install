@@ -62,5 +62,9 @@ git clone https://github.com/gmarik/Vundle.vim.git ~/.vim/bundle/Vundle.vim
 aptget python-pip pip
 aptget python3-pip pip3
 
-# sudo apt-get -qyf install python-pip
+# Ranger
+git clone https://github.com/hut/ranger.git ~/apps/ranger && cd $_; make install;
+ranger --copy-config=all
+
+
 
