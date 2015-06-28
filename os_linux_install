@@ -15,29 +15,48 @@ __file="${__dir}/$(basename "${BASH_SOURCE[0]}")"
 #__file="$(readlink -f ${BASH_SOURCE[0]})"
 #__dir="$(cd "$(dirname "${__file}")" && pwd)"
 
-arg1="${1:-}"
+# arg1="${1:-}"
 
 
-install()
+aptget()
 {
-    app=
-    local instalcmd
+    local instal_cmd=""
+    # local app_install="${1:-}"
+    local app_install="${1:?Error. \$1 not set}"
+    local app_run="${2:-${1}}"
+
+    # check if app is installed
+    if hash ${app_run} 2>/dev/null; then
+        echo "${app_run} already installed."
+        return 10
+    fi
+
+    # build instal command
+    # add sudo
     if hash sudo 2>/dev/null; then
-        instalcmd="sudo "
+        instal_cmd="${instal_cmd}sudo "
     fi
+
+    # add apt-get
     if hash apt-get 2>/dev/null; then
-        instalcmd="${instalcmd}apt-get -qyf "
-    fi
-    if [[ -z $1 ]]; then
-        echo "Error: Bledny parametr"
-        exit 1
+        instal_cmd="${instal_cmd}apt-get install -qyf "
     else
-        instalcmd="${instalcmd}${1}"
-        echo "${instalcmd}"
+        echo "Error: no apt-get tool?"
+        return 1
     fi
+
+    instal_cmd="${instal_cmd}${app_install}"
+    echo "---${instal_cmd}---"
 }
 
-install "abc"
+# echo -n "Instal os apps (y/n)? "
+# read cont
+# if [[ ${cont} != "y" && ${cont} != "Y" ]]; then
+#     echo "Exiting..."
+#     exit 1
+# fi;
+
+aptget git
 
 # sudo apt-get -qyf install python-pip
 
