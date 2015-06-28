@@ -11,6 +11,8 @@
     - command: '[ -f ~/.bashrc.local -a ! -L ~/.bashrc.local ] && mv ~/.bashrc.local ~/.bashrc.local.old || true'
     - command: '[ -f ~/.emacs -a ! -L ~/.emacs ] && mv ~/.emacs ~/.emacs.old || true'
     - command: '[ -f ~/.emacs.d/mine/.emacs.local -a ! -L ~/.emacs.d/mine/.emacs.local ] && mv ~/.emacs.d/mine/.emacs.local ~/.emacs.d/mine/.emacs.local.old || true'
+    - command: '[ -f ~/.gitconfig -a ! -L ~/.gitconfig ] && mv ~/.gitconfig ~/.gitconfig.old || true'
+    - command: '[ -f ~/.gitconfig.local -a ! -L ~/.gitconfig.local ] && mv ~/.gitconfig.local ~/.gitconfig.local.old || true'
 
 - link:
     ~/.dotfiles: ''
@@ -27,6 +29,10 @@
     ~/.emacs:
         relink: true
         path: emacs
+    ~/.gitconfig:
+        relink: true
+        path: gitconfig
+
     ~/.vimrc.local:
         relink: true
         path: ../dotfiles.local/vimrc.local
@@ -34,9 +40,14 @@
         relink: true
         path: ../dotfiles.local/bashrc.local
     ~/.emacs.d/mine/.emacs.local:
+        create: true
         relink: true
         path: ../dotfiles.local/emacs.local
+    ~/.gitconfig.local:
+        relink: true
+        path: ../dotfiles.local/gitconfig.local
 
 - shell:
     - ["git submodule update --init --recursive", "Installing submodules"]
     - vim +PluginInstall +PluginClean +qall
+
