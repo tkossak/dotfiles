@@ -28,7 +28,7 @@ aptget()
     # check if app is installed
     if hash ${app_run} 2>/dev/null; then
         echo "${app_run} already installed."
-        return 10
+        return 0
     fi
 
     # build instal command
@@ -47,6 +47,7 @@ aptget()
 
     instal_cmd="${instal_cmd}${app_install}"
     echo "---${instal_cmd}---"
+    ${instal_cmd}
 }
 
 # echo -n "Instal os apps (y/n)? "
@@ -57,6 +58,9 @@ aptget()
 # fi;
 
 aptget git
+git clone https://github.com/gmarik/Vundle.vim.git ~/.vim/bundle/Vundle.vim
+aptget python-pip pip
+aptget python3-pip pip3
 
 # sudo apt-get -qyf install python-pip
 
