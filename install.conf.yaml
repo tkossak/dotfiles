@@ -18,34 +18,34 @@
     ~/.dotfiles: ''
     ~/.dotfiles.local: ../dotfiles.local/
     ~/.vimrc:
-        relink: true
         path: vimrc
+        relink: true
     ~/.tmux.conf:
-        relink: true
         path: tmux.conf
-    ~/.bashrc:
         relink: true
+    ~/.bashrc:
         path: bashrc
+        relink: true
     ~/.emacs:
         relink: true
         path: emacs
     ~/.gitconfig:
-        relink: true
         path: gitconfig
+        relink: true
 
     ~/.vimrc.local:
-        relink: true
         path: ../dotfiles.local/vimrc.local
-    ~/.bashrc.local:
         relink: true
+    ~/.bashrc.local:
         path: ../dotfiles.local/bashrc.local
+        relink: true
     ~/.emacs.d/mine/.emacs.local:
         create: true
-        relink: true
         path: ../dotfiles.local/emacs.local
-    ~/.gitconfig.local:
         relink: true
+    ~/.gitconfig.local:
         path: ../dotfiles.local/gitconfig.local
+        relink: true
 
 - shell:
     - ["git submodule update --init --recursive", "Installing submodules"]
