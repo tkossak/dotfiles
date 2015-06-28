@@ -4,12 +4,13 @@
     - mkdir -p ~/apps
     - mkdir -p ~/apps/dotfiles.local
     - find bin -type f -not -name 'create_bash.model' -exec chmod +x {} \;
-    - command: test -f ~/.vimrc && mv ~/.vimrc ~/.vimrc.old || true
-    - command: test -f ~/.tmux.conf && mv ~/.tmux.conf ~/.tmux.conf.old || true
-    - command: test -f ~/.bashrc && mv ~/.bashrc ~/.bashrc.old || true
-    - command: test -f ~/.emacs && mv ~/.emacs ~/.emacs.old || true
-    - command: test -f ~/.vimrc.local && mv ~/.vimrc.local ~/.vimrc.local.old || true
-    - command: test -f ~/.bashrc.local && mv ~/.bashrc.local ~/.bashrc.local.old || true
+    - command: '[ -f ~/.tmux.conf -a ! -L ~/.tmux.conf ] && mv ~/.tmux.conf ~/.tmux.conf.old || true'
+    - command: '[ -f ~/.vimrc -a ! -L ~/.vimrc ] && mv ~/.vimrc ~/.vimrc.old || true'
+    - command: '[ -f ~/.vimrc.local -a ! -L ~/.vimrc.local ] && mv ~/.vimrc.local ~/.vimrc.local.old || true'
+    - command: '[ -f ~/.bashrc -a ! -L ~/.bashrc ] && mv ~/.bashrc ~/.bashrc.old || true'
+    - command: '[ -f ~/.bashrc.local -a ! -L ~/.bashrc.local ] && mv ~/.bashrc.local ~/.bashrc.local.old || true'
+    - command: '[ -f ~/.emacs -a ! -L ~/.emacs ] && mv ~/.emacs ~/.emacs.old || true'
+    - command: '[ -f ~/.emacs.d/mine/.emacs.local -a ! -L ~/.emacs.d/mine/.emacs.local ] && mv ~/.emacs.d/mine/.emacs.local ~/.emacs.d/mine/.emacs.local.old || true'
 
 - link:
     ~/.dotfiles: ''
@@ -32,6 +33,9 @@
     ~/.bashrc.local:
         relink: true
         path: ../dotfiles.local/bashrc.local
+    ~/.emacs.d/mine/.emacs.local:
+        relink: true
+        path: ../dotfiles.local/emacs.local
 
 - shell:
     - ["git submodule update --init --recursive", "Installing submodules"]
