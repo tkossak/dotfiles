@@ -17,7 +17,7 @@ set -o nounset
 
 # arg1="${1:-}"
 
-for link in ~/.tmux.conf ~/.vimrc ~/.vimrc.local ~/.bashrc ~/.bashrc.local ~/.emacs ~/.emacs.d/mine/.emacs.local ~/.gitconfig ~/.gitconfig.local; do
+for link in ~/.tmux.conf ~/.vimrc ~/.vimrc.local ~/.bashrc ~/.bashrc.local ~/.emacs ~/.emacs.d/mine/.emacs.local ~/.gitconfig ~/.gitconfig.local ~/.config/ranger/rc.conf ~/.config/ranger/rifle.conf; do
     if [[ -L "$link" ]]; then 
         echo -n "${link}..."
         cp --remove-destination "$(readlink ${link})" ${link}
