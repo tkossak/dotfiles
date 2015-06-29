@@ -1,4 +1,4 @@
-- clean: ['~']
+- clean: ['~', '~/.emacs.d/mine', '~/.config/ranger']
 
 - shell:
     - mkdir -p ~/apps
@@ -13,6 +13,8 @@
     - command: '[ -f ~/.emacs.d/mine/.emacs.local -a ! -L ~/.emacs.d/mine/.emacs.local ] && mv ~/.emacs.d/mine/.emacs.local ~/.emacs.d/mine/.emacs.local.old || true'
     - command: '[ -f ~/.gitconfig -a ! -L ~/.gitconfig ] && mv ~/.gitconfig ~/.gitconfig.old || true'
     - command: '[ -f ~/.gitconfig.local -a ! -L ~/.gitconfig.local ] && mv ~/.gitconfig.local ~/.gitconfig.local.old || true'
+    - command: '[ -f ~/.config/ranger/rc.conf -a ! -L ~/.config/ranger/rc.conf ] && mv ~/.config/ranger/rc.conf ~/.config/ranger/rc.conf.old || true'
+    - command: '[ -f ~/.config/ranger/rifle.conf -a ! -L ~/.config/ranger/rifle.conf ] && mv ~/.config/ranger/rc.conf ~/.config/ranger/rifle.conf.old || true'
 
 - link:
     ~/.dotfiles: ''
@@ -31,6 +33,14 @@
         path: emacs
     ~/.gitconfig:
         path: gitconfig
+        relink: true
+    ~/.config/ranger/rc.conf:
+        path: rc.conf
+        create: true
+        relink: true
+    ~/.config/ranger/rifle.conf:
+        path: rifle.conf
+        create: true
         relink: true
 
     ~/.vimrc.local:

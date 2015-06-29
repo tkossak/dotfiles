@@ -57,6 +57,9 @@ aptget()
 #     exit 1
 # fi;
 
+./break_links
+mkdir -p ~/apps
+
 aptget git
 git clone https://github.com/gmarik/Vundle.vim.git ~/.vim/bundle/Vundle.vim
 aptget python-pip pip
@@ -66,5 +69,10 @@ aptget python3-pip pip3
 git clone https://github.com/hut/ranger.git ~/apps/ranger && cd $_; make install;
 ranger --copy-config=all
 
+# TMUX
+aptget tmux
 
+
+git clone https://github.com/clvv/fasd.git ~/apps/fasd
+sudo make ~/apps/fasd/install;
 
