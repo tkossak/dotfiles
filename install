@@ -63,7 +63,9 @@ create_link()
 __myos="$(uname)"
 __myhost="$(uname -n)"
 
-mkdir -p ~/apps/dotfiles.local
+# mkdir -p ~/apps/dotfiles.local
+mkdir ~/.emacs.d/mine
+
 find ${__dir}/bin -type f -not -name 'create_bash.model' -exec chmod +x {} \;
 
 create_link ${__dir} ~/.dotfiles

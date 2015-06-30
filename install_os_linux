@@ -106,12 +106,25 @@ gitclone()
 ./break_links
 mkdir -p ~/apps
 
+# Basic
 aptget git
+aptget vim
 gitclone https://github.com/gmarik/Vundle.vim.git ~/.vim/bundle/Vundle.vim
 aptget python-pip pip
 aptget python3-pip pip3
-aptget vim
+
+# fasd
 gitclone https://github.com/clvv/fasd.git ~/apps/fasd "sudo make install"
+
+# commacd
+if [[ ! -f ~/.commacd.bash ]]; then
+    curl https://raw.githubusercontent.com/shyiko/commacd/master/commacd.bash -o ~/.commacd.bash
+fi
+
+# fzf
+if [[ ! -d ~/.fzf ]]; then
+    git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install
+fi
 
 # Ranger
 # rm -rf ~/apps/ranger ~/.config/ranger
@@ -120,7 +133,24 @@ gitclone https://github.com/hut/ranger.git ~/apps/ranger "sudo make install" "ra
 # TMUX
 aptget tmux
 
+# Emacs
+aptget emacs
+curl -o ~/.emacs.d/key-chord.el http://www.emacswiki.org/emacs/download/key-chord.el
+
+#Reszta
+sudo pip3 install BeautifulSoup4
+sudo pip3 install flake8
+sudo pip3 install bashate
+sudo pip install -U speedtest-cli
+sudo pip install -U httpie
+aptget dtrx
+
+
+
+gitclone git://github.com/VitaliyRodnenko/geeknote.git ~/apps/geeknote "sudo python setup.py install" "geeknote settings --editor vim"
+# geeknote login
 
 # install dotfiles
 ${__dir}/install
 echo "${__file} Done."
+
