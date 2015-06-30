@@ -62,45 +62,57 @@ create_link()
 
 __myos="$(uname)"
 __myhost="$(uname -n)"
-__dir_dlocal="$(cd ${__dir} && cd ../dotfiles.local && pwd)"
 
 mkdir -p ~/apps/dotfiles.local
 find ${__dir}/bin -type f -not -name 'create_bash.model' -exec chmod +x {} \;
 
 create_link ${__dir} ~/.dotfiles
-create_link ${__dir_dlocal} ~/.dotfiles.local
 create_link ${__dir}/vimrc ~/.vimrc
-create_link ${__dir_dlocal}/vimrc.local ~/.vimrc.local
 create_link ${__dir}/tmux.conf ~/.tmux.conf
 create_link ${__dir}/bashrc ~/.bashrc
-create_link ${__dir_dlocal}/bashrc.local ~/.bashrc.local
 create_link ${__dir}/emacs ~/.emacs
-create_link ${__dir_dlocal}/emacs.local ~/.emacs.d/mine/.emacs.local
 create_link ${__dir}/gitconfig ~/.gitconfig
-create_link ${__dir_dlocal}/gitconfig.local ~/.gitconfig.local
 
-if [[ -d ~/.config/ranger ]]; then
-    create_link ${__dir}/rc.conf ~/.config/ranger/rc.conf
-    create_link ${__dir}/rifle.conf ~/.config/ranger/rifle.conf
+# local files:
+__dir_dlocal="$(cd "$(dirname "${__dir}")" && pwd)/dotfiles.local"
+__dir_dlocal="$(readlink -f ${__dir_dlocal})"
+if [[ -d ${__dir_dlocal} ]]; then
+    create_link ${__dir_dlocal} ~/.dotfiles.local
+    create_link ${__dir_dlocal}/bashrc.local ~/.bashrc.local
+    create_link ${__dir_dlocal}/vimrc.local ~/.vimrc.local
+    create_link ${__dir_dlocal}/gitconfig.local ~/.gitconfig.local
+    create_link ${__dir_dlocal}/emacs.local ~/.emacs.d/mine/.emacs.local
+else
+    echo "===Error: local dir does not exist=${__dir_dlocal}"
+    __dir_dlocal=""
 fi
 
-exit
+#Ranger:
+if [[ -d ~/.config/ranger ]]; then
+    create_link ${__dir}/rc.conf ~/.config/ranger/rc.conf
+    # create_link ${__dir}/rifle.conf ~/.config/ranger/rifle.conf
+    if [[ ! -z "${__dir_dlocal}" ]]; then
+        case ${__myos} in
+            CYGWIN*)
+                if [[ ${__myhost} = AWA* ]]; then
+                    create_link ~/.dotfiles.local/rifle.conf.work.cygwin ~/.config/ranger/rifle.conf
+                elif [[ ${__myhost} = HEAVEN ]]; then
+                    create_link ~/.dotfiles.local/rifle.conf.home.cygwin ~/.config/ranger/rifle.conf
+                fi
+                ;;
+            Linux)
+                if [[ ${__myhost} = HEAVEN ]]; then
+                    create_link ~/.dotfiles.local/rifle.conf.home.linux ~/.config/ranger/rifle.conf
+                fi
+                ;;
+            *)
+                echo "Error: Unknown host."
+                ;;
+        esac
+    fi
+else
+    echo "===Ranger folder not found. Not creating links."
+fi
 
-case ${__myos} in
-    CYGWIN*)
-        if [[ ${__myhost} = AWA* ]]; then
-            create_link ~/.dotfiles.local/rifle.conf.work.cygwin ~/.config/ranger/rifle.conf
-        elif [[ ${__myhost} = HEAVEN ]]; then
-            create_link ~/.dotfiles.local/rifle.conf.home.cygwin ~/.config/ranger/rifle.conf
-        fi
-        ;;
-    Linux)
-        if [[ ${__myhost} = HEAVEN ]]; then
-            create_link ~/.dotfiles.local/rifle.conf.home.linux ~/.config/ranger/rifle.conf
-        fi
-        ;;
-    *)
-        echo "Error: Unknown host."
-        ;;
-esac
+echo "===Links done."
 
