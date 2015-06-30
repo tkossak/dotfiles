@@ -4,21 +4,36 @@
     - mkdir -p ~/apps
     - mkdir -p ~/apps/dotfiles.local
     - find bin -type f -not -name 'create_bash.model' -exec chmod +x {} \;
-    - command: '[[ -f ~/.tmux.conf && ! -L ~/.tmux.conf ]] && mv ~/.tmux.conf ~/.tmux.conf.old || true'
-    - command: '[[ -f ~/.vimrc && ! -L ~/.vimrc ]] && mv ~/.vimrc ~/.vimrc.old || true'
-    - command: '[[ -f ~/.vimrc.local && ! -L ~/.vimrc.local ]] && mv ~/.vimrc.local ~/.vimrc.local.old || true'
-    - command: '[[ -f ~/.bashrc && ! -L ~/.bashrc ]] && mv ~/.bashrc ~/.bashrc.old || true'
-    - command: '[[ -f ~/.bashrc.local && ! -L ~/.bashrc.local ]] && mv ~/.bashrc.local ~/.bashrc.local.old || true'
-    - command: '[[ -f ~/.emacs && ! -L ~/.emacs ]] && mv ~/.emacs ~/.emacs.old || true'
-    - command: '[[ -f ~/.emacs.d/mine/.emacs.local && ! -L ~/.emacs.d/mine/.emacs.local ]] && mv ~/.emacs.d/mine/.emacs.local ~/.emacs.d/mine/.emacs.local.old || true'
-    - command: '[[ -f ~/.gitconfig && ! -L ~/.gitconfig ]] && mv ~/.gitconfig ~/.gitconfig.old || true'
-    - command: '[[ -f ~/.gitconfig.local && ! -L ~/.gitconfig.local ]] && mv ~/.gitconfig.local ~/.gitconfig.local.old || true'
-    - command: '[[ -f ~/.config/ranger/rc.conf && ! -L ~/.config/ranger/rc.conf ]] && mv ~/.config/ranger/rc.conf ~/.config/ranger/rc.conf.old || true'
-    - command: '[[ -f ~/.config/ranger/rifle.conf && ! -L ~/.config/ranger/rifle.conf ]] && mv ~/.config/ranger/rifle.conf ~/.config/ranger/rifle.conf.old || true'
+    - command: '[ -f ~/.tmux.conf -a ! -L ~/.tmux.conf ] -a mv ~/.tmux.conf ~/.tmux.conf.old || true'
+    - command: '[ -f ~/.vimrc -a ! -L ~/.vimrc ] -a mv ~/.vimrc ~/.vimrc.old || true'
+    - command: '[ -f ~/.vimrc.local -a ! -L ~/.vimrc.local ] -a mv ~/.vimrc.local ~/.vimrc.local.old || true'
+    - command: '[ -f ~/.bashrc -a ! -L ~/.bashrc ] -a mv ~/.bashrc ~/.bashrc.old || true'
+    - command: '[ -f ~/.bashrc -a ! -L ~/.bashrc ] -a mv ~/.bashrc ~/.bashrc.old || true'
+    - command: '[ -f ~/.bashrc.local -a ! -L ~/.bashrc.local ] -a mv ~/.bashrc.local ~/.bashrc.local.old || true'
+    - command: '[ -f ~/.emacs -a ! -L ~/.emacs ] -a mv ~/.emacs ~/.emacs.old || true'
+    - command: '[ -f ~/.emacs.d/mine/.emacs.local -a ! -L ~/.emacs.d/mine/.emacs.local ] -a mv ~/.emacs.d/mine/.emacs.local ~/.emacs.d/mine/.emacs.local.old || true'
+    - command: '[ -f ~/.gitconfig -a ! -L ~/.gitconfig ] -a mv ~/.gitconfig ~/.gitconfig.old || true'
+    - command: '[ -f ~/.gitconfig.local -a ! -L ~/.gitconfig.local ] -a mv ~/.gitconfig.local ~/.gitconfig.local.old || true'
+    - command: '[ -f ~/.config/ranger/rc.conf -a ! -L ~/.config/ranger/rc.conf ] -a mv ~/.config/ranger/rc.conf ~/.config/ranger/rc.conf.old || true'
+    - command: '[ -f ~/.config/ranger/rifle.conf -a ! -L ~/.config/ranger/rifle.conf ] -a mv ~/.config/ranger/rifle.conf ~/.config/ranger/rifle.conf.old || true'
+    # - command: '[[ -f ~/.tmux.conf && ! -L ~/.tmux.conf ]] && mv ~/.tmux.conf ~/.tmux.conf.old || true'
+    # - command: '[[ -f ~/.vimrc && ! -L ~/.vimrc ]] && mv ~/.vimrc ~/.vimrc.old || true'
+    # - command: '[[ -f ~/.vimrc.local && ! -L ~/.vimrc.local ]] && mv ~/.vimrc.local ~/.vimrc.local.old || true'
+    # - command: '[[ -f ~/.bashrc && ! -L ~/.bashrc ]] && mv ~/.bashrc ~/.bashrc.old || true'
+    # - command: '[[ -f ~/.bashrc && ! -L ~/.bashrc ]] && mv ~/.bashrc ~/.bashrc.old || true'
+    # - command: '[[ -f ~/.bashrc.local && ! -L ~/.bashrc.local ]] && mv ~/.bashrc.local ~/.bashrc.local.old || true'
+    # - command: '[[ -f ~/.emacs && ! -L ~/.emacs ]] && mv ~/.emacs ~/.emacs.old || true'
+    # - command: '[[ -f ~/.emacs.d/mine/.emacs.local && ! -L ~/.emacs.d/mine/.emacs.local ]] && mv ~/.emacs.d/mine/.emacs.local ~/.emacs.d/mine/.emacs.local.old || true'
+    # - command: '[[ -f ~/.gitconfig && ! -L ~/.gitconfig ]] && mv ~/.gitconfig ~/.gitconfig.old || true'
+    # - command: '[[ -f ~/.gitconfig.local && ! -L ~/.gitconfig.local ]] && mv ~/.gitconfig.local ~/.gitconfig.local.old || true'
+    # - command: '[[ -f ~/.config/ranger/rc.conf && ! -L ~/.config/ranger/rc.conf ]] && mv ~/.config/ranger/rc.conf ~/.config/ranger/rc.conf.old || true'
+    # - command: '[[ -f ~/.config/ranger/rifle.conf && ! -L ~/.config/ranger/rifle.conf ]] && mv ~/.config/ranger/rifle.conf ~/.config/ranger/rifle.conf.old || true'
 
 - link:
-    ~/.dotfiles: ''
-    ~/.dotfiles.local: ../dotfiles.local/
+    ~/.dotfiles: '.'
+    ~/.dotfiles.local:
+        path: "../dotfiles.local"
+        relink: true
     ~/.vimrc:
         path: vimrc
         relink: true

@@ -1,14 +1,106 @@
 #!/usr/bin/env bash
 
-set -e
+set -o errexit
+set -o pipefail
+set -o nounset
+# set -o xtrace
 
-CONFIG="install.conf.yaml"
-DOTBOT_DIR="dotbot"
+# Set magic variables for current file & dir
+# __dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# __file="${__dir}/$(basename "${BASH_SOURCE[0]}")"
+# __base="$(basename ${__file} .sh)"
+# __root="$(cd "$(dirname "${__dir}")" && pwd)"
 
-DOTBOT_BIN="bin/dotbot"
-BASEDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# magic variables for links
+__file="$(readlink -f ${BASH_SOURCE[0]})"
+__dir="$(cd "$(dirname "${__file}")" && pwd)"
 
-cd "${BASEDIR}"
-git submodule update --init --recursive "${DOTBOT_DIR}"
+# arg1="${1:-}"
 
-"${BASEDIR}/${DOTBOT_DIR}/${DOTBOT_BIN}" -d "${BASEDIR}" -c "${CONFIG}" "${@}"
+# create_link
+# $1 = source file
+# $2 = destination = link path/link
+
+create_link()
+{
+    local src_file="${1:?\$1 not set}"
+    local dst_file="${2:?\$2 not set}"
+    src_file="$(readlink -f ${src_file})"
+
+    # dst_file="$(readlink -f ${dst_file})"
+
+    # check if src exists:
+    if [[ ! -e "${src_file}" ]]; then
+        echo "Error: File ${src_file} does not exists."
+        return 1
+    fi
+    # remove dst if it's a link
+    if [[ -L "${dst_file}" ]]; then
+        rm "${dst_file}"
+    fi
+
+    # echo "${src_file}"
+    # echo "${dst_file}"
+
+    # backup dst
+    if [[ -f ${dst_file} && ! -L ${dst_file} ]]; then
+        echo "===Backup ${dst_file}.old"
+        mv "${dst_file}" "${dst_file}.old"
+    fi
+    echo -n "===Creating link ---${dst_file}--- to ---${src_file}---... "
+    ln -s "${src_file}" "${dst_file}" &&
+    {
+        echo "Done."
+    } ||
+    {
+        echo $'\n'"===ERROR!==================="
+    }
+
+}
+
+# -------------------------------------------------------
+
+__myos="$(uname)"
+__myhost="$(uname -n)"
+__dir_dlocal="$(cd ${__dir} && cd ../dotfiles.local && pwd)"
+
+mkdir -p ~/apps/dotfiles.local
+find ${__dir}/bin -type f -not -name 'create_bash.model' -exec chmod +x {} \;
+
+create_link ${__dir} ~/.dotfiles
+create_link ${__dir_dlocal} ~/.dotfiles.local
+create_link ${__dir}/vimrc ~/.vimrc
+create_link ${__dir_dlocal}/vimrc.local ~/.vimrc.local
+create_link ${__dir}/tmux.conf ~/.tmux.conf
+create_link ${__dir}/bashrc ~/.bashrc
+create_link ${__dir_dlocal}/bashrc.local ~/.bashrc.local
+create_link ${__dir}/emacs ~/.emacs
+create_link ${__dir_dlocal}/emacs.local ~/.emacs.d/mine/.emacs.local
+create_link ${__dir}/gitconfig ~/.gitconfig
+create_link ${__dir_dlocal}/gitconfig.local ~/.gitconfig.local
+
+if [[ -d ~/.config/ranger ]]; then
+    create_link ${__dir}/rc.conf ~/.config/ranger/rc.conf
+    create_link ${__dir}/rifle.conf ~/.config/ranger/rifle.conf
+fi
+
+exit
+
+case ${__myos} in
+    CYGWIN*)
+        if [[ ${__myhost} = AWA* ]]; then
+            create_link ~/.dotfiles.local/rifle.conf.work.cygwin ~/.config/ranger/rifle.conf
+        elif [[ ${__myhost} = HEAVEN ]]; then
+            create_link ~/.dotfiles.local/rifle.conf.home.cygwin ~/.config/ranger/rifle.conf
+        fi
+        ;;
+    Linux)
+        if [[ ${__myhost} = HEAVEN ]]; then
+            create_link ~/.dotfiles.local/rifle.conf.home.linux ~/.config/ranger/rifle.conf
+        fi
+        ;;
+    *)
+        echo "Error: Unknown host."
+        ;;
+esac
+
