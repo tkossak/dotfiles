@@ -1,10 +1,10 @@
+
 ;; Packages
 (setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
 ("org" . "http://orgmode.org/elpa/")
 ("marmalade" . "http://marmalade-repo.org/packages/")
 ("melpa-stable" . "http://melpa-stable.milkbox.net/packages/")))
 (package-initialize)
-
 
 (if (file-accessible-directory-p "~/.emacs.d/mine")
   (add-to-list 'load-path "~/.emacs.d/mine")
@@ -99,9 +99,22 @@ ad-do-it
 (add-to-list 'load-path "~/.emacs.d/evil/lib")
 (add-to-list 'load-path "~/.emacs.d/evil")
 (setq evil-want-C-i-jump nil)
+
 (require 'evil)
 (evil-mode 1)
 
+;; Remap org-mode meta keys for convenience
+(mapcar (lambda (state)
+    (evil-declare-key state org-mode-map
+      (kbd "M-l") 'org-metaright
+      (kbd "M-h") 'org-metaleft
+      (kbd "M-k") 'org-metaup
+      (kbd "M-j") 'org-metadown
+      (kbd "M-L") 'org-shiftmetaright
+      (kbd "M-H") 'org-shiftmetaleft
+      (kbd "M-K") 'org-shiftmetaup
+      (kbd "M-J") 'org-shiftmetadown))
+  '(normal insert))
 
 ;; for evil mode:
 (define-key evil-insert-state-map (kbd "C-e") nil)
@@ -163,14 +176,14 @@ ad-do-it
 
 ;; esc quits
 (defun minibuffer-keyboard-quit ()
-"Abort recursive edit.
+  "Abort recursive edit.
 In Delete Selection mode, if the mark is active, just deactivate it;
 then it takes a second \\[keyboard-quit] to abort the minibuffer."
-(interactive)
-(if (and delete-selection-mode transient-mark-mode mark-active)
-(setq deactivate-mark t)
-(when (get-buffer "*Completions*") (delete-windows-on "*Completions*"))
-(abort-recursive-edit)))
+  (interactive)
+  (if (and delete-selection-mode transient-mark-mode mark-active)
+      (setq deactivate-mark t)
+    (when (get-buffer "*Completions*") (delete-windows-on "*Completions*"))
+    (abort-recursive-edit)))
 (define-key evil-normal-state-map [escape] 'keyboard-quit)
 (define-key evil-visual-state-map [escape] 'keyboard-quit)
 (define-key minibuffer-local-map [escape] 'minibuffer-keyboard-quit)
@@ -215,6 +228,9 @@ hscroll-step 1)
 (setq calendar-time-zone 60)
 (setq calendar-standard-time-zone-name "CET")
 (setq calendar-daylight-time-zone-name "CEST")
+(if (file-readable-p "~/Dropbox/Private/mydocs/org/diary")
+(setq diary-file "~/Dropbox/Private/mydocs/org/diary")
+)
 (setq diary-number-of-entries 7)
 
 (define-key global-map (kbd "RET") 'newline-and-indent) ;; add indent when RET

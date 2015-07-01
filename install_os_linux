@@ -87,7 +87,7 @@ gitclone()
     # fi
 
     cd ${gitfolder}
-    for run in "${gitrun[@]}" ; do
+    for run in "${gitrun[@]:-}" ; do
         echo "===run ${run}"
         ${run}
     done
@@ -101,10 +101,17 @@ gitclone()
 #     exit 1
 # fi;
 
+# -------------------------------------------------------------------------------------------
+
+# update repository
+if hash apt-get 2>/dev/null; then
+    sudo apt-get update
+fi
 
 # BREAK_links
 ./break_links
 mkdir -p ~/apps
+mkdir -p ~/.emacs.d/mine
 
 # Basic
 aptget git
@@ -138,9 +145,9 @@ aptget emacs
 curl -o ~/.emacs.d/key-chord.el http://www.emacswiki.org/emacs/download/key-chord.el
 
 #Reszta
-sudo pip3 install BeautifulSoup4
-sudo pip3 install flake8
-sudo pip3 install bashate
+sudo pip3 install -U BeautifulSoup4
+sudo pip3 install -U flake8
+sudo pip3 install -U bashate
 sudo pip install -U speedtest-cli
 sudo pip install -U httpie
 aptget dtrx

@@ -361,6 +361,9 @@ fv() {
 # fi
 # }
 
+export PATH=~/.dotfiles/bin:${PATH}
+# source ~/.bash-git-prompt/gitprompt.sh
+
 # -----------------------------------------------------------------------
 # -- bash start info
 # -----------------------------------------------------------------------
@@ -392,7 +395,6 @@ else
     [[ -n $_vTmp3 ]] && echo -e "${Color_Off}${_vTmp3}"
 fi
 
-export PATH=~/.dotfiles/bin:${PATH}
 
 # finishing touches
 unset _vTmp1

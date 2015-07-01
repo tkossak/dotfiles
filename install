@@ -18,11 +18,34 @@ __dir="$(cd "$(dirname "${__file}")" && pwd)"
 # arg1="${1:-}"
 
 # create_link
+# $1 = if -w then create windows link
+#    = if -c then cp instead of creating link
+#    = otherwise create linux link
+#    = can be EMPTY
 # $1 = source file
 # $2 = destination = link path/link
 
 create_link()
 {
+    local parse_params="Y"
+    local link_type="LINUX"
+    local if_backup="Y"
+    while [[ ${parse_params} = "Y" ]]; do
+        case $1 in
+            -w) link_type="WIN HARD"
+                shift
+                ;;
+            -c) link_type="CP"
+                shift
+                ;;
+            -n) if_backup="N"
+                shift
+                ;;
+            *) parse_params="N"
+                ;;
+        esac
+    done
+
     local src_file="${1:?\$1 not set}"
     local dst_file="${2:?\$2 not set}"
     src_file="$(readlink -f ${src_file})"
@@ -44,16 +67,36 @@ create_link()
 
     # backup dst
     if [[ -f ${dst_file} && ! -L ${dst_file} ]]; then
-        echo "===Backup ${dst_file}.old"
-        mv "${dst_file}" "${dst_file}.old"
+        if [[ ${if_backup} = "Y" ]]; then
+            echo "===Backup ${dst_file}.old"
+            mv "${dst_file}" "${dst_file}.old"
+        else
+            rm -rf "${dst_file}"
+        fi
     fi
-    echo -n "===Creating link ---${dst_file}--- to ---${src_file}---... "
-    ln -s "${src_file}" "${dst_file}" &&
+
+    # create link
+    if [[ $link_type = "WIN HARD" ]]; then
+        echo "===LINK Windows ---${dst_file}--- to ---${src_file}---... "
+        if [[ -d ${dst_file} ]]; then
+            cmd /c mklink /J "$(cygpath -aw ${dst_file})" "$(cygpath -aw ${src_file})"
+        else
+            cmd /c mklink /H "$(cygpath -aw ${dst_file})" "$(cygpath -aw ${src_file})"
+        fi
+    elif [[ $link_type = "CP" ]]; then
+        echo -n "===COPY ${dst_file} ---to--- ${src_file} ---... "
+        cp "${src_file}" "${dst_file}"
+    elif [[ $link_type = "LINUX" ]]; then
+        echo -n "===LINK Linux ${dst_file} ---to--- ${src_file} ---... "
+        ln -s "${src_file}" "${dst_file}"
+    else
+        echo "===ERROR: bledny link_type: ${link_type}"
+    fi &&
     {
         echo "Done."
     } ||
     {
-        echo $'\n'"===ERROR!==================="
+        echo $'\n'"===ERROR!================================"
     }
 
 }
@@ -62,38 +105,49 @@ create_link()
 
 __myos="$(uname)"
 __myhost="$(uname -n)"
+__dir_dlocal="$(cd "$(dirname "${__dir}")" && pwd)/dotfiles.local"
+__dir_dlocal="$(readlink -f ${__dir_dlocal})"
+hash cygpath 2>/dev/null && __win_appdata="$(cygpath -au ${APPDATA:-})" || __win_appdata=""
 
-# mkdir -p ~/apps/dotfiles.local
+#Initial cmds:
 mkdir -p ~/.emacs.d/mine
-
+[[ -d ${__win_appdata} ]] && mkdir -p ${__win_appdata}/.emacs.d/mine
 find ${__dir}/bin -type f -not -name 'create_bash.model' -exec chmod +x {} \;
 
+# Basic Links:
 create_link ${__dir} ~/.dotfiles
 create_link ${__dir}/vimrc ~/.vimrc
 create_link ${__dir}/tmux.conf ~/.tmux.conf
 create_link ${__dir}/bashrc ~/.bashrc
-create_link ${__dir}/emacs ~/.emacs
 create_link ${__dir}/gitconfig ~/.gitconfig
 
+# Emacs Linux + Win:
+create_link ${__dir}/emacs ~/.emacs
+[[ -d ${__win_appdata} ]] &&
+    create_link -w -n ${__dir}/emacs ${__win_appdata}/.emacs
+[[ ! -f ~/.emacs.d/mine/key-chord.el ]] &&
+    curl -o ~/.emacs.d/mine/key-chord.el http://www.emacswiki.org/emacs/download/key-chord.el
+[[ -d ${__win_appdata} ]] &&
+    create_link -w -n ~/.emacs.d/mine/key-chord.el ${__win_appdata}/.emacs.d/mine/key-chord.el
+
 # local files:
-__dir_dlocal="$(cd "$(dirname "${__dir}")" && pwd)/dotfiles.local"
-__dir_dlocal="$(readlink -f ${__dir_dlocal})"
 if [[ -d ${__dir_dlocal} ]]; then
     create_link ${__dir_dlocal} ~/.dotfiles.local
     create_link ${__dir_dlocal}/bashrc.local ~/.bashrc.local
     create_link ${__dir_dlocal}/vimrc.local ~/.vimrc.local
     create_link ${__dir_dlocal}/gitconfig.local ~/.gitconfig.local
     create_link ${__dir_dlocal}/emacs.local ~/.emacs.d/mine/.emacs.local
+    [[ -d ${__win_appdata} ]] && create_link -w -n ${__dir_dlocal}/emacs.local ${__win_appdata}/.emacs.d/mine/.emacs.local
 else
     echo "===Error: local dir does not exist=${__dir_dlocal}"
-    __dir_dlocal=""
+    # __dir_dlocal=""
 fi
 
 #Ranger:
 if [[ -d ~/.config/ranger ]]; then
     create_link ${__dir}/rc.conf ~/.config/ranger/rc.conf
     # create_link ${__dir}/rifle.conf ~/.config/ranger/rifle.conf
-    if [[ ! -z "${__dir_dlocal}" ]]; then
+    if [[ -d "${__dir_dlocal}" ]]; then
         case ${__myos} in
             CYGWIN*)
                 if [[ ${__myhost} = AWA* ]]; then
