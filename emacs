@@ -40,11 +40,12 @@
 (load-library ".emacs.local")
 
 
-(setq org-default-notes-file (concat org-base-path "capture_notes.org.gpg")) ;; capture file
+; (setq org-default-notes-file (concat org-base-path "capture_notes.org.gpg")) ;; capture file
 
 ;; add capture file to agenda files:
-(setcdr org-agenda-files (cons org-default-notes-file (cdr org-agenda-files)))
-(setcdr org-agenda-files (cons org-default-notes-file (cdr org-agenda-files)))
+; (setcdr org-agenda-files (cons org-default-notes-file (cdr org-agenda-files)))
+; (setcdr org-agenda-files (cons org-default-notes-file (cdr org-agenda-files)))
+
 
 ;; clocking
 (setq org-src-fontify-natively t) ;; syntax highlighting in begin_src

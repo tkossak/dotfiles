@@ -17,14 +17,29 @@ __dir="$(cd "$(dirname "${__file}")" && pwd)"
 
 # arg1="${1:-}"
 
-# create_link
-# $1 = if -w then create windows link
-#    = if -c then cp instead of creating link
-#    = otherwise create linux link
-#    = can be EMPTY
-# $1 = source file
-# $2 = destination = link path/link
+__myos="$(uname)"
+__myhost="$(uname -n)"
+__dir_dlocal="$(cd "$(dirname "${__dir}")" && pwd)/dotfiles.local"
+__dir_dlocal="$(readlink -f ${__dir_dlocal})"
+hash cygpath 2>/dev/null &&
+    __win_appdata="$(cygpath -au ${APPDATA:-})" || __win_appdata=""
 
+#Initial cmds:
+mkdir -p ~/apps
+mkdir -p ~/.emacs.d/mine
+[[ -d ${__win_appdata} ]] &&
+    mkdir -p ${__win_appdata}/.emacs.d/mine
+find ${__dir}/bin -type f -not -name 'create_bash.model' -exec chmod +x {} \;
+
+# --------------------------------------------------------------------------------
+# create_link
+# $1 = OPTIONAL
+#    = if -w then create windows hard link
+#    = if -c then cp instead of creating link
+#    = otherwise create linux soft link
+#    = can be EMPTY
+# $2 = source file
+# $3 = destination = link path/link
 create_link()
 {
     local parse_params="Y"
@@ -78,7 +93,7 @@ create_link()
     # create link
     if [[ $link_type = "WIN HARD" ]]; then
         echo "===LINK Windows ---${dst_file}--- to ---${src_file}---... "
-        if [[ -d ${dst_file} ]]; then
+        if [[ -d ${src_file} ]]; then
             cmd /c mklink /J "$(cygpath -aw ${dst_file})" "$(cygpath -aw ${src_file})"
         else
             cmd /c mklink /H "$(cygpath -aw ${dst_file})" "$(cygpath -aw ${src_file})"
@@ -101,76 +116,280 @@ create_link()
 
 }
 
+# --------------------------------------------------------------------------------
+# aptget
+# $1 = app name to install (passed to apt-get)
+# $2 = app name to check if it's installed already
+aptget()
+{
+    local instal_cmd=""
+    # local app_install="${1:-}"
+    local app_install="${1:?Error: app name not set}"
+    local app_run="${2:-${1}}"
+
+    # check if app is installed
+    if hash ${app_run} 2>/dev/null; then
+        echo "===${app_run} already installed."
+        return 0
+    fi
+
+    # build instal command
+    # add sudo
+    if hash sudo 2>/dev/null; then
+        instal_cmd="${instal_cmd}sudo "
+    fi
+
+    # add apt-get
+    if hash apt-get 2>/dev/null; then
+        instal_cmd="${instal_cmd}apt-get install -qyf "
+    else
+        echo "===Error: no apt-get tool?"
+        return 1
+    fi
+
+    instal_cmd="${instal_cmd}${app_install}"
+    echo "===${instal_cmd}==="
+    ${instal_cmd}
+}
+
+
+# --------------------------------------------------------------------------------
+# gitclone
+# $1  = git url to clone
+# $2  = git folder to clone to
+# $3- = script to run after cloning
+gitclone()
+{
+    local giturl="${1:?Error: Git url not set}"
+    local gitfolder="${2:?Error: Git folder not set}"
+    shift
+    shift
+    local gitrun=("$@")
+
+    if [[ -d ${gitfolder} ]]; then
+        echo "===Git folder already exists: ${gitfolder}"
+        return
+    fi
+    echo "===git clone ${giturl} ${gitfolder}==="
+    git clone "${giturl}" "${gitfolder}" ||
+    {
+        echo "===Git clone exited with Error: $? ${giturl} ${gitfolder}"
+        return 0
+    }
+
+    # if [[ $? != 0 ]]; then
+    #     echo "===Git clone exited with Error: $? ${giturl} ${gitfolder}"
+    #     return 0
+    # fi
+
+    cd ${gitfolder}
+    for run in "${gitrun[@]:-}" ; do
+        echo "===run ${run}"
+        ${run}
+    done
+
+}
+
+# --------------------------------------------------------------------------------
+# break_links()
+break_links()
+{
+    echo "===<<< BREAKING LINKS >>>==="
+    for link in ~/.tmux.conf ~/.vimrc ~/.vimrc.local ~/.bashrc ~/.bashrc.local ~/.emacs ~/.emacs.d/mine/.emacs.local ~/.gitconfig ~/.gitconfig.local ~/.config/ranger/rc.conf ~/.config/ranger/rifle.conf; do
+        if [[ -L "$link" ]]; then
+            echo -n "${link}..."
+            cp --remove-destination "$(readlink ${link})" ${link}
+            echo " Done."
+        else
+            echo "Not a link: ${link}"
+        fi
+    done
+    echo "===<<< DONE BREAKING LINKS >>>==="
+}
+
+# --------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------
+# install_dotfiles
+install_dotfiles()
+{
+    echo "===<<< INSTALLING DOTFILES >>>==="
+
+    # Folders:
+    create_link ${__dir} ~/.dotfiles
+    [[ -d ${__dir_dlocal} ]] && create_link ${__dir_dlocal} ~/.dotfiles.local
+
+    # TMUX
+    create_link ${__dir}/tmux.conf ~/.tmux.conf
+
+    # Git
+    create_link ${__dir}/gitconfig ~/.gitconfig
+    [[ -d ${__dir_dlocal} ]] && create_link ${__dir_dlocal}/gitconfig.local ~/.gitconfig.local
+
+    # Bash:
+    create_link ${__dir}/bashrc ~/.bashrc
+    [[ -d ${__dir_dlocal} ]] && create_link ${__dir_dlocal}/bashrc.local ~/.bashrc.local
+
+
+    # Vim
+    create_link ${__dir}/vimrc ~/.vimrc
+    [[ -d ${__dir_dlocal} ]] && create_link ${__dir_dlocal}/vimrc.local ~/.vimrc.local
+
+    # Emacs Linux:
+    create_link ${__dir}/emacs ~/.emacs
+    [[ -d ${__dir_dlocal} ]] && create_link ${__dir_dlocal}/emacs.local ~/.emacs.d/mine/.emacs.local
+    [[ ! -f ~/.emacs.d/mine/key-chord.el ]] && curl -o ~/.emacs.d/mine/key-chord.el http://www.emacswiki.org/emacs/download/key-chord.el
+    gitclone https://gitorious.org/evil/evil.git ~/.emacs.d/evil
+
+    # Emacs Win:
+    [[ -d ${__win_appdata} ]] && create_link -w -n ${__dir}/emacs ${__win_appdata}/.emacs
+    [[ -d ${__dir_dlocal} && -d ${__win_appdata} ]] && create_link -w -n ${__dir_dlocal}/emacs.local ${__win_appdata}/.emacs.d/mine/.emacs.local
+    [[ -d ${__win_appdata} ]] && create_link -w -n ~/.emacs.d/mine/key-chord.el ${__win_appdata}/.emacs.d/mine/key-chord.el
+    [[ -d ${__win_appdata} ]] && create_link -w -n ~/.emacs.d/evil ${__win_appdata}/.emacs.d/evil
+
+    # local files:
+    if [[ -d ${__dir_dlocal} ]]; then
+        create_link ${__dir_dlocal} ~/.dotfiles.local
+        create_link ${__dir_dlocal}/bashrc.local ~/.bashrc.local
+        create_link ${__dir_dlocal}/vimrc.local ~/.vimrc.local
+        create_link ${__dir_dlocal}/gitconfig.local ~/.gitconfig.local
+        create_link ${__dir_dlocal}/emacs.local ~/.emacs.d/mine/.emacs.local
+        [[ -d ${__win_appdata} ]] && create_link -w -n ${__dir_dlocal}/emacs.local ${__win_appdata}/.emacs.d/mine/.emacs.local
+    else
+        echo "===Error: local dir does not exist=${__dir_dlocal}"
+        # __dir_dlocal=""
+    fi
+
+    #Ranger:
+    if [[ -d ~/.config/ranger ]]; then
+        create_link ${__dir}/rc.conf ~/.config/ranger/rc.conf
+        create_link ${__dir}/rifle.conf ~/.config/ranger/rifle.conf
+        if [[ -d "${__dir_dlocal}" ]]; then
+            case ${__myos} in
+                CYGWIN*)
+                    if [[ ${__myhost} = AWA* ]]; then
+                        create_link ~/.dotfiles.local/rifle.conf.work.cygwin ~/.config/ranger/rifle.conf
+                    elif [[ ${__myhost} = HEAVEN ]]; then
+                        create_link ~/.dotfiles.local/rifle.conf.home.cygwin ~/.config/ranger/rifle.conf
+                    fi
+                    ;;
+                Linux)
+                    if [[ ${__myhost} = LMQ ]]; then
+                        create_link ~/.dotfiles.local/rifle.conf.home.linux ~/.config/ranger/rifle.conf
+                    fi
+                    ;;
+                *)
+                    echo "Error: Unknown host."
+                    ;;
+            esac
+        fi
+    else
+        echo "===Ranger folder not found. Not creating links."
+    fi
+
+    vim +PluginInstall +PluginClean +qall
+
+    echo "===<<< DONE INSTALLING DOTFILES >>>==="
+
+}
+
+# -------------------------------------------------------
+# install_basics
+install_basics()
+{
+
+    echo "===<<< INSTALLING BASICS >>>==="
+    break_links
+
+    # Basic
+    aptget git
+    aptget vim
+    gitclone https://github.com/gmarik/Vundle.vim.git ~/.vim/bundle/Vundle.vim
+    aptget python-pip pip
+    aptget python3-pip pip3
+
+    # fasd
+    gitclone https://github.com/clvv/fasd.git ~/apps/fasd "sudo make install"
+
+    # commacd
+    if [[ ! -f ~/.commacd.bash ]]; then
+        curl https://raw.githubusercontent.com/shyiko/commacd/master/commacd.bash -o ~/.commacd.bash
+    fi
+
+    # fzf
+    if [[ ! -d ~/.fzf ]]; then
+        git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install
+    fi
+
+    # Ranger
+    # rm -rf ~/apps/ranger ~/.config/ranger
+    gitclone https://github.com/hut/ranger.git ~/apps/ranger "sudo make install" "ranger --copy-config=all"
+
+    # TMUX
+    aptget tmux
+
+    # Emacs
+    aptget emacs
+
+    #Reszta
+    python -c "help('modules');" 2>/dev/null | grep -q '\bbs4\b' || sudo pip3 install BeautifulSoup4
+    hash flake8 2>/dev/null || sudo pip3 install flake8
+    hash bashate 2>/dev/null || sudo pip3 install bashate
+    hash speedtest 2>/dev/null || sudo pip install speedtest-cli
+    hash http 2>/dev/null || sudo pip install httpie
+    hash dtrx 2>/dev/null || aptget dtrx
+
+    gitclone https://github.com/VitaliyRodnenko/geeknote.git ~/apps/geeknote "sudo python setup.py install" "geeknote settings --editor vim"
+    # geeknote login
+    echo "===<<< DONE INSTALLING BASICS >>>==="
+
+}
+
+# -------------------------------------------------------
+# -------------------------------------------------------
 # -------------------------------------------------------
 
-__myos="$(uname)"
-__myhost="$(uname -n)"
-__dir_dlocal="$(cd "$(dirname "${__dir}")" && pwd)/dotfiles.local"
-__dir_dlocal="$(readlink -f ${__dir_dlocal})"
-hash cygpath 2>/dev/null && __win_appdata="$(cygpath -au ${APPDATA:-})" || __win_appdata=""
 
-#Initial cmds:
-mkdir -p ~/.emacs.d/mine
-[[ -d ${__win_appdata} ]] && mkdir -p ${__win_appdata}/.emacs.d/mine
-find ${__dir}/bin -type f -not -name 'create_bash.model' -exec chmod +x {} \;
+if_dotfiles="N"
+if_basics="N"
+if_break_links="N"
 
-# Basic Links:
-create_link ${__dir} ~/.dotfiles
-create_link ${__dir}/vimrc ~/.vimrc
-create_link ${__dir}/tmux.conf ~/.tmux.conf
-create_link ${__dir}/bashrc ~/.bashrc
-create_link ${__dir}/gitconfig ~/.gitconfig
+[[ $# = 0 ]] && if_dotfiles="Y"
 
-# Emacs Linux + Win:
-create_link ${__dir}/emacs ~/.emacs
-[[ -d ${__win_appdata} ]] &&
-    create_link -w -n ${__dir}/emacs ${__win_appdata}/.emacs
-[[ ! -f ~/.emacs.d/mine/key-chord.el ]] &&
-    curl -o ~/.emacs.d/mine/key-chord.el http://www.emacswiki.org/emacs/download/key-chord.el
-[[ -d ${__win_appdata} ]] &&
-    create_link -w -n ~/.emacs.d/mine/key-chord.el ${__win_appdata}/.emacs.d/mine/key-chord.el
+while [[ $# > 0 ]]; do
+    case "$1" in
+        -h|--help)
+            echo "CLI options:"
+            echo "  -d  :: install dotfiles"
+            echo "  -b  :: install basic apps"
+            echo "  -a  :: install all/everything"
+            echo "  -bl :: break links"
+            exit 0
+            ;;
+        -d)
+            shift
+            if_dotfiles="Y"
+            ;;
+        -b)
+            shift
+            if_basics="Y"
+            ;;
+        -bl)
+            shift
+            if_break_links="Y"
+            ;;
+        -a)
+            shift
+            if_dotfiles="Y"
+            if_basics="Y"
+            ;;
+        *)
+            echo "Unknown options $1"
+            exit 1
+            ;;
+    esac
+done
 
-# local files:
-if [[ -d ${__dir_dlocal} ]]; then
-    create_link ${__dir_dlocal} ~/.dotfiles.local
-    create_link ${__dir_dlocal}/bashrc.local ~/.bashrc.local
-    create_link ${__dir_dlocal}/vimrc.local ~/.vimrc.local
-    create_link ${__dir_dlocal}/gitconfig.local ~/.gitconfig.local
-    create_link ${__dir_dlocal}/emacs.local ~/.emacs.d/mine/.emacs.local
-    [[ -d ${__win_appdata} ]] && create_link -w -n ${__dir_dlocal}/emacs.local ${__win_appdata}/.emacs.d/mine/.emacs.local
-else
-    echo "===Error: local dir does not exist=${__dir_dlocal}"
-    # __dir_dlocal=""
-fi
-
-#Ranger:
-if [[ -d ~/.config/ranger ]]; then
-    create_link ${__dir}/rc.conf ~/.config/ranger/rc.conf
-    # create_link ${__dir}/rifle.conf ~/.config/ranger/rifle.conf
-    if [[ -d "${__dir_dlocal}" ]]; then
-        case ${__myos} in
-            CYGWIN*)
-                if [[ ${__myhost} = AWA* ]]; then
-                    create_link ~/.dotfiles.local/rifle.conf.work.cygwin ~/.config/ranger/rifle.conf
-                elif [[ ${__myhost} = HEAVEN ]]; then
-                    create_link ~/.dotfiles.local/rifle.conf.home.cygwin ~/.config/ranger/rifle.conf
-                fi
-                ;;
-            Linux)
-                if [[ ${__myhost} = HEAVEN ]]; then
-                    create_link ~/.dotfiles.local/rifle.conf.home.linux ~/.config/ranger/rifle.conf
-                fi
-                ;;
-            *)
-                echo "Error: Unknown host."
-                ;;
-        esac
-    fi
-else
-    echo "===Ranger folder not found. Not creating links."
-fi
-
-vim +PluginInstall +PluginClean +qall
-
-echo "===Links done."
-
+[[ ${if_break_links} = "Y" ]] && break_links
+[[ ${if_basics} = "Y" ]] && install_basics
+[[ ${if_dotfiles} = "Y" ]] && install_dotfiles
