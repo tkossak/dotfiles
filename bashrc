@@ -150,8 +150,14 @@ t() { wget -U "Mozilla/5.0" -qO - "http://translate.google.com/translate_a/t?cli
 
 function ranger-cd
 {
-    tempfile='/tmp/chosendir'
-    /usr/bin/ranger --choosedir="$tempfile" "${@:-$(pwd)}"
+    local tempfile='/tmp/chosendir'
+    if [[ -f /usr/bin/ranger ]]; then
+        local ranger_path="/usr/bin/ranger"
+    elif [[ -f /usr/local/bin/ranger ]]; then
+        local ranger_path="/usr/local/bin/ranger"
+    fi
+
+    ${ranger_path} --choosedir="$tempfile" "${@:-$(pwd)}"
     test -f "$tempfile" &&
     if [ "$(cat -- "$tempfile")" != "$(echo -n `pwd`)" ]; then
         cd -- "$(cat "$tempfile")"

@@ -64,7 +64,7 @@ __myos="$(uname)"
 __myhost="$(uname -n)"
 
 # mkdir -p ~/apps/dotfiles.local
-mkdir ~/.emacs.d/mine
+mkdir -p ~/.emacs.d/mine
 
 find ${__dir}/bin -type f -not -name 'create_bash.model' -exec chmod +x {} \;
 
