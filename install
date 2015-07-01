@@ -170,5 +170,7 @@ else
     echo "===Ranger folder not found. Not creating links."
 fi
 
+vim +PluginInstall +PluginClean +qall
+
 echo "===Links done."
 

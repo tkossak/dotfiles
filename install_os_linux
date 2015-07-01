@@ -104,9 +104,9 @@ gitclone()
 # -------------------------------------------------------------------------------------------
 
 # update repository
-if hash apt-get 2>/dev/null; then
-    sudo apt-get update
-fi
+# if hash apt-get 2>/dev/null; then
+#     sudo apt-get update
+# fi
 
 # BREAK_links
 ./break_links
@@ -148,8 +148,8 @@ curl -o ~/.emacs.d/key-chord.el http://www.emacswiki.org/emacs/download/key-chor
 sudo pip3 install -U BeautifulSoup4
 sudo pip3 install -U flake8
 sudo pip3 install -U bashate
-sudo pip install -U speedtest-cli
-sudo pip install -U httpie
+hash speedtest 2>/dev/null || sudo pip install -U speedtest-cli
+hash http 2>/dev/null || sudo pip install -U httpie
 aptget dtrx
 
 
