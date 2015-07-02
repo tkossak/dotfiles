@@ -2,6 +2,7 @@
 
 # TODO: force update (new switch) - delete apps and reinstall them
 # TODO: curlinstall() - with remove and download param
+# TODO: add checking sha1sum to curlinstall()
 
 set -o errexit
 set -o pipefail
@@ -36,7 +37,7 @@ mkdir -p ~/.emacs.d/mine
 [[ -d ${__win_appdata} ]] &&
     mkdir -p ${__win_appdata}/.emacs.d/mine
 find ${__dir}/bin -type f -not -name 'create_bash.model' -exec chmod +x {} \;
-find ${__dir} -type f -not -name 'install' -exec chmod -x {} \;
+find ${__dir} -maxdepth 1 -type f -not -name 'install' -exec chmod -x {} \;
 
 # --------------------------------------------------------------------------------
 # create_link
@@ -293,12 +294,14 @@ install_dotfiles()
     # Emacs Linux:
     create_link ${__dir}/emacs ~/.emacs
     [[ -d ${__dir_dlocal} ]] && create_link ${__dir_dlocal}/emacs.local ~/.emacs.d/mine/.emacs.local
+    [[ ! -f ~/.emacs.d/mine/evil-leader.el ]] && curl -o ~/.emacs.d/mine/evil-leader.el https://raw.githubusercontent.com/cofi/evil-leader/master/evil-leader.el
     [[ ! -f ~/.emacs.d/mine/key-chord.el ]] && curl -o ~/.emacs.d/mine/key-chord.el http://www.emacswiki.org/emacs/download/key-chord.el
     gitclone https://gitorious.org/evil/evil.git ~/.emacs.d/evil
 
     # Emacs Win:
     [[ -d ${__win_appdata} ]] && create_link -w -n ${__dir}/emacs ${__win_appdata}/.emacs
     [[ -d ${__dir_dlocal} && -d ${__win_appdata} ]] && create_link -w -n ${__dir_dlocal}/emacs.local ${__win_appdata}/.emacs.d/mine/.emacs.local
+    [[ -d ${__win_appdata} ]] && create_link -w -n ~/.emacs.d/mine/evil-leader.el ${__win_appdata}/.emacs.d/mine/evil-leader.el
     [[ -d ${__win_appdata} ]] && create_link -w -n ~/.emacs.d/mine/key-chord.el ${__win_appdata}/.emacs.d/mine/key-chord.el
     [[ -d ${__win_appdata} ]] && create_link -w -n ~/.emacs.d/evil ${__win_appdata}/.emacs.d/evil
 

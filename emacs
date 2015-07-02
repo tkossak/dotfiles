@@ -91,10 +91,12 @@ ad-do-it
 ;; package-archives)
 
 ;; ====================================================================
+;; EVIL MODE
+;; ====================================================================
+
 ;; Evil-Leader
-;; (setq evil-leader/in-all-states 1)
-;; (global-evil-leader-mode)
-;; (evil-leader/set-leader ",")
+(require 'evil-leader)
+(global-evil-leader-mode)
 
 ;; enable evil mode
 (add-to-list 'load-path "~/.emacs.d/evil/lib")
