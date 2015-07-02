@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 # TODO: force update (new switch) - delete apps and reinstall them
-# TODO: curlinstall() - with remove and download param
 # TODO: add checking sha1sum to curlinstall()
 
 set -o errexit
@@ -198,6 +197,60 @@ gitclone()
 
 
 # --------------------------------------------------------------------------------
+# geturl
+# $1 = options
+#      -u  :: update (delete the file/folder and redownload it)
+# $1 = url to download
+# $2 = filename to save as
+
+geturl()
+{
+    local update=""
+    local url
+    local file
+    while [[ $# > 0 ]]; do
+        case "$1" in
+            -u)
+                shift
+                update="Y"
+                ;;
+            *)
+                break;
+                ;;
+        esac
+    done
+    url="${1}"
+    file="${2}"
+    tmpfile="${file}#.#"
+
+    # [[ ! -z "${file}" ]] && file="-o ${file}"
+
+    if [[ "${update}" = "Y" ]]; then
+        mv "${file}" "${tmpfile}"
+    elif [[ -e ${file} ]]; then
+        echo "===[U] File/dir already exists: ${file}"
+        return 0
+    fi
+
+    echo "===[U] Downloading ${url}..."
+    curl -o ${file} ${url} \
+        ||
+        {
+            echo "===[U] ERROR!"
+            mv ${tmpfile} ${file}
+        } \
+        &&
+        {
+            echo "===[U] Done."
+            if [[ "${update}" = "Y" ]]; then
+                rm -rf "${tmpfile}"
+            fi
+        }
+
+}
+
+
+# --------------------------------------------------------------------------------
 # pipinstall
 # $1 = options
 #      -2  :: pip2
@@ -240,8 +293,6 @@ pipinstall()
     ${__sudo} ${pip} install ${update} ${cmdinstall} \
         && echo "===[P] Done." \
         || echo "===[P] ERROR!"
-
-
 }
 
 
@@ -294,8 +345,10 @@ install_dotfiles()
     # Emacs Linux:
     create_link ${__dir}/emacs ~/.emacs
     [[ -d ${__dir_dlocal} ]] && create_link ${__dir_dlocal}/emacs.local ~/.emacs.d/mine/.emacs.local
-    [[ ! -f ~/.emacs.d/mine/evil-leader.el ]] && curl -o ~/.emacs.d/mine/evil-leader.el https://raw.githubusercontent.com/cofi/evil-leader/master/evil-leader.el
-    [[ ! -f ~/.emacs.d/mine/key-chord.el ]] && curl -o ~/.emacs.d/mine/key-chord.el http://www.emacswiki.org/emacs/download/key-chord.el
+    geturl https://raw.githubusercontent.com/cofi/evil-leader/master/evil-leader.el ~/.emacs.d/mine/evil-leader.el
+    # [[ ! -f ~/.emacs.d/mine/evil-leader.el ]] && curl -o ~/.emacs.d/mine/evil-leader.el https://raw.githubusercontent.com/cofi/evil-leader/master/evil-leader.el
+    geturl http://www.emacswiki.org/emacs/download/key-chord.el ~/.emacs.d/mine/key-chord.el
+    # [[ ! -f ~/.emacs.d/mine/key-chord.el ]] && curl -o ~/.emacs.d/mine/key-chord.el http://www.emacswiki.org/emacs/download/key-chord.el
     gitclone https://gitorious.org/evil/evil.git ~/.emacs.d/evil
 
     # Emacs Win:
@@ -335,24 +388,24 @@ install_dotfiles()
                 CYGWIN*)
                     if [[ ${__myhost} = AWA* ]]; then
                         # create_link ~/.dotfiles.local/rifle.conf.work.cygwin ~/.config/ranger/rifle.conf
-                        cat ~/.config/ranger/rifle.conf ${__dir_dlocal}/rifle.conf.work.cygwin > ~/.config/ranger/rifletmp.conf 
+                        cat ~/.config/ranger/rifle.conf ${__dir_dlocal}/rifle.conf.work.cygwin > ~/.config/ranger/rifletmp.conf
                         mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
                     elif [[ ${__myhost} = HEAVEN ]]; then
                         # create_link ~/.dotfiles.local/rifle.conf.home.cygwin ~/.config/ranger/rifle.conf
-                        cat ~/.config/ranger/rifle.conf ${__dir_dlocal}/rifle.conf.home.cygwin > ~/.config/ranger/rifletmp.conf 
+                        cat ~/.config/ranger/rifle.conf ${__dir_dlocal}/rifle.conf.home.cygwin > ~/.config/ranger/rifletmp.conf
                         mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
                     fi
                     ;;
                 Linux)
                     if [[ ${__myhost} = LMQ ]]; then
                         # create_link ~/.dotfiles.local/rifle.conf.home.linux ~/.config/ranger/rifle.conf
-                        cat ~/.config/ranger/rifle.conf ${__dir_dlocal}/rifle.conf.home.linux > ~/.config/ranger/rifletmp.conf 
+                        cat ~/.config/ranger/rifle.conf ${__dir_dlocal}/rifle.conf.home.linux > ~/.config/ranger/rifletmp.conf
                         mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
                     fi
                     ;;
                 *)
                     echo "Unknown host: copying default rifle.conf"
-                    cat ~/.config/ranger/rifle.conf ${__dir}/rifle.conf > ~/.config/ranger/rifletmp.conf 
+                    cat ~/.config/ranger/rifle.conf ${__dir}/rifle.conf > ~/.config/ranger/rifletmp.conf
                     mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
                     ;;
             esac
