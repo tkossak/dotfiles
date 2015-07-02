@@ -346,9 +346,7 @@ install_dotfiles()
     create_link ${__dir}/emacs ~/.emacs
     [[ -d ${__dir_dlocal} ]] && create_link ${__dir_dlocal}/emacs.local ~/.emacs.d/mine/.emacs.local
     geturl https://raw.githubusercontent.com/cofi/evil-leader/master/evil-leader.el ~/.emacs.d/mine/evil-leader.el
-    # [[ ! -f ~/.emacs.d/mine/evil-leader.el ]] && curl -o ~/.emacs.d/mine/evil-leader.el https://raw.githubusercontent.com/cofi/evil-leader/master/evil-leader.el
     geturl http://www.emacswiki.org/emacs/download/key-chord.el ~/.emacs.d/mine/key-chord.el
-    # [[ ! -f ~/.emacs.d/mine/key-chord.el ]] && curl -o ~/.emacs.d/mine/key-chord.el http://www.emacswiki.org/emacs/download/key-chord.el
     gitclone https://gitorious.org/evil/evil.git ~/.emacs.d/evil
 
     # Emacs Win:
@@ -441,9 +439,7 @@ install_basics()
     gitclone https://github.com/clvv/fasd.git ~/apps/fasd "${__sudo} make install"
 
     # commacd
-    if [[ ! -f ~/.commacd.bash ]]; then
-        curl https://raw.githubusercontent.com/shyiko/commacd/master/commacd.bash -o ~/.commacd.bash
-    fi
+    geturl https://raw.githubusercontent.com/shyiko/commacd/master/commacd.bash ~/.commacd.bash
 
     # fzf
     if [[ ! -d ~/.fzf ]]; then
