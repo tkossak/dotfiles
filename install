@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 # TODO: force update (new switch) - delete apps and reinstall them
+# TODO: curlinstall() - with remove and download param
 
 set -o errexit
 set -o pipefail
@@ -25,6 +26,9 @@ __dir_dlocal="$(cd "$(dirname "${__dir}")" && pwd)/dotfiles.local"
 __dir_dlocal="$(readlink -f ${__dir_dlocal})"
 hash cygpath 2>/dev/null &&
     __win_appdata="$(cygpath -au ${APPDATA:-})" || __win_appdata=""
+hash sudo 2>/dev/null &&
+    __sudo="sudo" ||
+    __sudo=""
 
 #Initial cmds:
 mkdir -p ~/apps
@@ -125,33 +129,31 @@ create_link()
 # $2 = app name to check if it's installed already
 aptget()
 {
-    local instal_cmd=""
+    local instal_cmd="${__sudo} "
     # local app_install="${1:-}"
     local app_install="${1:?Error: app name not set}"
     local app_run="${2:-${1}}"
 
     # check if app is installed
     if hash ${app_run} 2>/dev/null; then
-        echo "===${app_run} already installed."
+        echo "===[A] ${app_run} already installed."
         return 0
     fi
 
     # build instal command
     # add sudo
-    if hash sudo 2>/dev/null; then
-        instal_cmd="${instal_cmd}sudo "
-    fi
+    # instal_cmd="${instal_cmd}sudo "
 
     # add apt-get
     if hash apt-get 2>/dev/null; then
         instal_cmd="${instal_cmd}apt-get install -qyf "
     else
-        echo "===Error: no apt-get tool?"
+        echo "===[A] Error: no apt-get tool?"
         return 1
     fi
 
     instal_cmd="${instal_cmd}${app_install}"
-    echo "===${instal_cmd}==="
+    echo "===[A] ${instal_cmd}==="
     ${instal_cmd}
 }
 
@@ -170,13 +172,13 @@ gitclone()
     local gitrun=("$@")
 
     if [[ -d ${gitfolder} ]]; then
-        echo "===Git folder already exists: ${gitfolder}"
+        echo "===[G] folder already exists: ${gitfolder}"
         return
     fi
-    echo "===git clone ${giturl} ${gitfolder}==="
+    echo "===[G] git clone ${giturl} ${gitfolder}==="
     git clone "${giturl}" "${gitfolder}" ||
     {
-        echo "===Git clone exited with Error: $? ${giturl} ${gitfolder}"
+        echo "===[G] Git clone exited with Error: $? ${giturl} ${gitfolder}"
         return 0
     }
 
@@ -187,11 +189,60 @@ gitclone()
 
     cd ${gitfolder}
     for run in "${gitrun[@]:-}" ; do
-        echo "===run ${run}"
+        echo "===[G] run ${run}"
         ${run}
     done
 
 }
+
+
+# --------------------------------------------------------------------------------
+# pipinstall
+# $1 = options
+#      -2  :: pip2
+#      -3  :: pip3
+#      -u  :: update
+# $1 = app name to install
+pipinstall()
+{
+    local pip="pip"
+    local update=""
+    local cmdinstall=""
+    while [[ $# > 0 ]]; do
+        case "$1" in
+            -2)
+                shift
+                pip="pip2"
+                ;;
+            -3)
+                shift
+                pip="pip3"
+                ;;
+            -u)
+                shift
+                update="-U"
+                ;;
+            *)
+                break;
+                ;;
+        esac
+    done
+    cmdinstall="${1}"
+
+    if ${pip} -q show ${cmdinstall}; then # app is installed
+        if [[ -z "${update}" ]]; then
+            echo "===[P] app already installed: ${cmdinstall}"
+            return 0
+        fi
+    fi
+    echo "===[P] installing ${cmdinstall}..."
+    ${__sudo} ${pip} install ${update} ${cmdinstall} \
+        && echo "===[P] Done." \
+        || echo "===[P] ERROR!"
+
+
+}
+
 
 # --------------------------------------------------------------------------------
 # break_links()
@@ -329,7 +380,7 @@ install_basics()
     aptget python3-pip pip3
 
     # fasd
-    gitclone https://github.com/clvv/fasd.git ~/apps/fasd "sudo make install"
+    gitclone https://github.com/clvv/fasd.git ~/apps/fasd "${__sudo} make install"
 
     # commacd
     if [[ ! -f ~/.commacd.bash ]]; then
@@ -343,7 +394,7 @@ install_basics()
 
     # Ranger
     # rm -rf ~/apps/ranger ~/.config/ranger
-    gitclone https://github.com/hut/ranger.git ~/apps/ranger "sudo make install" "ranger --copy-config=all"
+    gitclone https://github.com/hut/ranger.git ~/apps/ranger "${__sudo} make install" "ranger --copy-config=all"
 
     # TMUX
     aptget tmux
@@ -352,14 +403,15 @@ install_basics()
     aptget emacs
 
     #Reszta
-    python -c "help('modules');" 2>/dev/null | grep -q '\bbs4\b' || sudo pip3 install BeautifulSoup4
-    hash flake8 2>/dev/null || sudo pip3 install flake8
-    hash bashate 2>/dev/null || sudo pip3 install bashate
-    hash speedtest 2>/dev/null || sudo pip install speedtest-cli
-    hash http 2>/dev/null || sudo pip install httpie
-    hash dtrx 2>/dev/null || aptget dtrx
+    pipinstall -3 BeautifulSoup4
+    pipinstall -3 flake8
+    pipinstall -3 bashate
+    pipinstall -2 speedtest-cli
+    pipinstall httpie
+    # hash dtrx 2>/dev/null || aptget dtrx
+    aptget dtrx
 
-    gitclone https://github.com/VitaliyRodnenko/geeknote.git ~/apps/geeknote "sudo python setup.py install" "geeknote settings --editor vim"
+    gitclone https://github.com/VitaliyRodnenko/geeknote.git ~/apps/geeknote "${__sudo} python setup.py install" "geeknote settings --editor vim"
     # geeknote login
     echo "===<<< DONE INSTALLING BASICS >>>==="
 
