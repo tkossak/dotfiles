@@ -228,9 +228,9 @@ nnoremap <Leader>w :update<CR>
 " Quick quit command
 nnoremap <Leader>e :quit<CR>
 vnoremap <Leader>e :<BS><BS><BS><BS><BS>quit<CR>
-nnoremap <Leader>E :qa!<CR>
+nnoremap <Leader>E :qa<CR>
+nnoremap <Leader>Q :qa!<CR>
 " copy whole buffer to os clipboard
-" nnoremap <Leader>a ggVG"+ygv
 nnoremap <Leader>a gg"+yG
 
 " easy buffer

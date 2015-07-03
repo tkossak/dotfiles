@@ -1,14 +1,14 @@
 
 ;; Packages
 (setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
-("org" . "http://orgmode.org/elpa/")
-("marmalade" . "http://marmalade-repo.org/packages/")
-("melpa-stable" . "http://melpa-stable.milkbox.net/packages/")))
+                         ("org" . "http://orgmode.org/elpa/")
+                         ("marmalade" . "http://marmalade-repo.org/packages/")
+                         ("melpa-stable" . "http://melpa-stable.milkbox.net/packages/")))
 (package-initialize)
 
 (if (file-accessible-directory-p "~/.emacs.d/mine")
-  (add-to-list 'load-path "~/.emacs.d/mine")
-)
+    (add-to-list 'load-path "~/.emacs.d/mine")
+  )
 
 ;; ====================================================================
 ;; org mode
@@ -16,6 +16,7 @@
 (define-key global-map "\C-cl" 'org-store-link)
 (define-key global-map "\C-ca" 'org-agenda)
 (define-key global-map "\C-cc" 'org-capture)
+
 (setq org-log-done t)
 (setq org-agenda-skip-deadline-prewarning-if-scheduled t)
 (setq org-agenda-restore-windows-after-quit t)
@@ -24,9 +25,9 @@
 ;;(setq org-log-redeadline 'time) ; log changes to deadlines
 ;;(setq org-log-reschedule 'time) ; log changes to schedules
 
-; Targets include this file and any file contributing to the agenda - up to 9 levels deep
+                                        ; Targets include this file and any file contributing to the agenda - up to 9 levels deep
 (setq org-refile-targets (quote ((nil :maxlevel . 9)
-(org-agenda-files :maxlevel . 9))))
+                                 (org-agenda-files :maxlevel . 9))))
 (setq org-archive-reversed-order t)
 (setq org-archive-location "archive/archive_%s::") ; archive location
 ;; Use full outline paths for refile targets - we file directly with IDO
@@ -34,17 +35,17 @@
 ;; Targets complete directly with IDO
 (setq org-outline-path-complete-in-steps t)
 
-; treat _ as part of the word (for example to use in "ciw")
+                                        ; treat _ as part of the word (for example to use in "ciw")
 (modify-syntax-entry ?_ "w")
 
 (load-library ".emacs.local")
 
 
-; (setq org-default-notes-file (concat org-base-path "capture_notes.org.gpg")) ;; capture file
+                                        ; (setq org-default-notes-file (concat org-base-path "capture_notes.org.gpg")) ;; capture file
 
 ;; add capture file to agenda files:
-; (setcdr org-agenda-files (cons org-default-notes-file (cdr org-agenda-files)))
-; (setcdr org-agenda-files (cons org-default-notes-file (cdr org-agenda-files)))
+                                        ; (setcdr org-agenda-files (cons org-default-notes-file (cdr org-agenda-files)))
+                                        ; (setcdr org-agenda-files (cons org-default-notes-file (cdr org-agenda-files)))
 
 
 ;; clocking
@@ -54,35 +55,38 @@
 (setq org-clock-report-include-clocking-task "t")
 
 (setq org-agenda-clock-consistency-checks
-(quote
-(:max-duration "10:00" :min-duration "00:01" :max-gap "0:00" :gap-ok-around
-("00:00")
-:default-face
-((:background "DarkRed")
-(:foreground "white"))
-:overlap-face nil :gap-face nil :no-end-time-face nil :long-face nil :short-face nil))
-)
+      (quote
+       (:max-duration "10:00" :min-duration "00:01" :max-gap "0:00" :gap-ok-around
+                      ("00:00")
+                      :default-face
+                      ((:background "DarkRed")
+                       (:foreground "white"))
+                      :overlap-face nil :gap-face nil :no-end-time-face nil :long-face nil :short-face nil))
+      )
 
+; clocksums display hours, not days:
+(setq org-time-clocksum-format
+      '(:hours "%d" :require-hours t :minutes ":%02d" :require-minutes t))
 
-; ======================================================================
+                                        ; ======================================================================
 ;; for EasyPG
 (if (file-readable-p "C:/cygwin64/bin/gpg.exe")
-(setq epg-gpg-program "C:/cygwin64/bin/gpg.exe")
-(if (file-readable-p "C:/cygwin/bin/gpg.exe")
-(setq epg-gpg-program "C:/cygwin/bin/gpg.exe")
-(if (file-readable-p "/usr/bin/gpg")
-(setq epg-gpg-program "/usr/bin/gpg")
-)
-)
-)
+    (setq epg-gpg-program "C:/cygwin64/bin/gpg.exe")
+  (if (file-readable-p "C:/cygwin/bin/gpg.exe")
+      (setq epg-gpg-program "C:/cygwin/bin/gpg.exe")
+    (if (file-readable-p "/usr/bin/gpg")
+        (setq epg-gpg-program "/usr/bin/gpg")
+      )
+    )
+  )
 (setq epa-file-cache-passphrase-for-symmetric-encryption "true")
 
 ;; Do not use gpg agent when runing in terminal
 (defadvice epg--start (around advice-epg-disable-agent activate)
-(let ((agent (getenv "GPG_AGENT_INFO")))
-(setenv "GPG_AGENT_INFO" nil)
-ad-do-it
-(setenv "GPG_AGENT_INFO" agent)))
+  (let ((agent (getenv "GPG_AGENT_INFO")))
+    (setenv "GPG_AGENT_INFO" nil)
+    ad-do-it
+    (setenv "GPG_AGENT_INFO" agent)))
 
 ;; (require 'package)
 ;; (push '("marmalade" . "http://marmalade-repo.org/packages/")
@@ -95,8 +99,6 @@ ad-do-it
 ;; ====================================================================
 
 ;; Evil-Leader
-(require 'evil-leader)
-(global-evil-leader-mode)
 
 ;; enable evil mode
 (add-to-list 'load-path "~/.emacs.d/evil/lib")
@@ -104,20 +106,30 @@ ad-do-it
 (setq evil-want-C-i-jump nil)
 
 (require 'evil)
+(require 'evil-leader)
+
+(global-evil-leader-mode)
+(evil-leader/set-leader "<SPC>")
+(evil-leader/set-key
+  "w" 'save-buffer
+  "W" 'save-some-buffers
+  "e" 'kill-buffer
+  "E" 'save-buffers-kill-terminal)
+
 (evil-mode 1)
 
 ;; Remap org-mode meta keys for convenience
 (mapcar (lambda (state)
-    (evil-declare-key state org-mode-map
-      (kbd "M-l") 'org-metaright
-      (kbd "M-h") 'org-metaleft
-      (kbd "M-k") 'org-metaup
-      (kbd "M-j") 'org-metadown
-      (kbd "M-L") 'org-shiftmetaright
-      (kbd "M-H") 'org-shiftmetaleft
-      (kbd "M-K") 'org-shiftmetaup
-      (kbd "M-J") 'org-shiftmetadown))
-  '(normal insert))
+          (evil-declare-key state org-mode-map
+            (kbd "M-l") 'org-metaright
+            (kbd "M-h") 'org-metaleft
+            (kbd "M-k") 'org-metaup
+            (kbd "M-j") 'org-metadown
+            (kbd "M-L") 'org-shiftmetaright
+            (kbd "M-H") 'org-shiftmetaleft
+            (kbd "M-K") 'org-shiftmetaup
+            (kbd "M-J") 'org-shiftmetadown))
+        '(normal insert))
 
 ;; for evil mode:
 (define-key evil-insert-state-map (kbd "C-e") nil)
@@ -197,18 +209,18 @@ then it takes a second \\[keyboard-quit] to abort the minibuffer."
 (global-set-key [escape] 'evil-exit-emacs-state)
 
 (defun hscroll-cursor-left ()
-(interactive "@")
-(set-window-hscroll (selected-window) (current-column)))
+  (interactive "@")
+  (set-window-hscroll (selected-window) (current-column)))
 
 (defun hscroll-cursor-right ()
-(interactive "@")
-(set-window-hscroll (selected-window) (- (current-column) (window-width) -1)))
+  (interactive "@")
+  (set-window-hscroll (selected-window) (- (current-column) (window-width) -1)))
 
 (define-key evil-normal-state-map "zs" 'hscroll-cursor-left)
 (define-key evil-normal-state-map "ze" 'hscroll-cursor-right)
 (setq auto-hscroll-mode 't)
 (setq hscroll-margin 0
-hscroll-step 1)
+      hscroll-step 1)
 
 ;; ====================================================================
 ;; Recent Files
@@ -232,8 +244,8 @@ hscroll-step 1)
 (setq calendar-standard-time-zone-name "CET")
 (setq calendar-daylight-time-zone-name "CEST")
 (if (file-readable-p "~/Dropbox/Private/mydocs/org/diary")
-(setq diary-file "~/Dropbox/Private/mydocs/org/diary")
-)
+    (setq diary-file "~/Dropbox/Private/mydocs/org/diary")
+  )
 (setq diary-number-of-entries 7)
 
 (define-key global-map (kbd "RET") 'newline-and-indent) ;; add indent when RET
