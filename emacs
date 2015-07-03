@@ -10,6 +10,10 @@
     (add-to-list 'load-path "~/.emacs.d/mine")
   )
 
+(if (file-accessible-directory-p "~/.emacs.d/org-mode/lisp")
+    (add-to-list 'load-path "~/.emacs.d/org-mode/lisp")
+  )
+
 ;; ====================================================================
 ;; org mode
 (require 'org)
@@ -272,3 +276,7 @@ then it takes a second \\[keyboard-quit] to abort the minibuffer."
 
 (define-key evil-normal-state-map (kbd "C-y") 'paste-from-clipboard)
 (define-key evil-visual-state-map (kbd "C-y") 'copy-to-clipboard)
+
+(evil-leader/set-key
+  "y" 'copy-to-clipboard
+  "p" 'paste-from-clipboard)

@@ -2,6 +2,7 @@
 
 # TODO: force update (new switch) - delete apps and reinstall them
 # TODO: add checking sha1sum to curlinstall()
+# TODO: gitclone -update = cd into dir and run git pull
 
 set -o errexit
 set -o pipefail
@@ -29,6 +30,7 @@ hash cygpath 2>/dev/null &&
 hash sudo 2>/dev/null &&
     __sudo="sudo" ||
     __sudo=""
+__errors=()
 
 #Initial cmds:
 mkdir -p ~/apps
@@ -70,15 +72,24 @@ create_link()
 
     local src_file="${1:?\$1 not set}"
     local dst_file="${2:?\$2 not set}"
-    src_file="$(readlink -f ${src_file})"
-
-    # dst_file="$(readlink -f ${dst_file})"
 
     # check if src exists:
     if [[ ! -e "${src_file}" ]]; then
-        echo "Error: File ${src_file} does not exists."
-        return 1
+        echo "===[L] ERROR: Src file ${src_file} does not exists."
+        __errors+=("[L] ERROR: Src file ${src_file} does not exists.")
+        return 0
     fi
+    src_file="$(readlink -f ${src_file})"
+
+    # check if parent directory of dst exists:
+    if [[ ! -d "$(cd "$(dirname "${dst_file}")" && pwd)" ]]; then
+        echo "[L] Parent directory of ${dst_file} does not exists."
+        __errors+=("[L] Parent directory of ${dst_file} does not exists.")
+        return
+    fi
+
+    # dst_file="$(readlink -f ${dst_file})"
+
     # remove dst if it's a link
     if [[ -L "${dst_file}" ]]; then
         rm "${dst_file}"
@@ -90,7 +101,7 @@ create_link()
     # backup dst
     if [[ -f ${dst_file} && ! -L ${dst_file} ]]; then
         if [[ ${if_backup} = "Y" ]]; then
-            echo "===Backup ${dst_file}.old"
+            echo "===[L] Backup ${dst_file}.old"
             mv "${dst_file}" "${dst_file}.old"
         else
             rm -rf "${dst_file}"
@@ -99,26 +110,28 @@ create_link()
 
     # create link
     if [[ $link_type = "WIN HARD" ]]; then
-        echo "===LINK Windows ---${dst_file}--- to ---${src_file}---... "
+        echo "===[L] LINK Windows ---${dst_file}--- to ---${src_file}---... "
         if [[ -d ${src_file} ]]; then
             cmd /c mklink /J "$(cygpath -aw ${dst_file})" "$(cygpath -aw ${src_file})"
         else
             cmd /c mklink /H "$(cygpath -aw ${dst_file})" "$(cygpath -aw ${src_file})"
         fi
     elif [[ $link_type = "CP" ]]; then
-        echo -n "===COPY ${dst_file} ---to--- ${src_file} ---... "
+        echo -n "===[L] COPY ${dst_file} ---to--- ${src_file} ---... "
         cp "${src_file}" "${dst_file}"
     elif [[ $link_type = "LINUX" ]]; then
-        echo -n "===LINK Linux ${dst_file} ---to--- ${src_file} ---... "
+        echo -n "===[L] LINK Linux ${dst_file} ---to--- ${src_file} ---... "
         ln -s "${src_file}" "${dst_file}"
     else
-        echo "===ERROR: bledny link_type: ${link_type}"
+        echo "===[L] ERROR: bledny link_type: ${link_type}"
+        __errors+=("[L] ERROR: bledny link_type: ${link_type}")
     fi &&
     {
-        echo "Done."
+        echo "===[L] Done."
     } ||
     {
-        echo $'\n'"===ERROR!================================"
+        echo $'\n'"===[L] ERROR! ================================"
+        __errors+=("[L] ERROR: creating link ${src_file}")
     }
 
 }
@@ -149,12 +162,14 @@ aptget()
         instal_cmd="${instal_cmd}apt-get install -qyf "
     else
         echo "===[A] Error: no apt-get tool?"
+        __errors+=("[A] ERROR: no apt-get tool?")
         return 1
     fi
 
     instal_cmd="${instal_cmd}${app_install}"
-    echo "===[A] ${instal_cmd}==="
+    echo "===[A] Installing: ${instal_cmd}..."
     ${instal_cmd}
+    echo "===[A] Done."
 }
 
 
@@ -178,14 +193,10 @@ gitclone()
     echo "===[G] git clone ${giturl} ${gitfolder}==="
     git clone "${giturl}" "${gitfolder}" ||
     {
-        echo "===[G] Git clone exited with Error: $? ${giturl} ${gitfolder}"
-        return 0
+        echo "===[G] Git clone exited with Error: ${giturl} ${gitfolder}"
+        __errors+=("[G] Git clone exited with Error: ${giturl} ${gitfolder}")
+        return
     }
-
-    # if [[ $? != 0 ]]; then
-    #     echo "===Git clone exited with Error: $? ${giturl} ${gitfolder}"
-    #     return 0
-    # fi
 
     cd ${gitfolder}
     for run in "${gitrun[@]:-}" ; do
@@ -236,7 +247,8 @@ geturl()
     curl -o ${file} ${url} \
         ||
         {
-            echo "===[U] ERROR!"
+            echo "===[U] ERROR downloading file."
+            __errors+=("[U] ERROR downloading file: ${url}")
             mv ${tmpfile} ${file}
         } \
         &&
@@ -292,7 +304,11 @@ pipinstall()
     echo "===[P] installing ${cmdinstall}..."
     ${__sudo} ${pip} install ${update} ${cmdinstall} \
         && echo "===[P] Done." \
-        || echo "===[P] ERROR!"
+        ||
+        {
+            echo "===[P] ERROR."
+            __errors+=("[P] ERROR: ${__sudo} ${pip} install ${update} ${cmdinstall}")
+        }
 }
 
 
@@ -348,15 +364,19 @@ install_dotfiles()
     geturl https://raw.githubusercontent.com/cofi/evil-leader/master/evil-leader.el ~/.emacs.d/mine/evil-leader.el
     geturl http://www.emacswiki.org/emacs/download/key-chord.el ~/.emacs.d/mine/key-chord.el
     gitclone https://gitorious.org/evil/evil.git ~/.emacs.d/evil
+    gitclone git://orgmode.org/org-mode.git ~/.emacs.d/org-mode "make autoloads"
 
     # Emacs Win:
-    [[ -d ${__win_appdata} ]] && create_link -w -n ${__dir}/emacs ${__win_appdata}/.emacs
-    [[ -d ${__dir_dlocal} && -d ${__win_appdata} ]] && create_link -w -n ${__dir_dlocal}/emacs.local ${__win_appdata}/.emacs.d/mine/.emacs.local
-    [[ -d ${__win_appdata} ]] && create_link -w -n ~/.emacs.d/mine/evil-leader.el ${__win_appdata}/.emacs.d/mine/evil-leader.el
-    [[ -d ${__win_appdata} ]] && create_link -w -n ~/.emacs.d/mine/key-chord.el ${__win_appdata}/.emacs.d/mine/key-chord.el
-    [[ -d ${__win_appdata} ]] && create_link -w -n ~/.emacs.d/evil ${__win_appdata}/.emacs.d/evil
+    if [[ -d ${__win_appdata} ]]; then
+        create_link -w -n ${__dir}/emacs ${__win_appdata}/.emacs
+        [[ -d ${__dir_dlocal} ]] && create_link -w -n ${__dir_dlocal}/emacs.local ${__win_appdata}/.emacs.d/mine/.emacs.local
+        create_link -w -n ~/.emacs.d/mine/evil-leader.el ${__win_appdata}/.emacs.d/mine/evil-leader.el
+        create_link -w -n ~/.emacs.d/mine/key-chord.el ${__win_appdata}/.emacs.d/mine/key-chord.el
+        create_link -w -n ~/.emacs.d/evil ${__win_appdata}/.emacs.d/evil
+        create_link -w -n ~/.emacs.d/org-mode ${__win_appdata}/.emacs.d/org-mode
+    fi
 
-    # local files:
+    # Emacs local files Linux + Win
     if [[ -d ${__dir_dlocal} ]]; then
         create_link ${__dir_dlocal} ~/.dotfiles.local
         create_link ${__dir_dlocal}/bashrc.local ~/.bashrc.local
@@ -366,7 +386,7 @@ install_dotfiles()
         [[ -d ${__win_appdata} ]] && create_link -w -n ${__dir_dlocal}/emacs.local ${__win_appdata}/.emacs.d/mine/.emacs.local
     else
         echo "===Error: local dir does not exist=${__dir_dlocal}"
-        # __dir_dlocal=""
+        __errors+=("ERROR: local dir does not exist=${__dir_dlocal}")
     fi
 
     #Ranger:
@@ -404,7 +424,8 @@ install_dotfiles()
                     fi
                     ;;
                 *)
-                    echo "Unknown host: copying default rifle.conf"
+                    echo "Unknown os: copying default rifle.conf"
+                    __errors+=("Unknown os: copying default rifle.conf")
                     cat ~/.config/ranger/rifle.conf ${__dir}/rifle.conf > ~/.config/ranger/rifletmp.conf
                     mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
                     ;;
@@ -412,6 +433,7 @@ install_dotfiles()
         fi
     else
         echo "===Ranger folder not found. Not creating links."
+        __errors+=("Ranger folder not found. Not creating links.")
     fi
 
     vim +PluginInstall +PluginClean +qall
@@ -426,6 +448,12 @@ install_basics()
 {
 
     echo "===<<< INSTALLING BASICS >>>==="
+
+    # update repositories
+    if hash apt-get 2>/dev/null; then
+        ${__sudo} apt-get update
+    fi
+
     break_links
 
     # Basic
@@ -457,12 +485,13 @@ install_basics()
     aptget emacs
 
     #Reszta
+    aptget curl
+    aptget wget
     pipinstall -3 BeautifulSoup4
     pipinstall -3 flake8
     pipinstall -3 bashate
     pipinstall -2 speedtest-cli
     pipinstall httpie
-    # hash dtrx 2>/dev/null || aptget dtrx
     aptget dtrx
 
     gitclone https://github.com/VitaliyRodnenko/geeknote.git ~/apps/geeknote "${__sudo} python setup.py install" "geeknote settings --editor vim"
@@ -510,7 +539,7 @@ while [[ $# > 0 ]]; do
             if_basics="Y"
             ;;
         *)
-            echo "Unknown options $1"
+            echo "Unknown option: $1"
             exit 1
             ;;
     esac
@@ -519,3 +548,14 @@ done
 [[ ${if_break_links} = "Y" ]] && break_links
 [[ ${if_basics} = "Y" ]] && install_basics
 [[ ${if_dotfiles} = "Y" ]] && install_dotfiles
+
+# display errors
+if [[ ${#__errors[@]} > 0 ]]; then
+    echo "=== ERRORS ==="
+    for err in "${__errors[@]}"; do
+        echo ${err}
+    done
+else
+    echo "Done. No Errors"
+fi
+
