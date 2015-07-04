@@ -16,47 +16,48 @@ set -o nounset
 #__dir="$(cd "$(dirname "${__file}")" && pwd)"
 
 
-# sed -r '
-# s/[,.!?]/ /g;
-# s/\s{2,}/ /g;
-# s/^\s+//g;
-# s/\s+$//g;
-# s/\<a\s+//g;
-# s/\<the\s+//g' | cut -d' ' -f1 | sort | uniq -c | sort
-
-
-sed -r -e '
+sed -r '
 s/[,.!?]/ /g;
 s/\s{2,}/ /g;
 s/^\s+//g;
 s/\s+$//g;
-s/\s+/\n/g;
-' | sed -r '
-/^is$/d;
-/^the$/d;
-/^sb$/d;
-/^for$/d;
-/^be$/d;
-/^this$/d;
-/^off$/d;
-/^my$/d;
-/^\)$/d;
-/^-$/d;
-/^i$/d;
-/^you$/d;
-/^their$/d;
-/^on$/d;
-/^lot$/d;
-/^have$/d;
-/^was$/d;
-/^that$/d;
-/^get$/d;
-/^by$/d;
-/^as$/d;
-/^we$/d;
-/^will$/d;
-/^\(v\)$/d;
-/^\(n\)$/d;
-/^not?$/d;
-/^not$/d;
-' | sort | uniq -c | sort
+s/\<a\s+//g;
+s/\<the\s+//g' | cut -d' ' -f1 | sort | uniq -c | sort
+
+
+# sed -r -e '
+# s/[,.!?]/ /g;
+# s/\s{2,}/ /g;
+# s/^\s+//g;
+# s/\s+$//g;
+# s/\s+/\n/g;
+# ' | sed -r '
+# /^is$/d;
+# /^the$/d;
+# /^sb$/d;
+# /^for$/d;
+# /^be$/d;
+# /^this$/d;
+# /^off$/d;
+# /^my$/d;
+# /^\)$/d;
+# /^-$/d;
+# /^i$/d;
+# /^you$/d;
+# /^their$/d;
+# /^on$/d;
+# /^lot$/d;
+# /^have$/d;
+# /^was$/d;
+# /^that$/d;
+# /^get$/d;
+# /^by$/d;
+# /^as$/d;
+# /^we$/d;
+# /^will$/d;
+# /^\(v\)$/d;
+# /^\(n\)$/d;
+# /^not?$/d;
+# /^not$/d;
+# ' | sort | uniq -c | sort
+
