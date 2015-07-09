@@ -514,17 +514,6 @@ install_basics()
     aptget python-pip pip
     aptget python3-pip pip3
 
-    # fasd
-    gitclone https://github.com/clvv/fasd.git ~/apps/fasd "${__sudo} make install" || true
-
-    # commacd
-    geturl https://raw.githubusercontent.com/shyiko/commacd/master/commacd.bash ~/.commacd.bash || true
-
-    # fzf
-    if [[ ! -d ~/.fzf ]]; then
-        git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install
-    fi
-
     # Ranger
     # rm -rf ~/apps/ranger ~/.config/ranger
     gitclone https://github.com/hut/ranger.git ~/apps/ranger "${__sudo} make install" "ranger --copy-config=all" || true
@@ -535,17 +524,31 @@ install_basics()
     # Emacs
     aptget emacs
 
-    #Reszta
-    aptget curl
-    aptget wget
+    # Reszta 1:
+    aptget wget && __geturl_app="wget -O"
+    aptget curl && __geturl_app="curl -o"
+    aptget dtrx
+    gitclone https://github.com/VitaliyRodnenko/geeknote.git ~/apps/geeknote "${__sudo} python setup.py install" "geeknote settings --editor vim" || true
+
+
+    # fasd
+    gitclone https://github.com/clvv/fasd.git ~/apps/fasd "${__sudo} make install" || true
+
+    # commacd
+    geturl https://raw.githubusercontent.com/shyiko/commacd/master/commacd.bash ~/.commacd.bash || true
+
+    # Reszta 2:
     pipinstall -3 BeautifulSoup4
     pipinstall -3 flake8
     pipinstall -3 bashate
     pipinstall -2 speedtest-cli
     pipinstall httpie
-    aptget dtrx
 
-    gitclone https://github.com/VitaliyRodnenko/geeknote.git ~/apps/geeknote "${__sudo} python setup.py install" "geeknote settings --editor vim" || true
+    # fzf - asks questions
+    if [[ ! -d ~/.fzf ]]; then
+        git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install
+    fi
+
     # geeknote login
     echo "===<<< DONE INSTALLING BASICS >>>==="
 
