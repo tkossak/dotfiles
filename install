@@ -85,7 +85,7 @@ create_link()
     if [[ ! -d "$(cd "$(dirname "${dst_file}")" && pwd)" ]]; then
         echo "[L] Parent directory of ${dst_file} does not exists."
         __errors+=("[L] Parent directory of ${dst_file} does not exists.")
-        return
+        return 0
     fi
 
     # dst_file="$(readlink -f ${dst_file})"
@@ -188,14 +188,14 @@ gitclone()
 
     if [[ -d ${gitfolder} ]]; then
         echo "===[G] folder already exists: ${gitfolder}"
-        return
+        return 0
     fi
     echo "===[G] git clone ${giturl} ${gitfolder}==="
     git clone "${giturl}" "${gitfolder}" ||
     {
         echo "===[G] Git clone exited with Error: ${giturl} ${gitfolder}"
         __errors+=("[G] Git clone exited with Error: ${giturl} ${gitfolder}")
-        return
+        return 0
     }
 
     cd ${gitfolder}
@@ -459,6 +459,7 @@ install_basics()
     # Basic
     aptget git
     aptget vim
+    aptget make
     gitclone https://github.com/gmarik/Vundle.vim.git ~/.vim/bundle/Vundle.vim
     aptget python-pip pip
     aptget python3-pip pip3
