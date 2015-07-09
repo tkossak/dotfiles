@@ -25,16 +25,28 @@ __myos="$(uname)"
 __myhost="$(uname -n)"
 __dir_dlocal="$(cd "$(dirname "${__dir}")" && pwd)/dotfiles.local"
 __dir_dlocal="$(readlink -f ${__dir_dlocal})"
-hash cygpath 2>/dev/null &&
-    __win_appdata="$(cygpath -au ${APPDATA:-})" || __win_appdata=""
-hash sudo 2>/dev/null &&
-    __sudo="sudo" ||
-    __sudo=""
+hash cygpath 2>/dev/null \
+    && __win_appdata="$(cygpath -au ${APPDATA:-})" || __win_appdata=""
+hash sudo 2>/dev/null \
+    && __sudo="sudo" \
+    || __sudo=""
+
 __errors=()
+
+if hash curl 2>/dev/null; then
+    __geturl_app="curl -o"
+elif hash wget 2>/dev/null; then
+    __geturl_app="wget -O"
+else
+    echo "===ERROR: curl/wget app not present"
+    __errors+=("ERROR: curl/wget app not present")
+fi
+
 
 #Initial cmds:
 mkdir -p ~/apps
 mkdir -p ~/.emacs.d/mine
+# mkdir -p ~/.emacs.d/evil
 [[ -d ${__win_appdata} ]] &&
     mkdir -p ${__win_appdata}/.emacs.d/mine
 find ${__dir}/bin -type f -not -name 'create_bash.model' -exec chmod +x {} \;
@@ -184,7 +196,7 @@ gitclone()
     local gitfolder="${2:?Error: Git folder not set}"
     shift
     shift
-    local gitrun=("$@")
+    local runlater=("$@")
 
     if [[ -d ${gitfolder} ]]; then
         echo "===[G] folder already exists: ${gitfolder}"
@@ -195,11 +207,11 @@ gitclone()
     {
         echo "===[G] Git clone exited with Error: ${giturl} ${gitfolder}"
         __errors+=("[G] Git clone exited with Error: ${giturl} ${gitfolder}")
-        return 0
+        return 1
     }
 
     cd ${gitfolder}
-    for run in "${gitrun[@]:-}" ; do
+    for run in "${runlater[@]:-}" ; do
         echo "===[G] run ${run}"
         ${run}
     done
@@ -209,10 +221,11 @@ gitclone()
 
 # --------------------------------------------------------------------------------
 # geturl
-# $1 = options
-#      -u  :: update (delete the file/folder and redownload it)
-# $1 = url to download
-# $2 = filename to save as
+# $1  = options
+#       -u  :: update (delete the file/folder and redownload it)
+# $1  = url to download
+# $2  = filename to save as
+# $3- = cmds to run after downloading
 
 geturl()
 {
@@ -232,11 +245,21 @@ geturl()
     done
     url="${1}"
     file="${2}"
+    shift
+    shift
+    local runlater=("$@")
     tmpfile="${file}#.#"
+
+    if [[ -z "${__geturl_app}" ]]; then
+        echo "===[U] ERROR: No curl/wget app: ${url}"
+        __errors+=("[U] ERROR: No curl/wget app: ${url}")
+        return 99
+    fi
+
 
     # [[ ! -z "${file}" ]] && file="-o ${file}"
 
-    if [[ "${update}" = "Y" ]]; then
+    if [[ "${update}" = "Y" && -e ${file} ]]; then
         mv "${file}" "${tmpfile}"
     elif [[ -e ${file} ]]; then
         echo "===[U] File/dir already exists: ${file}"
@@ -244,20 +267,24 @@ geturl()
     fi
 
     echo "===[U] Downloading ${url}..."
-    curl -o ${file} ${url} \
-        ||
+    ${__geturl_app} ${file} ${url} ||
         {
-            echo "===[U] ERROR downloading file."
+            echo -n "===[U] ERROR downloading file: ${url} . Restoring old one... "
             __errors+=("[U] ERROR downloading file: ${url}")
             mv ${tmpfile} ${file}
-        } \
-        &&
-        {
-            echo "===[U] Done."
-            if [[ "${update}" = "Y" ]]; then
-                rm -rf "${tmpfile}"
-            fi
+            echo "Done."
+            return 1
         }
+
+    echo "===[U] Done."
+    if [[ "${update}" = "Y" && -e ${tmpfile} ]]; then
+        rm -rf "${tmpfile}"
+    fi
+
+    for run in "${runlater[@]:-}" ; do
+        echo "===[U] run ${run}"
+        ${run}
+    done
 
 }
 
@@ -361,10 +388,33 @@ install_dotfiles()
     # Emacs Linux:
     create_link ${__dir}/emacs ~/.emacs
     [[ -d ${__dir_dlocal} ]] && create_link ${__dir_dlocal}/emacs.local ~/.emacs.d/mine/.emacs.local
-    geturl https://raw.githubusercontent.com/cofi/evil-leader/master/evil-leader.el ~/.emacs.d/mine/evil-leader.el
-    geturl http://www.emacswiki.org/emacs/download/key-chord.el ~/.emacs.d/mine/key-chord.el
-    gitclone https://gitorious.org/evil/evil.git ~/.emacs.d/evil
-    gitclone git://orgmode.org/org-mode.git ~/.emacs.d/org-mode "make autoloads"
+    geturl https://raw.githubusercontent.com/cofi/evil-leader/master/evil-leader.el ~/.emacs.d/mine/evil-leader.el || true
+    geturl http://www.emacswiki.org/emacs/download/key-chord.el ~/.emacs.d/mine/key-chord.el || true
+    gitclone https://gitorious.org/evil/evil.git ~/.emacs.d/evil \
+        ||
+        {
+            echo "=== Manually downloading evil.git"
+            rm -rf ~/.emacs.d/evil
+            rm -rf ~/.emacs.d/lyro-evil*
+            cd ~/.emacs.d
+            if [[ ! -f evil-default.zip ]]; then
+                ${__geturl_app} evil-default.zip https://bitbucket.org/lyro/evil/get/default.zip \
+                    ||
+                    {
+                        echo "=== ERROR: downloading evil.git (default.zip)"
+                        __errors+=("ERROR: downloading evil.git (default.zip)")
+                    } \
+                    &&
+                    {
+                        unzip evil-default.zip
+                        mv ~/.emacs.d/lyro-evil* evil
+                        rm ~/.emacs.d/evil-default.zip
+                        echo "=== evil.git installed"
+                        __errors+=("OK: evil.git installed manually!")
+                    }
+            fi
+        }
+    gitclone git://orgmode.org/org-mode.git ~/.emacs.d/org-mode "make autoloads" || true
 
     # Emacs Win:
     if [[ -d ${__win_appdata} ]]; then
@@ -450,9 +500,9 @@ install_basics()
     echo "===<<< INSTALLING BASICS >>>==="
 
     # update repositories
-    if hash apt-get 2>/dev/null; then
-        ${__sudo} apt-get update
-    fi
+    # if hash apt-get 2>/dev/null; then
+    #     ${__sudo} apt-get update
+    # fi
 
     break_links
 
@@ -460,15 +510,15 @@ install_basics()
     aptget git
     aptget vim
     aptget make
-    gitclone https://github.com/gmarik/Vundle.vim.git ~/.vim/bundle/Vundle.vim
+    gitclone https://github.com/gmarik/Vundle.vim.git ~/.vim/bundle/Vundle.vim || true
     aptget python-pip pip
     aptget python3-pip pip3
 
     # fasd
-    gitclone https://github.com/clvv/fasd.git ~/apps/fasd "${__sudo} make install"
+    gitclone https://github.com/clvv/fasd.git ~/apps/fasd "${__sudo} make install" || true
 
     # commacd
-    geturl https://raw.githubusercontent.com/shyiko/commacd/master/commacd.bash ~/.commacd.bash
+    geturl https://raw.githubusercontent.com/shyiko/commacd/master/commacd.bash ~/.commacd.bash || true
 
     # fzf
     if [[ ! -d ~/.fzf ]]; then
@@ -477,7 +527,7 @@ install_basics()
 
     # Ranger
     # rm -rf ~/apps/ranger ~/.config/ranger
-    gitclone https://github.com/hut/ranger.git ~/apps/ranger "${__sudo} make install" "ranger --copy-config=all"
+    gitclone https://github.com/hut/ranger.git ~/apps/ranger "${__sudo} make install" "ranger --copy-config=all" || true
 
     # TMUX
     aptget tmux
@@ -495,7 +545,7 @@ install_basics()
     pipinstall httpie
     aptget dtrx
 
-    gitclone https://github.com/VitaliyRodnenko/geeknote.git ~/apps/geeknote "${__sudo} python setup.py install" "geeknote settings --editor vim"
+    gitclone https://github.com/VitaliyRodnenko/geeknote.git ~/apps/geeknote "${__sudo} python setup.py install" "geeknote settings --editor vim" || true
     # geeknote login
     echo "===<<< DONE INSTALLING BASICS >>>==="
 
