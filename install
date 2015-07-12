@@ -464,6 +464,11 @@ install_dotfiles()
                         # create_link ~/.dotfiles.local/rifle.conf.home.cygwin ~/.config/ranger/rifle.conf
                         cat ~/.config/ranger/rifle.conf ${__dir_dlocal}/rifle.conf.home.cygwin > ~/.config/ranger/rifletmp.conf
                         mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
+                    else
+                        echo "Cygwin-other os: copying default rifle.conf"
+                        __errors+=("Unknown os: copying default rifle.conf")
+                        cat ~/.config/ranger/rifle.conf ${__dir}/rifle.conf > ~/.config/ranger/rifletmp.conf
+                        mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
                     fi
                     ;;
                 Linux)
@@ -471,15 +476,25 @@ install_dotfiles()
                         # create_link ~/.dotfiles.local/rifle.conf.home.linux ~/.config/ranger/rifle.conf
                         cat ~/.config/ranger/rifle.conf ${__dir_dlocal}/rifle.conf.home.linux > ~/.config/ranger/rifletmp.conf
                         mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
+                    else
+                        echo "Linux-other os: copying default rifle.conf"
+                        __errors+=("Unknown os: copying default rifle.conf")
+                        cat ~/.config/ranger/rifle.conf ${__dir}/rifle.conf > ~/.config/ranger/rifletmp.conf
+                        mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
                     fi
                     ;;
                 *)
-                    echo "Unknown os: copying default rifle.conf"
+                    echo "Other os: copying default rifle.conf"
                     __errors+=("Unknown os: copying default rifle.conf")
                     cat ~/.config/ranger/rifle.conf ${__dir}/rifle.conf > ~/.config/ranger/rifletmp.conf
                     mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
                     ;;
             esac
+        else
+            echo "No local dotfiles, copying default rifle.conf"
+            __errors+=("No local dotfiles: copying default rifle.conf")
+            cat ~/.config/ranger/rifle.conf ${__dir}/rifle.conf > ~/.config/ranger/rifletmp.conf
+            mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
         fi
     else
         echo "===Ranger folder not found. Not creating links."

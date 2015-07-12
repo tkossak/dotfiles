@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# create basic bash script file
+
 set -o errexit
 set -o pipefail
 set -o nounset

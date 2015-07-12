@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# for use with my evernote english file
+
 set -o errexit
 set -o pipefail
 set -o nounset
