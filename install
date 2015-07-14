@@ -173,7 +173,7 @@ aptget()
     if hash apt-get 2>/dev/null; then
         instal_cmd="${instal_cmd}apt-get install -qyf "
     else
-        echo "===[A] Error: no apt-get tool?"
+        echo "===[A] ERROR: no apt-get tool?"
         __errors+=("[A] ERROR: no apt-get tool?")
         return 1
     fi
@@ -204,18 +204,17 @@ gitclone()
     fi
     echo "===[G] git clone ${giturl} ${gitfolder}==="
     git clone "${giturl}" "${gitfolder}" ||
-    {
-        echo "===[G] Git clone exited with Error: ${giturl} ${gitfolder}"
-        __errors+=("[G] Git clone exited with Error: ${giturl} ${gitfolder}")
-        return 1
-    }
+        {
+            echo "===[G] Git clone exited with Error: ${giturl} ${gitfolder}"
+            __errors+=("[G] Git clone exited with Error: ${giturl} ${gitfolder}")
+            return 1
+        }
 
     cd ${gitfolder}
     for run in "${runlater[@]:-}" ; do
         echo "===[G] run ${run}"
         ${run}
     done
-
 }
 
 
@@ -508,6 +507,45 @@ install_dotfiles()
 }
 
 # -------------------------------------------------------
+# install_more_apps
+install_more_apps()
+{
+
+    echo "===<<< INSTALLING MORE APPS >>>==="
+
+    # update repositories
+    # if hash apt-get 2>/dev/null; then
+    #     ${__sudo} apt-get update
+    # fi
+
+    # geeknote
+    gitclone https://github.com/VitaliyRodnenko/geeknote.git ~/apps/geeknote "${__sudo} python setup.py install" "geeknote settings --editor vim" || true
+
+    # commacd
+    geturl https://raw.githubusercontent.com/shyiko/commacd/master/commacd.bash ~/.commacd.bash || true
+
+    aptget glances
+    aptget lm-sensors
+    pipinstall -2 PySensors
+
+    # Reszta 2:
+    pipinstall -3 BeautifulSoup4
+    pipinstall -3 flake8
+    pipinstall -3 bashate
+    pipinstall -2 speedtest-cli
+    pipinstall httpie
+
+    # fzf - asks questions
+    if [[ ! -d ~/.fzf ]]; then
+        git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install
+    fi
+
+    # geeknote login
+    echo "===<<< DONE INSTALLING MORE APPS >>>==="
+
+}
+
+# -------------------------------------------------------
 # install_basics
 install_basics()
 {
@@ -518,8 +556,6 @@ install_basics()
     # if hash apt-get 2>/dev/null; then
     #     ${__sudo} apt-get update
     # fi
-
-    break_links
 
     # Basic
     aptget git
@@ -543,30 +579,11 @@ install_basics()
     aptget wget && __geturl_app="wget -O"
     aptget curl && __geturl_app="curl -o"
     aptget dtrx
-    gitclone https://github.com/VitaliyRodnenko/geeknote.git ~/apps/geeknote "${__sudo} python setup.py install" "geeknote settings --editor vim" || true
-
 
     # fasd
     gitclone https://github.com/clvv/fasd.git ~/apps/fasd "${__sudo} make install" || true
 
-    # commacd
-    geturl https://raw.githubusercontent.com/shyiko/commacd/master/commacd.bash ~/.commacd.bash || true
-
-    # Reszta 2:
-    pipinstall -3 BeautifulSoup4
-    pipinstall -3 flake8
-    pipinstall -3 bashate
-    pipinstall -2 speedtest-cli
-    pipinstall httpie
-
-    # fzf - asks questions
-    if [[ ! -d ~/.fzf ]]; then
-        git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install
-    fi
-
-    # geeknote login
     echo "===<<< DONE INSTALLING BASICS >>>==="
-
 }
 
 # -------------------------------------------------------
@@ -576,37 +593,54 @@ install_basics()
 
 if_dotfiles="N"
 if_basics="N"
+if_more_apps="N"
 if_break_links="N"
 
 [[ $# = 0 ]] && if_dotfiles="Y"
 
 while [[ $# > 0 ]]; do
     case "$1" in
+
         -h|--help)
             echo "CLI options:"
             echo "  -d  :: install dotfiles"
             echo "  -b  :: install basic apps"
             echo "  -a  :: install all/everything"
-            echo "  -bl :: break links"
+            echo "  -l :: break links"
             exit 0
             ;;
+
         -d)
             shift
             if_dotfiles="Y"
             ;;
+
         -b)
             shift
+            if_break_links="Y"
             if_basics="Y"
             ;;
-        -bl)
+
+        -l)
             shift
             if_break_links="Y"
             ;;
-        -a)
+
+        -a) # almost all (without more apps)
             shift
-            if_dotfiles="Y"
+            if_break_links="Y"
             if_basics="Y"
+            if_dotfiles="Y"
             ;;
+
+        -A) # all (with more apps)
+            shift
+            if_break_links="Y"
+            if_basics="Y"
+            if_more_apps="Y"
+            if_dotfiles="Y"
+            ;;
+
         *)
             echo "Unknown option: $1"
             exit 1
@@ -616,6 +650,7 @@ done
 
 [[ ${if_break_links} = "Y" ]] && break_links
 [[ ${if_basics} = "Y" ]] && install_basics
+[[ ${if_more_apps} = "Y" ]] && install_more_apps
 [[ ${if_dotfiles} = "Y" ]] && install_dotfiles
 
 # display errors

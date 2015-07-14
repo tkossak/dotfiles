@@ -133,6 +133,8 @@ alias mkdir='mkdir -p'
 alias bc='bc -l'
 alias du='du -ch'
 alias df='df -h'
+alias lsblk='lsblk -fm'
+alias blkid='blkid -o list'
 
 alias dmp3='youtube-dl -cx --audio-format mp3 --restrict-filenames'
 alias dvid='youtube-dl -c --restrict-filenames'
