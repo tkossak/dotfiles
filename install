@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# TODO: ask if to do apt-get update
+# TODO: change aptget: use apt-cache to check if it's updated or older version. If older, then update it.
 # TODO: force update (new switch) - delete apps and reinstall them
 # TODO: add checking sha1sum to curlinstall()
 # TODO: gitclone -update = cd into dir and run git pull
@@ -518,15 +520,16 @@ install_more_apps()
     #     ${__sudo} apt-get update
     # fi
 
-    # geeknote
-    gitclone https://github.com/VitaliyRodnenko/geeknote.git ~/apps/geeknote "${__sudo} python setup.py install" "geeknote settings --editor vim" || true
-
     # commacd
     geturl https://raw.githubusercontent.com/shyiko/commacd/master/commacd.bash ~/.commacd.bash || true
-
+    # geeknote
+    gitclone https://github.com/VitaliyRodnenko/geeknote.git ~/apps/geeknote "${__sudo} python setup.py install" "geeknote settings --editor vim" || true
+    # glances
     aptget glances
-    aptget lm-sensors
-    pipinstall -2 PySensors
+
+    # for glances:
+      aptget lm-sensors
+      pipinstall -2 PySensors
 
     # Reszta 2:
     pipinstall -3 BeautifulSoup4
@@ -605,7 +608,8 @@ while [[ $# > 0 ]]; do
             echo "CLI options:"
             echo "  -d  :: install dotfiles"
             echo "  -b  :: install basic apps"
-            echo "  -a  :: install all/everything"
+            echo "  -a  :: install almost all (except more apps)"
+            echo "  -A  :: install all/everything"
             echo "  -l :: break links"
             exit 0
             ;;
