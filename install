@@ -368,7 +368,7 @@ install_dotfiles()
     # Folders:
     create_link ${__dir} ~/.dotfiles
     [[ -d ${__dir_dlocal} ]] && create_link ${__dir_dlocal} ~/.dotfiles.local
-    chmod -x ~/.dotfiles.local/*
+    [[ -d ${__dir_dlocal} ]] && chmod -x ${__dir_dlocal}/*
 
     # TMUX
     create_link ${__dir}/tmux.conf ~/.tmux.conf
