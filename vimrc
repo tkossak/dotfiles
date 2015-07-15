@@ -282,7 +282,7 @@ inoremap kj <esc>
 " inoremap <C-l> <Del>
 
 " Write to file with sudo
-cmap w!! sudo tee >/dev/null%
+cmap w!! !sudo tee >/dev/null%
 " command W :execute ':silent w !sudo tee % > /dev/null' | :edit!
 
 " Allow undo for Insert Mode ^u
