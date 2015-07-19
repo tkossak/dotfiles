@@ -130,12 +130,13 @@
             (kbd "M-k") 'org-metaup
             (kbd "M-j") 'org-metadown
             (kbd "M-L") 'org-shiftmetaright
-            (kbd "M-H") 'org-shiftmetaleft
+;;            (kbd "M-H") 'org-shiftmetaleft ; changed to org-mark-element later
             (kbd "M-K") 'org-shiftmetaup
             (kbd "M-J") 'org-shiftmetadown))
         '(normal insert))
 
 ;; for evil mode:
+(define-key evil-normal-state-map (kbd "M-H") 'org-mark-element)
 (define-key evil-insert-state-map (kbd "C-e") nil)
 (define-key evil-insert-state-map (kbd "C-d") nil)
 (define-key evil-insert-state-map (kbd "C-k") nil)
