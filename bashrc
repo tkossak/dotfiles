@@ -297,71 +297,74 @@ e()
 
 
 # FASD -----------------------------------------------------------------
-eval "$(fasd --init auto)"
-alias v='f -e vim' # quick opening files with vim
-alias j='fasd_cd -d'
+if hash fasd 2>/dev/null; then
+    eval "$(fasd --init auto)"
+    alias v='f -e vim' # quick opening files with vim
+    alias j='fasd_cd -d'
+    case $_myos in
+        CYGWIN*)
+            alias o='a -e cygstart'
+            ;;
+        Linux)
+            alias o='a -e xdg-open'
+    esac
+    _fasd_bash_hook_cmd_complete f a s d v o
+fi
 
-case $_myos in
-CYGWIN*)
-    alias o='a -e cygstart'
-    ;;
-Linux)
-    alias o='a -e xdg-open'
-esac
-_fasd_bash_hook_cmd_complete f a s d v o
 
 # COMMACD: -------------------------------------------------------------
 source ~/.commacd.bash
 
 
 # fzf ------------------------------------------------------------------
-[ -f ~/.fzf.bash ] && source ~/.fzf.bash
-export FZF_COMPLETION_OPTS='-x'
-export FZF_DEFAULT_OPTS='-x'
+if hash fzf 2>/dev/null; then
+    [ -f ~/.fzf.bash ] && source ~/.fzf.bash
+    export FZF_COMPLETION_OPTS='-x'
+    export FZF_DEFAULT_OPTS='-x'
+    # default keys/func/
+    # CTRL-T - find file
+    # CTRL-R - search history
+    # **<TAB> - autocompletion
+    # kill -9 <TAB>
 
-# default keys/func/
-# CTRL-T - find file
-# CTRL-R - search history
-# **<TAB> - autocompletion
-# kill -9 <TAB>
+    # fd - cd into directory
+    fd() {
+        local dir
+        dir=$(find . -type d 2> /dev/null | fzf --query="$1" --select-1) && cd "$dir"
+    }
 
-# fd - cd into directory
-fd() {
-    local dir
-    dir=$(find . -type d 2> /dev/null | fzf --query="$1" --select-1) && cd "$dir"
-}
+    # fdl - cd into directory - only maxdepth=1 dirs
+    fdl() {
+        local dir
+        dir=$(find . -type d -maxdepth 1 2> /dev/null | fzf --query="$1" --select-1) && cd "$dir"
+    }
 
-# fdl - cd into directory - only maxdepth=1 dirs
-fdl() {
-    local dir
-    dir=$(find . -type d -maxdepth 1 2> /dev/null | fzf --query="$1" --select-1) && cd "$dir"
-}
+    # ff - cd into the directory of the selected file
+    ff() {
+        local file
+        local dir
+        file=$(fzf +m -q "$1") && dir=$(dirname "$file") && cd "$dir"
+    }
 
-# ff - cd into the directory of the selected file
-ff() {
-    local file
-    local dir
-    file=$(fzf +m -q "$1") && dir=$(dirname "$file") && cd "$dir"
-}
+    # fv [FUZZY PATTERN] - Open the selected file with the default editor
+    # - Bypass fuzzy finder if there's only one match (--select-1)
+    # - Exit if there's no match (--exit-0)
+    fv() {
+        local file
+        file=$(fzf --query="$1" --select-1 --exit-0)
+        [ -n "$file" ] && ${EDITOR:-vim} "$file"
+    }
 
-# fv [FUZZY PATTERN] - Open the selected file with the default editor
-# - Bypass fuzzy finder if there's only one match (--select-1)
-# - Exit if there's no match (--exit-0)
-fv() {
-    local file
-    file=$(fzf --query="$1" --select-1 --exit-0)
-    [ -n "$file" ] && ${EDITOR:-vim} "$file"
-}
-
-# fkill - kill process
-# fkill() {
-# pid=$(ps -ef | sed 1d | fzf -m | awk '{print $2}')
-#
-# if [ "x$pid" != "x" ]
-# then
-# kill -${1:-9} $pid
-# fi
-# }
+    # fkill - kill process
+    # fkill() {
+    # pid=$(ps -ef | sed 1d | fzf -m | awk '{print $2}')
+    #
+    # if [ "x$pid" != "x" ]
+    # then
+    # kill -${1:-9} $pid
+    # fi
+    # }
+fi
 
 export PATH=~/.dotfiles/bin:${PATH}
 # source ~/.bash-git-prompt/gitprompt.sh
