@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# TODO: ask if to do apt-get update
+# TODO: fzf - cancel interactive script! provide Y
 # TODO: change aptget: use apt-cache to check if it's updated or older version. If older, then update it.
 # TODO: force update (new switch) - delete apps and reinstall them
 # TODO: add checking sha1sum to curlinstall()
@@ -22,9 +22,35 @@ __file="$(readlink -f ${BASH_SOURCE[0]})"
 __dir="$(cd "$(dirname "${__file}")" && pwd)"
 
 # arg1="${1:-}"
+# ================================================================================
+# UPDATE GLOBAL VARS
 
-__myos="$(uname)"
+
+__myos="$(uname -s)"
 __myhost="$(uname -n)"
+            case ${__myos} in
+                CYGWIN*)
+                    __myos="CYGWIN"
+                    if [[ ${__myhost} = AWA* ]]; then
+                        __myhost="W"
+                    elif [[ ${__myhost} = HEAVEN ]]; then
+                        __myhost="H"
+                    else
+                        __myhost="OTHER"
+                    fi
+                    ;;
+                Linux)
+                    __myos="LINUX"
+                    if [[ ${__myhost} = LMQ ]]; then
+                        __myhost="H"
+                    else
+                        __myhost="OTHER"
+                    fi
+                    ;;
+                *)
+                    __myos="OTHER"
+                    ;;
+            esac
 __dir_dlocal="$(cd "$(dirname "${__dir}")" && pwd)/dotfiles.local"
 __dir_dlocal="$(readlink -f ${__dir_dlocal})"
 hash cygpath 2>/dev/null \
@@ -33,10 +59,20 @@ hash sudo 2>/dev/null \
     && __sudo="sudo" \
     || __sudo=""
 
+# aptget install cmd:
+__aptget_install_cmd=""
+if hash apt-get 2>/dev/null; then
+    __aptget_install_cmd="${__sudo} apt-get install -qyf"
+# else
+#     echo "===[A] ERROR: no apt-get tool?"
+#     __errors+=("[A] ERROR: no apt-get tool?")
+#     return 1
+fi
+
 __errors=()
 
 if hash curl 2>/dev/null; then
-    __geturl_app="curl -o"
+    __geturl_app="curl -fL -o"
 elif hash wget 2>/dev/null; then
     __geturl_app="wget -O"
 else
@@ -44,8 +80,9 @@ else
     __errors+=("ERROR: curl/wget app not present")
 fi
 
-
+# ================================================================================
 #Initial cmds:
+
 mkdir -p ~/apps
 mkdir -p ~/.emacs.d/mine
 # mkdir -p ~/.emacs.d/evil
@@ -156,8 +193,6 @@ create_link()
 # $2 = app name to check if it's installed already
 aptget()
 {
-    local instal_cmd="${__sudo} "
-    # local app_install="${1:-}"
     local app_install="${1:?Error: app name not set}"
     local app_run="${2:-${1}}"
 
@@ -172,17 +207,15 @@ aptget()
     # instal_cmd="${instal_cmd}sudo "
 
     # add apt-get
-    if hash apt-get 2>/dev/null; then
-        instal_cmd="${instal_cmd}apt-get install -qyf "
-    else
-        echo "===[A] ERROR: no apt-get tool?"
-        __errors+=("[A] ERROR: no apt-get tool?")
-        return 1
+    if [[ -z "${__aptget_install_cmd}" ]]; then
+        echo "===[A] ERROR: no apt-get tool (${app_install})"
+        __errors+=("[A] ERROR: no apt-get tool (${app_install})")
+        return 0
     fi
 
-    instal_cmd="${instal_cmd}${app_install}"
-    echo "===[A] Installing: ${instal_cmd}..."
-    ${instal_cmd}
+    local install_cmd="${__aptget_install_cmd} ${app_install}"
+    echo "===[A] Installing: ${install_cmd}..."
+    ${install_cmd}
     echo "===[A] Done."
 }
 
@@ -389,41 +422,49 @@ install_dotfiles()
     # Emacs Linux:
     create_link ${__dir}/emacs ~/.emacs
     [[ -d ${__dir_dlocal} ]] && create_link ${__dir_dlocal}/emacs.local ~/.emacs.d/mine/.emacs.local
-    geturl https://raw.githubusercontent.com/cofi/evil-leader/master/evil-leader.el ~/.emacs.d/mine/evil-leader.el || true
-    geturl http://www.emacswiki.org/emacs/download/key-chord.el ~/.emacs.d/mine/key-chord.el || true
-    gitclone https://gitorious.org/evil/evil.git ~/.emacs.d/evil \
-        ||
-        {
-            echo "=== Manually downloading evil.git"
-            rm -rf ~/.emacs.d/evil
-            rm -rf ~/.emacs.d/lyro-evil*
-            cd ~/.emacs.d
-            if [[ ! -f evil-default.zip ]]; then
-                ${__geturl_app} evil-default.zip https://bitbucket.org/lyro/evil/get/default.zip \
-                    ||
-                    {
-                        echo "=== ERROR: downloading evil.git (default.zip)"
-                        __errors+=("ERROR: downloading evil.git (default.zip)")
-                    } \
-                    &&
-                    {
-                        unzip evil-default.zip
-                        mv ~/.emacs.d/lyro-evil* evil
-                        rm ~/.emacs.d/evil-default.zip
-                        echo "=== evil.git installed"
-                        __errors+=("OK: evil.git installed manually!")
-                    }
-            fi
-        }
-    gitclone git://orgmode.org/org-mode.git ~/.emacs.d/org-mode "make autoloads" || true
+        # evil-leader:
+        geturl https://raw.githubusercontent.com/cofi/evil-leader/master/evil-leader.el ~/.emacs.d/mine/evil-leader.el || true
+        # key-chord:
+        geturl http://www.emacswiki.org/emacs/download/key-chord.el ~/.emacs.d/mine/key-chord.el || true
+        # evil:
+        gitclone https://gitorious.org/evil/evil.git ~/.emacs.d/evil \
+            ||
+            {
+                echo "=== Manually downloading evil.git"
+                rm -rf ~/.emacs.d/evil
+                rm -rf ~/.emacs.d/lyro-evil*
+                cd ~/.emacs.d
+                if [[ ! -f evil-default.zip ]]; then
+                    ${__geturl_app} evil-default.zip https://bitbucket.org/lyro/evil/get/default.zip \
+                        ||
+                        {
+                            echo "=== ERROR: downloading evil.git (default.zip)"
+                            __errors+=("ERROR: downloading evil.git (default.zip)")
+                        } \
+                        &&
+                        {
+                            unzip evil-default.zip
+                            mv ~/.emacs.d/lyro-evil* evil
+                            rm ~/.emacs.d/evil-default.zip
+                            echo "=== evil.git installed"
+                            __errors+=("OK: evil.git installed manually!")
+                        }
+                fi
+            }
+        # org-mode:
+        gitclone git://orgmode.org/org-mode.git ~/.emacs.d/org-mode "git checkout -b stable origin/maint" "git pull" "make autoloads" || true
 
     # Emacs Win:
     if [[ -d ${__win_appdata} ]]; then
         create_link -w -n ${__dir}/emacs ${__win_appdata}/.emacs
         [[ -d ${__dir_dlocal} ]] && create_link -w -n ${__dir_dlocal}/emacs.local ${__win_appdata}/.emacs.d/mine/.emacs.local
+        # evil-leader:
         create_link -w -n ~/.emacs.d/mine/evil-leader.el ${__win_appdata}/.emacs.d/mine/evil-leader.el
+        # key-chord:
         create_link -w -n ~/.emacs.d/mine/key-chord.el ${__win_appdata}/.emacs.d/mine/key-chord.el
+        # evil:
         create_link -w -n ~/.emacs.d/evil ${__win_appdata}/.emacs.d/evil
+        # org-mode:
         create_link -w -n ~/.emacs.d/org-mode ${__win_appdata}/.emacs.d/org-mode
     fi
 
@@ -456,14 +497,14 @@ install_dotfiles()
 
         if [[ -d "${__dir_dlocal}" ]]; then
             case ${__myos} in
-                CYGWIN*)
-                    if [[ ${__myhost} = AWA* ]]; then
-                        # create_link ~/.dotfiles.local/rifle.conf.work.cygwin ~/.config/ranger/rifle.conf
-                        cat ~/.config/ranger/rifle.conf ${__dir_dlocal}/rifle.conf.work.cygwin > ~/.config/ranger/rifletmp.conf
+                CYGWIN)
+                    if [[ ${__myhost} = W ]]; then
+                        # create_link ~/.dotfiles.local/rifle.conf.w.cygwin ~/.config/ranger/rifle.conf
+                        cat ~/.config/ranger/rifle.conf ${__dir_dlocal}/rifle.conf.w.cygwin > ~/.config/ranger/rifletmp.conf
                         mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
-                    elif [[ ${__myhost} = HEAVEN ]]; then
-                        # create_link ~/.dotfiles.local/rifle.conf.home.cygwin ~/.config/ranger/rifle.conf
-                        cat ~/.config/ranger/rifle.conf ${__dir_dlocal}/rifle.conf.home.cygwin > ~/.config/ranger/rifletmp.conf
+                    elif [[ ${__myhost} = H ]]; then
+                        # create_link ~/.dotfiles.local/rifle.conf.h.cygwin ~/.config/ranger/rifle.conf
+                        cat ~/.config/ranger/rifle.conf ${__dir_dlocal}/rifle.conf.h.cygwin > ~/.config/ranger/rifletmp.conf
                         mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
                     else
                         echo "Cygwin-other os: copying default rifle.conf"
@@ -472,10 +513,10 @@ install_dotfiles()
                         mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
                     fi
                     ;;
-                Linux)
-                    if [[ ${__myhost} = LMQ ]]; then
-                        # create_link ~/.dotfiles.local/rifle.conf.home.linux ~/.config/ranger/rifle.conf
-                        cat ~/.config/ranger/rifle.conf ${__dir_dlocal}/rifle.conf.home.linux > ~/.config/ranger/rifletmp.conf
+                LINUX)
+                    if [[ ${__myhost} = H ]]; then
+                        # create_link ~/.dotfiles.local/rifle.conf.h.linux ~/.config/ranger/rifle.conf
+                        cat ~/.config/ranger/rifle.conf ${__dir_dlocal}/rifle.conf.h.linux > ~/.config/ranger/rifletmp.conf
                         mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
                     else
                         echo "Linux-other os: copying default rifle.conf"
@@ -653,6 +694,17 @@ while [[ $# > 0 ]]; do
 done
 
 [[ ${if_break_links} = "Y" ]] && break_links
+
+# update repos?
+if [[ ( ${if_basics} = "Y" || ${if_more_apps} = "Y" ) ]] && hash apt-get 2>/dev/null; then
+    read -p "Do apt-get update (y/n)? " -n 1 -r
+    echo
+    if [[ ${REPLY} =~ ^[Yy]$ ]]; then
+        ${__sudo} apt-get update
+    fi
+
+fi
+
 [[ ${if_basics} = "Y" ]] && install_basics
 [[ ${if_more_apps} = "Y" ]] && install_more_apps
 [[ ${if_dotfiles} = "Y" ]] && install_dotfiles
