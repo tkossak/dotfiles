@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+# TODO: add mplayer files to links
 # TODO: fzf - cancel interactive script! provide Y
 # TODO: change aptget: use apt-cache to check if it's updated or older version. If older, then update it.
 # TODO: force update (new switch) - delete apps and reinstall them

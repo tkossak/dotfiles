@@ -136,6 +136,7 @@ alias du='du -ch'
 alias df='df -h'
 alias lsblk='lsblk -fm'
 alias blkid='blkid -o list'
+alias vi='vim'
 
 alias dmp3='youtube-dl -cx --audio-format mp3 --restrict-filenames'
 alias dvid='youtube-dl -c --restrict-filenames'
@@ -403,10 +404,7 @@ fi
 
 
 # finishing touches
-unset _vTmp1
-unset _vTmp2
-unset _vTmp3
-unset _myos
-unset _myhost
+unset _vTmp1 _vTmp2 _vTmp3
+unset _myos _myhost
 
 unset Color_Off Black Red Green Yellow Blue Purple Cyan White BBlack BRed BGreen BYellow BBlue BPurple BCyan BWhite UBlack URed UGreen UYellow UBlue UPurple UCyan UWhite On_Black On_Red On_Green On_Yellow On_Blue On_Purple On_Cyan On_White IBlack IRed IGreen IYellow IBlue IPurple ICyan IWhite BIBlack BIRed BIGreen BIYellow BIBlue BIPurple BICyan BIWhite On_IBlack On_IRed On_IGreen On_IYellow On_IBlue On_IPurple On_ICyan On_IWhite
