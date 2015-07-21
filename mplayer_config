@@ -1,0 +1,10 @@
+# Write your default config options here!
+
+brightness=0
+contrast=0
+hue=0
+saturation=0
+
+subfont-text-scale = "2"
+subfont-blur = "4"
+subfont-outline = "4"
