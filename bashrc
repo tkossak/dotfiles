@@ -319,7 +319,9 @@ source ~/.commacd.bash
 
 
 # fzf ------------------------------------------------------------------
-if hash fzf 2>/dev/null; then
+echo "check fzf"
+if [[ -f ~/.fzf.bash ]]; then
+    echo "running fzf..."
     [ -f ~/.fzf.bash ] && source ~/.fzf.bash
     export FZF_COMPLETION_OPTS='-x'
     export FZF_DEFAULT_OPTS='-x'
