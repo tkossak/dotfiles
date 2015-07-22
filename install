@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
+# TODO: add to apt/get + other functions: (and change glances to -ol only)
+#       -oc -ol -hh -hw
 # TODO: add mplayer files to links
+# TODO: create functions: LOG_ERROR, LOG_INFO
 # TODO: fzf - cancel interactive script! provide Y
 # TODO: change aptget: use apt-cache to check if it's updated or older version. If older, then update it.
 # TODO: force update (new switch) - delete apps and reinstall them
@@ -92,11 +95,13 @@ mkdir -p ~/.emacs.d/mine
 find ${__dir}/bin -type f -not -name 'create_bash.model' -exec chmod +x {} \;
 find ${__dir} -maxdepth 1 -type f -not -name 'install' -exec chmod -x {} \;
 
+
 # --------------------------------------------------------------------------------
 # create_link
 # $1 = OPTIONAL
-#    = if -w then create windows hard link
-#    = if -c then cp instead of creating link
+#    = -w - then create windows hard link (otherwise it's linux soft link)
+#    = -c - then cp instead of creating link
+#    = -n - backup old file/dir (otherwise just remove it)
 #    = otherwise create linux soft link
 #    = can be EMPTY
 # $2 = source file
@@ -153,8 +158,14 @@ create_link()
     # backup dst
     if [[ -f ${dst_file} && ! -L ${dst_file} ]]; then
         if [[ ${if_backup} = "Y" ]]; then
-            echo "===[L] Backup ${dst_file}.old"
-            mv "${dst_file}" "${dst_file}.old"
+            local backup_file="${dst_file}.old"
+            if [[ -e ${backup_file} ]]; then
+                echo "===[L] NOT doing backup, it already exists (${backup_file})"
+                rm -rf "${dst_file}"
+            else
+                echo "===[L] Backup ${backup_file}"
+                mv "${dst_file}" "${backup_file}"
+            fi
         else
             rm -rf "${dst_file}"
         fi
@@ -211,7 +222,7 @@ aptget()
     if [[ -z "${__aptget_install_cmd}" ]]; then
         echo "===[A] ERROR: no apt-get tool (${app_install})"
         __errors+=("[A] ERROR: no apt-get tool (${app_install})")
-        return 0
+        return 1
     fi
 
     local install_cmd="${__aptget_install_cmd} ${app_install}"
@@ -379,8 +390,10 @@ pipinstall()
 break_links()
 {
     echo "===<<< BREAKING LINKS >>>==="
-    for link in ~/.tmux.conf ~/.vimrc ~/.vimrc.local ~/.bashrc ~/.bashrc.local ~/.emacs ~/.emacs.d/mine/.emacs.local ~/.gitconfig ~/.gitconfig.local ~/.config/ranger/rc.conf ~/.config/ranger/rifle.conf; do
-        if [[ -L "$link" ]]; then
+    for link in ~/.tmux.conf ~/.vimrc ~/.vimrc.local ~/.bashrc ~/.bashrc.local ~/.emacs ~/.emacs.d/mine/.emacs.local ~/.gitconfig ~/.gitconfig.local ~/.config/ranger/rc.conf ~/.config/ranger/rifle.conf ~/.mplayer/config ~/.mplayer/input.conf; do
+        if [[ ! -e "$link" ]]; then
+            echo "File does not exist: $link"
+        elif [[ -L "$link" ]]; then
             echo -n "${link}..."
             cp --remove-destination "$(readlink ${link})" ${link}
             echo " Done."
@@ -390,6 +403,7 @@ break_links()
     done
     echo "===<<< DONE BREAKING LINKS >>>==="
 }
+
 
 # --------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------
@@ -421,39 +435,10 @@ install_dotfiles()
     [[ -d ${__dir_dlocal} ]] && create_link ${__dir_dlocal}/vimrc.local ~/.vimrc.local
 
     # Emacs Linux:
-    create_link ${__dir}/emacs ~/.emacs
-    [[ -d ${__dir_dlocal} ]] && create_link ${__dir_dlocal}/emacs.local ~/.emacs.d/mine/.emacs.local
-        # evil-leader:
-        geturl https://raw.githubusercontent.com/cofi/evil-leader/master/evil-leader.el ~/.emacs.d/mine/evil-leader.el || true
-        # key-chord:
-        geturl http://www.emacswiki.org/emacs/download/key-chord.el ~/.emacs.d/mine/key-chord.el || true
-        # evil:
-        gitclone https://gitorious.org/evil/evil.git ~/.emacs.d/evil \
-            ||
-            {
-                echo "=== Manually downloading evil.git"
-                rm -rf ~/.emacs.d/evil
-                rm -rf ~/.emacs.d/lyro-evil*
-                cd ~/.emacs.d
-                if [[ ! -f evil-default.zip ]]; then
-                    ${__geturl_app} evil-default.zip https://bitbucket.org/lyro/evil/get/default.zip \
-                        ||
-                        {
-                            echo "=== ERROR: downloading evil.git (default.zip)"
-                            __errors+=("ERROR: downloading evil.git (default.zip)")
-                        } \
-                        &&
-                        {
-                            unzip evil-default.zip
-                            mv ~/.emacs.d/lyro-evil* evil
-                            rm ~/.emacs.d/evil-default.zip
-                            echo "=== evil.git installed"
-                            __errors+=("OK: evil.git installed manually!")
-                        }
-                fi
-            }
-        # org-mode:
-        gitclone git://orgmode.org/org-mode.git ~/.emacs.d/org-mode "git checkout -b stable origin/maint" "git pull" "make autoloads" || true
+    if hash emacs 2>/dev/null; then
+        create_link ${__dir}/emacs ~/.emacs
+        [[ -d ${__dir_dlocal} ]] && create_link ${__dir_dlocal}/emacs.local ~/.emacs.d/mine/.emacs.local
+    fi
 
     # Emacs Win:
     if [[ -d ${__win_appdata} ]]; then
@@ -544,6 +529,12 @@ install_dotfiles()
         __errors+=("Ranger folder not found. Not creating links.")
     fi
 
+    # mplayer
+    if hash mplayer 2>/dev/null || [[ -d ~/.mplayer ]]; then
+        create_link ${__dir}/mplayer_config ~/.mplayer/config
+        create_link ${__dir}/mplayer_input.conf ~/.mplayer/input.conf
+    fi
+
     vim +PluginInstall +PluginClean +qall
 
     echo "===<<< DONE INSTALLING DOTFILES >>>==="
@@ -562,15 +553,51 @@ install_more_apps()
     #     ${__sudo} apt-get update
     # fi
 
+    # Emacs
+    aptget emacs || true
+    if hash emacs 2>/dev/null; then
+        # evil-leader:
+        geturl https://raw.githubusercontent.com/cofi/evil-leader/master/evil-leader.el ~/.emacs.d/mine/evil-leader.el || true
+        # key-chord:
+        geturl http://www.emacswiki.org/emacs/download/key-chord.el ~/.emacs.d/mine/key-chord.el || true
+        # evil:
+        gitclone https://gitorious.org/evil/evil.git ~/.emacs.d/evil \
+            ||
+            {
+                echo "=== Manually downloading evil.git"
+                rm -rf ~/.emacs.d/evil
+                rm -rf ~/.emacs.d/lyro-evil*
+                cd ~/.emacs.d
+                if [[ ! -f evil-default.zip ]]; then
+                    ${__geturl_app} evil-default.zip https://bitbucket.org/lyro/evil/get/default.zip \
+                        ||
+                        {
+                            echo "=== ERROR: downloading evil.git (default.zip)"
+                            __errors+=("ERROR: downloading evil.git (default.zip)")
+                        } \
+                        &&
+                        {
+                            unzip evil-default.zip
+                            mv ~/.emacs.d/lyro-evil* evil
+                            rm ~/.emacs.d/evil-default.zip
+                            echo "=== evil.git installed"
+                            __errors+=("OK: evil.git installed manually!")
+                        }
+                fi
+            }
+        # org-mode:
+        gitclone git://orgmode.org/org-mode.git ~/.emacs.d/org-mode "git checkout -b stable origin/maint" "git pull" "make autoloads" || true
+    fi
+
     # commacd
     geturl https://raw.githubusercontent.com/shyiko/commacd/master/commacd.bash ~/.commacd.bash || true
     # geeknote
     gitclone https://github.com/VitaliyRodnenko/geeknote.git ~/apps/geeknote "${__sudo} python setup.py install" "geeknote settings --editor vim" || true
-    # glances
-    aptget glances
 
-    # for glances:
-      aptget lm-sensors
+    # glances
+    aptget glances || true
+      # for glances:
+      aptget lm-sensors || true
       pipinstall -2 PySensors
 
     # Reszta 2:
@@ -603,12 +630,20 @@ install_basics()
     # fi
 
     # Basic
-    aptget git
-    aptget vim
-    aptget make
+    aptget git || true
+    aptget vim || true
+    aptget make || true
     gitclone https://github.com/gmarik/Vundle.vim.git ~/.vim/bundle/Vundle.vim || true
-    aptget python-pip pip
-    aptget python3-pip pip3
+    aptget python-pip pip \
+        ||
+        {
+            geturl https://bootstrap.pypa.io/get-pip.py /tmp/get-pip.py "sudo python2 get-pip.py" "rm get-pip.py"
+        }
+    aptget python3-pip pip3 \
+        ||
+        {
+            geturl https://bootstrap.pypa.io/get-pip.py /tmp/get-pip.py "sudo python3 get-pip.py" "rm get-pip.py"
+        }
 
     # Ranger
     # rm -rf ~/apps/ranger ~/.config/ranger
@@ -616,9 +651,6 @@ install_basics()
 
     # TMUX
     aptget tmux
-
-    # Emacs
-    aptget emacs
 
     # Reszta 1:
     aptget wget && __geturl_app="wget -O"
