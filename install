@@ -1,13 +1,11 @@
 #!/usr/bin/env bash
 
-# TODO: add to apt/get + other functions: (and change glances to -ol only)
-#       -oc -ol -oh -ow
 # TODO: create functions: LOG_ERROR, LOG_INFO
 # TODO: fzf - cancel interactive script! provide Y
 # TODO: change aptget: use apt-cache to check if it's updated or older version. If older, then update it.
-# TODO: force update (new switch) - delete apps and reinstall them
-# TODO: add checking sha1sum to curlinstall()
-# TODO: gitclone -update = cd into dir and run git pull
+# NEW OPTIONS
+#    -u :: update
+#    -oc -ol -oh -ow
 
 set -o errexit
 set -o pipefail
