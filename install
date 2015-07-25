@@ -382,7 +382,7 @@ geturl()
                 ;;
         esac
     done
-    if [[ ${if_del}=1 ]]; then
+    if [[ ${if_del} = 1 ]]; then
         rm -rf "${file}"
     fi
 
@@ -447,7 +447,7 @@ geturl()
         ${run}
     done
 
-    if [[ ${if_del}=1 ]]; then
+    if [[ ${if_del} = 1 ]]; then
         rm -rf "${file}"
     fi
 
@@ -857,15 +857,7 @@ while [[ $# > 0 ]]; do
 done
 
 # # start
-# aptget dtrx ||
-#     {
-#         echo "byl blad"
-#         geturl -d http://brettcsmith.org/2007/dtrx/dtrx-7.1.tar.gz /tmp/dtrx-7.1.tar.gz -sha1 05cfe705a04a8b84571b0a5647cd2648720791a4 "tar -xf dtrx-7.1.tar.gz" "cd dtrx-7.1" "python setup.py install --prefix=/usr/local" "rm -rf /tmp/dtrx-7.1"
-#     } &&
-#         {
-#             echo nie bylo bledu
-#         }
-# echo "=============== END DTRX"
+# geturl https://raw.githubusercontent.com/cofi/evil-leader/master/evil-leader.el ~/.emacs.d/mine/evil-leader.el -sha1 00c336e55307dbcb3f73f47b1d9a1d759404341d || true
 # exit
 # # end
 
