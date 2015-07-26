@@ -315,14 +315,14 @@ fi
 
 
 # COMMACD: -------------------------------------------------------------
-source ~/.commacd.bash
+if [[ -r ~/.commacd.bash ]]; then
+    source ~/.commacd.bash
+fi
 
 
 # fzf ------------------------------------------------------------------
-echo "check fzf"
-if [[ -f ~/.fzf.bash ]]; then
-    echo "running fzf..."
-    [ -f ~/.fzf.bash ] && source ~/.fzf.bash
+if [[ -r ~/.fzf.bash ]]; then
+    source ~/.fzf.bash
     export FZF_COMPLETION_OPTS='-x'
     export FZF_DEFAULT_OPTS='-x'
     # default keys/func/
@@ -370,7 +370,7 @@ if [[ -f ~/.fzf.bash ]]; then
     # }
 fi
 
-export PATH=~/.dotfiles/bin:${PATH}
+[[ -d ~/.dotfiles/bin ]] && export PATH=~/.dotfiles/bin:${PATH}
 # source ~/.bash-git-prompt/gitprompt.sh
 
 # -----------------------------------------------------------------------
