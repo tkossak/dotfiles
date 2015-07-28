@@ -410,3 +410,8 @@ unset _vTmp1 _vTmp2 _vTmp3
 unset _myos _myhost
 
 unset Color_Off Black Red Green Yellow Blue Purple Cyan White BBlack BRed BGreen BYellow BBlue BPurple BCyan BWhite UBlack URed UGreen UYellow UBlue UPurple UCyan UWhite On_Black On_Red On_Green On_Yellow On_Blue On_Purple On_Cyan On_White IBlack IRed IGreen IYellow IBlue IPurple ICyan IWhite BIBlack BIRed BIGreen BIYellow BIBlue BIPurple BICyan BIWhite On_IBlack On_IRed On_IGreen On_IYellow On_IBlue On_IPurple On_ICyan On_IWhite
+
+
+# export PAGER=/usr/local/bin/vimpager
+# alias less=$PAGER
+# alias zless=$PAGER
