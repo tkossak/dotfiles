@@ -93,8 +93,11 @@ mkdir -p ~/.emacs.d/mine
 find ${__dir}/bin -type f -not -name 'create_bash.model' -exec chmod +x {} \;
 find ${__dir} -maxdepth 1 -type f -not -name 'install' -exec chmod -x {} \;
 
+
 # --------------------------------------------------------------------------------
-# checksum - return 0 if sum is ok
+# --------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------
+# checksum() - return 0 if sum is ok
 # $1 = file to check the sum
 # $2 =
 #      -sha1 [SHA1SUM]
@@ -158,6 +161,8 @@ checksum()
 }
 
 
+# --------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------
 # create_link
 # $1 = OPTIONAL
@@ -262,6 +267,8 @@ create_link()
 }
 
 # --------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------
 # aptget
 # $1 = app name to install (passed to apt-get)
 # $2 = app name to check if it's installed already
@@ -305,6 +312,8 @@ aptget()
 
 
 # --------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------
 # gitclone
 # $1  = git url to clone
 # $2  = git folder to clone to
@@ -337,6 +346,8 @@ gitclone()
 }
 
 
+# --------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------
 # geturl [OPTIONS] <URL> <FILE> [OPTIONS] [RUN_LATER]
 # OPTIONS:
@@ -455,6 +466,8 @@ geturl()
 
 
 # --------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------
 # pipinstall
 # $1 = options
 #      -2  :: pip2
@@ -504,6 +517,8 @@ pipinstall()
 }
 
 
+# --------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------
 # break_links()
 break_links()
@@ -660,17 +675,14 @@ install_dotfiles()
 
 }
 
-# -------------------------------------------------------
-# install_more_apps
-install_more_apps()
+
+# --------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------
+install_apps_basic3_new_comp()
 {
 
-    echo "===<<< INSTALLING MORE APPS >>>==="
-
-    # update repositories
-    # if hash apt-get 2>/dev/null; then
-    #     ${__sudo} apt-get update
-    # fi
+    echo "===<<< INSTALLING BASICS 3 (NEW COMP) >>>==="
 
     # Emacs
     aptget emacs || true
@@ -708,10 +720,37 @@ install_more_apps()
         gitclone git://orgmode.org/org-mode.git ~/.emacs.d/org-mode "git checkout -b stable origin/maint" "git pull" "make autoloads" || true
     fi
 
-    # commacd
-    geturl https://raw.githubusercontent.com/shyiko/commacd/master/commacd.bash ~/.commacd.bash || true
     # geeknote
     gitclone https://github.com/VitaliyRodnenko/geeknote.git ~/apps/geeknote "${__sudo} python setup.py install" "geeknote settings --editor vim" || true
+
+    # Reszta BASICS 3:
+    pipinstall -3 BeautifulSoup4
+
+    # flake8
+    pipinstall -3 flake8
+
+    # bashate
+    pipinstall -3 bashate
+
+    # httpie
+    pipinstall httpie
+
+    # geeknote login....?
+    echo "===<<< DONE INSTALLING BASICS 3 (NEW COMP) >>>==="
+}
+
+
+# --------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------
+# install_apps_basics2
+install_apps_basics2()
+{
+
+    echo "===<<< INSTALLING BASICS 2 >>>==="
+
+    # commacd
+    geturl https://raw.githubusercontent.com/shyiko/commacd/master/commacd.bash ~/.commacd.bash || true
 
     # glances
     aptget glances \
@@ -721,12 +760,8 @@ install_more_apps()
             pipinstall -2 PySensors
         } || true
 
-    # Reszta 2:
-    pipinstall -3 BeautifulSoup4
-    pipinstall -3 flake8
-    pipinstall -3 bashate
+    # speedtest-cli
     pipinstall -2 speedtest-cli
-    pipinstall httpie
 
     # fzf - asks questions
     if [[ ! -d ~/.fzf ]]; then
@@ -734,13 +769,15 @@ install_more_apps()
     fi
 
     # geeknote login
-    echo "===<<< DONE INSTALLING MORE APPS >>>==="
+    echo "===<<< DONE INSTALLING BASICS 2 >>>==="
 
 }
 
-# -------------------------------------------------------
-# install_basics
-install_basics()
+# --------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------
+# install_apps_basic
+install_apps_basic()
 {
 
     echo "===<<< INSTALLING BASICS >>>==="
@@ -751,10 +788,19 @@ install_basics()
     # fi
 
     # Basic
+    # git
     aptget git || true
+
+    # vim
     aptget vim || true
+
+    # make
     aptget make || true
+
+    # vim-vundle
     gitclone https://github.com/gmarik/Vundle.vim.git ~/.vim/bundle/Vundle.vim || true
+
+    # PIP2
     if hash python2 2>/dev/null; then
         aptget python-pip pip \
             ||
@@ -763,6 +809,7 @@ install_basics()
             }
     fi
 
+    # PIP3
     if hash python3 2>/dev/null; then
         aptget python3-pip pip3 \
             ||
@@ -778,9 +825,13 @@ install_basics()
     # TMUX
     aptget tmux || true
 
-    # Reszta 1:
+    # wget
     aptget wget && __geturl_app="wget -O" || true
+
+    # curl
     aptget curl && __geturl_app="curl -o" || true
+
+    # dtrx
     aptget dtrx ||
         {
             rm -rf /tmp/dtrx-7.1
@@ -793,14 +844,15 @@ install_basics()
     echo "===<<< DONE INSTALLING BASICS >>>==="
 }
 
-# -------------------------------------------------------
-# -------------------------------------------------------
-# -------------------------------------------------------
 
+# --------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------
 
 if_dotfiles="N"
-if_basics="N"
-if_more_apps="N"
+if_basics1="N"
+if_basics2="N"
+if_basics3_new_comp="N"
 if_break_links="N"
 
 [[ $# = 0 ]] && if_dotfiles="Y"
@@ -810,12 +862,17 @@ while [[ $# > 0 ]]; do
 
         -h|--help)
             echo "CLI options:"
+            echo "  -l  :: break links"
             echo "  -d  :: install dotfiles"
-            echo "  -b  :: install basic apps"
-            echo "  -a  :: install almost all (except more apps)"
-            echo "  -A  :: install all/everything"
-            echo "  -l :: break links"
+            echo "  -b  :: install dotfiles + basics 1"
+            echo "  -a  :: install dotfiles + basics 1 + 2"
+            echo "  -A  :: install dotfiles + basics 1 + 2 + 3 (new comp)"
             exit 0
+            ;;
+
+        -l)
+            shift
+            if_break_links="Y"
             ;;
 
         -d)
@@ -826,26 +883,24 @@ while [[ $# > 0 ]]; do
         -b)
             shift
             if_break_links="Y"
-            if_basics="Y"
-            ;;
-
-        -l)
-            shift
-            if_break_links="Y"
-            ;;
-
-        -a) # almost all (without more apps)
-            shift
-            if_break_links="Y"
-            if_basics="Y"
+            if_basics1="Y"
             if_dotfiles="Y"
             ;;
 
-        -A) # all (with more apps)
+        -a)
             shift
             if_break_links="Y"
-            if_basics="Y"
-            if_more_apps="Y"
+            if_basics1="Y"
+            if_basics2="Y"
+            if_dotfiles="Y"
+            ;;
+
+        -A)
+            shift
+            if_break_links="Y"
+            if_basics1="Y"
+            if_basics2="Y"
+            if_basics3_new_comp="Y"
             if_dotfiles="Y"
             ;;
 
@@ -864,7 +919,7 @@ done
 [[ ${if_break_links} = "Y" ]] && break_links
 
 # update repos?
-if [[ ( ${if_basics} = "Y" || ${if_more_apps} = "Y" ) ]] && hash apt-get 2>/dev/null; then
+if [[ ( ${if_basics1} = "Y" || ${if_basics2} = "Y" ) ]] && hash apt-get 2>/dev/null; then
     read -p "Do apt-get update (y/n)? " -n 1 -r
     echo
     if [[ ${REPLY} =~ ^[Yy]$ ]]; then
@@ -873,8 +928,9 @@ if [[ ( ${if_basics} = "Y" || ${if_more_apps} = "Y" ) ]] && hash apt-get 2>/dev/
 
 fi
 
-[[ ${if_basics} = "Y" ]] && install_basics
-[[ ${if_more_apps} = "Y" ]] && install_more_apps
+[[ ${if_basics1} = "Y" ]] && install_apps_basic
+[[ ${if_basics2} = "Y" ]] && install_apps_basics2
+[[ ${if_basics3_new_comp} = "Y" ]] && install_apps_basics3_new_comp
 [[ ${if_dotfiles} = "Y" ]] && install_dotfiles
 
 # display errors
