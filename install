@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 # TODO: create functions: LOG_ERROR, LOG_INFO
+# TODO: add youtube-dl -U
 # TODO: fzf - cancel interactive script! provide Y
 # TODO: change aptget: use apt-cache to check if it's updated or older version. If older, then update it.
 # NEW OPTIONS
@@ -146,8 +147,7 @@ checksum()
                 } \
                 &&
                 {
-                    echo "===[SUM] CHECKSUM OK: ${file}"
-                    loguj -p -e -t "${ltype}" "CHECKSUM OK: ${file}"
+                    loguj -p -i -t "${ltype}" "CHECKSUM OK: ${file}"
                     return 0
                 }
             ;;
@@ -175,6 +175,7 @@ create_link()
     local if_backup="N"
     local src_file=""
     local dst_link=""
+    local ltype="LNK"
 
     while [[ $# > 0 ]]; do
         case $1 in
@@ -193,8 +194,7 @@ create_link()
                 elif [[ -z "${dst_link}" ]]; then
                     dst_link="$1"
                 else
-                    echo "===[L] ERROR: Unknown option? ($1)"
-                    __logi_errors+=("[L] ERROR: Unknown option? ($1)")
+                    loguj -e -t "${ltype}" "Unknown option? ($1)"
                     return 3
                 fi
                 shift
@@ -204,8 +204,7 @@ create_link()
 
     # check if src exists:
     if [[ ! -e "${src_file}" ]]; then
-        echo "===[L] ERROR: Src file ${src_file} does not exists."
-        __logi_errors+=("[L] ERROR: Src file ${src_file} does not exists.")
+        loguj -i -t "${ltype}" "Src file ${src_file} does not exists."
         return 0
     fi
     src_file="$(readlink -f ${src_file})"
@@ -285,7 +284,7 @@ create_link()
 #   -l  :: info linked
 #   -e  :: err
 #   -w  :: warn
-#   -p  :: print onlyl (do not add to arrays)
+#   -p  :: print only (do not add to arrays)
 #   -t <TAG> ::
 # __logi_errors=()
 # __logi_info=()
@@ -1044,8 +1043,8 @@ fi
 
 # display info logs
 if [[ ${#__logi_info[@]} > 0 ]]; then
-    echo "=== LOG INFO ==="
-    for err in "${__logi_errors[@]}"; do
+    echo "====================================================== LOG INFO ==="
+    for err in "${__logi_info[@]}"; do
         echo ${err}
     done
 else
@@ -1054,7 +1053,7 @@ fi
 
 # display ERROR logs
 if [[ ${#__logi_errors[@]} > 0 ]]; then
-    echo "=== LOG ERRORS ==="
+    echo "====================================================== LOG ERROS  ==="
     for err in "${__logi_errors[@]}"; do
         echo ${err}
     done
