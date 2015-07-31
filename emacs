@@ -174,6 +174,8 @@
 ;(define-key evil-normal-state-map (kbd "C-k") 'evil-window-up)
 (define-key evil-normal-state-map (kbd "C-j") 'outline-next-visible-heading)
 (define-key evil-normal-state-map (kbd "C-k") 'outline-previous-visible-heading)
+(define-key evil-normal-state-map (kbd "C-S-k") 'outline-up-heading)
+
 
 (require 'key-chord)
 (setq key-chord-two-keys-delay 0.5)
