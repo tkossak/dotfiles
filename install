@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+# TODO: check return codes everywhere
 # TODO: create functions: LOG_ERROR, LOG_INFO
 # TODO: add youtube-dl -U
 # TODO: fzf - cancel interactive script! provide Y
@@ -66,10 +67,6 @@ hash sudo 2>/dev/null \
 __aptget_install_cmd=""
 if hash apt-get 2>/dev/null; then
     __aptget_install_cmd="${__sudo} apt-get install -qyf"
-# else
-#     echo "===[A] ERROR: no apt-get tool?"
-#     __logi_errors+=("[A] ERROR: no apt-get tool?")
-#     return 1
 fi
 
 __logi_errors=()
@@ -142,12 +139,12 @@ checksum()
             sha1sum --status -c <(echo "${sum_value}" "${file}") \
                 ||
                 {
-                    loguj -e -t "${ltype}" "Wrong checksum for: ${file}"
+                    loguj -e -t "${ltype}" "WRONG CHECKSUM for: ${file}"
                     return 1
                 } \
                 &&
                 {
-                    loguj -p -i -t "${ltype}" "CHECKSUM OK: ${file}"
+                    loguj -p -i -t "${ltype}" "Checksum ok: ${file}"
                     return 0
                 }
             ;;
@@ -222,9 +219,6 @@ create_link()
         rm "${dst_link}"
     fi
 
-    # echo "${src_file}"
-    # echo "${dst_link}"
-
     # backup dst
     if [[ -f ${dst_link} && ! -L ${dst_link} ]]; then
         if [[ ${if_backup} = "Y" ]]; then
@@ -241,6 +235,7 @@ create_link()
         fi
     fi
 
+    # linking:
     if [[ $link_type = "WIN HARD" ]]; then
         loguj -p -i -t "${ltype}" "LINK Windows ---${dst_link}--- to ---${src_file}---... "
         if [[ -d ${src_file} ]]; then
@@ -248,22 +243,23 @@ create_link()
         else
             cmd /c mklink /H "$(cygpath -aw ${dst_link})" "$(cygpath -aw ${src_file})"
         fi
+        loguj -l -t "${ltype}" "WIN HARD $(basename ${dst_link} .sh)"
     elif [[ $link_type = "CP" ]]; then
-        loguj -p -i -t "${ltype}" "COPY ${dst_link} ---to--- ${src_file} ---... "
+        # loguj -p -i -t "${ltype}" "COPY ${dst_link} ---to--- ${src_file} ---... "
+        loguj -l -t "${ltype}" "CP $(basename ${dst_link} .sh)"
         cp "${src_file}" "${dst_link}"
     elif [[ $link_type = "LINUX" ]]; then
-        loguj -p -i -t "${ltype}" "Linux ${dst_link} ---to--- ${src_file} ---... "
+        # loguj -p -i -t "${ltype}" "Linux ${dst_link} ---to--- ${src_file} ---... "
+        loguj -l -t "${ltype}" "Linux $(basename ${dst_link} .sh)"
         ln -s "${src_file}" "${dst_link}"
     else
         loguj -e -t "${ltype}" "bledny link_type: ${link_type}"
-    fi &&
-    {
-        loguj -l -t "${ltype}" "$(basename ${dst_link} .sh)"
-    } ||
-    {
-        loguj -e -t "${ltype}" "$(basename ${dst_link} .sh)"
-        #loguj -e -t "${ltype}"  "$(readlink -f ${dst_link})" # "creating link ${src_file}"
-    }
+        return 99
+    fi ||
+        {
+            loguj -e -t "${ltype}" "$(basename ${dst_link} .sh)"
+            return 99
+        }
 
 }
 
@@ -279,6 +275,9 @@ create_link()
 #   -s  :: info installed (default)
 #   -l  :: info linked
 #   -c  :: info cloned
+#   -d  :: info downloaded
+#   -ss :: section start
+#   -se :: section end
 #   -e  :: err
 #   -w  :: warn
 #   -p  :: print only (do not add to arrays)
@@ -296,18 +295,35 @@ loguj()
 
     while [[ $# > 0 ]]; do
         case $1 in
-            -i) ltype="INFO"
+            -i)
+                ltype="INFO"
                 shift
                 ;;
-            -s) ltype="INFO_INSTALLED"
+            -s)
+                ltype="INFO_INSTALLED"
                 shift
                 ;;
-            -l) ltype="INFO_LINKED"
+            -l)
+                ltype="INFO_LINKED"
                 shift
                 ;;
-            -c) ltype="INFO_CLONED"
+            -c)
+                ltype="INFO_CLONED"
                 shift
                 ;;
+            -d)
+                ltype="INFO_DOWNLOADED"
+                shift
+                ;;
+            -ss)
+                ltype="SEC_START"
+                shift
+                ;;
+            -se)
+                ltype="SEC_END"
+                shift
+                ;;
+
             -e) ltype="ERROR"
                 shift
                 ;;
@@ -329,10 +345,12 @@ loguj()
                     echo "===[LOG][ERR ]: Unknown option? ($1)"
                     __logi_info+=("[LOG][ERR ]: Unknown option? ($1)")
                     __logi_errors+=("[LOG][ERR ]: Unknown option? ($1)")
+                    return 99
                 fi
             ;;
         esac
     done
+
     if [[ "${ltype}" = "INFO" ]]; then
         ltmp="${lprefix}[${ltag}][INFO]: ${lmsg}"
         echo  "${ltmp}"
@@ -349,6 +367,18 @@ loguj()
         ltmp="${lprefix}[${ltag}][INFO]: CLONED: ${lmsg} "
         echo "${ltmp}"
         [[ "${if_print_only}" = "N" ]] && __logi_info+=("${ltmp}")
+    elif [[ "${ltype}" = "INFO_DOWNLOADED" ]]; then
+        ltmp="${lprefix}[${ltag}][INFO]: DOWNLOADED: ${lmsg} "
+        echo "${ltmp}"
+        [[ "${if_print_only}" = "N" ]] && __logi_info+=("${ltmp}")
+    elif [[ "${ltype}" = "SEC_START" ]]; then
+        ltmp="${lprefix}[${ltag}][INFO]: ==========<<< START: ${lmsg} >>>=========="
+        echo "${ltmp}"
+        [[ "${if_print_only}" = "N" ]] && __logi_info+=("${ltmp}")
+    elif [[ "${ltype}" = "SEC_END" ]]; then
+        ltmp="${lprefix}[${ltag}][INFO]: ==========<<< END: ${lmsg} >>>=========="
+        echo "${ltmp}"
+        [[ "${if_print_only}" = "N" ]] && __logi_info+=("${ltmp}")
     elif [[ "${ltype}" = "ERROR" || "${ltype}" = "WARN" ]]; then
         ltmp="${lprefix}[${ltag}][WARN]: ${lmsg}"
         echo "${ltmp}"
@@ -357,6 +387,10 @@ loguj()
                 __logi_info+=("${ltmp}")
                 __logi_errors+=("${ltmp}")
             }
+    else
+                __logi_info+=("wrong ltype=${ltype}")
+                __logi_errors+=("wrong ltype=${ltype}")
+                return 99
     fi
 }
 
@@ -422,7 +456,7 @@ gitclone()
     local ltype="GIT"
 
     if [[ -d ${gitfolder} ]]; then
-        loguj -i -t "${ltype}" "Already exists: ${gitfolder}"
+        loguj -i -t "${ltype}" "Already exists: $(basename ${gitfolder} .sh)"
         return 0
     fi
     loguj -p -i -t "${ltype}" "Cloning ${giturl} ===TO=== ${gitfolder}"
@@ -434,17 +468,14 @@ gitclone()
 
     cd ${gitfolder}
     for run in "${runlater[@]:-}" ; do
-        echo "===[G] run ${run}"
-        loguj -p -i -t "${ltype}" "Run: ${run}"
+        loguj -i -t "${ltype}" "Run: ${run}"
         ${run}
-    done
-    && \
-    {
-        loguj -i -t "${ltype}" "CHECKSUM OK: ${file}"
-    }
-    || \
-    {
-    }
+    done \
+        ||
+        {
+            loguj -e -t "${ltype}" "Run: ${run} ===APP:=== ${giturl}"
+            return 1
+        }
 
 }
 
@@ -459,6 +490,7 @@ gitclone()
 #     -sha1 <SUM> :: sha1sum of the file to check. If it fails, file is not installed
 geturl()
 {
+    local ltype="URL"
     local update=""
     local url=""
     local file=""
@@ -489,8 +521,7 @@ geturl()
                 elif [[ -z "${file}" ]]; then
                     file="${1}"
                 else
-                    echo "===[U] ERROR: Unknown option? ($1)"
-                    __logi_errors+=("[U] ERROR: Unknown option? ($1)")
+                    loguj -e -t "${ltype}" "Unknown option? ($1)"
                     return 3
                 fi
                 shift
@@ -506,8 +537,7 @@ geturl()
     tmpfile="${file}#.#"
 
     if [[ -z "${__geturl_app}" ]]; then
-        echo "===[U] ERROR: No curl/wget app: ${url}"
-        __logi_errors+=("[U] ERROR: No curl/wget app: ${url}")
+        loguj -e -t "${ltype}" "No curl/wget app. (${url})"
         return 99
     fi
 
@@ -518,21 +548,21 @@ geturl()
         mv "${file}" "${tmpfile}"
         if_moved_to_tmpfile=1
     elif [[ -e ${file} ]]; then
-        echo "===[U] File/dir already exists: ${file} . Not redownloading."
+        loguj -i -t "${ltype}" "File already exists: $(basename ${file} .sh). Not redownloading." 
         return 0
     fi
 
     # download:
-    echo "===[U] Downloading ${url}..."
+    loguj -p -i -t "${ltype}" "Downloading ${url}"
     ${__geturl_app} ${file} ${url} \
         ||
         {
-            echo "===[U] ERROR downloading file: ${url}"
-            __logi_errors+=("[U] ERROR downloading file: ${url}")
+            loguj -e -t "${ltype}" "Downloading: ${url}"
             if [[ ${if_moved_to_tmpfile} = 1 ]]; then
-                echo -n "===[U] Restoring old one... "
-                mv -f ${tmpfile} ${file}
-                echo "Done."
+                mv -f ${tmpfile} ${file} \
+                    && loguj -p -i -t "${ltype}" "Old file restored: ${tmpfile}" \
+                    || loguj -e -t "${ltype}" "Restoring old file: ${tmpfile}"
+
             fi
             return 1
         }
@@ -541,32 +571,36 @@ geturl()
     if [[ -n ${sum_type} ]]; then
         checksum ${file} -${sum_type} ${sum_value} ||
             {
-                echo "===[U] ERROR checksum: not installing: ${url}"
-                __logi_errors+=("[U] ERROR checksum: not installing: ${url}")
+                # error displayed by the checksum function
                 if [[ ${if_moved_to_tmpfile} = 1 ]]; then
-                    echo -n "===[U] Restoring old one... "
-                    mv -f ${tmpfile} ${file}
-                    echo "Done."
+                    mv -f ${tmpfile} ${file} \
+                        && loguj -p -i -t "${ltype}" "Old file restored: ${tmpfile}" \
+                        || loguj -e -t "${ltype}" "Restoring old file: ${tmpfile}"
                 fi
                 return 1
             }
     fi
 
-    echo "===[U] Done."
+    loguj -d -t "${ltype}" "${file}"
     if [[ ${if_moved_to_tmpfile}=1 && -e ${tmpfile} ]]; then
         rm -rf "${tmpfile}"
     fi
 
     cd "$(cd "$(dirname "${file}")" && pwd)"
     for run in "${runlater[@]:-}" ; do
-        echo "===[U] run ${run}"
+        loguj -i -t "${ltype}" "Run: ${run}"
         ${run}
-    done
+    done \
+        ||
+        {
+            loguj -e -t "${ltype}" "Run: ${run} ===APP:=== ${url}"
+            return 1
+        }
+
 
     if [[ ${if_del} = 1 ]]; then
         rm -rf "${file}"
     fi
-
 }
 
 
@@ -581,6 +615,7 @@ geturl()
 # $1 = app name to install
 pipinstall()
 {
+    local ltype="PIP"
     local pip="pip"
     local update=""
     local cmdinstall=""
@@ -602,8 +637,7 @@ pipinstall()
                 if [[ -z "${cmdinstall}" ]]; then
                     cmdinstall="${1}"
                 else
-                    echo "===[P] ERROR: Unknown option? ($1)"
-                    __logi_errors+=("[P] ERROR: Unknown option? ($1)")
+                    loguj -e -t "${ltype}" "Unknown option? ($1)"
                     return 3
                 fi
                 shift
@@ -613,17 +647,20 @@ pipinstall()
 
     if ${pip} -q show ${cmdinstall}; then # app is installed
         if [[ -z "${update}" ]]; then
-            echo "===[P] app already installed: ${cmdinstall}"
+            loguj -i -t "${ltype}" "App already installed: ${cmdinstall}"
             return 0
         fi
     fi
-    echo "===[P] installing ${cmdinstall}..."
+    loguj -p -i -t "${ltype}" "installing ${cmdinstall}..."
     ${__sudo} ${pip} install ${update} ${cmdinstall} \
-        && echo "===[P] Done." \
+        &&
+        {
+            loguj -l -t "${ltype}" "${cmdinstall}"
+        } \
         ||
         {
-            echo "===[P] ERROR."
-            __logi_errors+=("[P] ERROR: ${__sudo} ${pip} install ${update} ${cmdinstall}")
+            loguj -e -t "${ltype}" "Installing: ${__sudo} ${pip} install ${update} ${cmdinstall}"
+            return 1
         }
 }
 
@@ -634,19 +671,19 @@ pipinstall()
 # break_links()
 break_links()
 {
-    echo "===<<< BREAKING LINKS >>>==="
+    local ltype="BRK"
+    loguj -ss -t "${ltype}" "BREAKING LINKS"
     for link in ~/.tmux.conf ~/.vimrc ~/.vimrc.local ~/.bashrc ~/.bashrc.local ~/.emacs ~/.emacs.d/mine/.emacs.local ~/.gitconfig ~/.gitconfig.local ~/.config/ranger/rc.conf ~/.config/ranger/rifle.conf ~/.mplayer/config ~/.mplayer/input.conf ~/.weechat; do
         if [[ ! -e "$link" ]]; then
-            echo "File does not exist: $link"
+            loguj -i -t "${ltype}" "File does not exist: $link"
         elif [[ -L "$link" ]]; then
-            echo -n "${link}..."
             cp --remove-destination "$(readlink ${link})" ${link}
-            echo " Done."
+            loguj -i -t "${ltype}" "UNLINKED: ${link}"
         else
-            echo "Not a link: ${link}"
+            loguj -i -t "${ltype}" "Not a link: ${link}"
         fi
     done
-    echo "===<<< DONE BREAKING LINKS >>>==="
+    loguj -se -t "${ltype}" "BREAKING LINKS"
 }
 
 
@@ -656,7 +693,8 @@ break_links()
 # install_dotfiles
 install_dotfiles()
 {
-    echo "===<<< INSTALLING DOTFILES >>>==="
+    local ltype="DOT"
+    loguj -ss -t "${ltype}" "DOTFILES"
 
     # Folders:
     create_link ${__dir} ~/.dotfiles
@@ -708,8 +746,7 @@ install_dotfiles()
         create_link ${__dir_dlocal}/emacs.local ~/.emacs.d/mine/.emacs.local
         [[ -d ${__win_appdata} ]] && create_link -w ${__dir_dlocal}/emacs.local ${__win_appdata}/.emacs.d/mine/.emacs.local
     else
-        echo "===Error: local dir does not exist=${__dir_dlocal}"
-        __logi_errors+=("ERROR: local dir does not exist=${__dir_dlocal}")
+        loguj -i -t "${ltype}" "Emacs: no local dir."
     fi
 
     #Ranger:
@@ -738,8 +775,7 @@ install_dotfiles()
                         cat ~/.config/ranger/rifle.conf ${__dir_dlocal}/rifle.conf.h.cygwin > ~/.config/ranger/rifletmp.conf
                         mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
                     else
-                        echo "Cygwin-other os: copying default rifle.conf"
-                        __logi_errors+=("Unknown os: copying default rifle.conf")
+                        loguj -i -t "${ltype}" "Ranger - cygwin - unknown host Copying default file."
                         cat ~/.config/ranger/rifle.conf ${__dir}/rifle.conf > ~/.config/ranger/rifletmp.conf
                         mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
                     fi
@@ -750,28 +786,24 @@ install_dotfiles()
                         cat ~/.config/ranger/rifle.conf ${__dir_dlocal}/rifle.conf.h.linux > ~/.config/ranger/rifletmp.conf
                         mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
                     else
-                        echo "Linux-other os: copying default rifle.conf"
-                        __logi_errors+=("Unknown os: copying default rifle.conf")
+                        loguj -i -t "${ltype}" "Ranger - linux - unknown host Copying default file."
                         cat ~/.config/ranger/rifle.conf ${__dir}/rifle.conf > ~/.config/ranger/rifletmp.conf
                         mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
                     fi
                     ;;
                 *)
-                    echo "Other os: copying default rifle.conf"
-                    __logi_errors+=("Unknown os: copying default rifle.conf")
+                    loguj -i -t "${ltype}" "Ranger - unknown os. Copying default file."
                     cat ~/.config/ranger/rifle.conf ${__dir}/rifle.conf > ~/.config/ranger/rifletmp.conf
                     mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
                     ;;
             esac
         else
-            echo "No local dotfiles, copying default rifle.conf"
-            __logi_errors+=("No local dotfiles: copying default rifle.conf")
+            loguj -i -t "${ltype}" "Ranger - no local dotfiles. Copying default file."
             cat ~/.config/ranger/rifle.conf ${__dir}/rifle.conf > ~/.config/ranger/rifletmp.conf
             mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
         fi
     else
-        echo "===Ranger folder not found. Not creating links."
-        __logi_errors+=("Ranger folder not found. Not creating links.")
+        loguj -i -t "${ltype}" "Ranger not found. Not creating links."
     fi
 
     # mplayer
@@ -785,14 +817,13 @@ install_dotfiles()
         if [[ -d ${__dir_dlocal}/.weechat ]]; then
             create_link ${__dir_dlocal}/.weechat ~/.weechat
         else
-            loguj -w -t DOT "No '.weechat' folder in local dotfiles"
+            loguj -i -t "${ltype}" "No weechat local dotfiles."
         fi
     fi
 
     vim +PluginInstall +PluginClean +qall
 
-    echo "===<<< DONE INSTALLING DOTFILES >>>==="
-
+    loguj -se -t "${ltype}" "DOTFILES"
 }
 
 
@@ -802,7 +833,8 @@ install_dotfiles()
 install_apps_basic3_new_comp()
 {
 
-    echo "===<<< INSTALLING BASICS 3 (NEW COMP) >>>==="
+    local ltype="BA3"
+    loguj -ss -t "${ltype}" "BASICS 3"
 
     # Emacs
     aptget emacs || true
@@ -815,7 +847,7 @@ install_apps_basic3_new_comp()
         gitclone https://gitorious.org/evil/evil.git ~/.emacs.d/evil \
             ||
             {
-                echo "=== Manually downloading evil.git"
+                loguj -i -t "${ltype}" "Manually downloading evil.git"
                 rm -rf ~/.emacs.d/evil
                 rm -rf ~/.emacs.d/lyro-evil*
                 cd ~/.emacs.d
@@ -823,16 +855,15 @@ install_apps_basic3_new_comp()
                     ${__geturl_app} evil-default.zip https://bitbucket.org/lyro/evil/get/default.zip \
                         ||
                         {
-                            echo "=== ERROR: downloading evil.git (default.zip)"
-                            __logi_errors+=("ERROR: downloading evil.git (default.zip)")
+                            loguj -e -t "${ltype}" "Downloading evil.git (default.zip)"
                         } \
                         &&
                         {
                             unzip evil-default.zip
                             mv ~/.emacs.d/lyro-evil* evil
                             rm ~/.emacs.d/evil-default.zip
-                            echo "=== evil.git installed"
-                            __logi_errors+=("OK: evil.git installed manually!")
+                            loguj -d -t "${ltype}" "evil"
+                            loguj -e -t "${ltype}" "Evil downloaded manually."
                         }
                 fi
             }
@@ -856,7 +887,7 @@ install_apps_basic3_new_comp()
     pipinstall httpie
 
     # geeknote login....?
-    echo "===<<< DONE INSTALLING BASICS 3 (NEW COMP) >>>==="
+    loguj -se -t "${ltype}" "BASICS 3"
 }
 
 
@@ -867,7 +898,8 @@ install_apps_basic3_new_comp()
 install_apps_basics2()
 {
 
-    echo "===<<< INSTALLING BASICS 2 >>>==="
+    local ltype="BA2"
+    loguj -ss -t "${ltype}" "BASICS 2"
 
     # commacd
     geturl https://raw.githubusercontent.com/shyiko/commacd/master/commacd.bash ~/.commacd.bash || true
@@ -889,8 +921,7 @@ install_apps_basics2()
     fi
 
     # geeknote login
-    echo "===<<< DONE INSTALLING BASICS 2 >>>==="
-
+    loguj -se -t "${ltype}" "BASICS 2"
 }
 
 # --------------------------------------------------------------------------------
@@ -900,7 +931,8 @@ install_apps_basics2()
 install_apps_basic()
 {
 
-    echo "===<<< INSTALLING BASICS >>>==="
+    local ltype="BA1"
+    loguj -ss -t "${ltype}" "BASICS 1"
 
     # update repositories
     # if hash apt-get 2>/dev/null; then
@@ -961,7 +993,7 @@ install_apps_basic()
     # fasd
     gitclone https://github.com/clvv/fasd.git ~/apps/fasd "${__sudo} make install" || true
 
-    echo "===<<< DONE INSTALLING BASICS >>>==="
+    loguj -se -t "${ltype}" "BASICS 1"
 }
 
 
@@ -974,6 +1006,7 @@ if_basics1="N"
 if_basics2="N"
 if_basics3_new_comp="N"
 if_break_links="N"
+ltype="---"
 
 [[ $# = 0 ]] && if_dotfiles="Y"
 
@@ -1025,7 +1058,7 @@ while [[ $# > 0 ]]; do
             ;;
 
         *)
-            echo "Unknown option: $1"
+            loguj -e -t "${ltype}" "Unknown option: $1"
             exit 1
             ;;
     esac
@@ -1055,7 +1088,7 @@ fi
 
 # display info logs
 if [[ ${#__logi_info[@]} > 0 ]]; then
-    echo "========================================================================== LOG INFO ==="
+    echo "=== LOG INFO =========================================================================="
     for err in "${__logi_info[@]}"; do
         echo ${err}
     done
@@ -1065,7 +1098,7 @@ fi
 
 # display ERROR logs
 if [[ ${#__logi_errors[@]} > 0 ]]; then
-    echo "========================================================================== LOG ERROS  ==="
+    echo "=== LOG ERRORS =========================================================================="
     for err in "${__logi_errors[@]}"; do
         echo ${err}
     done
