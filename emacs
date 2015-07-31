@@ -1,4 +1,3 @@
-
 ;; Packages
 (setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
                          ("org" . "http://orgmode.org/elpa/")
@@ -170,9 +169,11 @@
 (define-key evil-normal-state-map "Q" 'call-last-kbd-macro)
 
 (define-key evil-normal-state-map (kbd "C-h") 'evil-window-left)
-(define-key evil-normal-state-map (kbd "C-j") 'evil-window-down)
-(define-key evil-normal-state-map (kbd "C-k") 'evil-window-up)
 (define-key evil-normal-state-map (kbd "C-l") 'evil-window-right)
+;(define-key evil-normal-state-map (kbd "C-j") 'evil-window-down)
+;(define-key evil-normal-state-map (kbd "C-k") 'evil-window-up)
+(define-key evil-normal-state-map (kbd "C-j") 'outline-next-visible-heading)
+(define-key evil-normal-state-map (kbd "C-k") 'outline-previous-visible-heading)
 
 (require 'key-chord)
 (setq key-chord-two-keys-delay 0.5)
