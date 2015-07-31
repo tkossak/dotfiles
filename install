@@ -278,6 +278,7 @@ create_link()
 #   -i  :: info
 #   -s  :: info installed (default)
 #   -l  :: info linked
+#   -c  :: info cloned
 #   -e  :: err
 #   -w  :: warn
 #   -p  :: print only (do not add to arrays)
@@ -302,6 +303,9 @@ loguj()
                 shift
                 ;;
             -l) ltype="INFO_LINKED"
+                shift
+                ;;
+            -c) ltype="INFO_CLONED"
                 shift
                 ;;
             -e) ltype="ERROR"
@@ -341,6 +345,10 @@ loguj()
         ltmp="${lprefix}[${ltag}][INFO]: LINKED: ${lmsg} "
         echo "${ltmp}"
         [[ "${if_print_only}" = "N" ]] && __logi_info+=("${ltmp}")
+    elif [[ "${ltype}" = "INFO_CLONED" ]]; then
+        ltmp="${lprefix}[${ltag}][INFO]: CLONED: ${lmsg} "
+        echo "${ltmp}"
+        [[ "${if_print_only}" = "N" ]] && __logi_info+=("${ltmp}")
     elif [[ "${ltype}" = "ERROR" || "${ltype}" = "WARN" ]]; then
         ltmp="${lprefix}[${ltag}][WARN]: ${lmsg}"
         echo "${ltmp}"
@@ -363,10 +371,11 @@ aptget()
 {
     local app_install="${1:?Error: app name not set}"
     local app_run="${2:-${1}}"
+    local ltype="APT"
 
     # check if app is installed
     if hash ${app_run} 2>/dev/null; then
-        echo "===[A] ${app_run} already installed."
+        loguj -i -t "${ltype}" "Already installed: ${app_run}"
         return 0
     fi
 
@@ -376,24 +385,22 @@ aptget()
 
     # add apt-get
     if [[ -z "${__aptget_install_cmd}" ]]; then
-        echo "===[A] ERROR: no apt-get tool (${app_install})"
-        __logi_errors+=("[A] ERROR: no apt-get tool (${app_install})")
+        loguj -e -t "${ltype}" "No apt-get tool (${app_install})"
         return 1
     fi
 
     local install_cmd="${__aptget_install_cmd} ${app_install}"
-    echo "===[A] Installing..."
+    loguj -p -i -t "${ltype}" "Installing: ${app_run}"
     ${install_cmd} \
         ||
         {
-            echo "===[A] ERROR: installing ${app_install}"
-            __logi_errors+=("[A] ERROR: installing ${app_install}")
+            loguj -e -t "${ltype}" "During installation of ${app_install}"
             return 1
 
         } \
         &&
         {
-            echo "===[A] Done."
+            loguj -s -t "${ltype}" "${app_run}"
         }
 }
 
@@ -412,24 +419,33 @@ gitclone()
     shift
     shift
     local runlater=("$@")
+    local ltype="GIT"
 
     if [[ -d ${gitfolder} ]]; then
-        echo "===[G] folder already exists: ${gitfolder}"
+        loguj -i -t "${ltype}" "Already exists: ${gitfolder}"
         return 0
     fi
-    echo "===[G] git clone ${giturl} ${gitfolder}==="
+    loguj -p -i -t "${ltype}" "Cloning ${giturl} ===TO=== ${gitfolder}"
     git clone "${giturl}" "${gitfolder}" ||
         {
-            echo "===[G] Git clone exited with Error: ${giturl} ${gitfolder}"
-            __logi_errors+=("[G] Git clone exited with Error: ${giturl} ${gitfolder}")
+            loguj -e -t "${ltype}" "Error while clongin ${giturl} ===TO=== ${gitfolder}"
             return 1
         }
 
     cd ${gitfolder}
     for run in "${runlater[@]:-}" ; do
         echo "===[G] run ${run}"
+        loguj -p -i -t "${ltype}" "Run: ${run}"
         ${run}
     done
+    && \
+    {
+        loguj -i -t "${ltype}" "CHECKSUM OK: ${file}"
+    }
+    || \
+    {
+    }
+
 }
 
 
@@ -1039,7 +1055,7 @@ fi
 
 # display info logs
 if [[ ${#__logi_info[@]} > 0 ]]; then
-    echo "====================================================== LOG INFO ==="
+    echo "========================================================================== LOG INFO ==="
     for err in "${__logi_info[@]}"; do
         echo ${err}
     done
@@ -1049,7 +1065,7 @@ fi
 
 # display ERROR logs
 if [[ ${#__logi_errors[@]} > 0 ]]; then
-    echo "====================================================== LOG ERROS  ==="
+    echo "========================================================================== LOG ERROS  ==="
     for err in "${__logi_errors[@]}"; do
         echo ${err}
     done
