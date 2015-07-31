@@ -173,6 +173,7 @@
 (define-key evil-normal-state-map (kbd "C-j") 'evil-window-down)
 (define-key evil-normal-state-map (kbd "C-k") 'evil-window-up)
 (define-key evil-normal-state-map (kbd "C-l") 'evil-window-right)
+(define-key evil-normal-state-map (kbd "C-K") 'outline-up-heading)
 
 (require 'key-chord)
 (setq key-chord-two-keys-delay 0.5)
