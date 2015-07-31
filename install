@@ -115,12 +115,15 @@ break_links()
     for link in ~/.tmux.conf ~/.vimrc ~/.vimrc.local ~/.bashrc ~/.bashrc.local ~/.emacs ~/.emacs.d/mine/.emacs.local ~/.gitconfig ~/.gitconfig.local ~/.config/ranger/rc.conf ~/.config/ranger/rifle.conf ~/.mplayer/config ~/.mplayer/input.conf \
         ~/.weechat/guile ~/.weechat/javascript ~/.weechat/lua ~/.weechat/perl ~/.weechat/python ~/.weechat/ruby ~/.weechat/script ~/.weechat/tcl ~/.weechat/xfer ~/.weechat/alias.conf ~/.weechat/aspell.conf ~/.weechat/buffers.conf ~/.weechat/charset.conf ~/.weechat/exec.conf ~/.weechat/irc.conf ~/.weechat/iset.conf ~/.weechat/logger.conf ~/.weechat/plugins.conf ~/.weechat/relay.conf ~/.weechat/script.conf ~/.weechat/sec.conf ~/.weechat/trigger.conf ~/.weechat/weechat.conf ~/.weechat/xfer.conf
     do
-        src=""
         if [[ -e "${link}" ]]; then
             src="$(readlink -f ${link})"
-        elif [[ ! -e "${link}" ]]; then
+        else
+            src=""
             loguj -i -t "${ltype}" "Dst file does not exist: ${link}"
-        elif [[ ! -L "${link}" ]]; then
+            continue
+        fi
+
+        if [[ ! -L "${link}" ]]; then
            loguj -i -t "${ltype}" "Not a link: ${link}"
         elif [[ -n "${src}" && ! -r ${src} ]]; then
             loguj -e -t "${ltype}" "Src file is not readable! (${src})"
