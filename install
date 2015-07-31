@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 # TODO: check return codes everywhere
-# TODO: create functions: LOG_ERROR, LOG_INFO
 # TODO: add youtube-dl -U
 # TODO: fzf - cancel interactive script! provide Y
 # TODO: change aptget: use apt-cache to check if it's updated or older version. If older, then update it.
@@ -55,6 +54,7 @@ __myhost="$(uname -n)"
                     __myhost="OTHER"
                     ;;
             esac
+
 __dir_dlocal="$(cd "$(dirname "${__dir}")" && pwd)/dotfiles.local"
 __dir_dlocal="$(readlink -f ${__dir_dlocal})"
 hash cygpath 2>/dev/null \
@@ -65,8 +65,16 @@ hash sudo 2>/dev/null \
 
 # aptget install cmd:
 __aptget_install_cmd=""
+__aptget_check_cmd=""
 if hash apt-get 2>/dev/null; then
     __aptget_install_cmd="${__sudo} apt-get install -qyf"
+else
+    loguj -w -t "---" "No aptget command"
+fi
+if hash dpkg 2>/dev/null; then
+    __aptget_check_cmd="dpkg -s"
+else
+    loguj -w -t "---" "No aptget-check command"
 fi
 
 __logi_errors=()
@@ -220,7 +228,7 @@ create_link()
     fi
 
     # backup dst
-    if [[ -f ${dst_link} && ! -L ${dst_link} ]]; then
+    if [[ -e ${dst_link} && ! -L ${dst_link} ]]; then
         if [[ ${if_backup} = "Y" ]]; then
             local backup_file="${dst_link}.old"
             if [[ -e ${backup_file} ]]; then
@@ -237,7 +245,7 @@ create_link()
 
     # linking:
     if [[ $link_type = "WIN HARD" ]]; then
-        loguj -p -i -t "${ltype}" "LINK Windows ---${dst_link}--- to ---${src_file}---... "
+        loguj -i -t "${ltype}" "LINK Windows: ---${dst_link}--- to ---${src_file}---... "
         if [[ -d ${src_file} ]]; then
             cmd /c mklink /J "$(cygpath -aw ${dst_link})" "$(cygpath -aw ${src_file})"
         else
@@ -246,7 +254,7 @@ create_link()
         loguj -l -t "${ltype}" "WIN HARD $(basename ${dst_link} .sh)"
     elif [[ $link_type = "CP" ]]; then
         # loguj -p -i -t "${ltype}" "COPY ${dst_link} ---to--- ${src_file} ---... "
-        loguj -l -t "${ltype}" "CP $(basename ${dst_link} .sh)"
+        loguj -i -t "${ltype}" "CP: $(basename ${dst_link} .sh)"
         cp "${src_file}" "${dst_link}"
     elif [[ $link_type = "LINUX" ]]; then
         # loguj -p -i -t "${ltype}" "Linux ${dst_link} ---to--- ${src_file} ---... "
@@ -372,11 +380,11 @@ loguj()
         echo "${ltmp}"
         [[ "${if_print_only}" = "N" ]] && __logi_info+=("${ltmp}")
     elif [[ "${ltype}" = "SEC_START" ]]; then
-        ltmp="${lprefix}[${ltag}][INFO]: ==========<<< START: ${lmsg} >>>=========="
+        ltmp="${lprefix}[${ltag}]==================<<< START: ${lmsg} >>>=================="
         echo "${ltmp}"
         [[ "${if_print_only}" = "N" ]] && __logi_info+=("${ltmp}")
     elif [[ "${ltype}" = "SEC_END" ]]; then
-        ltmp="${lprefix}[${ltag}][INFO]: ==========<<< END: ${lmsg} >>>=========="
+        ltmp="${lprefix}[${ltag}]==================<<< END: ${lmsg} >>>=================="
         echo "${ltmp}"
         [[ "${if_print_only}" = "N" ]] && __logi_info+=("${ltmp}")
     elif [[ "${ltype}" = "ERROR" || "${ltype}" = "WARN" ]]; then
@@ -398,18 +406,73 @@ loguj()
 # --------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------
-# aptget <APP_INSTALL> <APP_RUN>
+# aptget [OPTIONS] <APP_INSTALL> <APP_RUN>
+# OPTIONS:
+#   -ol :: only linux
+#   -oc :: only cygwin
+#   -ow :: only host W
+#   -oh :: only host H
 # $1 = app name to install (passed to apt-get)
 # $2 = app name to check if it's installed already
 aptget()
 {
-    local app_install="${1:?Error: app name not set}"
-    local app_run="${2:-${1}}"
+    local app_install=""
+    local app_run=""
     local ltype="APT"
+
+    while [[ $# > 0 ]]; do
+        case $1 in
+            -ol)
+                if [[ ${__myos} != "LINUX" ]]; then
+                    loguj -i -t "${ltype}" "Not right os: LINUX != ${__myos}"
+                    return 1
+                fi
+                shift
+                ;;
+            -oc)
+                if [[ ${__myos} != "CYGWIN" ]]; then
+                    loguj -i -t "${ltype}" "Not right os: CYGWIN != ${__myos}"
+                    return 1
+                fi
+                shift
+                ;;
+            -ow)
+                if [[ ${__myhost} != "W" ]]; then
+                    loguj -i -t "${ltype}" "Not right host: W != ${__myhost}"
+                    return 1
+                fi
+                shift
+                ;;
+            -oh)
+                if [[ ${__myhost} != "H" ]]; then
+                    loguj -i -t "${ltype}" "Not right os: H != ${__myhost}"
+                    return 1
+                fi
+                shift
+                ;;
+            *)
+                if [[ -z "${app_install}" ]]; then
+                    app_install="$1"
+                    shift
+                elif [[ -z "${app_run}" ]]; then
+                    app_run="$1"
+                    shift
+                else
+                    loguj -e -t "${ltype}" "Unknown option? ($1)"
+                    return 99
+                fi
+                ;;
+        esac
+    done
+
+    [[ -z "${app_run}" ]] && app_run="${app_install}"
 
     # check if app is installed
     if hash ${app_run} 2>/dev/null; then
         loguj -i -t "${ltype}" "Already installed: ${app_run}"
+        return 0
+    elif [[ -n "${__aptget_check_cmd}" ]] &&  ${__aptget_check_cmd} ${app_install} &> /dev/null; then
+        loguj -i -t "${ltype}" "Already installed: ${app_install}"
         return 0
     fi
 
@@ -548,7 +611,7 @@ geturl()
         mv "${file}" "${tmpfile}"
         if_moved_to_tmpfile=1
     elif [[ -e ${file} ]]; then
-        loguj -i -t "${ltype}" "File already exists: $(basename ${file} .sh). Not redownloading." 
+        loguj -i -t "${ltype}" "File already exists: $(basename ${file} .sh). Not redownloading."
         return 0
     fi
 
@@ -672,15 +735,25 @@ pipinstall()
 break_links()
 {
     local ltype="BRK"
+    local src
     loguj -ss -t "${ltype}" "BREAKING LINKS"
-    for link in ~/.tmux.conf ~/.vimrc ~/.vimrc.local ~/.bashrc ~/.bashrc.local ~/.emacs ~/.emacs.d/mine/.emacs.local ~/.gitconfig ~/.gitconfig.local ~/.config/ranger/rc.conf ~/.config/ranger/rifle.conf ~/.mplayer/config ~/.mplayer/input.conf ~/.weechat; do
-        if [[ ! -e "$link" ]]; then
-            loguj -i -t "${ltype}" "File does not exist: $link"
+    for link in ~/.tmux.conf ~/.vimrc ~/.vimrc.local ~/.bashrc ~/.bashrc.local ~/.emacs ~/.emacs.d/mine/.emacs.local ~/.gitconfig ~/.gitconfig.local ~/.config/ranger/rc.conf ~/.config/ranger/rifle.conf ~/.mplayer/config ~/.mplayer/input.conf \
+        ~/.weechat/guile ~/.weechat/javascript ~/.weechat/lua ~/.weechat/perl ~/.weechat/python ~/.weechat/ruby ~/.weechat/script ~/.weechat/tcl ~/.weechat/xfer ~/.weechat/alias.conf ~/.weechat/aspell.conf ~/.weechat/buffers.conf ~/.weechat/charset.conf ~/.weechat/exec.conf ~/.weechat/irc.conf ~/.weechat/iset.conf ~/.weechat/logger.conf ~/.weechat/plugins.conf ~/.weechat/relay.conf ~/.weechat/script.conf ~/.weechat/sec.conf ~/.weechat/trigger.conf ~/.weechat/weechat.conf ~/.weechat/xfer.conf
+    do
+        src="$(readlink -f ${link})"
+        if [[ ! -e "${link}" ]]; then
+            loguj -i -t "${ltype}" "Dst file does not exist: ${link}"
+        elif [[ ! -L "${link}" ]]; then
+           loguj -i -t "${ltype}" "Not a link: ${link}"
+        elif [[ ! -r ${src} ]]; then
+            loguj -e -t "${ltype}" "Src file is not readable! (${src})"
         elif [[ -L "$link" ]]; then
-            cp --remove-destination "$(readlink ${link})" ${link}
+            rm -rf "${link}"
+            cp -r "${src}" ${link}
+            # cp --remove-destination "$(readlink ${link})" ${link}
             loguj -i -t "${ltype}" "UNLINKED: ${link}"
         else
-            loguj -i -t "${ltype}" "Not a link: ${link}"
+            loguj -e -t "${ltype}" "Unknown case"
         fi
     done
     loguj -se -t "${ltype}" "BREAKING LINKS"
@@ -699,7 +772,8 @@ install_dotfiles()
     # Folders:
     create_link ${__dir} ~/.dotfiles
     [[ -d ${__dir_dlocal} ]] && create_link ${__dir_dlocal} ~/.dotfiles.local
-    [[ -d ${__dir_dlocal} ]] && chmod -x ${__dir_dlocal}/*
+    # [[ -d ${__dir_dlocal} ]] && chmod -x ${__dir_dlocal}/*
+    [[ -d ${__dir_dlocal} ]] && find ${__dir_dlocal} -maxdepth 1 -type f -exec chmod -x {} \;
 
     # TMUX
     create_link ${__dir}/tmux.conf ~/.tmux.conf
@@ -770,14 +844,17 @@ install_dotfiles()
                         # create_link ~/.dotfiles.local/rifle.conf.w.cygwin ~/.config/ranger/rifle.conf
                         cat ~/.config/ranger/rifle.conf ${__dir_dlocal}/rifle.conf.w.cygwin > ~/.config/ranger/rifletmp.conf
                         mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
+                        loguj -i -t "${ltype}" "CP: rifle.conf (C-W)"
                     elif [[ ${__myhost} = H ]]; then
                         # create_link ~/.dotfiles.local/rifle.conf.h.cygwin ~/.config/ranger/rifle.conf
                         cat ~/.config/ranger/rifle.conf ${__dir_dlocal}/rifle.conf.h.cygwin > ~/.config/ranger/rifletmp.conf
                         mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
+                        loguj -i -t "${ltype}" "CP: rifle.conf (C-H)"
                     else
                         loguj -i -t "${ltype}" "Ranger - cygwin - unknown host Copying default file."
                         cat ~/.config/ranger/rifle.conf ${__dir}/rifle.conf > ~/.config/ranger/rifletmp.conf
                         mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
+                        loguj -i -t "${ltype}" "CP: rifle.conf (C-OTHER)"
                     fi
                     ;;
                 LINUX)
@@ -785,22 +862,25 @@ install_dotfiles()
                         # create_link ~/.dotfiles.local/rifle.conf.h.linux ~/.config/ranger/rifle.conf
                         cat ~/.config/ranger/rifle.conf ${__dir_dlocal}/rifle.conf.h.linux > ~/.config/ranger/rifletmp.conf
                         mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
+                        loguj -i -t "${ltype}" "CP: rifle.conf (L-H)"
                     else
                         loguj -i -t "${ltype}" "Ranger - linux - unknown host Copying default file."
                         cat ~/.config/ranger/rifle.conf ${__dir}/rifle.conf > ~/.config/ranger/rifletmp.conf
                         mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
+                        loguj -i -t "${ltype}" "CP: rifle.conf (L-OTHER)"
                     fi
                     ;;
                 *)
-                    loguj -i -t "${ltype}" "Ranger - unknown os. Copying default file."
                     cat ~/.config/ranger/rifle.conf ${__dir}/rifle.conf > ~/.config/ranger/rifletmp.conf
                     mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
+                    loguj -i -t "${ltype}" "CP: rifle.conf (OTHER-OTHER)"
                     ;;
             esac
         else
-            loguj -i -t "${ltype}" "Ranger - no local dotfiles. Copying default file."
             cat ~/.config/ranger/rifle.conf ${__dir}/rifle.conf > ~/.config/ranger/rifletmp.conf
             mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
+            # loguj -i -t "${ltype}" "Ranger - no local dotfiles. Copying default file."
+            loguj -i -t "${ltype}" "CP: rifle.conf (default - no local dotfiles)"
         fi
     else
         loguj -i -t "${ltype}" "Ranger not found. Not creating links."
@@ -813,9 +893,33 @@ install_dotfiles()
     fi
 
     # weechat
-    if ( hash weechat 2>/dev/null || [[ -d ~/.weechat ]] ) && [[ -d ${__dir_dlocal} ]]; then
-        if [[ -d ${__dir_dlocal}/.weechat ]]; then
-            create_link ${__dir_dlocal}/.weechat ~/.weechat
+    if ( hash weechat 2>/dev/null || [[ -d ~/weechat ]] ) && [[ -d ${__dir_dlocal} ]]; then
+        if [[ -d ${__dir_dlocal}/weechat ]]; then
+           create_link ${__dir_dlocal}/weechat/guile ~/.weechat/guile
+           create_link ${__dir_dlocal}/weechat/javascript ~/.weechat/javascript
+           create_link ${__dir_dlocal}/weechat/lua ~/.weechat/lua
+           create_link ${__dir_dlocal}/weechat/perl ~/.weechat/perl
+           create_link ${__dir_dlocal}/weechat/python ~/.weechat/python
+           create_link ${__dir_dlocal}/weechat/ruby ~/.weechat/ruby
+           create_link ${__dir_dlocal}/weechat/script ~/.weechat/script
+           create_link ${__dir_dlocal}/weechat/tcl ~/.weechat/tcl
+           create_link ${__dir_dlocal}/weechat/xfer ~/.weechat/xfer
+           create_link ${__dir_dlocal}/weechat/alias.conf ~/.weechat/alias.conf
+           create_link ${__dir_dlocal}/weechat/aspell.conf ~/.weechat/aspell.conf
+           create_link ${__dir_dlocal}/weechat/buffers.conf ~/.weechat/buffers.conf
+           create_link ${__dir_dlocal}/weechat/charset.conf ~/.weechat/charset.conf
+           create_link ${__dir_dlocal}/weechat/exec.conf ~/.weechat/exec.conf
+           create_link ${__dir_dlocal}/weechat/irc.conf ~/.weechat/irc.conf
+           create_link ${__dir_dlocal}/weechat/iset.conf ~/.weechat/iset.conf
+           create_link ${__dir_dlocal}/weechat/logger.conf ~/.weechat/logger.conf
+           create_link ${__dir_dlocal}/weechat/plugins.conf ~/.weechat/plugins.conf
+           create_link ${__dir_dlocal}/weechat/relay.conf ~/.weechat/relay.conf
+           create_link ${__dir_dlocal}/weechat/script.conf ~/.weechat/script.conf
+           create_link ${__dir_dlocal}/weechat/sec.conf ~/.weechat/sec.conf
+           create_link ${__dir_dlocal}/weechat/trigger.conf ~/.weechat/trigger.conf
+           create_link ${__dir_dlocal}/weechat/weechat.conf ~/.weechat/weechat.conf
+           create_link ${__dir_dlocal}/weechat/xfer.conf ~/.weechat/xfer.conf
+
         else
             loguj -i -t "${ltype}" "No weechat local dotfiles."
         fi
@@ -875,16 +979,16 @@ install_apps_basic3_new_comp()
     gitclone https://github.com/VitaliyRodnenko/geeknote.git ~/apps/geeknote "${__sudo} python setup.py install" "geeknote settings --editor vim" || true
 
     # Reszta BASICS 3:
-    pipinstall -3 BeautifulSoup4
+    pipinstall -3 BeautifulSoup4 || true
 
     # flake8
-    pipinstall -3 flake8
+    pipinstall -3 flake8 || true
 
     # bashate
-    pipinstall -3 bashate
+    pipinstall -3 bashate || true
 
     # httpie
-    pipinstall httpie
+    pipinstall httpie || true
 
     # geeknote login....?
     loguj -se -t "${ltype}" "BASICS 3"
@@ -905,19 +1009,19 @@ install_apps_basics2()
     geturl https://raw.githubusercontent.com/shyiko/commacd/master/commacd.bash ~/.commacd.bash || true
 
     # glances
-    aptget glances \
+    aptget -ol glances \
         &&
         {
             aptget lm-sensors || true
-            pipinstall -2 PySensors
+            pipinstall -2 PySensors || true
         } || true
 
     # speedtest-cli
-    pipinstall -2 speedtest-cli
+    pipinstall -2 speedtest-cli || true
 
     # fzf - asks questions
     if [[ ! -d ~/.fzf ]]; then
-        git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install
+        git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install || true
     fi
 
     # geeknote login
@@ -957,7 +1061,7 @@ install_apps_basic()
         aptget python-pip pip \
             ||
             {
-                geturl https://bootstrap.pypa.io/get-pip.py /tmp/get-pip.py -sha1 89eb61fc5b59f14df7f0aa7b020afb5a6ded2e14 "sudo python2 get-pip.py" "rm get-pip.py"
+                geturl https://bootstrap.pypa.io/get-pip.py /tmp/get-pip.py -sha1 89eb61fc5b59f14df7f0aa7b020afb5a6ded2e14 "sudo python2 get-pip.py" "rm get-pip.py" || true
             }
     fi
 
@@ -966,7 +1070,7 @@ install_apps_basic()
         aptget python3-pip pip3 \
             ||
             {
-                geturl https://bootstrap.pypa.io/get-pip.py /tmp/get-pip.py -sha1 89eb61fc5b59f14df7f0aa7b020afb5a6ded2e14 "sudo python3 get-pip.py" "rm get-pip.py"
+                geturl https://bootstrap.pypa.io/get-pip.py /tmp/get-pip.py -sha1 89eb61fc5b59f14df7f0aa7b020afb5a6ded2e14 "sudo python3 get-pip.py" "rm get-pip.py" || true
             }
     fi
 
@@ -987,7 +1091,7 @@ install_apps_basic()
     aptget dtrx ||
         {
             rm -rf /tmp/dtrx-7.1
-            geturl -d http://brettcsmith.org/2007/dtrx/dtrx-7.1.tar.gz /tmp/dtrx-7.1.tar.gz -sha1 05cfe705a04a8b84571b0a5647cd2648720791a4 "tar -xf dtrx-7.1.tar.gz" "cd dtrx-7.1" "${__sudo} python setup.py install --prefix=/usr/local" "rm -rf /tmp/dtrx-7.1" "rm -rf /tmp/dtrx-7.1.tar.gz"
+            geturl -d http://brettcsmith.org/2007/dtrx/dtrx-7.1.tar.gz /tmp/dtrx-7.1.tar.gz -sha1 05cfe705a04a8b84571b0a5647cd2648720791a4 "tar -xf dtrx-7.1.tar.gz" "cd dtrx-7.1" "${__sudo} python setup.py install --prefix=/usr/local" "rm -rf /tmp/dtrx-7.1" "rm -rf /tmp/dtrx-7.1.tar.gz" || true
         }
 
     # fasd
@@ -1065,7 +1169,7 @@ while [[ $# > 0 ]]; do
 done
 
 # start
-# loguj -l -t CLI "testowy log"
+# aptget lm-sensors || true
 # exit
 # end
 
@@ -1083,7 +1187,7 @@ fi
 
 [[ ${if_basics1} = "Y" ]] && install_apps_basic
 [[ ${if_basics2} = "Y" ]] && install_apps_basics2
-[[ ${if_basics3_new_comp} = "Y" ]] && install_apps_basics3_new_comp
+[[ ${if_basics3_new_comp} = "Y" ]] && install_apps_basic3_new_comp
 [[ ${if_dotfiles} = "Y" ]] && install_dotfiles
 
 # display info logs
