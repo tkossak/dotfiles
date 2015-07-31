@@ -427,10 +427,10 @@ gitclone()
         loguj -i -t "${ltype}" "Already exists: $(basename ${gitfolder} .sh)"
         return 0
     fi
-    loguj -p -i -t "${ltype}" "Cloning ${giturl} ===TO=== ${gitfolder}"
+    loguj -p -i -t "${ltype}" "Cloning ${giturl} ===TO=== $(basename ${gitfolder} .sh)"
     git clone "${giturl}" "${gitfolder}" ||
         {
-            loguj -e -t "${ltype}" "Error while clongin ${giturl} ===TO=== ${gitfolder}"
+            loguj -e -t "${ltype}" "Cloning ${giturl} ===TO=== $(basename ${gitfolder} .sh)"
             return 1
         }
 
@@ -613,6 +613,12 @@ pipinstall()
                 ;;
         esac
     done
+
+    if ! hash ${pip} 2>/dev/null; then
+        loguj -e -t "${ltype}" "PIP not installed (${pip})"
+        return 1
+    fi
+
 
     if ${pip} -q show ${cmdinstall}; then # app is installed
         if [[ -z "${update}" ]]; then

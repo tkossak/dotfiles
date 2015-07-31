@@ -1,4 +1,8 @@
-#!/usr/bin/env bash
+#!/usr/bin/env bash - zawsze po procedurze GETURL
+
+# run na vb - linux mint, basic
+# BUG: pip - app alrady installed - pip is too old, install via get-pip and check version earlier
+# BUG: przy evil-leader + key-chord: pusty Run w logu wyskakuje - zawsze po procedurze GETURL
 
 # TODO: check return codes everywhere
 # TODO: add youtube-dl -U
@@ -231,7 +235,7 @@ install_dotfiles()
                         mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
                         loguj -i -t "${ltype}" "CP: rifle.conf (C-H)"
                     else
-                        loguj -i -t "${ltype}" "Ranger - cygwin - unknown host Copying default file."
+                        # loguj -i -t "${ltype}" "Ranger - cygwin - unknown host Copying default file."
                         cat ~/.config/ranger/rifle.conf ${__dir}/rifle.conf > ~/.config/ranger/rifletmp.conf
                         mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
                         loguj -i -t "${ltype}" "CP: rifle.conf (C-OTHER)"
@@ -549,8 +553,8 @@ while [[ $# > 0 ]]; do
 done
 
 # start
-# aptget lm-sensors || true
-# exit
+    pipinstall httpie || true
+exit
 # end
 
 [[ ${if_break_links} = "Y" ]] && break_links
