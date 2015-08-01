@@ -1,4 +1,4 @@
-#!/usr/bin/env bash - zawsze po procedurze GETURL
+#!/usr/bin/env bash
 
 # run na vb - linux mint, basic
 # BUG: pip - app alrady installed - pip is too old, install via get-pip and check version earlier
@@ -8,9 +8,9 @@
 # TODO: add youtube-dl -U
 # TODO: fzf - cancel interactive script! provide Y
 # TODO: change aptget: use apt-cache to check if it's updated or older version. If older, then update it.
+# TODO: geturl() - jeśli plik istnieje i ma taie samo sha1 to nie ściągaj go ponownie
 # NEW OPTIONS
 #    -u :: update
-#    -oc -ol -oh -ow
 
 set -o errexit
 set -o pipefail
@@ -27,7 +27,7 @@ set -o nounset
 __file="$(readlink -f ${BASH_SOURCE[0]})"
 __dir="$(cd "$(dirname "${__file}")" && pwd)"
 
-# arg1="${1:-}"
+arg1="${1:-}"
 # ================================================================================
 # UPDATE GLOBAL VARS
 
@@ -397,7 +397,7 @@ install_apps_basics2()
         &&
         {
             aptget lm-sensors || true
-            pipinstall -2 PySensors || true
+            pipinstall -2 -H PySensors || true
         } || true
 
     # speedtest-cli
@@ -427,7 +427,12 @@ install_apps_basic()
     #     ${__sudo} apt-get update
     # fi
 
-    # Basic
+    # curl
+    aptget curl && __geturl_app="curl -o" || true
+
+    # wget
+    aptget wget && __geturl_app="wget -O" || true
+
     # git
     aptget git || true
 
@@ -441,22 +446,82 @@ install_apps_basic()
     gitclone https://github.com/gmarik/Vundle.vim.git ~/.vim/bundle/Vundle.vim || true
 
     # PIP2
-    if hash python2 2>/dev/null; then
-        aptget python-pip pip \
-            ||
-            {
-                geturl https://bootstrap.pypa.io/get-pip.py /tmp/get-pip.py -sha1 89eb61fc5b59f14df7f0aa7b020afb5a6ded2e14 "sudo python2 get-pip.py" "rm get-pip.py" || true
-            }
+    local if_getpip_downloaded=""
+    local cur_pip_verson="7.1.0"
+    local cur_pip_sha1="89eb61fc5b59f14df7f0aa7b020afb5a6ded2e14"
+    local installer="/tmp/get-pip.py"
+    local cur_python_cmd="python2"
+    local cur_pip_cmd="pip2"
+    local ver=""
+
+    # check czy juz istnieje:
+    if [[ -e "${installer}" ]]; then
+        if checksum "${installer}" -sha1 "${cur_pip_sha1}"; then
+            if_getpip_downloaded=1
+        else
+            if_getpip_downloaded=0
+            [[ -e "${installer}" ]] && rm -rf "${installer}"
+        fi
+    fi
+
+    if hash ${cur_python_cmd} 2>/dev/null; then
+        ver=""
+        hash ${cur_pip_cmd} 2>/dev/null \
+            && ver="$(${cur_pip_cmd} --version | sed 's/ /\n/g' | sed -n '2p')" \
+            || ver="no ${cur_pip_cmd}"
+
+        if [[ "${ver}" != "${cur_pip_verson}" ]]; then
+            # download
+            loguj -i -t "${ltype}" "Current pip version: ${ver}. Installing."
+            if [[ "${if_getpip_downloaded}" = "0" ]]; then
+                geturl https://bootstrap.pypa.io/get-pip.py "${installer}" -sha1 "${cur_pip_sha1}" \
+                    && if_getpip_downloaded="1"
+            fi
+
+            # install
+            if [[ "${if_getpip_downloaded}" = "1" ]]; then
+                ${__sudo} -H ${cur_python_cmd} "${installer}" \
+                    && loguj -s -t "${ltype}" "${cur_pip_cmd}" \
+                    || loguj -e -t "${ltype}" "Problem instalilng ${cur_pip_cmd}"
+            else
+                loguj -e -t "${ltype}" "Problem downloading ${cur_pip_cmd}"
+            fi
+        else
+            loguj -i -t "${ltype}" "${cur_pip_cmd} is already up to date (${ver})"
+        fi
     fi
 
     # PIP3
-    if hash python3 2>/dev/null; then
-        aptget python3-pip pip3 \
-            ||
-            {
-                geturl https://bootstrap.pypa.io/get-pip.py /tmp/get-pip.py -sha1 89eb61fc5b59f14df7f0aa7b020afb5a6ded2e14 "sudo python3 get-pip.py" "rm get-pip.py" || true
-            }
+    cur_python_cmd="python3"
+    cur_pip_cmd="pip3"
+    if hash ${cur_python_cmd} 2>/dev/null; then
+        ver=""
+        hash ${cur_pip_cmd} 2>/dev/null \
+            && ver="$(${cur_pip_cmd} --version | sed 's/ /\n/g' | sed -n '2p')" \
+            || ver="no ${cur_pip_cmd}"
+
+        if [[ "${ver}" != "${cur_pip_verson}" ]]; then
+            # download
+            loguj -i -t "${ltype}" "Current pip version: ${ver}. Installing."
+            if [[ "${if_getpip_downloaded}" = "0" ]]; then
+                geturl https://bootstrap.pypa.io/get-pip.py "${installer}" -sha1 "${cur_pip_sha1}" \
+                    && if_getpip_downloaded="1"
+            fi
+
+            # install
+            if [[ "${if_getpip_downloaded}" = "1" ]]; then
+                ${__sudo} -H ${cur_python_cmd} "${installer}" \
+                    && loguj -s -t "${ltype}" "${cur_pip_cmd}" \
+                    || loguj -e -t "${ltype}" "Problem instalilng ${cur_pip_cmd}"
+            else
+                loguj -e -t "${ltype}" "Problem downloading ${cur_pip_cmd}"
+            fi
+        else
+            loguj -i -t "${ltype}" "${cur_pip_cmd} is already up to date (${ver})"
+        fi
     fi
+
+    [[ "${if_getpip_downloaded}" = "1" ]] && rm -rf "${installer}"
 
     # Ranger
     # rm -rf ~/apps/ranger ~/.config/ranger
@@ -465,18 +530,16 @@ install_apps_basic()
     # TMUX
     aptget tmux || true
 
-    # wget
-    aptget wget && __geturl_app="wget -O" || true
-
-    # curl
-    aptget curl && __geturl_app="curl -o" || true
-
     # dtrx
-    aptget dtrx ||
-        {
-            rm -rf /tmp/dtrx-7.1
-            geturl -d http://brettcsmith.org/2007/dtrx/dtrx-7.1.tar.gz /tmp/dtrx-7.1.tar.gz -sha1 05cfe705a04a8b84571b0a5647cd2648720791a4 "tar -xf dtrx-7.1.tar.gz" "cd dtrx-7.1" "${__sudo} python setup.py install --prefix=/usr/local" "rm -rf /tmp/dtrx-7.1" "rm -rf /tmp/dtrx-7.1.tar.gz" || true
-        }
+    if ! hash dtrx 2>/dev/null; then
+        rm -rf /tmp/dtrx-7.1
+        geturl -d http://brettcsmith.org/2007/dtrx/dtrx-7.1.tar.gz /tmp/dtrx-7.1.tar.gz -sha1 05cfe705a04a8b84571b0a5647cd2648720791a4 "tar -xf dtrx-7.1.tar.gz" "cd dtrx-7.1" "${__sudo} python setup.py install --prefix=/usr/local" "rm -rf /tmp/dtrx-7.1" "rm -rf /tmp/dtrx-7.1.tar.gz" || true
+    fi
+    # aptget dtrx ||
+    #     {
+    #         rm -rf /tmp/dtrx-7.1
+    #         geturl -d http://brettcsmith.org/2007/dtrx/dtrx-7.1.tar.gz /tmp/dtrx-7.1.tar.gz -sha1 05cfe705a04a8b84571b0a5647cd2648720791a4 "tar -xf dtrx-7.1.tar.gz" "cd dtrx-7.1" "${__sudo} python setup.py install --prefix=/usr/local" "rm -rf /tmp/dtrx-7.1" "rm -rf /tmp/dtrx-7.1.tar.gz" || true
+    #     }
 
     # fasd
     gitclone https://github.com/clvv/fasd.git ~/apps/fasd "${__sudo} make install" || true
@@ -552,10 +615,87 @@ while [[ $# > 0 ]]; do
     esac
 done
 
+# ===================================
 # start
-    pipinstall httpie || true
-exit
+    # # PIP2
+    # if_getpip_downloaded=""
+    # cur_pip_verson="7.1.0"
+    # cur_pip_sha1="89eb61fc5b59f14df7f0aa7b020afb5a6ded2e14"
+    # installer="/tmp/get-pip.py"
+    # cur_python_cmd="python2"
+    # cur_pip_cmd="pip2"
+    # ver=""
+    # if [[ -e "${installer}" ]] && checksum "${installer}" -sha1 "${cur_pip_sha1}"; then
+    #     if_getpip_downloaded=1
+    # else
+    #     if_getpip_downloaded=0
+    #     [[ -e "${installer}" ]] && rm -rf "${installer}"
+    # fi
+
+    # if hash ${cur_python_cmd} 2>/dev/null; then
+    #     ver=""
+    #     hash ${cur_pip_cmd} 2>/dev/null \
+    #         && ver="$(${cur_pip_cmd} --version | sed 's/ /\n/g' | sed -n '2p')" \
+    #         || ver="no ${cur_pip_cmd}"
+
+    #     if [[ "${ver}" != "${cur_pip_verson}" ]]; then
+    #         # download
+    #         loguj -i -t "${ltype}" "Current pip version: ${ver}. Installing."
+    #         if [[ "${if_getpip_downloaded}" = "0" ]]; then
+    #             geturl https://bootstrap.pypa.io/get-pip.py "${installer}" -sha1 "${cur_pip_sha1}" \
+    #                 && if_getpip_downloaded="1"
+    #         fi
+
+    #         # install
+    #         if [[ "${if_getpip_downloaded}" = "1" ]]; then
+    #             ${__sudo} -H ${cur_python_cmd} "${installer}" \
+    #                 && loguj -s -t "${ltype}" "${cur_pip_cmd}" \
+    #                 || loguj -e -t "${ltype}" "Problem instalilng ${cur_pip_cmd}"
+    #         else
+    #             loguj -e -t "${ltype}" "Problem downloading ${cur_pip_cmd}"
+    #         fi
+    #     else
+    #         loguj -i -t "${ltype}" "${cur_pip_cmd} is already up to date (${ver})"
+    #     fi
+    # fi
+
+    # # PIP3
+    # cur_python_cmd="python3"
+    # cur_pip_cmd="pip3"
+    # if hash ${cur_python_cmd} 2>/dev/null; then
+    #     ver=""
+    #     hash ${cur_pip_cmd} 2>/dev/null \
+    #         && ver="$(${cur_pip_cmd} --version | sed 's/ /\n/g' | sed -n '2p')" \
+    #         || ver="no ${cur_pip_cmd}"
+
+    #     if [[ "${ver}" != "${cur_pip_verson}" ]]; then
+    #         # download
+    #         loguj -i -t "${ltype}" "Current pip version: ${ver}. Installing."
+    #         if [[ "${if_getpip_downloaded}" = "0" ]]; then
+    #             geturl https://bootstrap.pypa.io/get-pip.py "${installer}" -sha1 "${cur_pip_sha1}" \
+    #                 && if_getpip_downloaded="1"
+    #         fi
+
+    #         # install
+    #         if [[ "${if_getpip_downloaded}" = "1" ]]; then
+    #             ${__sudo} -H ${cur_python_cmd} "${installer}" \
+    #                 && loguj -s -t "${ltype}" "${cur_pip_cmd}" \
+    #                 || loguj -e -t "${ltype}" "Problem instalilng ${cur_pip_cmd}"
+    #         else
+    #             loguj -e -t "${ltype}" "Problem downloading ${cur_pip_cmd}"
+    #         fi
+    #     else
+    #         loguj -i -t "${ltype}" "${cur_pip_cmd} is already up to date (${ver})"
+    #     fi
+    # fi
+
+    # if ! hash dtrx 2>/dev/null; then
+    #     rm -rf /tmp/dtrx-7.1
+    #     geturl -d http://brettcsmith.org/2007/dtrx/dtrx-7.1.tar.gz /tmp/dtrx-7.1.tar.gz -sha1 05cfe705a04a8b84571b0a5647cd2648720791a4 "tar -xf dtrx-7.1.tar.gz" "cd dtrx-7.1" "${__sudo} python setup.py install --prefix=/usr/local" "rm -rf /tmp/dtrx-7.1" "rm -rf /tmp/dtrx-7.1.tar.gz" || true
+    # fi
+# exit
 # end
+# ===================================
 
 [[ ${if_break_links} = "Y" ]] && break_links
 

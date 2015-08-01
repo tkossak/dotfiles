@@ -434,17 +434,17 @@ gitclone()
             return 1
         }
 
-    cd ${gitfolder}
-    for run in "${runlater[@]:-}" ; do
-        loguj -i -t "${ltype}" "Run: ${run}"
-        ${run}
-    done \
-        ||
-        {
-            loguj -e -t "${ltype}" "Run: ${run} ===APP:=== ${giturl}"
-            return 1
-        }
-
+    if [[ "${#runlater[@]:-}" > 0 ]]; then
+        cd ${gitfolder}
+        for run in "${runlater[@]:-}" ; do
+            loguj -i -t "${ltype}" "Run: ${run}"
+            ${run}
+        done ||
+            {
+                loguj -e -t "${ltype}" "Run: ${run} ===APP:=== ${giturl}"
+                return 1
+            }
+    fi
 }
 
 
@@ -466,6 +466,7 @@ geturl()
     local sum_value="" # for checksum()
     local if_moved_to_tmpfile=0
     local if_del=0
+    local runlater=""
 
     while [[ $# > 0 ]]; do
         case "$1" in
@@ -486,13 +487,14 @@ geturl()
             *)
                 if [[ -z "${url}" ]]; then
                     url="${1}"
+                    shift
                 elif [[ -z "${file}" ]]; then
                     file="${1}"
+                    shift
                 else
-                    loguj -e -t "${ltype}" "Unknown option? ($1)"
-                    return 3
+                    runlater+=("$1")
+                    shift
                 fi
-                shift
                 ;;
         esac
     done
@@ -501,7 +503,6 @@ geturl()
         rm -rf "${file}"
     fi
 
-    local runlater=("$@")
     tmpfile="${file}#.#"
 
     if [[ -z "${__geturl_app}" ]]; then
@@ -548,24 +549,27 @@ geturl()
                 return 1
             }
     fi
-
     loguj -d -t "${ltype}" "${file}"
+
+    # remove tmp file
     if [[ ${if_moved_to_tmpfile}=1 && -e ${tmpfile} ]]; then
         rm -rf "${tmpfile}"
     fi
 
-    cd "$(cd "$(dirname "${file}")" && pwd)"
-    for run in "${runlater[@]:-}" ; do
-        loguj -i -t "${ltype}" "Run: ${run}"
-        ${run}
-    done \
-        ||
-        {
-            loguj -e -t "${ltype}" "Run: ${run} ===APP:=== ${url}"
-            return 1
-        }
+    # run later cmds
+    if [[ "${#runlater[@]:-}" > 0 ]]; then
+        cd "$(cd "$(dirname "${file}")" && pwd)"
+        for run in "${runlater[@]:-}"; do
+            loguj -i -t "${ltype}" "Run: ${run}"
+            ${run}
+        done ||
+            {
+                loguj -e -t "${ltype}" "Run: ${run} ===APP:=== ${url}"
+                return 1
+            }
+    fi
 
-
+    # del <FILE> if told so:
     if [[ ${if_del} = 1 ]]; then
         rm -rf "${file}"
     fi
@@ -581,13 +585,17 @@ geturl()
 #   -2  :: pip2
 #   -3  :: pip3
 #   -u  :: update
+#   -H  :: sudo option
 # $1 = app name to install
 pipinstall()
 {
     local ltype="PIP"
     local pip="pip"
+    local sudo_options=""
     local update=""
+    local appinstall=""
     local cmdinstall=""
+
     while [[ $# > 0 ]]; do
         case "$1" in
             -2)
@@ -602,9 +610,13 @@ pipinstall()
                 shift
                 update="-U"
                 ;;
+            -H)
+                shift
+                sudo_options+=" -H"
+                ;;
             *)
-                if [[ -z "${cmdinstall}" ]]; then
-                    cmdinstall="${1}"
+                if [[ -z "${appinstall}" ]]; then
+                    appinstall="${1}"
                 else
                     loguj -e -t "${ltype}" "Unknown option? ($1)"
                     return 3
@@ -620,21 +632,23 @@ pipinstall()
     fi
 
 
-    if ${pip} -q show ${cmdinstall}; then # app is installed
+    if ${pip} -q show ${appinstall}; then # app is installed
         if [[ -z "${update}" ]]; then
-            loguj -i -t "${ltype}" "App already installed: ${cmdinstall}"
+            loguj -i -t "${ltype}" "App already installed: ${appinstall}"
             return 0
         fi
     fi
-    loguj -p -i -t "${ltype}" "installing ${cmdinstall}..."
-    ${__sudo} ${pip} install ${update} ${cmdinstall} \
+
+    cmdinstall="${__sudo} ${sudo_options} ${pip} install ${update} ${appinstall}"
+    loguj -p -i -t "${ltype}" "installing ${appinstall}... ${cmdinstall}"
+    ${cmdinstall} \
         &&
         {
-            loguj -l -t "${ltype}" "${cmdinstall}"
+            loguj -l -t "${ltype}" "${appinstall}"
         } \
         ||
         {
-            loguj -e -t "${ltype}" "Installing: ${__sudo} ${pip} install ${update} ${cmdinstall}"
+            loguj -e -t "${ltype}" "Installing: ${__sudo} ${pip} install ${update} ${appinstall}"
             return 1
         }
 }
