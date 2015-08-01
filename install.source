@@ -60,18 +60,21 @@ loguj()
                 ltype="SEC_END"
                 shift
                 ;;
-
-            -e) ltype="ERROR"
+            -e)
+                ltype="ERROR"
                 shift
                 ;;
-            -w) ltype="WARN"
+            -w)
+                ltype="WARN"
                 shift
                 ;;
-            -t) shift
+            -t)
+                shift
                 ltag="$1"
                 shift
                 ;;
-            -p) shift
+            -p)
+                shift
                 if_print_only="Y"
                 ;;
             *)
@@ -119,16 +122,17 @@ loguj()
     elif [[ "${ltype}" = "ERROR" || "${ltype}" = "WARN" ]]; then
         ltmp="${lprefix}[${ltag}][WARN]: ${lmsg}"
         echo "${ltmp}"
-        [[ "${if_print_only}" = "N" ]] &&
-            {
-                __logi_info+=("${ltmp}")
-                __logi_errors+=("${ltmp}")
-            }
+        if [[ "${if_print_only}" = "N" ]]; then
+            __logi_info+=("${ltmp}")
+            __logi_errors+=("${ltmp}")
+        fi
     else
-                __logi_info+=("wrong ltype=${ltype}")
-                __logi_errors+=("wrong ltype=${ltype}")
-                return 99
+        __logi_info+=("wrong ltype=${ltype}")
+        __logi_errors+=("wrong ltype=${ltype}")
+        return 99
     fi
+
+    return 0
 }
 
 
@@ -194,6 +198,8 @@ checksum()
             return 4
             ;;
     esac
+
+    return 0
 }
 
 
@@ -302,6 +308,7 @@ create_link()
             return 99
         }
 
+    return 0
 }
 
 
@@ -404,6 +411,7 @@ aptget()
         {
             loguj -s -t "${ltype}" "${app_run}"
         }
+    return 0
 }
 
 
@@ -445,6 +453,8 @@ gitclone()
                 return 1
             }
     fi
+
+    return 0
 }
 
 
@@ -466,7 +476,7 @@ geturl()
     local sum_value="" # for checksum()
     local if_moved_to_tmpfile=0
     local if_del=0
-    local runlater=""
+    local runlater=()
 
     while [[ $# > 0 ]]; do
         case "$1" in
@@ -517,12 +527,17 @@ geturl()
         mv "${file}" "${tmpfile}"
         if_moved_to_tmpfile=1
     elif [[ -e ${file} ]]; then
-        loguj -i -t "${ltype}" "File already exists: $(basename ${file} .sh). Not redownloading."
+        loguj -i -t "${ltype}" "File already exists: $(basename ${file} .sh)"
         return 0
     fi
 
     # download:
+    # TODO: del echo
+    echo "start log ========================================================="
     loguj -p -i -t "${ltype}" "Downloading ${url}"
+    echo "end log ========================================================="
+    # TODO: del echo
+    echo "${__geturl_app} ${file} ${url}"
     ${__geturl_app} ${file} ${url} \
         ||
         {
@@ -573,6 +588,8 @@ geturl()
     if [[ ${if_del} = 1 ]]; then
         rm -rf "${file}"
     fi
+
+    return 0
 }
 
 
@@ -651,6 +668,8 @@ pipinstall()
             loguj -e -t "${ltype}" "Installing: ${__sudo} ${pip} install ${update} ${appinstall}"
             return 1
         }
+
+    return 0
 }
 
 
