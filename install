@@ -4,6 +4,7 @@
 # BUG: pip - app alrady installed - pip is too old, install via get-pip and check version earlier
 # BUG: przy evil-leader + key-chord: pusty Run w logu wyskakuje - zawsze po procedurze GETURL
 
+# TODO: get latest version of pip from the net
 # TODO: check return codes everywhere
 # TODO: add youtube-dl -U
 # TODO: fzf - cancel interactive script! provide Y
