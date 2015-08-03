@@ -158,6 +158,8 @@ nnoremap <leader>do :diffoff<CR>
 nnoremap <leader>ds :DiffSaved<CR>
 
 nnoremap <Leader><BS> :let _s=@/<Bar>:%s/\s\+$//e<Bar>:let @/=_s<Bar>:nohl<CR>
+" quickly repeat macro
+nnoremap Q @q
 
 noremap <up>    <C-W>+
 noremap <down>  <C-W>-

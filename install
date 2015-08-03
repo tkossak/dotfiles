@@ -29,6 +29,25 @@ __file="$(readlink -f ${BASH_SOURCE[0]})"
 __dir="$(cd "$(dirname "${__file}")" && pwd)"
 
 arg1="${1:-}"
+
+# --------------------------------------------------------------------------------
+print_help()
+{
+    echo "CLI options:"
+    echo "  -l  :: break links"
+    echo "  -d  :: install dotfiles"
+    echo "  -b  :: install dotfiles + basics 1"
+    echo "  -a  :: install dotfiles + basics 1 + 2"
+    echo "  -A  :: install dotfiles + basics 1 + 2 + 3 (new comp)"
+    return 0
+}
+
+
+if [[ $# = 0 ]]; then
+    print_help
+    exit 0
+fi
+
 # ================================================================================
 # UPDATE GLOBAL VARS
 
@@ -157,54 +176,53 @@ install_dotfiles()
 
     # Folders:
     create_link ${__dir} ~/.dotfiles
-    [[ -d ${__dir_dlocal} ]] && create_link ${__dir_dlocal} ~/.dotfiles.local
-    # [[ -d ${__dir_dlocal} ]] && chmod -x ${__dir_dlocal}/*
-    [[ -d ${__dir_dlocal} ]] && find ${__dir_dlocal} -maxdepth 1 -type f -exec chmod -x {} \;
+    create_link ${__dir_dlocal} ~/.dotfiles.local || true
+    find ${__dir_dlocal} -maxdepth 1 -type f -exec chmod -x {} \; || true
 
     # TMUX
-    create_link ${__dir}/tmux.conf ~/.tmux.conf
+    create_link ${__dir}/tmux.conf ~/.tmux.conf || true
 
     # Git
-    create_link ${__dir}/gitconfig ~/.gitconfig
-    [[ -d ${__dir_dlocal} ]] && create_link ${__dir_dlocal}/gitconfig.local ~/.gitconfig.local
+    create_link ${__dir}/gitconfig ~/.gitconfig || true
+    create_link ${__dir_dlocal}/gitconfig.local ~/.gitconfig.local || true
 
     # Bash:
-    create_link ${__dir}/bashrc ~/.bashrc
-    [[ -d ${__dir_dlocal} ]] && create_link ${__dir_dlocal}/bashrc.local ~/.bashrc.local
+    create_link ${__dir}/bashrc ~/.bashrc || true
+    create_link ${__dir_dlocal}/bashrc.local ~/.bashrc.local || true
 
 
     # Vim
-    create_link ${__dir}/vimrc ~/.vimrc
-    [[ -d ${__dir_dlocal} ]] && create_link ${__dir_dlocal}/vimrc.local ~/.vimrc.local
+    create_link ${__dir}/vimrc ~/.vimrc || true
+    create_link ${__dir_dlocal}/vimrc.local ~/.vimrc.local || true
 
     # Emacs Linux:
     if hash emacs 2>/dev/null; then
-        create_link ${__dir}/emacs ~/.emacs
-        [[ -d ${__dir_dlocal} ]] && create_link ${__dir_dlocal}/emacs.local ~/.emacs.d/mine/.emacs.local
+        create_link ${__dir}/emacs ~/.emacs || true
+        create_link ${__dir_dlocal}/emacs.local ~/.emacs.d/mine/.emacs.local || true
     fi
 
     # Emacs Win:
-    if [[ -d ${__win_appdata} ]]; then
-        create_link -w ${__dir}/emacs ${__win_appdata}/.emacs
-        [[ -d ${__dir_dlocal} ]] && create_link -w ${__dir_dlocal}/emacs.local ${__win_appdata}/.emacs.d/mine/.emacs.local
+    if [[ -f ${__win_appdata} ]]; then
+        create_link -w ${__dir}/emacs ${__win_appdata}/.emacs || true
+        create_link -w ${__dir_dlocal}/emacs.local ${__win_appdata}/.emacs.d/mine/.emacs.local || true
         # evil-leader:
-        create_link -w ~/.emacs.d/mine/evil-leader.el ${__win_appdata}/.emacs.d/mine/evil-leader.el
+        create_link -w ~/.emacs.d/mine/evil-leader.el ${__win_appdata}/.emacs.d/mine/evil-leader.el || true
         # key-chord:
-        create_link -w ~/.emacs.d/mine/key-chord.el ${__win_appdata}/.emacs.d/mine/key-chord.el
+        create_link -w ~/.emacs.d/mine/key-chord.el ${__win_appdata}/.emacs.d/mine/key-chord.el || true
         # evil:
-        create_link -w ~/.emacs.d/evil ${__win_appdata}/.emacs.d/evil
+        create_link -w ~/.emacs.d/evil ${__win_appdata}/.emacs.d/evil || true
         # org-mode:
-        create_link -w ~/.emacs.d/org-mode ${__win_appdata}/.emacs.d/org-mode
+        create_link -w ~/.emacs.d/org-mode ${__win_appdata}/.emacs.d/org-mode || true
     fi
 
     # Emacs local files Linux + Win
     if [[ -d ${__dir_dlocal} ]]; then
-        create_link ${__dir_dlocal} ~/.dotfiles.local
-        create_link ${__dir_dlocal}/bashrc.local ~/.bashrc.local
-        create_link ${__dir_dlocal}/vimrc.local ~/.vimrc.local
-        create_link ${__dir_dlocal}/gitconfig.local ~/.gitconfig.local
-        create_link ${__dir_dlocal}/emacs.local ~/.emacs.d/mine/.emacs.local
-        [[ -d ${__win_appdata} ]] && create_link -w ${__dir_dlocal}/emacs.local ${__win_appdata}/.emacs.d/mine/.emacs.local
+        create_link ${__dir_dlocal} ~/.dotfiles.local || true
+        create_link ${__dir_dlocal}/bashrc.local ~/.bashrc.local || true
+        create_link ${__dir_dlocal}/vimrc.local ~/.vimrc.local || true
+        create_link ${__dir_dlocal}/gitconfig.local ~/.gitconfig.local || true
+        create_link ${__dir_dlocal}/emacs.local ~/.emacs.d/mine/.emacs.local || true
+        create_link -w ${__dir_dlocal}/emacs.local ${__win_appdata}/.emacs.d/mine/.emacs.local || true
     else
         loguj -i -t "${ltype}" "Emacs: no local dir."
     fi
@@ -274,37 +292,37 @@ install_dotfiles()
 
     # mplayer
     if hash mplayer 2>/dev/null || [[ -d ~/.mplayer ]]; then
-        create_link ${__dir}/mplayer_config ~/.mplayer/config
-        create_link ${__dir}/mplayer_input.conf ~/.mplayer/input.conf
+        create_link ${__dir}/mplayer_config ~/.mplayer/config || true
+        create_link ${__dir}/mplayer_input.conf ~/.mplayer/input.conf || true
     fi
 
     # weechat
-    if ( hash weechat 2>/dev/null || [[ -d ~/weechat ]] ) && [[ -d ${__dir_dlocal} ]]; then
+    if ( hash weechat 2>/dev/null || [[ -d ~/.weechat ]] ) && [[ -d ${__dir_dlocal} ]]; then
         if [[ -d ${__dir_dlocal}/weechat ]]; then
-           create_link ${__dir_dlocal}/weechat/guile ~/.weechat/guile
-           create_link ${__dir_dlocal}/weechat/javascript ~/.weechat/javascript
-           create_link ${__dir_dlocal}/weechat/lua ~/.weechat/lua
-           create_link ${__dir_dlocal}/weechat/perl ~/.weechat/perl
-           create_link ${__dir_dlocal}/weechat/python ~/.weechat/python
-           create_link ${__dir_dlocal}/weechat/ruby ~/.weechat/ruby
-           create_link ${__dir_dlocal}/weechat/script ~/.weechat/script
-           create_link ${__dir_dlocal}/weechat/tcl ~/.weechat/tcl
-           create_link ${__dir_dlocal}/weechat/xfer ~/.weechat/xfer
-           create_link ${__dir_dlocal}/weechat/alias.conf ~/.weechat/alias.conf
-           create_link ${__dir_dlocal}/weechat/aspell.conf ~/.weechat/aspell.conf
-           create_link ${__dir_dlocal}/weechat/buffers.conf ~/.weechat/buffers.conf
-           create_link ${__dir_dlocal}/weechat/charset.conf ~/.weechat/charset.conf
-           create_link ${__dir_dlocal}/weechat/exec.conf ~/.weechat/exec.conf
-           create_link ${__dir_dlocal}/weechat/irc.conf ~/.weechat/irc.conf
-           create_link ${__dir_dlocal}/weechat/iset.conf ~/.weechat/iset.conf
-           create_link ${__dir_dlocal}/weechat/logger.conf ~/.weechat/logger.conf
-           create_link ${__dir_dlocal}/weechat/plugins.conf ~/.weechat/plugins.conf
-           create_link ${__dir_dlocal}/weechat/relay.conf ~/.weechat/relay.conf
-           create_link ${__dir_dlocal}/weechat/script.conf ~/.weechat/script.conf
-           create_link ${__dir_dlocal}/weechat/sec.conf ~/.weechat/sec.conf
-           create_link ${__dir_dlocal}/weechat/trigger.conf ~/.weechat/trigger.conf
-           create_link ${__dir_dlocal}/weechat/weechat.conf ~/.weechat/weechat.conf
-           create_link ${__dir_dlocal}/weechat/xfer.conf ~/.weechat/xfer.conf
+           create_link ${__dir_dlocal}/weechat/guile ~/.weechat/guile || true
+           create_link ${__dir_dlocal}/weechat/javascript ~/.weechat/javascript || true
+           create_link ${__dir_dlocal}/weechat/lua ~/.weechat/lua || true
+           create_link ${__dir_dlocal}/weechat/perl ~/.weechat/perl || true
+           create_link ${__dir_dlocal}/weechat/python ~/.weechat/python || true
+           create_link ${__dir_dlocal}/weechat/ruby ~/.weechat/ruby || true
+           create_link ${__dir_dlocal}/weechat/script ~/.weechat/script || true
+           create_link ${__dir_dlocal}/weechat/tcl ~/.weechat/tcl || true
+           create_link ${__dir_dlocal}/weechat/xfer ~/.weechat/xfer || true
+           create_link ${__dir_dlocal}/weechat/alias.conf ~/.weechat/alias.conf || true
+           create_link ${__dir_dlocal}/weechat/aspell.conf ~/.weechat/aspell.conf || true
+           create_link ${__dir_dlocal}/weechat/buffers.conf ~/.weechat/buffers.conf || true
+           create_link ${__dir_dlocal}/weechat/charset.conf ~/.weechat/charset.conf || true
+           create_link ${__dir_dlocal}/weechat/exec.conf ~/.weechat/exec.conf || true
+           create_link ${__dir_dlocal}/weechat/irc.conf ~/.weechat/irc.conf || true
+           create_link ${__dir_dlocal}/weechat/iset.conf ~/.weechat/iset.conf || true
+           create_link ${__dir_dlocal}/weechat/logger.conf ~/.weechat/logger.conf || true
+           create_link ${__dir_dlocal}/weechat/plugins.conf ~/.weechat/plugins.conf || true
+           create_link ${__dir_dlocal}/weechat/relay.conf ~/.weechat/relay.conf || true
+           create_link ${__dir_dlocal}/weechat/script.conf ~/.weechat/script.conf || true
+           create_link ${__dir_dlocal}/weechat/sec.conf ~/.weechat/sec.conf || true
+           create_link ${__dir_dlocal}/weechat/trigger.conf ~/.weechat/trigger.conf || true
+           create_link ${__dir_dlocal}/weechat/weechat.conf ~/.weechat/weechat.conf || true
+           create_link ${__dir_dlocal}/weechat/xfer.conf ~/.weechat/xfer.conf || true
 
         else
             loguj -i -t "${ltype}" "No weechat local dotfiles."
@@ -425,6 +443,7 @@ install_apps_basic()
 {
 
     local ltype="BA1"
+    local tmp_options
     loguj -ss -t "${ltype}" "BASICS 1"
 
     # update repositories
@@ -483,7 +502,8 @@ install_apps_basic()
 
             # install
             if [[ "${if_getpip_downloaded}" = "1" ]]; then
-                ${__sudo} -H ${cur_python_cmd} "${installer}" \
+                [[ -n "${__sudo}" ]] && tmp_options="-H" || tmp_options=""
+                ${__sudo} ${tmp_options} ${cur_python_cmd} "${installer}" \
                     && loguj -s -t "${ltype}" "${cur_pip_cmd}" \
                     || loguj -e -t "${ltype}" "Problem instalilng ${cur_pip_cmd}"
             else
@@ -512,7 +532,8 @@ install_apps_basic()
 
             # install
             if [[ "${if_getpip_downloaded}" = "1" ]]; then
-                ${__sudo} -H ${cur_python_cmd} "${installer}" \
+                [[ -n "${__sudo}" ]] && tmp_options="-H" || tmp_options=""
+                ${__sudo} ${tmp_options} ${cur_python_cmd} "${installer}" \
                     && loguj -s -t "${ltype}" "${cur_pip_cmd}" \
                     || loguj -e -t "${ltype}" "Problem instalilng ${cur_pip_cmd}"
             else
@@ -523,7 +544,7 @@ install_apps_basic()
         fi
     fi
 
-    [[ "${if_getpip_downloaded}" = "1" ]] && rm -rf "${installer}"
+    # [[ "${if_getpip_downloaded}" = "1" ]] && rm -rf "${installer}"
 
     # Ranger
     # rm -rf ~/apps/ranger ~/.config/ranger
@@ -624,12 +645,7 @@ while [[ $# > 0 ]]; do
     case "$1" in
 
         -h|--help)
-            echo "CLI options:"
-            echo "  -l  :: break links"
-            echo "  -d  :: install dotfiles"
-            echo "  -b  :: install dotfiles + basics 1"
-            echo "  -a  :: install dotfiles + basics 1 + 2"
-            echo "  -A  :: install dotfiles + basics 1 + 2 + 3 (new comp)"
+            print_help
             exit 0
             ;;
 

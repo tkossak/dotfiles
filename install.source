@@ -438,7 +438,7 @@ gitclone()
     loguj -p -i -t "${ltype}" "Cloning ${giturl} ===TO=== $(basename ${gitfolder} .sh)"
     git clone "${giturl}" "${gitfolder}" ||
         {
-            loguj -e -t "${ltype}" "Cloning ${giturl} ===TO=== $(basename ${gitfolder} .sh)"
+            loguj -e -t "${ltype}" "Problem cloning ${giturl} ===TO=== $(basename ${gitfolder} .sh)"
             return 1
         }
 
@@ -532,11 +532,7 @@ geturl()
     fi
 
     # download:
-    # TODO: del echo
-    echo "start log ========================================================="
     loguj -p -i -t "${ltype}" "Downloading ${url}"
-    echo "end log ========================================================="
-    # TODO: del echo
     echo "${__geturl_app} ${file} ${url}"
     ${__geturl_app} ${file} ${url} \
         ||
@@ -629,7 +625,7 @@ pipinstall()
                 ;;
             -H)
                 shift
-                sudo_options+=" -H"
+                [[ -n "${__sudo}" ]] && sudo_options+=" -H"
                 ;;
             *)
                 if [[ -z "${appinstall}" ]]; then
