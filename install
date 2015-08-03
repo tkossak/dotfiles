@@ -31,6 +31,8 @@ __dir="$(cd "$(dirname "${__file}")" && pwd)"
 arg1="${1:-}"
 
 # --------------------------------------------------------------------------------
+source ${__dir}/install.source
+
 print_help()
 {
     echo "CLI options:"
@@ -48,10 +50,70 @@ if [[ $# = 0 ]]; then
     exit 0
 fi
 
-# ================================================================================
-# UPDATE GLOBAL VARS
+ltype="---"
+if_dotfiles="N"
+if_basics1="N"
+if_basics2="N"
+if_basics3_new_comp="N"
+if_break_links="N"
+__logi_errors=()
+__logi_info=()
+__dir_dlocal="$(cd "$(dirname "${__dir}")" && pwd)/dotfiles.local"
+__dir_dlocal="$(readlink -f ${__dir_dlocal})"
+__aptget_install_cmd=""
+__aptget_check_cmd=""
 
-source ${__dir}/install.source
+
+[[ $# = 0 ]] && if_dotfiles="Y"
+
+while [[ $# > 0 ]]; do
+    case "$1" in
+
+        -h|--help)
+            print_help
+            exit 0
+            ;;
+
+        -l)
+            shift
+            if_break_links="Y"
+            ;;
+
+        -d)
+            shift
+            if_dotfiles="Y"
+            ;;
+
+        -b)
+            shift
+            if_break_links="Y"
+            if_basics1="Y"
+            if_dotfiles="Y"
+            ;;
+
+        -a)
+            shift
+            if_break_links="Y"
+            if_basics1="Y"
+            if_basics2="Y"
+            if_dotfiles="Y"
+            ;;
+
+        -A)
+            shift
+            if_break_links="Y"
+            if_basics1="Y"
+            if_basics2="Y"
+            if_basics3_new_comp="Y"
+            if_dotfiles="Y"
+            ;;
+
+        *)
+            loguj -e -t "${ltype}" "Unknown option: $1"
+            exit 1
+            ;;
+    esac
+done
 
 __myos="$(uname -s)"
 __myhost="$(uname -n)"
@@ -80,8 +142,6 @@ __myhost="$(uname -n)"
                     ;;
             esac
 
-__dir_dlocal="$(cd "$(dirname "${__dir}")" && pwd)/dotfiles.local"
-__dir_dlocal="$(readlink -f ${__dir_dlocal})"
 hash cygpath 2>/dev/null \
     && __win_appdata="$(cygpath -au ${APPDATA:-})" || __win_appdata=""
 hash sudo 2>/dev/null \
@@ -91,8 +151,6 @@ hash sudo 2>/dev/null \
 
 
 # aptget install cmd:
-__aptget_install_cmd=""
-__aptget_check_cmd=""
 if hash apt-get 2>/dev/null; then
     __aptget_install_cmd="${__sudo} apt-get install -qyf"
 else
@@ -103,9 +161,6 @@ if hash dpkg 2>/dev/null; then
 else
     loguj -w -t "---" "No aptget-check command"
 fi
-
-__logi_errors=()
-__logi_info=()
 
 if hash curl 2>/dev/null; then
     __geturl_app="curl -fL -o"
@@ -632,63 +687,6 @@ testowanie()
 # --------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------
-if_dotfiles="N"
-if_basics1="N"
-if_basics2="N"
-if_basics3_new_comp="N"
-if_break_links="N"
-ltype="---"
-
-[[ $# = 0 ]] && if_dotfiles="Y"
-
-while [[ $# > 0 ]]; do
-    case "$1" in
-
-        -h|--help)
-            print_help
-            exit 0
-            ;;
-
-        -l)
-            shift
-            if_break_links="Y"
-            ;;
-
-        -d)
-            shift
-            if_dotfiles="Y"
-            ;;
-
-        -b)
-            shift
-            if_break_links="Y"
-            if_basics1="Y"
-            if_dotfiles="Y"
-            ;;
-
-        -a)
-            shift
-            if_break_links="Y"
-            if_basics1="Y"
-            if_basics2="Y"
-            if_dotfiles="Y"
-            ;;
-
-        -A)
-            shift
-            if_break_links="Y"
-            if_basics1="Y"
-            if_basics2="Y"
-            if_basics3_new_comp="Y"
-            if_dotfiles="Y"
-            ;;
-
-        *)
-            loguj -e -t "${ltype}" "Unknown option: $1"
-            exit 1
-            ;;
-    esac
-done
 
 # ===================================
 # start
@@ -718,7 +716,7 @@ fi
 
 # display info logs
 if [[ ${#__logi_info[@]} > 0 ]]; then
-    echo "=== LOG INFO =========================================================================="
+    echo ">>> LOG INFO >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
     for err in "${__logi_info[@]}"; do
         echo ${err}
     done
@@ -728,7 +726,7 @@ fi
 
 # display ERROR logs
 if [[ ${#__logi_errors[@]} > 0 ]]; then
-    echo "=== LOG ERRORS =========================================================================="
+    echo ">>> LOG ERRORS >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
     for err in "${__logi_errors[@]}"; do
         echo ${err}
     done
