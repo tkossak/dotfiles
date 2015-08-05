@@ -5,7 +5,6 @@
 # BUG: przy evil-leader + key-chord: pusty Run w logu wyskakuje - zawsze po procedurze GETURL
 
 # TODO: get latest version of pip from the net
-# TODO: check return codes everywhere
 # TODO: add youtube-dl -U
 # TODO: fzf - cancel interactive script! provide Y
 # TODO: change aptget: use apt-cache to check if it's updated or older version. If older, then update it.
@@ -465,7 +464,7 @@ install_apps_basic3_new_comp()
     # geeknote
     gitclone https://github.com/VitaliyRodnenko/geeknote.git ~/apps/geeknote "${__sudo} python setup.py install" "geeknote settings --editor vim" || true
 
-    # Reszta BASICS 3:
+    # BeautifulSoup4
     pipinstall -3 BeautifulSoup4 || true
 
     # flake8
@@ -476,6 +475,14 @@ install_apps_basic3_new_comp()
 
     # httpie
     pipinstall httpie || true
+
+    # different
+    aptget -ol vlc
+    aptget -ol mplayer
+    aptget -ol krdc
+    aptget -ol vpnc
+    aptget -ol openvpn
+    aptget -ol dos2unix
 
     # geeknote login....?
     loguj -se -t "${ltype}" "BASICS 3"
@@ -673,12 +680,12 @@ testowanie()
 # --------------------------------------------------------------------------------
 
 # ===================================
-# start
 # echo "START TESTING=================================================================="
-# testowanie
+#     if [[ ! -d ~/.fzf ]]; then
+#         git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install || true
+#     fi
 # echo "KONIEC TESTIN=================================================================="
 # exit
-# end
 # ===================================
 
 [[ ${if_break_links} = "Y" ]] && break_links
