@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<gconf>
+	<entry name="switch_to_tab_9" mtime="1438247941" type="string">
+		<stringvalue>disabled</stringvalue>
+	</entry>
+	<entry name="switch_to_tab_8" mtime="1438247922" type="string">
+		<stringvalue>disabled</stringvalue>
+	</entry>
+	<entry name="switch_to_tab_10" mtime="1438247920" type="string">
+		<stringvalue>disabled</stringvalue>
+	</entry>
+	<entry name="switch_to_tab_7" mtime="1438247914" type="string">
+		<stringvalue>disabled</stringvalue>
+	</entry>
+	<entry name="switch_to_tab_6" mtime="1438247912" type="string">
+		<stringvalue>disabled</stringvalue>
+	</entry>
+	<entry name="switch_to_tab_5" mtime="1438247910" type="string">
+		<stringvalue>disabled</stringvalue>
+	</entry>
+	<entry name="switch_to_tab_4" mtime="1438247909" type="string">
+		<stringvalue>disabled</stringvalue>
+	</entry>
+	<entry name="switch_to_tab_3" mtime="1438247907" type="string">
+		<stringvalue>disabled</stringvalue>
+	</entry>
+	<entry name="switch_to_tab_2" mtime="1438247905" type="string">
+		<stringvalue>disabled</stringvalue>
+	</entry>
+	<entry name="switch_to_tab_1" mtime="1438247894" type="string">
+		<stringvalue>disabled</stringvalue>
+	</entry>
+	<entry name="full_screen" mtime="1430861607" type="string">
+		<stringvalue>&lt;Primary&gt;F12</stringvalue>
+	</entry>
+</gconf>

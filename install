@@ -171,6 +171,23 @@ else
 fi
 
 # ================================================================================
+# print environment
+echo "=== ENVIRONMENT ============================================"
+echo "__dir=${__dir}"
+if [[ -d "${__dir_dlocal}" ]]; then
+    echo "__dir_dlocal (exists) =${__dir_dlocal}"
+else
+    echo "__dir_dlocal (NOT exists) =${__dir_dlocal}"
+fi
+echo "__myos=${__myos}"
+echo "__myhost=${__myhost}"
+if [[ -d "${__win_appdata}" ]]; then
+    echo "__win_appdata (exists) =${__win_appdata}"
+else
+    echo "__win_appdata (NOT exists) =${__win_appdata}"
+fi
+
+# ================================================================================
 # Initial cmds:
 
 mkdir -p ~/apps
@@ -191,8 +208,9 @@ break_links()
     local ltype="BRK"
     local src
     loguj -ss -t "${ltype}" "BREAKING LINKS"
-    for link in ~/.tmux.conf ~/.vimrc ~/.vimrc.local ~/.bashrc ~/.bashrc.local ~/.emacs ~/.emacs.d/mine/.emacs.local ~/.gitconfig ~/.gitconfig.local ~/.config/ranger/rc.conf ~/.config/ranger/rifle.conf ~/.mplayer/config ~/.mplayer/input.conf \
-        ~/.weechat/guile ~/.weechat/javascript ~/.weechat/lua ~/.weechat/perl ~/.weechat/python ~/.weechat/ruby ~/.weechat/script ~/.weechat/tcl ~/.weechat/xfer ~/.weechat/alias.conf ~/.weechat/aspell.conf ~/.weechat/buffers.conf ~/.weechat/charset.conf ~/.weechat/exec.conf ~/.weechat/irc.conf ~/.weechat/iset.conf ~/.weechat/logger.conf ~/.weechat/plugins.conf ~/.weechat/relay.conf ~/.weechat/script.conf ~/.weechat/sec.conf ~/.weechat/trigger.conf ~/.weechat/weechat.conf ~/.weechat/xfer.conf
+    for link in ~/.tmux.conf ~/.vimrc ~/.vimrc.local ~/.bashrc ~/.bashrc.local ~/.emacs ~/.emacs.d/mine/.emacs.local ~/.gitconfig ~/.gitconfig.local \
+        ~/.weechat/guile ~/.weechat/javascript ~/.weechat/lua ~/.weechat/perl ~/.weechat/python ~/.weechat/ruby ~/.weechat/script ~/.weechat/tcl ~/.weechat/xfer ~/.weechat/alias.conf ~/.weechat/aspell.conf ~/.weechat/buffers.conf ~/.weechat/charset.conf ~/.weechat/exec.conf ~/.weechat/irc.conf ~/.weechat/iset.conf ~/.weechat/logger.conf ~/.weechat/plugins.conf ~/.weechat/relay.conf ~/.weechat/script.conf ~/.weechat/sec.conf ~/.weechat/trigger.conf ~/.weechat/weechat.conf ~/.weechat/xfer.conf \
+        ~/.config/ranger/rc.conf ~/.config/ranger/rifle.conf ~/.mplayer/config ~/.mplayer/input.conf ~/.gconf/apps/gnome-terminal ~/.config/vlc/vlcrc
     do
         if [[ -e "${link}" ]]; then
             src="$(readlink -f ${link})"
@@ -209,7 +227,6 @@ break_links()
         elif [[ -L "$link" ]]; then
             rm -rf "${link}"
             cp -r "${src}" ${link}
-            # cp --remove-destination "$(readlink ${link})" ${link}
             loguj -i -t "${ltype}" "UNLINKED: ${link}"
         else
             loguj -e -t "${ltype}" "Unknown case"
@@ -245,10 +262,14 @@ install_dotfiles()
     create_link ${__dir}/bashrc ~/.bashrc || true
     create_link ${__dir_dlocal}/bashrc.local ~/.bashrc.local || true
 
-
     # Vim
     create_link ${__dir}/vimrc ~/.vimrc || true
     create_link ${__dir_dlocal}/vimrc.local ~/.vimrc.local || true
+
+    # gnome-terminal
+    if [[ -d ~/.gconf/apps/gnome-terminal ]]; then
+        create_link ${__dir}/gnome-terminal ~/.gconf/apps/gnome-terminal || true
+    fi
 
     # Emacs Linux:
     if hash emacs 2>/dev/null; then
@@ -258,6 +279,7 @@ install_dotfiles()
 
     # Emacs Win:
     if [[ -f ${__win_appdata} ]]; then
+        loguj -p -i -t "${ltype}" "Linking windows emacs links in ${__win_appdata}"
         create_link -w ${__dir}/emacs ${__win_appdata}/.emacs || true
         create_link -w ${__dir_dlocal}/emacs.local ${__win_appdata}/.emacs.d/mine/.emacs.local || true
         # evil-leader:
@@ -277,7 +299,7 @@ install_dotfiles()
         create_link ${__dir_dlocal}/vimrc.local ~/.vimrc.local || true
         create_link ${__dir_dlocal}/gitconfig.local ~/.gitconfig.local || true
         create_link ${__dir_dlocal}/emacs.local ~/.emacs.d/mine/.emacs.local || true
-        create_link -w ${__dir_dlocal}/emacs.local ${__win_appdata}/.emacs.d/mine/.emacs.local || true
+        [[ -d "${__win_appdata}" ]] && create_link -w ${__dir_dlocal}/emacs.local ${__win_appdata}/.emacs.d/mine/.emacs.local || true
     else
         loguj -i -t "${ltype}" "Emacs: no local dir."
     fi
@@ -382,6 +404,11 @@ install_dotfiles()
         else
             loguj -i -t "${ltype}" "No weechat local dotfiles."
         fi
+    fi
+
+    # vlc
+    if [[ -f "${__dir_dlocal}/vlcrc" ]]; then
+        create_link "${__dir_dlocal}/vlcrc" "${HOME}/.config/vlc/vlcrc"
     fi
 
     vim +PluginInstall +PluginClean +qall
@@ -638,49 +665,6 @@ testowanie()
     geturl http://www.wp.pl/index.html /tmp/1.html
     echo "end testowanie()"
 
-    # local if_getpip_downloaded="0"
-    # local cur_pip_verson="7.1.0"
-    # local cur_pip_sha1="89eb61fc5b59f14df7f0aa7b020afb5a6ded2e14"
-    # local installer="/tmp/get-pip.py"
-    # local cur_python_cmd="python2"
-    # local cur_pip_cmd="pip2"
-    # local ver=""
-
-    # # check czy juz istnieje:
-    # if [[ -e "${installer}" ]]; then
-    #     if checksum "${installer}" -sha1 "${cur_pip_sha1}"; then
-    #         if_getpip_downloaded=1
-    #     else
-    #         [[ -e "${installer}" ]] && rm -rf "${installer}"
-    #     fi
-    # fi
-
-    # if hash ${cur_python_cmd} 2>/dev/null; then
-    #     ver=""
-    #     hash ${cur_pip_cmd} 2>/dev/null \
-    #         && ver="$(${cur_pip_cmd} --version | sed 's/ /\n/g' | sed -n '2p')" \
-    #         || ver="no ${cur_pip_cmd}"
-
-    #     if [[ "${ver}" != "${cur_pip_verson}" ]]; then
-    #         # download
-    #         loguj -i -t "${ltype}" "Current ${cur_pip_cmd} version: ${ver}. Installing."
-    #         if [[ "${if_getpip_downloaded}" = "0" ]]; then
-    #             geturl https://bootstrap.pypa.io/get-pip.py "${installer}" -sha1 "${cur_pip_sha1}" \
-    #                 && if_getpip_downloaded="1"
-    #         fi
-
-    #         # install
-    #         if [[ "${if_getpip_downloaded}" = "1" ]]; then
-    #             ${__sudo} -H ${cur_python_cmd} "${installer}" \
-    #                 && loguj -s -t "${ltype}" "${cur_pip_cmd}" \
-    #                 || loguj -e -t "${ltype}" "Problem instalilng ${cur_pip_cmd}"
-    #         else
-    #             loguj -e -t "${ltype}" "Problem downloading ${cur_pip_cmd}"
-    #         fi
-    #     else
-    #         loguj -i -t "${ltype}" "${cur_pip_cmd} is already up to date (${ver})"
-    #     fi
-    # fi
     return 0
 }
 

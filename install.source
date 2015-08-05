@@ -246,6 +246,11 @@ create_link()
         esac
     done
 
+    # check if right os:
+    if [[ "${link_type}" = "WIN HARD" && "${__myos}" != "CYGWIN" ]]; then
+        loguj -i -t "${ltype}" "Not cygwin, not linking: ${src_file} ===TO=== ${dst_link}"
+        return 1
+    fi
     # check if src exists:
     if [[ ! -e "${src_file}" ]]; then
         loguj -e -t "${ltype}" "Src file ${src_file} does not exists."
