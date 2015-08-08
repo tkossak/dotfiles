@@ -207,9 +207,10 @@ au InsertLeave * match ExtraWhitespace /\s\+$/
 " Syntax coloring
 syntax on " syntax enable
 " set t_Co=256
-" set background=dark
-colorscheme koehler
-" set background=dark
+set background=dark
+" colorscheme koehler
+colorscheme jellybeans
+
 " colorscheme solarized
 
 " center screen after searching/moving:
