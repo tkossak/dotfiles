@@ -67,29 +67,24 @@ __aptget_check_cmd=""
 
 while [[ $# > 0 ]]; do
     case "$1" in
-
         -h|--help)
             print_help
             exit 0
             ;;
-
         -l)
             shift
             if_break_links="Y"
             ;;
-
         -d)
             shift
             if_dotfiles="Y"
             ;;
-
         -b)
             shift
             if_break_links="Y"
             if_basics1="Y"
             if_dotfiles="Y"
             ;;
-
         -a)
             shift
             if_break_links="Y"
@@ -97,7 +92,6 @@ while [[ $# > 0 ]]; do
             if_basics2="Y"
             if_dotfiles="Y"
             ;;
-
         -A)
             shift
             if_break_links="Y"
@@ -106,9 +100,9 @@ while [[ $# > 0 ]]; do
             if_basics3_new_comp="Y"
             if_dotfiles="Y"
             ;;
-
         *)
             loguj -e -t "${ltype}" "Unknown option: $1"
+            print_help
             exit 1
             ;;
     esac

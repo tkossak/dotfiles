@@ -5,14 +5,89 @@ set -o pipefail
 set -o nounset
 # set -o xtrace
 
-# Set magic variables for current file & dir
-__dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-__file="${__dir}/$(basename "${BASH_SOURCE[0]}")"
-# __base="$(basename ${__file} .sh)"
+# -------------------------------------------------------------------------------
+# GLOBAL VARS/CONSTANTS
+
+# Example link: /usr/bin/link.sh
+# to example file: /home/user/bin/file.abc
+
+# ie: /usr/bin
+# __dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# ie: /usr/bin/link.sh
+# __file="${__dir}/$(basename "${BASH_SOURCE[0]}")"
+# ie: link.sh
+__base="$(basename "${BASH_SOURCE[0]}")"
+# ie: /usr
 # __root="$(cd "$(dirname "${__dir}")" && pwd)"
 
 # magic variables for links
-#__file="$(readlink -f ${BASH_SOURCE[0]})"
-#__dir="$(cd "$(dirname "${__file}")" && pwd)"
+# ie: /home/user/bin/file.abc
+# __sfile="$(readlink -f ${BASH_SOURCE[0]})"
+# ie: /home/user/bin
+# __sdir="$(cd "$(dirname "${__files}")" && pwd)"
 
-arg1="${1:-}"
+
+__arg1="${1:-}"
+
+
+# -------------------------------------------------------------------------------
+# PRINT_HELP()
+print_help()
+{
+    echo "Usage:"
+    echo "${__base} [OPTIONS]"
+    echo
+    echo "OPTIONS:"
+    echo "  -l  :: break links"
+    return 0
+}
+
+
+# --------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------
+# test_func1 [OPTIONS]
+# OPTIONS
+#   -.  :: ......
+loguj()
+{
+    local var="${1:-}"
+
+    while [[ $# > 0 ]]; do
+        case $1 in
+            -i)
+                ;;
+            *)
+                ;;
+        esac
+    done
+
+    # ........................................
+
+    return 0
+}
+
+
+# ================================================================================
+# ================================================================================
+# ================================================================================
+# MAIN SCRIPT
+if [[ $# = 0 ]]; then
+    print_help
+    exit 0
+fi
+
+while [[ $# > 0 ]]; do
+    case "$1" in
+        -h|--help)
+            print_help
+            exit 0
+            ;;
+        *)
+            echo "Unknown option: $1"
+            print_help
+            exit 1
+            ;;
+    esac
+done
+

@@ -139,6 +139,7 @@ alias blkid='blkid -o list'
 alias vi='vim'
 alias vbox='sudo mount -t vboxsf vbox_shared /mnt/vs && cd /mnt/vs'
 alias vboxd='sudo mount -t vboxsf vbox_shared /mnt/vs && cd /mnt/vs/dotfiles'
+alias glances='glances -b'
 
 alias dmp3='youtube-dl -cx --audio-format mp3 --restrict-filenames'
 alias dvid='youtube-dl -c --restrict-filenames'
