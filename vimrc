@@ -51,11 +51,6 @@ if filereadable($LOCALFILE)
     source $LOCALFILE
 endif
 
-" try
-"   source ~/.vimrc.local
-" catch
-" endtry
-
 " ===================================================
 " = for plugins
 " ===================================================
@@ -373,29 +368,19 @@ if stridx(s:uname, 'CYGWIN') >= 0
 endif
 
 " ==================================================================
-" = WINDOWS (G)VIM only
-" ==================================================================
-if has('win32') || has('win64')
-    call vundle#config#require(g:bundles)
-    if filereadable("D:\\Kossak\\progs\\zeal\\zeal.exe")
-        let g:zv_zeal_directory = "D:\\Kossak\\progs\\zeal\\zeal.exe"
-    endif
-endif
-
-" ==================================================================
 " = LINUX only (no cygwin)
 " ==================================================================
-if has('unix') && stridx(s:uname, 'CYGWIN') < 0
-    " execute "set <M-h>=\eh"
-    " execute "set <M-l>=\el"
-    " inoremap <M-h> <C-\><C-O>b
-    " inoremap <M-l> <C-\><C-O>w
-    " if stridx(s:hname, 'LMQ') >= 0
-    "     python from powerline.vim import setup as powerline_setup
-    "     python powerline_setup()
-    "     python del powerline_setup
-    " endif
-endif
+" if has('unix') && stridx(s:uname, 'CYGWIN') < 0
+"     " execute "set <M-h>=\eh"
+"     " execute "set <M-l>=\el"
+"     " inoremap <M-h> <C-\><C-O>b
+"     " inoremap <M-l> <C-\><C-O>w
+"     " if stridx(s:hname, 'LMQ') >= 0
+"     "     python from powerline.vim import setup as powerline_setup
+"     "     python powerline_setup()
+"     "     python del powerline_setup
+"     " endif
+" endif
 
 
 " ==================================================================

@@ -1,27 +1,27 @@
 <?xml version="1.0"?>
 <gconf>
 	<entry name="bold_color_same_as_fg" mtime="1408645681" type="bool" value="true"/>
-	<entry name="use_theme_colors" mtime="1439063911" type="bool" value="false"/>
-	<entry name="background_type" mtime="1439063911" type="string">
+	<entry name="use_theme_colors" mtime="1439064938" type="bool" value="false"/>
+	<entry name="background_type" mtime="1439064938" type="string">
 		<stringvalue>transparent</stringvalue>
 	</entry>
-	<entry name="visible_name" mtime="1439063911" type="string">
+	<entry name="visible_name" mtime="1439064938" type="string">
 		<stringvalue>Default</stringvalue>
 	</entry>
-	<entry name="foreground_color" mtime="1439063911" type="string">
+	<entry name="foreground_color" mtime="1439064938" type="string">
 		<stringvalue>#AAAAAAAAAAAA</stringvalue>
 	</entry>
-	<entry name="background_color" mtime="1439063911" type="string">
+	<entry name="background_color" mtime="1439064938" type="string">
 		<stringvalue>#000000000000</stringvalue>
 	</entry>
-	<entry name="silent_bell" mtime="1439063911" type="bool" value="true"/>
-	<entry name="default_show_menubar" mtime="1439063911" type="bool" value="false"/>
-	<entry name="bold_color" mtime="1439063911" type="string">
+	<entry name="silent_bell" mtime="1439064938" type="bool" value="true"/>
+	<entry name="default_show_menubar" mtime="1439064938" type="bool" value="false"/>
+	<entry name="bold_color" mtime="1439064938" type="string">
 		<stringvalue>#000000000000</stringvalue>
 	</entry>
-	<entry name="palette" mtime="1439063911" type="string">
+	<entry name="palette" mtime="1439064938" type="string">
 		<stringvalue>#000000000000:#AAAA00000000:#0000AAAA0000:#AAAA55550000:#00000000AAAA:#AAAA0000AAAA:#0000AAAAAAAA:#AAAAAAAAAAAA:#555555555555:#FFFF55555555:#5555FFFF5555:#FFFFFFFF5555:#55555555FFFF:#FFFF5555FFFF:#5555FFFFFFFF:#FFFFFFFFFFFF</stringvalue>
 	</entry>
-	<entry name="background_darkness" mtime="1439063911" type="float" value="1"/>
+	<entry name="background_darkness" mtime="1439064938" type="float" value="1"/>
 	<entry name="alternate_screen_scroll" mtime="1437580696" type="bool" value="true"/>
 </gconf>
