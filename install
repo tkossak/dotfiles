@@ -183,8 +183,8 @@ fi
 # ================================================================================
 # Initial cmds:
 
-mkdir -p ~/apps
-mkdir -p ~/.emacs.d/mine
+mkdir -p ${HOME}/apps
+mkdir -p ${HOME}/.emacs.d/mine
 # mkdir -p ~/.emacs.d/evil
 [[ -d ${__win_appdata} ]] &&
     mkdir -p ${__win_appdata}/.emacs.d/mine
@@ -285,7 +285,6 @@ install_dotfiles()
         create_link -w ~/.emacs.d/org-mode ${__win_appdata}/.emacs.d/org-mode || true
     fi
 
-    # Emacs local files Linux + Win
     if [[ -d ${__dir_dlocal} ]]; then
         create_link ${__dir_dlocal} ~/.dotfiles.local || true
         create_link ${__dir_dlocal}/bashrc.local ~/.bashrc.local || true
@@ -545,6 +544,7 @@ install_apps_basic()
 
     # vim
     aptget vim || true
+
 
     # make
     aptget make || true

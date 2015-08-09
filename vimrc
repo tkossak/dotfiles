@@ -34,7 +34,8 @@ Plugin 'terryma/vim-expand-region'
 Plugin 'tpope/vim-repeat'
 Plugin 'bling/vim-airline'
 Plugin 'EinfachToll/DidYouMean'
-Plugin 'KabbAmine/zeavim.vim'  " https://github.com/KabbAmine/zeavim.vim
+Plugin 'KabbAmine/zeavim.vim'
+Plugin 'nanotech/jellybeans.vim' " color scheme
 
 " if !has('gui_running') || !( has('win32') || has('win64') )
 "     Bundle 'https://github.com/neilagabriel/vim-geeknote'
@@ -56,7 +57,7 @@ endif
 " ===================================================
 
 " " vim-airline
-let g:airline_theme='powerlineish'
+let g:airline_theme='jellybeans'
 let g:airline_left_sep=''
 let g:airline_right_sep=''
 let g:airline_section_z=''
@@ -411,3 +412,27 @@ function! DiffSaved()
   execute "normal \<C-w>w"
 endfunction
 
+" [cmd] Scriptnames - list :scriptnames in the buffer:
+" Execute 'cmd' while redirecting output.
+" Delete all lines that do not match regex 'filter' (if not empty).
+" Delete any blank lines.
+" Delete '<whitespace><number>:<whitespace>' from start of each line.
+" Display result in a scratch buffer.
+function! s:Filter_lines(cmd, filter)
+  let save_more = &more
+  set nomore
+  redir => lines
+  silent execute a:cmd
+  redir END
+  let &more = save_more
+  new
+  setlocal buftype=nofile bufhidden=hide noswapfile
+  put =lines
+  g/^\s*$/d
+  %s/^\s*\d\+:\s*//e
+  if !empty(a:filter)
+    execute 'v/' . a:filter . '/d'
+  endif
+  0
+endfunction
+command! -nargs=? Scriptnames call s:Filter_lines('scriptnames', <q-args>)
