@@ -662,10 +662,18 @@ install_apps_basic()
 testowanie()
 {
 
-    echo "start testowanie()"
-    geturl http://www.wp.pl/index.html /tmp/1.html
-    echo "end testowanie()"
 
+    echo "start testowanie()"
+    echo "install git test"
+    local cur_git_ver="2.5.0"
+    sudo apt-get install git libcurl4-gnutls-dev libexpat1-dev gettext libz-dev libssl-dev
+    sudo apt-get install asciidoc xsltproc
+    cd ${HOME}/apps
+    git clone git://git.kernel.org/pub/scm/git/git.git
+    cd ${HOME}/apps/git
+    make prefix=/usr all doc info
+
+    echo "end testowanie()"
     return 0
 }
 
