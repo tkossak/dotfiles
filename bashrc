@@ -176,10 +176,10 @@ bind '"\C-o":"ranger-cd\C-m"'
 
 export PS1="\[${Cyan}\]$(((SHLVL>1)) && echo "${SHLVL}\[${IBlack}\].")\[${IGreen}\]\u\[${IBlack}\]@\[${Purple}\]\h\[${IYellow}\] \w \$ \[${Color_Off}\]"
 
-_myos="$(uname)"
-_myhost="$(uname -n)"
+__myos="$(uname)"
+__myhost="$(uname -n)"
 
-case ${_myos} in
+case ${__myos} in
 CYGWIN*)
 
 # -----------------------------------------------------------------------
@@ -193,24 +193,24 @@ cyginstq() { $(get_param p_cdde)/setup-x86.exe -nqP "$1"; }
 cyginst()  { $(get_param p_cdde)/setup-x86.exe -nP "$1"; }
 cs() { cygstart $*; }
 
-_vTmp1="$(get_param p_cdp)"
-_vTmp2="$(get_param p_ccp)"
-if [ -e "${_vTmp1}/Nmap/nmap.exe" ]; then
-    alias nmap="\"${_vTmp1}/Nmap/nmap.exe\""
-elif [ -e "${_vTmp2}/Nmap/nmap.exe" ]; then
-    alias nmap="\"${_vTmp2}/Nmap/nmap.exe\""
+__vTmp1="$(get_param p_cdp)"
+__vTmp2="$(get_param p_ccp)"
+if [ -e "${__vTmp1}/Nmap/nmap.exe" ]; then
+    alias nmap="\"${__vTmp1}/Nmap/nmap.exe\""
+elif [ -e "${__vTmp2}/Nmap/nmap.exe" ]; then
+    alias nmap="\"${__vTmp2}/Nmap/nmap.exe\""
 fi
 
 #------------------
 # Win variables
 _vTmpPathCyg="$(get_param p_temp_cyg)"
 #_vTmpPathWin="$(cygpath -aw ${_vTmpPathCyg})"
-_vTmp1="$(get_param p_cdkp)"
-_vTmp2="$(get_param p_cedpp)"
-if [[ -e $_vTmp1 ]]; then
-    _vProgsPath="$_vTmp1"
-elif [[ -e $_vTmp2 ]]; then
-    _vProgsPath="$_vTmp2"
+__vTmp1="$(get_param p_cdkp)"
+__vTmp2="$(get_param p_cedpp)"
+if [[ -e $__vTmp1 ]]; then
+    _vProgsPath="$__vTmp1"
+elif [[ -e $__vTmp2 ]]; then
+    _vProgsPath="$__vTmp2"
 fi
 
 #------------------
@@ -226,7 +226,7 @@ rlt() { cs "${_vProgsPath}/_win_sys_tools\TurnedOnTimesView\TurnedOnTimesView.ex
 #alias gvim="\"${_vProgsPath}/gvim/gvim.exe\""
 
 
-if [[ $_myhost == "$(get_param whost)" ]]; then
+if [[ $__myhost == "$(get_param whost)" ]]; then
     proxyoff()
     {
         reg add "hklm\software\wow6432node\microsoft\windows\currentversion\internet settings" /f /v proxyenable /t reg_dword /d 0
@@ -307,7 +307,7 @@ if hash fasd 2>/dev/null; then
     eval "$(fasd --init auto)"
     alias v='f -e vim' # quick opening files with vim
     alias j='fasd_cd -d'
-    case $_myos in
+    case $__myos in
         CYGWIN*)
             alias o='a -e cygstart'
             ;;
@@ -385,36 +385,49 @@ echo "------------------------------------------------------------------"
 echo -e "${IYellow}Today is: ${BWhite}$(date +'%F (%A) %T')"
 
 # # Uptime:
-# _vTmp3="$(uptime | sed -e 's:,[^,]\+user.*::I;s/.*up\s\+//')"
-# [[ -n $_vTmp3 ]] && echo -e " ${IYellow}UPTIME:${BWhite} ${_vTmp3}" || echo ""
+# __vTmp3="$(uptime | sed -e 's:,[^,]\+user.*::I;s/.*up\s\+//')"
+# [[ -n $__vTmp3 ]] && echo -e " ${IYellow}UPTIME:${BWhite} ${__vTmp3}" || echo ""
 
 # # Tmux:
-# _vTmp3="$(tmux list-sessions 2>/dev/null)"
-# [[ -n $_vTmp3 ]] && echo -e "${IYellow}TMUX:${Color_Off} ${_vTmp3}"
+# __vTmp3="$(tmux list-sessions 2>/dev/null)"
+# [[ -n $__vTmp3 ]] && echo -e "${IYellow}TMUX:${Color_Off} ${__vTmp3}"
 
 # # Is Internet on Fire:
-# if [[ "$_myhost" != "dziura" ]]; then
+# if [[ "$__myhost" != "dziura" ]]; then
 # echo -e "${IYellow}IS INTERNET ON FIRE?${Color_Off}"
 # host -t txt istheinternetonfire.com | cut -f 2- -d '"' | sed 's/\. /\n/g;s/ http/\nhttp/g;s/\\;/;/g;s/" "//g;s/"$//g'
 # echo
 # fi
 
 # Last logins:
-if [[ ${_myos} == CYGWIN* ]]; then
-    :
-else
+if [[ ${__myos} != CYGWIN* ]]; then
     echo -en "${IYellow}LAST logins:\n${Color_Off}"
-    _vTmp3="$(last | uniq | head -13)"
-    [[ -n $_vTmp3 ]] && echo -e "${Color_Off}${_vTmp3}"
+    __vTmp3="$(last | uniq | head -13)"
+    [[ -n $__vTmp3 ]] && echo -e "${Color_Off}${__vTmp3}"
 fi
 
+# SSH-AGENT
+
+if [[ "${__myos}" == "CYGWIN*" ]]; then
+    if [ -f ~/.agent.env ]; then
+        . ~/.agent.env > /dev/null
+        if ! kill -0 $SSH_AGENT_PID > /dev/null 2>&1; then
+            echo "Stale agent file found. Spawning new agent… "
+            eval `ssh-agent | tee ~/.agent.env`
+            ssh-add
+        fi
+    else
+        echo "Starting ssh-agent"
+        eval `ssh-agent | tee ~/.agent.env`
+        ssh-add
+    fi
+fi
 
 # finishing touches
-unset _vTmp1 _vTmp2 _vTmp3
-unset _myos _myhost
+unset __vTmp1 __vTmp2 __vTmp3
+unset __myos __myhost
 
 unset Color_Off Black Red Green Yellow Blue Purple Cyan White BBlack BRed BGreen BYellow BBlue BPurple BCyan BWhite UBlack URed UGreen UYellow UBlue UPurple UCyan UWhite On_Black On_Red On_Green On_Yellow On_Blue On_Purple On_Cyan On_White IBlack IRed IGreen IYellow IBlue IPurple ICyan IWhite BIBlack BIRed BIGreen BIYellow BIBlue BIPurple BICyan BIWhite On_IBlack On_IRed On_IGreen On_IYellow On_IBlue On_IPurple On_ICyan On_IWhite
-
 
 # export PAGER=/usr/local/bin/vimpager
 # alias less=$PAGER
