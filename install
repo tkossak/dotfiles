@@ -27,8 +27,6 @@ set -o nounset
 __file="$(readlink -f ${BASH_SOURCE[0]})"
 __dir="$(cd "$(dirname "${__file}")" && pwd)"
 
-arg1="${1:-}"
-
 # --------------------------------------------------------------------------------
 source ${__dir}/install.source
 
@@ -43,7 +41,6 @@ print_help()
     return 0
 }
 
-
 if [[ $# = 0 ]]; then
     print_help
     exit 0
@@ -56,12 +53,6 @@ if_basics2="N"
 if_basics3_new_comp="N"
 if_break_links="N"
 if_testing="N"
-__logi_errors=()
-__logi_info=()
-__dir_dlocal="$(cd "$(dirname "${__dir}")" && pwd)/dotfiles.local"
-__dir_dlocal="$(readlink -f ${__dir_dlocal})"
-__aptget_install_cmd=""
-__aptget_check_cmd=""
 
 
 [[ $# = 0 ]] && if_dotfiles="Y"
@@ -112,61 +103,6 @@ while [[ $# > 0 ]]; do
             ;;
     esac
 done
-
-__myos="$(uname -s)"
-__myhost="$(uname -n)"
-            case ${__myos} in
-                CYGWIN*)
-                    __myos="CYGWIN"
-                    if [[ ${__myhost} = AWA* ]]; then
-                        __myhost="W"
-                    elif [[ ${__myhost} = HEAVEN ]]; then
-                        __myhost="H"
-                    else
-                        __myhost="OTHER"
-                    fi
-                    ;;
-                Linux)
-                    __myos="LINUX"
-                    if [[ ${__myhost} = LMQ ]]; then
-                        __myhost="H"
-                    else
-                        __myhost="OTHER"
-                    fi
-                    ;;
-                *)
-                    __myos="OTHER"
-                    __myhost="OTHER"
-                    ;;
-            esac
-
-hash cygpath 2>/dev/null \
-    && __win_appdata="$(cygpath -au ${APPDATA:-})" || __win_appdata=""
-hash sudo 2>/dev/null \
-    && __sudo="sudo" \
-    || __sudo=""
-
-
-
-# aptget install cmd:
-if hash apt-get 2>/dev/null; then
-    __aptget_install_cmd="${__sudo} apt-get install -qyf"
-else
-    loguj -w -t "---" "No aptget command"
-fi
-if hash dpkg 2>/dev/null; then
-    __aptget_check_cmd="dpkg -s"
-else
-    loguj -w -t "---" "No aptget-check command"
-fi
-
-if hash curl 2>/dev/null; then
-    __geturl_app="curl -fL -o"
-elif hash wget 2>/dev/null; then
-    __geturl_app="wget -O"
-else
-    loguj -e -t "---" "curl/wget not present"
-fi
 
 # ================================================================================
 # print environment
@@ -687,23 +623,11 @@ testing()
 # --------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------
 
-# ===================================
-echo "START TESTING=================================================================="
-testing
-echo "KONIEC TESTING=================================================================="
-exit
-# ===================================
-
 [[ ${if_break_links} = "Y" ]] && break_links
 
 # update repos?
-if [[ ( ${if_basics1} = "Y" || ${if_basics2} = "Y" ) ]] && hash apt-get 2>/dev/null; then
-    read -p "Do apt-get update (y/n)? " -n 1 -r
-    echo
-    if [[ ${REPLY} =~ ^[Yy]$ ]]; then
-        ${__sudo} apt-get update
-    fi
-
+if [[ "${if_basics1}" == "Y" || "${if_basics2}" == "Y" || "${if_basics3_new_comp}" == "Y" ]]; then
+    update_repos
 fi
 
 [[ ${if_testing} = "Y" ]] && testing
@@ -712,23 +636,7 @@ fi
 [[ ${if_basics3_new_comp} = "Y" ]] && install_apps_basic3_new_comp
 [[ ${if_dotfiles} = "Y" ]] && install_dotfiles
 
-# display info logs
-if [[ ${#__logi_info[@]} > 0 ]]; then
-    echo ">>> LOG INFO >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
-    for err in "${__logi_info[@]}"; do
-        echo ${err}
-    done
-else
-    echo "== No info logs?"
-fi
+display_log_info
+display_log_error
 
-# display ERROR logs
-if [[ ${#__logi_errors[@]} > 0 ]]; then
-    echo ">>> LOG ERRORS >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
-    for err in "${__logi_errors[@]}"; do
-        echo ${err}
-    done
-else
-    echo "=== No Errors."
-fi
-
+exit

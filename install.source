@@ -1,5 +1,66 @@
 #!/usr/bin/env bash
 
+__logi_errors=()
+__logi_info=()
+__dir_dlocal="$(cd "$(dirname "${__dir}")" && pwd)/dotfiles.local"
+__dir_dlocal="$(readlink -f ${__dir_dlocal})"
+__aptget_install_cmd=""
+__aptget_check_cmd=""
+
+__myos="$(uname -s)"
+__myhost="$(uname -n)"
+            case ${__myos} in
+                CYGWIN*)
+                    __myos="CYGWIN"
+                    if [[ ${__myhost} = AWA* ]]; then
+                        __myhost="W"
+                    elif [[ ${__myhost} = HEAVEN ]]; then
+                        __myhost="H"
+                    else
+                        __myhost="OTHER"
+                    fi
+                    ;;
+                Linux)
+                    __myos="LINUX"
+                    if [[ ${__myhost} = LMQ ]]; then
+                        __myhost="H"
+                    else
+                        __myhost="OTHER"
+                    fi
+                    ;;
+                *)
+                    __myos="OTHER"
+                    __myhost="OTHER"
+                    ;;
+            esac
+
+hash cygpath 2>/dev/null \
+    && __win_appdata="$(cygpath -au ${APPDATA:-})" || __win_appdata=""
+hash sudo 2>/dev/null \
+    && __sudo="sudo" \
+    || __sudo=""
+
+
+
+# aptget install cmd:
+if hash apt-get 2>/dev/null; then
+    __aptget_install_cmd="${__sudo} apt-get install -qyf"
+else
+    loguj -w -t "---" "No aptget command"
+fi
+if hash dpkg 2>/dev/null; then
+    __aptget_check_cmd="dpkg -s"
+else
+    loguj -w -t "---" "No aptget-check command"
+fi
+
+if hash curl 2>/dev/null; then
+    __geturl_app="curl -fL -o"
+elif hash wget 2>/dev/null; then
+    __geturl_app="wget -O"
+else
+    loguj -e -t "---" "curl/wget not present"
+fi
 
 # --------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------
@@ -674,3 +735,54 @@ pipinstall()
 }
 
 
+# --------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------
+# display_log_info
+display_log_info()
+{
+    echo ">>> LOG INFO START >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+    if [[ ${#__logi_info[@]} > 0 ]]; then
+        for err in "${__logi_info[@]}"; do
+            echo ${err}
+        done
+    else
+        echo "== No info logs?"
+    fi
+    echo ">>> LOG INFO END >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+}
+
+# --------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------
+# display_log_error
+display_log_error()
+{
+    echo ">>> LOG ERROR START >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+    if [[ ${#__logi_errors[@]} > 0 ]]; then
+        for err in "${__logi_errors[@]}"; do
+            echo ${err}
+        done
+    else
+        echo "=== No Errors."
+    fi
+    echo ">>> LOG ERROR END >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+
+}
+
+
+# --------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------
+# update_repos
+update_repos()
+{
+    if hash apt-get 2>/dev/null; then
+        read -p "Do apt-get update (y/n)? " -n 1 -r
+        echo
+        if [[ ${REPLY} =~ ^[Yy]$ ]]; then
+            ${__sudo} apt-get update
+        fi
+
+    fi
+}
