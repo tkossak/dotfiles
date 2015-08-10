@@ -55,6 +55,7 @@ if_basics1="N"
 if_basics2="N"
 if_basics3_new_comp="N"
 if_break_links="N"
+if_testing="N"
 __logi_errors=()
 __logi_info=()
 __dir_dlocal="$(cd "$(dirname "${__dir}")" && pwd)/dotfiles.local"
@@ -99,6 +100,10 @@ while [[ $# > 0 ]]; do
             if_basics2="Y"
             if_basics3_new_comp="Y"
             if_dotfiles="Y"
+            ;;
+        -t)
+            if_testing="Y"
+            shift
             ;;
         *)
             loguj -e -t "${ltype}" "Unknown option: $1"
@@ -659,12 +664,13 @@ install_apps_basic()
 # --------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------
 
-testowanie()
+testing()
 {
 
 
-    echo "start testowanie()"
+    echo "=== TESTING START =================================================="
     echo "install git test"
+
     local cur_git_ver="2.5.0"
     sudo apt-get install git libcurl4-gnutls-dev libexpat1-dev gettext libz-dev libssl-dev
     sudo apt-get install asciidoc xsltproc docbook2X
@@ -673,7 +679,7 @@ testowanie()
     cd ${HOME}/apps/git
     make prefix=/usr all doc info
 
-    echo "end testowanie()"
+    echo "=== TESTING END ===================================================="
     return 0
 }
 
@@ -683,7 +689,7 @@ testowanie()
 
 # ===================================
 echo "START TESTING=================================================================="
-testowanie
+testing
 echo "KONIEC TESTING=================================================================="
 exit
 # ===================================
@@ -700,6 +706,7 @@ if [[ ( ${if_basics1} = "Y" || ${if_basics2} = "Y" ) ]] && hash apt-get 2>/dev/n
 
 fi
 
+[[ ${if_testing} = "Y" ]] && testing
 [[ ${if_basics1} = "Y" ]] && install_apps_basic
 [[ ${if_basics2} = "Y" ]] && install_apps_basics2
 [[ ${if_basics3_new_comp} = "Y" ]] && install_apps_basic3_new_comp
