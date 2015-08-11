@@ -782,6 +782,7 @@ update_repos()
         echo
         if [[ ${REPLY} =~ ^[Yy]$ ]]; then
             ${__sudo} apt-get update
+            ${__sudo} apt-get upgrade
         fi
 
     fi

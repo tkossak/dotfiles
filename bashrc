@@ -293,7 +293,7 @@ esac
 
 e()
 {
-    cs "http://dict.pl/dict?word=${1}J" >/dev/null
+    cs "http://dict.pl/dict?word=${1}" >/dev/null
     cs "http://ling.pl/slownik/angielsko-polski/${1}" >/dev/null
     cs "http://en.bab.la/dictionary/english-polish/${1}" >/dev/null
     cs "http://www.thefreedictionary.com/${1}" >/dev/null

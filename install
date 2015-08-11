@@ -4,6 +4,7 @@
 # BUG: pip - app alrady installed - pip is too old, install via get-pip and check version earlier
 # BUG: przy evil-leader + key-chord: pusty Run w logu wyskakuje - zawsze po procedurze GETURL
 
+# TODO: update_repos() - add parameter -n (no asking)
 # TODO: get latest version of pip from the net
 # TODO: add youtube-dl -U
 # TODO: fzf - cancel interactive script! provide Y
@@ -609,11 +610,16 @@ testing()
 
     local cur_git_ver="2.5.0"
     sudo apt-get install git libcurl4-gnutls-dev libexpat1-dev gettext libz-dev libssl-dev
-    sudo apt-get install asciidoc xsltproc docbook2X
+
     cd ${HOME}/apps
     git clone git://git.kernel.org/pub/scm/git/git.git
     cd ${HOME}/apps/git
-    make prefix=/usr all doc info
+
+    # sudo apt-get install asciidoc xsltproc docbook2X xmlto
+    # make prefix=/usr all doc info
+
+    make prefix=/usr all
+    sudo make prefix=/usr install
 
     echo "=== TESTING END ===================================================="
     return 0
@@ -623,18 +629,18 @@ testing()
 # --------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------
 
-[[ ${if_break_links} = "Y" ]] && break_links
+[[ ${if_break_links} == "Y" ]] && break_links
 
 # update repos?
 if [[ "${if_basics1}" == "Y" || "${if_basics2}" == "Y" || "${if_basics3_new_comp}" == "Y" ]]; then
     update_repos
 fi
 
-[[ ${if_testing} = "Y" ]] && testing
-[[ ${if_basics1} = "Y" ]] && install_apps_basic
-[[ ${if_basics2} = "Y" ]] && install_apps_basics2
-[[ ${if_basics3_new_comp} = "Y" ]] && install_apps_basic3_new_comp
-[[ ${if_dotfiles} = "Y" ]] && install_dotfiles
+[[ ${if_testing} == "Y" ]] && testing
+[[ ${if_basics1} == "Y" ]] && install_apps_basic
+[[ ${if_basics2} == "Y" ]] && install_apps_basics2
+[[ ${if_basics3_new_comp} == "Y" ]] && install_apps_basic3_new_comp
+[[ ${if_dotfiles} == "Y" ]] && install_dotfiles
 
 display_log_info
 display_log_error
