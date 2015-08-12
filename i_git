@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+
+set -o errexit
+set -o pipefail
+set -o nounset
+# set -o xtrace
+
+# -------------------------------------------------------------------------------
+# GLOBAL VARS/CONSTANTS
+# magic variables for links
+__sfile="$(readlink -f ${BASH_SOURCE[0]})"
+__sdir="$(cd "$(dirname "${__sfile}")" && pwd)"
+
+source ${__sdir}/install.source
+
+# install GIT
+    loguj -p -ss -t "---" "Installing Git"
+    update_repos
+    ${__aptget_install_cmd} git
+    (
+        ${__aptget_install_cmd} libcurl4-gnutls-dev libexpat1-dev gettext libz-dev libssl-dev
+        ${__aptget_install_cmd} asciidoc xsltproc docbook2X xmlto
+    ) &
+
+
+    (
+    mkdir -p "${HOME}/apps"
+    cd "${HOME}/apps"
+    if [[ ! -d "${HOME}/apps/git" ]]; then
+        git clone git://git.kernel.org/pub/scm/git/git.git "${HOME}/apps/git"
+    else
+        cd "${HOME}/apps/git"
+        git pull
+    fi
+    ) &
+
+    echo -n '=== Waiting for apt-get... '
+    wait %1 && echo 'Done.'
+    echo -n '=== Waiting for git clone/pull... '
+    wait %2 && echo 'Done.'
+
+    cd "${HOME}/apps/git"
+    make prefix=/usr all doc info
+    # ... lasted in vb: 14 min
+
+    ${__sudo} make prefix=/usr install install-doc install-html install-info
+    # ... lasted in vb: 12s
+
+    loguj -p -se -t "---" "Installing Git"
+    exit 0

@@ -19,17 +19,17 @@ set -o nounset
 # set -o xtrace
 
 # Set magic variables for current file & dir
-# __dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# __file="${__dir}/$(basename "${BASH_SOURCE[0]}")"
-# __base="$(basename ${__file} .sh)"
-# __root="$(cd "$(dirname "${__dir}")" && pwd)"
+# __sdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# __sfile="${__sdir}/$(basename "${BASH_SOURCE[0]}")"
+# __base="$(basename ${__sfile} .sh)"
+# __root="$(cd "$(dirname "${__sdir}")" && pwd)"
 
 # magic variables for links
-__file="$(readlink -f ${BASH_SOURCE[0]})"
-__dir="$(cd "$(dirname "${__file}")" && pwd)"
+__sfile="$(readlink -f ${BASH_SOURCE[0]})"
+__sdir="$(cd "$(dirname "${__sfile}")" && pwd)"
 
 # --------------------------------------------------------------------------------
-source ${__dir}/install.source
+source ${__sdir}/install.source
 
 print_help()
 {
@@ -108,7 +108,7 @@ done
 # ================================================================================
 # print environment
 echo "=== ENVIRONMENT ============================================"
-echo "__dir=${__dir}"
+echo "__sdir=${__sdir}"
 if [[ -d "${__dir_dlocal}" ]]; then
     echo "__dir_dlocal (exists) =${__dir_dlocal}"
 else
@@ -130,8 +130,8 @@ mkdir -p ${HOME}/.emacs.d/mine
 # mkdir -p ~/.emacs.d/evil
 [[ -d ${__win_appdata} ]] &&
     mkdir -p ${__win_appdata}/.emacs.d/mine
-find ${__dir}/bin -type f -not -name 'create_bash.model' -exec chmod +x {} \;
-find ${__dir} -maxdepth 1 -type f -not -name 'install' -exec chmod -x {} \;
+find ${__sdir}/bin -type f -not -name 'create_bash.model' -exec chmod +x {} \;
+find ${__sdir} -maxdepth 1 -type f -not -name 'install' -exec chmod -x {} \;
 
 
 # --------------------------------------------------------------------------------
@@ -182,40 +182,40 @@ install_dotfiles()
     loguj -ss -t "${ltype}" "DOTFILES"
 
     # Folders:
-    create_link ${__dir} ~/.dotfiles
+    create_link ${__sdir} ~/.dotfiles
     create_link ${__dir_dlocal} ~/.dotfiles.local || true
     find ${__dir_dlocal} -maxdepth 1 -type f -exec chmod -x {} \; || true
 
     # TMUX
-    create_link ${__dir}/tmux.conf ~/.tmux.conf || true
+    create_link ${__sdir}/tmux.conf ~/.tmux.conf || true
 
     # Git
-    create_link ${__dir}/gitconfig ~/.gitconfig || true
+    create_link ${__sdir}/gitconfig ~/.gitconfig || true
     create_link ${__dir_dlocal}/gitconfig.local ~/.gitconfig.local || true
 
     # Bash:
-    create_link ${__dir}/bashrc ~/.bashrc || true
+    create_link ${__sdir}/bashrc ~/.bashrc || true
     create_link ${__dir_dlocal}/bashrc.local ~/.bashrc.local || true
 
     # Vim
-    create_link ${__dir}/vimrc ~/.vimrc || true
+    create_link ${__sdir}/vimrc ~/.vimrc || true
     create_link ${__dir_dlocal}/vimrc.local ~/.vimrc.local || true
 
     # gnome-terminal
     if [[ -d ~/.gconf/apps/gnome-terminal ]]; then
-        create_link ${__dir}/gnome-terminal ~/.gconf/apps/gnome-terminal || true
+        create_link ${__sdir}/gnome-terminal ~/.gconf/apps/gnome-terminal || true
     fi
 
     # Emacs Linux:
     if hash emacs 2>/dev/null; then
-        create_link ${__dir}/emacs ~/.emacs || true
+        create_link ${__sdir}/emacs ~/.emacs || true
         create_link ${__dir_dlocal}/emacs.local ~/.emacs.d/mine/.emacs.local || true
     fi
 
     # Emacs Win:
     if [[ -f ${__win_appdata} ]]; then
         loguj -p -i -t "${ltype}" "Linking windows emacs links in ${__win_appdata}"
-        create_link -w ${__dir}/emacs ${__win_appdata}/.emacs || true
+        create_link -w ${__sdir}/emacs ${__win_appdata}/.emacs || true
         create_link -w ${__dir_dlocal}/emacs.local ${__win_appdata}/.emacs.d/mine/.emacs.local || true
         # evil-leader:
         create_link -w ~/.emacs.d/mine/evil-leader.el ${__win_appdata}/.emacs.d/mine/evil-leader.el || true
@@ -267,7 +267,7 @@ install_dotfiles()
                         loguj -i -t "${ltype}" "CP: rifle.conf (C-H)"
                     else
                         # loguj -i -t "${ltype}" "Ranger - cygwin - unknown host Copying default file."
-                        cat ~/.config/ranger/rifle.conf ${__dir}/rifle.conf > ~/.config/ranger/rifletmp.conf
+                        cat ~/.config/ranger/rifle.conf ${__sdir}/rifle.conf > ~/.config/ranger/rifletmp.conf
                         mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
                         loguj -i -t "${ltype}" "CP: rifle.conf (C-OTHER)"
                     fi
@@ -280,19 +280,19 @@ install_dotfiles()
                         loguj -i -t "${ltype}" "CP: rifle.conf (L-H)"
                     else
                         loguj -i -t "${ltype}" "Ranger - linux - unknown host Copying default file."
-                        cat ~/.config/ranger/rifle.conf ${__dir}/rifle.conf > ~/.config/ranger/rifletmp.conf
+                        cat ~/.config/ranger/rifle.conf ${__sdir}/rifle.conf > ~/.config/ranger/rifletmp.conf
                         mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
                         loguj -i -t "${ltype}" "CP: rifle.conf (L-OTHER)"
                     fi
                     ;;
                 *)
-                    cat ~/.config/ranger/rifle.conf ${__dir}/rifle.conf > ~/.config/ranger/rifletmp.conf
+                    cat ~/.config/ranger/rifle.conf ${__sdir}/rifle.conf > ~/.config/ranger/rifletmp.conf
                     mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
                     loguj -i -t "${ltype}" "CP: rifle.conf (OTHER-OTHER)"
                     ;;
             esac
         else
-            cat ~/.config/ranger/rifle.conf ${__dir}/rifle.conf > ~/.config/ranger/rifletmp.conf
+            cat ~/.config/ranger/rifle.conf ${__sdir}/rifle.conf > ~/.config/ranger/rifletmp.conf
             mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
             # loguj -i -t "${ltype}" "Ranger - no local dotfiles. Copying default file."
             loguj -i -t "${ltype}" "CP: rifle.conf (default - no local dotfiles)"
@@ -303,8 +303,8 @@ install_dotfiles()
 
     # mplayer
     if hash mplayer 2>/dev/null || [[ -d ~/.mplayer ]]; then
-        create_link ${__dir}/mplayer_config ~/.mplayer/config || true
-        create_link ${__dir}/mplayer_input.conf ~/.mplayer/input.conf || true
+        create_link ${__sdir}/mplayer_config ~/.mplayer/config || true
+        create_link ${__sdir}/mplayer_input.conf ~/.mplayer/input.conf || true
     fi
 
     # weechat
@@ -615,11 +615,12 @@ testing()
     git clone git://git.kernel.org/pub/scm/git/git.git
     cd ${HOME}/apps/git
 
-    # sudo apt-get install asciidoc xsltproc docbook2X xmlto
-    # make prefix=/usr all doc info
+    sudo apt-get install asciidoc xsltproc docbook2X xmlto
+    make prefix=/usr all doc info
+    # ... lasted in vb: 14 min
 
-    make prefix=/usr all
-    sudo make prefix=/usr install
+    sudo make prefix=/usr install install-doc install-html install-info
+    # ... lasted in vb: 12s
 
     echo "=== TESTING END ===================================================="
     return 0

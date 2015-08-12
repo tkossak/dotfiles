@@ -2,7 +2,7 @@
 
 __logi_errors=()
 __logi_info=()
-__dir_dlocal="$(cd "$(dirname "${__dir}")" && pwd)/dotfiles.local"
+__dir_dlocal="$(cd "$(dirname "${__sdir}")" && pwd)/dotfiles.local"
 __dir_dlocal="$(readlink -f ${__dir_dlocal})"
 __aptget_install_cmd=""
 __aptget_check_cmd=""
@@ -33,34 +33,6 @@ __myhost="$(uname -n)"
                     __myhost="OTHER"
                     ;;
             esac
-
-hash cygpath 2>/dev/null \
-    && __win_appdata="$(cygpath -au ${APPDATA:-})" || __win_appdata=""
-hash sudo 2>/dev/null \
-    && __sudo="sudo" \
-    || __sudo=""
-
-
-
-# aptget install cmd:
-if hash apt-get 2>/dev/null; then
-    __aptget_install_cmd="${__sudo} apt-get install -qyf"
-else
-    loguj -w -t "---" "No aptget command"
-fi
-if hash dpkg 2>/dev/null; then
-    __aptget_check_cmd="dpkg -s"
-else
-    loguj -w -t "---" "No aptget-check command"
-fi
-
-if hash curl 2>/dev/null; then
-    __geturl_app="curl -fL -o"
-elif hash wget 2>/dev/null; then
-    __geturl_app="wget -O"
-else
-    loguj -e -t "---" "curl/wget not present"
-fi
 
 # --------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------
@@ -197,6 +169,34 @@ loguj()
 }
 
 
+# --------------------------------------------------------------------------------
+hash cygpath 2>/dev/null \
+    && __win_appdata="$(cygpath -au ${APPDATA:-})" || __win_appdata=""
+hash sudo 2>/dev/null \
+    && __sudo="sudo" \
+    || __sudo=""
+
+
+
+# aptget install cmd:
+if hash apt-get 2>/dev/null; then
+    __aptget_install_cmd="${__sudo} apt-get install -qyf"
+else
+    loguj -w -t "---" "No aptget command"
+fi
+if hash dpkg 2>/dev/null; then
+    __aptget_check_cmd="dpkg -s"
+else
+    loguj -w -t "---" "No aptget-check command"
+fi
+
+if hash curl 2>/dev/null; then
+    __geturl_app="curl -fL -o"
+elif hash wget 2>/dev/null; then
+    __geturl_app="wget -O"
+else
+    loguj -e -t "---" "curl/wget not present"
+fi
 
 # --------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------
@@ -782,7 +782,7 @@ update_repos()
         echo
         if [[ ${REPLY} =~ ^[Yy]$ ]]; then
             ${__sudo} apt-get update
-            ${__sudo} apt-get upgrade
+            ${__sudo} apt-get upgrade -qyf
         fi
 
     fi

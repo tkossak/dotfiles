@@ -24,7 +24,7 @@ __base="$(basename "${BASH_SOURCE[0]}")"
 # ie: /home/user/bin/file.abc
 # __sfile="$(readlink -f ${BASH_SOURCE[0]})"
 # ie: /home/user/bin
-# __sdir="$(cd "$(dirname "${__files}")" && pwd)"
+# __sdir="$(cd "$(dirname "${__sfile}")" && pwd)"
 
 
 __arg1="${1:-}"
