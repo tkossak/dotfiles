@@ -34,10 +34,10 @@ source ${__sdir}/install.source
     fi
     ) &
 
-    echo -n '=== Waiting for apt-get... '
-    wait %1 && echo 'Done.'
-    echo -n '=== Waiting for git clone/pull... '
-    wait %2 && echo 'Done.'
+    echo -e '\n=== Waiting for apt-get...\n'
+    wait %1 && echo -e '\n=== apt-get done.\n'
+    echo -e '\n=== Waiting for git clone/pull...\n'
+    wait %2 && echo -e '\n=== git clone/pull done.\n'
 
     cd "${HOME}/apps/git"
     make prefix=/usr all doc info
