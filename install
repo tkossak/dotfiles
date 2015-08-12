@@ -130,8 +130,12 @@ mkdir -p ${HOME}/.emacs.d/mine
 # mkdir -p ~/.emacs.d/evil
 [[ -d ${__win_appdata} ]] &&
     mkdir -p ${__win_appdata}/.emacs.d/mine
-find ${__sdir}/bin -type f -not -name 'create_bash.model' -exec chmod +x {} \;
-find ${__sdir} -maxdepth 1 -type f -not -name 'install' -exec chmod -x {} \;
+find ${__sdir}/bin -type f -exec chmod u+x {} \;
+[[ -e "${__sdir}/bin/create_bash.model" ]] && chmod -x "${__sdir}/bin/create_bash.model"
+
+find ${__sdir} -maxdepth 1 -type f -exec chmod -x {} \;
+[[ -e "${__sdir}/install" ]] && chmod u+x "${__sdir}/install"
+[[ -e "${__sdir}/i_git" ]] && chmod u+x "${__sdir}/i_git"
 
 
 # --------------------------------------------------------------------------------
