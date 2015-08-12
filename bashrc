@@ -181,115 +181,129 @@ __myos="$(uname)"
 __myhost="$(uname -n)"
 
 case ${__myos} in
-CYGWIN*)
+    CYGWIN*)
 
-# -----------------------------------------------------------------------
-# -- CYGWIN
-# -----------------------------------------------------------------------
+        # -----------------------------------------------------------------------
+        # -- CYGWIN
+        # -----------------------------------------------------------------------
 
-export LANG=en_US.UTF-8
-#export LC_ALL='C' # needed for uniq to work on polish letters
+        export LANG=en_US.UTF-8
+        #export LC_ALL='C' # needed for uniq to work on polish letters
 
-cyginstq() { $(get_param p_cdde)/setup-x86.exe -nqP "$1"; }
-cyginst()  { $(get_param p_cdde)/setup-x86.exe -nP "$1"; }
-cs() { cygstart $*; }
+        cyginstq() { $(get_param p_cdde)/setup-x86.exe -nqP "$1"; }
+        cyginst()  { $(get_param p_cdde)/setup-x86.exe -nP "$1"; }
+        cs() { cygstart $*; }
 
-__vTmp1="$(get_param p_cdp)"
-__vTmp2="$(get_param p_ccp)"
-if [ -e "${__vTmp1}/Nmap/nmap.exe" ]; then
-    alias nmap="\"${__vTmp1}/Nmap/nmap.exe\""
-elif [ -e "${__vTmp2}/Nmap/nmap.exe" ]; then
-    alias nmap="\"${__vTmp2}/Nmap/nmap.exe\""
-fi
+        __vTmp1="$(get_param p_cdp)"
+        __vTmp2="$(get_param p_ccp)"
+        if [ -e "${__vTmp1}/Nmap/nmap.exe" ]; then
+            alias nmap="\"${__vTmp1}/Nmap/nmap.exe\""
+        elif [ -e "${__vTmp2}/Nmap/nmap.exe" ]; then
+            alias nmap="\"${__vTmp2}/Nmap/nmap.exe\""
+        fi
 
-#------------------
-# Win variables
-_vTmpPathCyg="$(get_param p_temp_cyg)"
-#_vTmpPathWin="$(cygpath -aw ${_vTmpPathCyg})"
-__vTmp1="$(get_param p_cdkp)"
-__vTmp2="$(get_param p_cedpp)"
-if [[ -e $__vTmp1 ]]; then
-    _vProgsPath="$__vTmp1"
-elif [[ -e $__vTmp2 ]]; then
-    _vProgsPath="$__vTmp2"
-fi
+        #------------------
+        # Win variables
+        _vTmpPathCyg="$(get_param p_temp_cyg)"
+        #_vTmpPathWin="$(cygpath -aw ${_vTmpPathCyg})"
+        __vTmp1="$(get_param p_cdkp)"
+        __vTmp2="$(get_param p_cedpp)"
+        if [[ -e $__vTmp1 ]]; then
+            _vProgsPath="$__vTmp1"
+        elif [[ -e $__vTmp2 ]]; then
+            _vProgsPath="$__vTmp2"
+        fi
 
-#------------------
-# Win progs aliases
+        #------------------
+        # Win progs aliases
 
-gvim() { cs "${_vProgsPath}/gvim/gvim.exe" $*; }
-# run last activity
-rla() { cs "${_vProgsPath}/_win_sys_tools/LastActivityView/LastActivityView.exe"; }
-# run last logins
-rll() { cs "${_vProgsPath}/_win_sys_tools/WinLogOnView/WinLogOnView.exe"; }
-# run last turned on
-rlt() { cs "${_vProgsPath}/_win_sys_tools\TurnedOnTimesView\TurnedOnTimesView.exe"; }
-#alias gvim="\"${_vProgsPath}/gvim/gvim.exe\""
-
-
-if [[ $__myhost == "$(get_param whost)" ]]; then
-    proxyoff()
-    {
-        reg add "hklm\software\wow6432node\microsoft\windows\currentversion\internet settings" /f /v proxyenable /t reg_dword /d 0
-        reg add "hklm\software\microsoft\windows\currentversion\internet settings" /f /v proxyenable /t reg_dword /d 0
-        reg add "hkcu\software\wow6432node\microsoft\windows\currentversion\internet settings" /f /v proxyenable /t reg_dword /d 0
-        reg add "hkcu\software\microsoft\windows\currentversion\internet settings" /f /v proxyenable /t reg_dword /d 0
-    }
-    alias updatedb='time updatedb --prunepaths="/tmp /var/spool /home/.ecryptfs /cygdrive/k /cygdrive/l /cygdrive/m /cygdrive/n /proc"'
-fi
+        gvim() { cs "${_vProgsPath}/gvim/gvim.exe" $*; }
+        # run last activity
+        rla() { cs "${_vProgsPath}/_win_sys_tools/LastActivityView/LastActivityView.exe"; }
+        # run last logins
+        rll() { cs "${_vProgsPath}/_win_sys_tools/WinLogOnView/WinLogOnView.exe"; }
+        # run last turned on
+        rlt() { cs "${_vProgsPath}/_win_sys_tools\TurnedOnTimesView\TurnedOnTimesView.exe"; }
+        #alias gvim="\"${_vProgsPath}/gvim/gvim.exe\""
 
 
-;;
-Linux)
-
-# -----------------------------------------------------------------------
-# -- LINUX
-# -----------------------------------------------------------------------
-
-# for NOT ROOT only
-if [ $UID -ne 0 ]; then
-    alias reboot='sudo reboot'
-    alias apt-get='sudo apt-get'
-    alias atop='sudo atop'
-    alias umount='sudo umount'
-fi
-
-ri()
-{
-    sudo ls
-    sudo nohup roccatiskuconfig &> /dev/null &
-}
-
-capsoff()
-{
-    #caps lock => escape
-    xmodmap -e 'clear Lock'
-    xmodmap -e 'keycode 66 = Escape'
-    #KP_Separator => period
-    xmodmap -e 'keycode 91 mod2 = KP_Delete period'
-}
-
-capson()
-{
-    xmodmap -e 'keycode 66 = Caps_Lock'
-    xmodmap -e 'clear lock'
-    xmodmap -e 'add lock = Caps_Lock'
-    xmodmap -e 'keycode 91 = KP_Delete KP_Separator KP_Delete KP_Separator'
-}
+        if [[ $__myhost == "$(get_param whost)" ]]; then
+            proxyoff()
+            {
+                reg add "hklm\software\wow6432node\microsoft\windows\currentversion\internet settings" /f /v proxyenable /t reg_dword /d 0
+                reg add "hklm\software\microsoft\windows\currentversion\internet settings" /f /v proxyenable /t reg_dword /d 0
+                reg add "hkcu\software\wow6432node\microsoft\windows\currentversion\internet settings" /f /v proxyenable /t reg_dword /d 0
+                reg add "hkcu\software\microsoft\windows\currentversion\internet settings" /f /v proxyenable /t reg_dword /d 0
+            }
+            alias updatedb='time updatedb --prunepaths="/tmp /var/spool /home/.ecryptfs /cygdrive/k /cygdrive/l /cygdrive/m /cygdrive/n /proc"'
+        fi
 
 
-alias cs="xdg-open"
-# alias aptgo='apt-get update && apt-get -y upgrade && apt-get -y dist-upgrade && apt-get -fy install && apt-get -y autoremove && apt-get -y autoclean && apt-get -y clean'
-alias aptgo='apt-get update && apt-get -y upgrade && apt-get -fy install && apt-get -y autoremove && apt-get -y autoclean && apt-get -y clean'
-alias iotop='sudo iotop --only'
-alias fping='ping -c 5 -i.2'
+        # SSH-AGENT
+        if [ -f ~/.agent.env ]; then
+            . ~/.agent.env > /dev/null
+            if ! kill -0 $SSH_AGENT_PID > /dev/null 2>&1; then
+                echo "Stale agent file found. Spawning new agent… "
+                eval `ssh-agent | tee ~/.agent.env`
+                ssh-add
+            fi
+        else
+            echo "Starting ssh-agent"
+            eval `ssh-agent | tee ~/.agent.env`
+            ssh-add
+        fi
+        ;;
+    Linux)
 
-;;
-*)
+        # -----------------------------------------------------------------------
+        # -- LINUX
+        # -----------------------------------------------------------------------
 
-echo 'other os?';;
+        # for NOT ROOT only
+        if [ $UID -ne 0 ]; then
+            alias reboot='sudo reboot'
+            alias apt-get='sudo apt-get'
+            alias atop='sudo atop'
+            alias umount='sudo umount'
+        fi
+
+        ri()
+        {
+            sudo ls
+            sudo nohup roccatiskuconfig &> /dev/null &
+        }
+
+        capsoff()
+        {
+            #caps lock => escape
+            xmodmap -e 'clear Lock'
+            xmodmap -e 'keycode 66 = Escape'
+            #KP_Separator => period
+            xmodmap -e 'keycode 91 mod2 = KP_Delete period'
+        }
+
+        capson()
+        {
+            xmodmap -e 'keycode 66 = Caps_Lock'
+            xmodmap -e 'clear lock'
+            xmodmap -e 'add lock = Caps_Lock'
+            xmodmap -e 'keycode 91 = KP_Delete KP_Separator KP_Delete KP_Separator'
+        }
+
+
+        alias cs="xdg-open"
+        # alias aptgo='apt-get update && apt-get -y upgrade && apt-get -y dist-upgrade && apt-get -fy install && apt-get -y autoremove && apt-get -y autoclean && apt-get -y clean'
+        alias aptgo='apt-get update && apt-get -y upgrade && apt-get -fy install && apt-get -y autoremove && apt-get -y autoclean && apt-get -y clean'
+        alias iotop='sudo iotop --only'
+        alias fping='ping -c 5 -i.2'
+
+        ;;
+    *)
+
+        echo 'other os?';;
 
 esac
+# --- END CASE ---------------------------------------------------------
 
 
 e()
@@ -401,27 +415,10 @@ echo -e "${IYellow}Today is: ${BWhite}$(date +'%F (%A) %T')"
 # fi
 
 # Last logins:
-if [[ ${__myos} != CYGWIN* ]]; then
+if [[ ! ${__myos} == CYGWIN* ]]; then
     echo -en "${IYellow}LAST logins:\n${Color_Off}"
     __vTmp3="$(last | uniq | head -13)"
     [[ -n $__vTmp3 ]] && echo -e "${Color_Off}${__vTmp3}"
-fi
-
-# SSH-AGENT
-
-if [[ "${__myos}" == "CYGWIN*" ]]; then
-    if [ -f ~/.agent.env ]; then
-        . ~/.agent.env > /dev/null
-        if ! kill -0 $SSH_AGENT_PID > /dev/null 2>&1; then
-            echo "Stale agent file found. Spawning new agent… "
-            eval `ssh-agent | tee ~/.agent.env`
-            ssh-add
-        fi
-    else
-        echo "Starting ssh-agent"
-        eval `ssh-agent | tee ~/.agent.env`
-        ssh-add
-    fi
 fi
 
 # finishing touches
