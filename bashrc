@@ -308,12 +308,14 @@ esac
 
 e()
 {
-    cs "http://dict.pl/dict?word=${1}" >/dev/null
-    cs "http://ling.pl/slownik/angielsko-polski/${1}" >/dev/null
-    cs "http://en.bab.la/dictionary/english-polish/${1}" >/dev/null
-    cs "http://www.thefreedictionary.com/${1}" >/dev/null
-    cs "http://en.pons.com/translate?q=${1}&l=enpl&in=&lf=en" > /dev/null
-    cs "http://www.urbandictionary.com/define.php?term=${1}" > /dev/null
+    local word="$*"
+    word="${word// /+}"
+    cs "http://dict.pl/dict?word=${word}" >/dev/null
+    cs "http://ling.pl/slownik/angielsko-polski/${word}" >/dev/null
+    cs "http://en.bab.la/dictionary/english-polish/${word}" >/dev/null
+    cs "http://www.thefreedictionary.com/${word}" >/dev/null
+    cs "http://en.pons.com/translate?q=${word}&l=enpl&in=&lf=en" > /dev/null
+    cs "http://www.urbandictionary.com/define.php?term=${word}" > /dev/null
 }
 
 
