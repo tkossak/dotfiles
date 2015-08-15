@@ -36,6 +36,7 @@ Plugin 'bling/vim-airline'
 Plugin 'EinfachToll/DidYouMean'
 Plugin 'KabbAmine/zeavim.vim'
 Plugin 'nanotech/jellybeans.vim' " color scheme
+Plugin 'nathanaelkane/vim-indent-guides'
 
 " if !has('gui_running') || !( has('win32') || has('win64') )
 "     Bundle 'https://github.com/neilagabriel/vim-geeknote'
@@ -55,6 +56,9 @@ endif
 " ===================================================
 " = for plugins
 " ===================================================
+let g:indent_guides_auto_colors = 0
+autocmd VimEnter,Colorscheme * :hi IndentGuidesOdd  guibg=#444444 ctermbg=238
+autocmd VimEnter,Colorscheme * :hi IndentGuidesEven guibg=#606060 ctermbg=241
 
 " " vim-airline
 let g:airline_theme='jellybeans'
