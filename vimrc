@@ -214,9 +214,7 @@ colorscheme jellybeans
 " colorscheme solarized
 
 " center screen after searching/moving:
-" nnoremap n nzz
 nnoremap } }zz
-" nnoremap N Nzz
 nnoremap { {zz
 
 " clear search highlight
@@ -224,9 +222,6 @@ nnoremap <Leader>h :nohl<CR>
 
 " " quick save
 nnoremap <Leader>w :update<CR>
-" noremap <C-x> :update<CR>
-" vnoremap <C-x> <C-C>:update<CR>
-" inoremap <C-x> <C-O>:update<CR>
 
 " Quick quit command
 nnoremap <Leader>e :quit<CR>
@@ -278,11 +273,6 @@ nnoremap <leader>x <C-X>
 " insert mode bindings
 inoremap jk <esc>
 inoremap kj <esc>
-" vnoremap jk <esc>
-" vnoremap kj <esc>
-" inoremap <C-e> <C-O>$
-" inoremap <C-a> <C-O>^
-" inoremap <C-l> <Del>
 
 " Write to file with sudo
 cmap w!! !sudo tee >/dev/null%
@@ -347,8 +337,6 @@ endif
 if stridx(s:uname, 'CYGWIN') >= 0
     " execute "set <M-h>=\eh"
     " execute "set <M-l>=\el"
-    " inoremap <M-h> <C-\><C-O>b
-    " inoremap <M-l> <C-\><C-O>w
 
     if exists('$TMUX')
         let &t_SI = "\<Esc>Ptmux;\<Esc>\e[5 q\<Esc>\\"
@@ -376,15 +364,6 @@ endif
 " = LINUX only (no cygwin)
 " ==================================================================
 " if has('unix') && stridx(s:uname, 'CYGWIN') < 0
-"     " execute "set <M-h>=\eh"
-"     " execute "set <M-l>=\el"
-"     " inoremap <M-h> <C-\><C-O>b
-"     " inoremap <M-l> <C-\><C-O>w
-"     " if stridx(s:hname, 'LMQ') >= 0
-"     "     python from powerline.vim import setup as powerline_setup
-"     "     python powerline_setup()
-"     "     python del powerline_setup
-"     " endif
 " endif
 
 
