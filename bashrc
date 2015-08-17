@@ -145,8 +145,8 @@ alias mplayer='mplayer -fs -softvol -softvol-max 300'
 alias dmp3='youtube-dl -cx --audio-format mp3 --restrict-filenames'
 alias dvid='youtube-dl -c --restrict-filenames'
 alias yt='youtube-dl'
-alias tmuxa='tmux attach'
-alias tmuxl='tmux list-sessions'
+alias ta='tmux attach'
+alias tl='tmux list-sessions'
 alias gn='geeknote'
 
 # say something
