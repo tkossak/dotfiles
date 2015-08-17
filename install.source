@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-__my_user=kossak
+__my_user=$(echo -n "${USER}")
 __logi_errors=()
 __logi_info=()
 __dir_dlocal="$(cd "$(dirname "${__sdir}")" && pwd)/dotfiles.local"

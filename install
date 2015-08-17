@@ -304,7 +304,9 @@ install_dotfiles()
             # loguj -i -t "${ltype}" "Ranger - no local dotfiles. Copying default file."
             loguj -i -t "${ltype}" "CP: rifle.conf (default - no local dotfiles)"
         fi
-        ${__sudo} chown ${__my_user}:${__my_user} ~/.config/ranger/bookmarks
+        # if [[ "${__myos}" == "LINUX" ]]; then
+        ${__sudo} chown ${__my_user} ~/.config/ranger/bookmarks
+        # fi
     else
         loguj -i -t "${ltype}" "Ranger not found. Not creating links."
     fi
