@@ -1,6 +1,6 @@
 ;; Packages
 (setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
-                         ("org" . "http://orgmode.org/elpa/")
+                        ("org" . "http://orgmode.org/elpa/")
                          ("marmalade" . "http://marmalade-repo.org/packages/")
                          ("melpa-stable" . "http://melpa-stable.milkbox.net/packages/")))
 (package-initialize)
@@ -256,11 +256,18 @@ then it takes a second \\[keyboard-quit] to abort the minibuffer."
 (setq diary-number-of-entries 7)
 
 (define-key global-map (kbd "RET") 'newline-and-indent) ;; add indent when RET
-(define-key global-map (kbd "<f5>") 'occur) ;; search
-(define-key global-map (kbd "<f4>") 'align-regexp) ;; wyrownanie do regexpa
 (define-key global-map (kbd "<f2>") 'toggle-truncate-lines) ;; wyrownanie do regexpa
 (define-key global-map (kbd "<f3>") 'auto-fill-mode) ;; wyrownanie do regexpa
+(define-key global-map (kbd "<f4>") 'align-regexp) ;; wyrownanie do regexpa
+(define-key global-map (kbd "<f5>") 'occur) ;; search
+;(define-key global-map (kbd "<f12>") 'org-toggle-inline-images)
 
+;(global-set-key (kbd "<f12>") (lambda ()
+;    (interactive)
+;    (org-toggle-inline-images t)))
+
+(define-key org-mode-map  (kbd "<f12>")
+    (lambda () (interactive) (org-toggle-inline-images t)))
 
 ;; do not use x clipboard:
 (setq x-select-enable-clipboard nil)
