@@ -1,0 +1,95 @@
+#!/usr/bin/env bash
+
+set -o errexit
+set -o pipefail
+set -o nounset
+# set -o xtrace
+
+# -------------------------------------------------------------------------------
+# GLOBAL VARS/CONSTANTS
+
+# Example link: /usr/bin/link.sh
+# to example file: /home/user/bin/file.abc
+
+# ie: /usr/bin
+# __dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# ie: /usr/bin/link.sh
+# __file="${__dir}/$(basename "${BASH_SOURCE[0]}")"
+# ie: link.sh
+__base="$(basename "${BASH_SOURCE[0]}")"
+# ie: /usr
+# __root="$(cd "$(dirname "${__dir}")" && pwd)"
+
+# magic variables for links
+# ie: /home/user/bin/file.abc
+# __sfile="$(readlink -f ${BASH_SOURCE[0]})"
+# ie: /home/user/bin
+# __sdir="$(cd "$(dirname "${__sfile}")" && pwd)"
+
+
+if_sort="N"
+if_uniq="N"
+file1=""
+file2=""
+
+while [[ $# > 0 ]]; do
+    case "$1" in
+        -s)
+            if_sort="Y"
+            shift
+            ;;
+        -u)
+            if_sort="Y"
+            if_uniq="Y"
+            shift
+            ;;
+        *)
+            if [[ -z "${file1}" ]]; then
+                file1="$1"
+            elif [[ -z "${file2}" ]]; then
+                file2="$1"
+            else
+                echo "ERROR: Unknown option: ${1}"
+                exit 1
+            fi
+            shift
+    esac
+done
+
+file1_tmp=$(mktemp)
+file2_tmp=$(mktemp)
+file_tmp=$(mktemp)
+
+iconv -f cp1250 -t utf8 "${file1}" > "${file1_tmp}"
+iconv -f cp1250 -t utf8 "${file2}" > "${file2_tmp}"
+
+if [[ "${if_sort}" = "Y" && "${if_uniq}" = "Y" ]]; then
+    sort -u "${file1_tmp}" > "${file_tmp}"
+    rm -f "${file1_tmp}"
+    cp "${file_tmp}" "${file1_tmp}"
+
+    sort -u "${file2_tmp}" > "${file_tmp}"
+    rm -f "${file2_tmp}"
+    cp "${file_tmp}" "${file2_tmp}"
+
+elif [[ "${if_sort}" = "Y" ]]; then
+    sort "${file1_tmp}" > "${file_tmp}"
+    rm -f "${file1_tmp}"
+    cp "${file_tmp}" "${file1_tmp}"
+
+    sort "${file2_tmp}" > "${file_tmp}"
+    rm -f "${file2_tmp}"
+    cp "${file_tmp}" "${file2_tmp}"
+
+elif [[ "${if_uniq}" = "Y" ]]; then
+    uniq "${file1_tmp}" > "${file_tmp}"
+    rm -f "${file1_tmp}"
+    cp "${file_tmp}" "${file1_tmp}"
+
+    uniq "${file2_tmp}" > "${file_tmp}"
+    rm -f "${file2_tmp}"
+    cp "${file_tmp}" "${file2_tmp}"
+fi
+
+vimdiff "${file1_tmp}" "${file2_tmp}"
+
