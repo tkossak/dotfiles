@@ -147,7 +147,7 @@ break_links()
     local ltype="BRK"
     local src
     loguj -ss -t "${ltype}" "BREAKING LINKS"
-    for link in ~/.tmux.conf ~/.vimrc ~/.vimrc.local ~/.bashrc ~/.bashrc.local ~/.emacs ~/.emacs.d/mine/.emacs.local ~/.gitconfig ~/.gitconfig.local \
+    for link in ~/.tmux.conf ~/.vimrc ~/.vimrc.local ~/.vimrc.plugins ~/.bashrc ~/.bashrc.local ~/.emacs ~/.emacs.d/mine/.emacs.local ~/.gitconfig ~/.gitconfig.local \
         ~/.weechat/guile ~/.weechat/javascript ~/.weechat/lua ~/.weechat/perl ~/.weechat/python ~/.weechat/ruby ~/.weechat/script ~/.weechat/tcl ~/.weechat/xfer ~/.weechat/alias.conf ~/.weechat/aspell.conf ~/.weechat/buffers.conf ~/.weechat/charset.conf ~/.weechat/exec.conf ~/.weechat/irc.conf ~/.weechat/iset.conf ~/.weechat/logger.conf ~/.weechat/plugins.conf ~/.weechat/relay.conf ~/.weechat/script.conf ~/.weechat/sec.conf ~/.weechat/trigger.conf ~/.weechat/weechat.conf ~/.weechat/xfer.conf \
         ~/.config/ranger/rc.conf ~/.config/ranger/rifle.conf ~/.mplayer/config ~/.mplayer/input.conf ~/.gconf/apps/gnome-terminal ~/.config/vlc/vlcrc
     do
@@ -203,6 +203,7 @@ install_dotfiles()
 
     # Vim
     create_link ${__sdir}/vimrc ~/.vimrc || true
+    create_link ${__sdir}/vimrc.plugins ~/.vimrc.plugins || true
     create_link ${__dir_dlocal}/vimrc.local ~/.vimrc.local || true
 
     # gnome-terminal
@@ -231,16 +232,16 @@ install_dotfiles()
         create_link -w ~/.emacs.d/org-mode ${__win_appdata}/.emacs.d/org-mode || true
     fi
 
-    if [[ -d ${__dir_dlocal} ]]; then
-        create_link ${__dir_dlocal} ~/.dotfiles.local || true
-        create_link ${__dir_dlocal}/bashrc.local ~/.bashrc.local || true
-        create_link ${__dir_dlocal}/vimrc.local ~/.vimrc.local || true
-        create_link ${__dir_dlocal}/gitconfig.local ~/.gitconfig.local || true
-        create_link ${__dir_dlocal}/emacs.local ~/.emacs.d/mine/.emacs.local || true
-        [[ -d "${__win_appdata}" ]] && create_link -w ${__dir_dlocal}/emacs.local ${__win_appdata}/.emacs.d/mine/.emacs.local || true
-    else
-        loguj -i -t "${ltype}" "Emacs: no local dir."
-    fi
+    # if [[ -d ${__dir_dlocal} ]]; then
+    #     # create_link ${__dir_dlocal} ~/.dotfiles.local || true
+    #     # create_link ${__dir_dlocal}/bashrc.local ~/.bashrc.local || true
+    #     # create_link ${__dir_dlocal}/vimrc.local ~/.vimrc.local || true
+    #     # create_link ${__dir_dlocal}/gitconfig.local ~/.gitconfig.local || true
+    #     # create_link ${__dir_dlocal}/emacs.local ~/.emacs.d/mine/.emacs.local || true
+    #     # [[ -d "${__win_appdata}" ]] && create_link -w ${__dir_dlocal}/emacs.local ${__win_appdata}/.emacs.d/mine/.emacs.local || true
+    # else
+    #     loguj -i -t "${ltype}" "Emacs: no local dir."
+    # fi
 
     #Ranger:
     # if hash ranger 2>/dev/null; then
@@ -355,7 +356,8 @@ install_dotfiles()
         create_link "${__dir_dlocal}/vlcrc" "${HOME}/.config/vlc/vlcrc"
     fi
 
-    vim +PluginInstall +PluginClean +qall
+    # vim +PluginInstall +PluginClean +qall
+    vim +PlugInstall +PlugClean +qall
 
     loguj -se -t "${ltype}" "DOTFILES"
     return 0
@@ -496,13 +498,24 @@ install_apps_basic()
 
     # vim
     aptget vim || true
-
+        # del Vundle:
+        if [[ -d ~/.vim/bundle/Vundle.vim ]]; then
+            loguj -i -t "${ltype}" "Old Vundle present - deleting whole ~/.vim"
+            rm -rf ~/.vim
+        fi
+        # install Plug:
+        if [[ ! -e ~/.vim/autoload/plug.vim ]]; then
+            curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
+                https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim \
+            && loguj -s -t "${ltype}" "Vim plugin 'Plug' installed" \
+            || loguj -e -t "${ltype}" "Vim plugin 'Plug' NOT installed"
+        fi
 
     # make
     aptget make || true
 
     # vim-vundle
-    gitclone https://github.com/gmarik/Vundle.vim.git ~/.vim/bundle/Vundle.vim || true
+    # gitclone https://github.com/gmarik/Vundle.vim.git ~/.vim/bundle/Vundle.vim || true
 
     # PIP2
     local if_getpip_downloaded="0"
@@ -613,8 +626,6 @@ install_apps_basic()
 
 testing()
 {
-
-
     echo "=== TESTING START =================================================="
     echo "install git test"
 

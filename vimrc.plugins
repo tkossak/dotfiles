@@ -1,0 +1,72 @@
+call plug#begin('~/.vim/plugged')
+
+" Plug 'gmarik/Vundle.vim'
+" Plug 'altercation/vim-colors-solarized'
+" Plug 'scrooloose/nerdtree'
+" Plug 'scrooloose/syntastic'
+" Plug 'othree/eregex.vim'
+Plug 'gregsexton/MatchTag'  " match HTML tags
+Plug 'haya14busa/incsearch.vim'
+Plug 'kien/ctrlp.vim'
+Plug 'christoomey/vim-tmux-navigator'
+Plug 'junegunn/fzf'
+Plug 'terryma/vim-expand-region'
+Plug 'tpope/vim-commentary'
+Plug 'tpope/vim-repeat'
+Plug 'bling/vim-airline'
+Plug 'EinfachToll/DidYouMean'
+Plug 'KabbAmine/zeavim.vim' " Zeal for vim: https://github.com/KabbAmine/zeavim.vim
+Plug 'nanotech/jellybeans.vim' " color scheme
+Plug 'nathanaelkane/vim-indent-guides'
+
+call plug#end()
+
+" vim-indent-guides
+let g:indent_guides_auto_colors = 0
+autocmd VimEnter,Colorscheme * :hi IndentGuidesOdd  guibg=#444444 ctermbg=238
+autocmd VimEnter,Colorscheme * :hi IndentGuidesEven guibg=#606060 ctermbg=241
+
+
+" vim-airline
+let g:airline_theme='jellybeans'
+let g:airline_left_sep=''
+let g:airline_right_sep=''
+let g:airline_section_z=''
+
+" inc-search
+map /  <Plug>(incsearch-forward)
+map ?  <Plug>(incsearch-backward)
+map g/ <Plug>(incsearch-stay)
+let g:incsearch#auto_nohlsearch = 1
+map n  <Plug>(incsearch-nohl-n)
+map N  <Plug>(incsearch-nohl-N)
+map *  <Plug>(incsearch-nohl-*)
+map #  <Plug>(incsearch-nohl-#)
+map g* <Plug>(incsearch-nohl-g*)
+map g# <Plug>(incsearch-nohl-g#)
+
+" syntastic
+set statusline+=%#warningmsg#
+set statusline+=%{SyntasticStatuslineFlag()}
+set statusline+=%*
+
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 1
+let g:syntastic_check_on_open = 1
+let g:syntastic_check_on_wq = 0
+let g:syntastic_python_python_exec = '/usr/bin/python3'
+
+" vim-expand-region :: expand/shrink selection
+vmap v <Plug>(expand_region_expand)
+vmap <C-v> <Plug>(expand_region_shrink)
+
+"zeavim
+if filereadable("/cygdrive/d/Kossak/progs/zeal/zeal.exe")
+    let g:zv_zeal_directory = "/cygdrive/d/Kossak/progs/zeal/zeal.exe"
+endif
+
+
+
+
+
+
