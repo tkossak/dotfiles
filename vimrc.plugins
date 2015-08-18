@@ -13,6 +13,7 @@ Plug 'junegunn/fzf'
 Plug 'terryma/vim-expand-region'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-repeat'
+Plug 'tpope/vim-fugitive'
 Plug 'bling/vim-airline'
 Plug 'EinfachToll/DidYouMean'
 Plug 'KabbAmine/zeavim.vim' " Zeal for vim: https://github.com/KabbAmine/zeavim.vim
@@ -28,10 +29,11 @@ autocmd VimEnter,Colorscheme * :hi IndentGuidesEven guibg=#606060 ctermbg=241
 
 
 " vim-airline
+let g:airline_powerline_fonts=1
+let g:airline_left_sep=''
+let g:airline_right_sep=''
 let g:airline_theme='jellybeans'
-let g:airline_left_sep=''
-let g:airline_right_sep=''
-let g:airline_section_z=''
+" let g:airline_section_z=''
 
 " inc-search
 map /  <Plug>(incsearch-forward)
