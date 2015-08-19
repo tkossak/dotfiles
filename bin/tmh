@@ -6,6 +6,8 @@ tmux send-keys -t 0 'sshfs is: /mnt/is; cd pobrane' Enter
 tmux send-keys -t 0 'ranger' Enter
 tmux split-window -v -p 50 -c '/mnt/win_d/filmy/_watch_first_1'
 tmux send-keys -t 1 'ranger' Enter
+tmux split-window -h -p 50 -c '/mnt/win_d/filmy/_watch_first_1'
+tmux send-keys -t 2 'ranger-cd' Enter
 tmux select-pane -t 0
 
 # dotfile
