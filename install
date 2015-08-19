@@ -1,28 +1,9 @@
 #!/usr/bin/env bash
 
-# run na vb - linux mint, basic
-# BUG: pip - app alrady installed - pip is too old, install via get-pip and check version earlier
-# BUG: przy evil-leader + key-chord: pusty Run w logu wyskakuje - zawsze po procedurze GETURL
-
-# TODO: create variable for ~/apps
-# TODO: get latest version of pip from the net
-# TODO: add youtube-dl -U
-# TODO: change aptget: use apt-cache to check if it's updated or older version. If older, then update it.
-# TODO: geturl() - jeśli plik istnieje i ma taie samo sha1 to nie ściągaj go ponownie
-# TODO: update_repos() - add parameter -n (no asking)
-# NEW OPTIONS
-#    -u :: update
-
 set -o errexit
 set -o pipefail
 set -o nounset
 # set -o xtrace
-
-# Set magic variables for current file & dir
-# __sdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# __sfile="${__sdir}/$(basename "${BASH_SOURCE[0]}")"
-# __base="$(basename ${__sfile} .sh)"
-# __root="$(cd "$(dirname "${__sdir}")" && pwd)"
 
 # magic variables for links
 __sfile="$(readlink -f ${BASH_SOURCE[0]})"
