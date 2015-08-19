@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+# is
+tmux new-window -n 'is' -c '/mnt/is' #'sshfs is: /mnt/is'
+tmux send-keys -t 0 'sshfs is: /mnt/is; cd pobrane' Enter
+tmux send-keys -t 0 'ranger' Enter
+tmux split-window -v -p 50 -c '/mnt/win_d/filmy/_watch_first_1'
+tmux send-keys -t 1 'ranger' Enter
+tmux select-pane -t 0
+
+# dotfile
+tmux new-window -n 'dotfiles' -c '~/.dotfiles'
+tmux send-keys -t 0 'ranger' Enter
+tmux split-window -h -p 50 -c '~/.dotfiles'
+tmux send-keys -t 1 'git status' Enter
+tmux send-keys -t 1 'git remote show origin' Enter
+tmux send-keys -t 1 'git branch -avv' Enter
+tmux send-keys -t 1 'git pull'
+
+# english
+tmux new-window -n 'english' -c '~/Downloads/en'
+tmux send-keys -t 0 'gn edit 2' Enter
+tmux split-window -h -p 50 -c '~/Downloads/en'
+tmux send-keys -t 1 'gn show 2 | tee eng_$(date +"%y%m%d_%H%M%S") | checkeng' Enter
+
+# tmp
+tmux new-window -n 'tmp' -c '~/Downloads'
+tmux send-keys -t 0 'ranger-cd' Enter
+
+# last
+tmux select-window -t 'dotfiles'

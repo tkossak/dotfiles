@@ -19,8 +19,12 @@ Plug 'EinfachToll/DidYouMean'
 Plug 'KabbAmine/zeavim.vim' " Zeal for vim: https://github.com/KabbAmine/zeavim.vim
 Plug 'nanotech/jellybeans.vim' " color scheme
 Plug 'nathanaelkane/vim-indent-guides'
-
 call plug#end()
+
+" fugitive
+nnoremap <leader>gd :Gdiff<CR>
+nnoremap <leader>gc :Gcommit<CR>
+nnoremap <leader>gs :Gstatus<CR>
 
 " vim-indent-guides
 let g:indent_guides_auto_colors = 0

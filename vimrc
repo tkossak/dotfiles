@@ -6,6 +6,7 @@ let s:uname = system("uname -s")
 let s:hname = system("uname -n")
 
 set nocompatible " be iMproved, required
+let mapleader = " "
 " filetype off " required
 
 
@@ -87,7 +88,8 @@ omap s :normal vs<CR>
 " ==================================================================
 " KEYS
 " ==================================================================
-let mapleader = " "
+
+" nnoremap <leader>gd :Gdiff<CR>
 
 " easy diff
 nnoremap <leader>dd :diffthis<CR>
