@@ -150,8 +150,6 @@ alias yt='youtube-dl'
 alias ta='tmux attach'
 alias tl='tmux list-sessions'
 alias gn='geeknote'
-alias tsh='tmux source-file ~/.tmux/tmux_h_session'
-alias tsw='tmux source-file ~/.tmux/tmux_w_session'
 
 # say something
 say(){ mplayer -user-agent Mozilla "http://translate.google.com/translate_tts?tl=en&q=$(echo $* | sed 's#\ #\+#g')" > /dev/null 2>&1 ; }

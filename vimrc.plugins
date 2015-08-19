@@ -25,6 +25,8 @@ call plug#end()
 nnoremap <leader>gd :Gdiff<CR>
 nnoremap <leader>gc :Gcommit<CR>
 nnoremap <leader>gs :Gstatus<CR>
+nnoremap <leader>gp :Gpush<CR>
+nnoremap <leader>gP :Gpull<CR>
 
 " vim-indent-guides
 let g:indent_guides_auto_colors = 0
