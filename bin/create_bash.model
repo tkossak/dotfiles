@@ -53,6 +53,7 @@ loguj()
 {
     local var="${1:-}"
 
+    # option parsing:
     while [[ $# > 0 ]]; do
         case "$1" in
             -c)
@@ -90,27 +91,54 @@ if [[ $# = 0 ]]; then
     exit 0
 fi
 
-while [[ $# > 0 ]]; do
-    case "$1" in
-        -c)
-            shift
-            ;;
-        -h|--help)
-            print_help
-            exit 0
-            ;;
-        *)
-            if [[ -z "${src_file}" ]]; then
-                src_file="$1"
-            elif [[ -z "${dst_link}" ]]; then
-                dst_link="$1"
-            else
-                echo "ERROR: Unknown option: ${1}"
+# OPTION parsing 1
+    while [[ $# > 0 ]]; do
+        case "$1" in
+            -c)
+                shift
+                ;;
+            -h|--help)
+                print_help
+                exit 0
+                ;;
+            *)
+                if [[ -z "${src_file}" ]]; then
+                    src_file="$1"
+                elif [[ -z "${dst_link}" ]]; then
+                    dst_link="$1"
+                else
+                    echo "ERROR: Unknown option: ${1}"
+                    exit 1
+                fi
+                shift
+        esac
+    done
+
+# OPTION parsing 2
+
+    while getopts ":ab:" opt; do
+        case $opt in
+            a)
+                echo "-a was triggered!"
+                ;;
+            b)
+                echo "-b was triggered with argument: ${OPTARG}"
+                ;;
+            \?)
+                echo "Invalid option: -${OPTARG}"
                 exit 1
-            fi
-            shift
-    esac
-done
+                ;;
+            :)
+                echo "Option -${OPTARG} requires an argument."
+                exit 1
+                ;;
+        esac
+    done
+
+    shift $((OPTIND-1))
+    echo "echo all: $@"
+
+# -------------------------------------------------------------------
 
 exit 0
 

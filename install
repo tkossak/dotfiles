@@ -39,52 +39,101 @@ if_testing="N"
 
 [[ $# = 0 ]] && if_dotfiles="Y"
 
-while [[ $# > 0 ]]; do
-    case "$1" in
-        -h|--help)
+while getopts ":hldbaAt" opt; do
+    case "$opt" in
+        h)
             print_help
             exit 0
             ;;
-        -l)
-            shift
+        l)
             if_break_links="Y"
             ;;
-        -d)
-            shift
+        d)
             if_dotfiles="Y"
             ;;
-        -b)
-            shift
+        b)
             if_break_links="Y"
             if_basics1="Y"
             if_dotfiles="Y"
             ;;
-        -a)
-            shift
+        a)
             if_break_links="Y"
             if_basics1="Y"
             if_basics2="Y"
             if_dotfiles="Y"
             ;;
-        -A)
-            shift
+        A)
             if_break_links="Y"
             if_basics1="Y"
             if_basics2="Y"
             if_basics3_new_comp="Y"
             if_dotfiles="Y"
             ;;
-        -t)
+        t)
             if_testing="Y"
-            shift
             ;;
-        *)
+
+        \?)
             loguj -e -t "${ltype}" "Unknown option: $1"
+            print_help
+            exit 1
+            ;;
+        :)
+            loguj -e -t "${ltype}" "Option -${OPTARG} requires an argument."
             print_help
             exit 1
             ;;
     esac
 done
+
+shift $((OPTIND-1))
+
+# while [[ $# > 0 ]]; do
+#     case "$1" in
+#         -h)
+#             print_help
+#             exit 0
+#             ;;
+#         -l)
+#             shift
+#             if_break_links="Y"
+#             ;;
+#         -d)
+#             shift
+#             if_dotfiles="Y"
+#             ;;
+#         -b)
+#             shift
+#             if_break_links="Y"
+#             if_basics1="Y"
+#             if_dotfiles="Y"
+#             ;;
+#         -a)
+#             shift
+#             if_break_links="Y"
+#             if_basics1="Y"
+#             if_basics2="Y"
+#             if_dotfiles="Y"
+#             ;;
+#         -A)
+#             shift
+#             if_break_links="Y"
+#             if_basics1="Y"
+#             if_basics2="Y"
+#             if_basics3_new_comp="Y"
+#             if_dotfiles="Y"
+#             ;;
+#         -t)
+#             if_testing="Y"
+#             shift
+#             ;;
+#         *)
+#             loguj -e -t "${ltype}" "Unknown option: $1"
+#             print_help
+#             exit 1
+#             ;;
+#     esac
+# done
 
 # ================================================================================
 # print environment
@@ -610,19 +659,19 @@ testing()
     echo "=== TESTING START =================================================="
     echo "install git test"
 
-    local cur_git_ver="2.5.0"
-    sudo apt-get install git libcurl4-gnutls-dev libexpat1-dev gettext libz-dev libssl-dev
+    # local cur_git_ver="2.5.0"
+    # sudo apt-get install git libcurl4-gnutls-dev libexpat1-dev gettext libz-dev libssl-dev
 
-    cd ${HOME}/apps
-    git clone git://git.kernel.org/pub/scm/git/git.git
-    cd ${HOME}/apps/git
+    # cd ${HOME}/apps
+    # git clone git://git.kernel.org/pub/scm/git/git.git
+    # cd ${HOME}/apps/git
 
-    sudo apt-get install asciidoc xsltproc docbook2X xmlto
-    make prefix=/usr all doc info
-    # ... lasted in vb: 14 min
+    # sudo apt-get install asciidoc xsltproc docbook2X xmlto
+    # make prefix=/usr all doc info
+    # # ... lasted in vb: 14 min
 
-    sudo make prefix=/usr install install-doc install-html install-info
-    # ... lasted in vb: 12s
+    # sudo make prefix=/usr install install-doc install-html install-info
+    # # ... lasted in vb: 12s
 
     echo "=== TESTING END ===================================================="
     return 0
