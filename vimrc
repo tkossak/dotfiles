@@ -1,7 +1,3 @@
-" ---------------------------------------------------------------------
-" VUDNLE installation
-" ---------------------------------------------------------------------
-
 let s:uname = system("uname -s")
 let s:hname = system("uname -n")
 
@@ -54,6 +50,7 @@ set softtabstop=4 " amount of spaces for pressing <tab>
 set tabstop=4 " amount of spaces to visualize <tab> character
 set shiftwidth=4 " number of spaces for each step of autoindent
 set shiftround " round indent to multiple of 'shiftwidth'
+set nowrap
 
 set listchars=eol:$,tab:>-,trail:~,extends:>,precedes:<
 " ↩ ↵ ↲ ␣ • … → » ∎ ¶ ▶ ▸ ▷ ▹
