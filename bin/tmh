@@ -3,16 +3,15 @@
 session="H"
 
 if tmux has-session -t ${session} 2>/dev/null; then
-    tmux new-window -t ${session} -n 'is' #-c '/mnt/is'
+    tmux new-window -t ${session} -n 'is'
 else
-    if [[ -n "${TMUX}" ]]; then
+    # if [[ -n "${TMUX}" ]]; then
         # needed so it won't trigger error: sessions should be nested with care, unset $TMUX to force
         TMUX= tmux new-session -d -s ${session} -n 'is'
-        tmux switch-client -t ${session}
-    else
-        tmux new-session -d -s ${session} -n 'is'
-    fi
-    # [[ -z "${TMUX}" ]] && tmux send-keys -t ${session}'cd /mnt/is' Enter
+        # tmux switch-client -t ${session}
+    # else
+        # tmux new-session -d -s ${session} -n 'is'
+    # fi
 fi
 
 # is
@@ -21,7 +20,6 @@ if [[ -d /mnt/is/pobrane ]]; then
 else
     tmux send-keys -t ${session} 'sshfs is: /mnt/is && cd /mnt/is/pobrane' Enter
 fi
-
 tmux send-keys -t ${session} 'ranger' Enter
 tmux split-window -t ${session} -v -p 50 -c '/mnt/win_d/filmy/_watch_first_1'
 tmux send-keys -t ${session} 'ranger' Enter
