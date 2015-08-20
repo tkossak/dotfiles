@@ -1,33 +1,54 @@
 #!/usr/bin/env bash
 
+session="H"
+
+if tmux has-session -t ${session} 2>/dev/null; then
+    tmux new-window -t ${session} -n 'is' -c '/mnt/is'
+else
+    # [[ -n "${TMUX}" ]] && tmux detach-client
+    if [[ -n "${TMUX}" ]]; then
+        # needed so it won't trigger error: sessions should be nested with care, unset $TMUX to force
+        TMUX= tmux new-session -d -s ${session} -n 'is'
+        tmux switch-client -t ${session}
+    else
+        tmux new-session -d -s H -n 'is'
+    fi
+    [[ -z "${TMUX}" ]] && tmux send-keys 'cd /mnt/is/pobrane' Enter
+fi
+
+
 # is
-tmux new-window -n 'is' -c '/mnt/is' #'sshfs is: /mnt/is'
-tmux send-keys -t 0 'sshfs is: /mnt/is; cd pobrane' Enter
-tmux send-keys -t 0 'ranger' Enter
-tmux split-window -v -p 50 -c '/mnt/win_d/filmy/_watch_first_1'
-tmux send-keys -t 1 'ranger' Enter
-tmux split-window -h -p 50 -c '/mnt/win_d/filmy/_watch_first_1'
-tmux send-keys -t 2 'ranger-cd' Enter
-tmux select-pane -t 0
+tmux send-keys -t ${session} 'sshfs is: /mnt/is; cd pobrane' Enter
+tmux send-keys -t ${session} 'ranger' Enter
+tmux split-window -t ${session} -v -p 50 -c '/mnt/win_d/filmy/_watch_first_1'
+tmux send-keys -t ${session} 'ranger' Enter
+tmux split-window -t ${session} -h -p 50 -c '/mnt/win_d/filmy/_watch_first_1'
+tmux send-keys -t ${session} 'ranger-cd' Enter
 
 # dotfile
-tmux new-window -n 'dotfiles' -c '~/.dotfiles'
-tmux send-keys -t 0 'ranger' Enter
-tmux split-window -h -p 50 -c '~/.dotfiles'
-tmux send-keys -t 1 'git status' Enter
-tmux send-keys -t 1 'git remote show origin' Enter
-tmux send-keys -t 1 'git branch -avv' Enter
-tmux send-keys -t 1 'git pull'
+tmux new-window -t ${session} -n 'dotfiles' -c '~/.dotfiles'
+tmux send-keys -t ${session} 'ranger' Enter
+tmux split-window -t ${session} -h -p 50 -c '~/.dotfiles'
+tmux send-keys -t ${session} 'git status' Enter
+tmux send-keys -t ${session} 'git remote show origin' Enter
+tmux send-keys -t ${session} 'git branch -avv' Enter
+tmux send-keys -t ${session} 'git pull'
 
-# english
-tmux new-window -n 'english' -c '~/Downloads/en'
-tmux send-keys -t 0 'gn edit 2' Enter
-tmux split-window -h -p 50 -c '~/Downloads/en'
-tmux send-keys -t 1 'gn show 2 | tee eng_$(date +"%y%m%d_%H%M%S") | checkeng' Enter
+# # english
+tmux new-window -t ${session} -n 'english' -c '~/Downloads/en'
+tmux send-keys -t ${session} 'gn edit 2' Enter
+tmux split-window -t ${session} -h -p 50 -c '~/Downloads/en'
+tmux send-keys -t ${session} 'gn show 2 | tee eng_$(date +"%y%m%d_%H%M%S") | checkeng' Enter
 
-# tmp
-tmux new-window -n 'tmp' -c '~/Downloads'
-tmux send-keys -t 0 'ranger-cd' Enter
+# # tmp
+tmux new-window -t ${session} -n 'tmp' -c '~/Downloads'
+tmux send-keys -t ${session} 'ranger-cd' Enter
 
-# last
-tmux select-window -t 'dotfiles'
+# # last
+# tmux refresh-client
+if [[ -n "$TMUX" ]]; then
+    tmux switch-client -t ${session}
+else
+    tmux attach-session -t ${session}
+fi
+tmux select-window -t ${session}:dotfiles
