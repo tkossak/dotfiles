@@ -1,32 +1,52 @@
 #!/usr/bin/env bash
 
+session="W"
+
+if tmux has-session -t ${session} 2>/dev/null; then
+    tmux new-window -t ${session} -n 'rap' -c '/cygdrive/d/Kossak/tasks'
+else
+    if [[ -n "${TMUX}" ]]; then
+        # needed so it won't trigger error: sessions should be nested with care, unset $TMUX to force
+        TMUX= tmux new-session -d -s ${session} -n 'rap'
+        tmux switch-client -t ${session}
+    else
+        tmux new-session -d -s H -n 'rap'
+    fi
+    [[ -z "${TMUX}" ]] && tmux send-keys 'cd /cygdrive/d/Kossak/tasks' Enter
+fi
+
 # rap
-tmux new-window -n 'rap' -c '/cygdrive/d/Kossak/tasks'
-tmux send-keys -t 0 'ranger-cd' Enter
+# tmux new-window -n 'rap' -c '/cygdrive/d/Kossak/tasks'
+tmux send-keys -t ${session} 'ranger-cd' Enter
 
 # dotfiles
-tmux new-window -n 'dotfiles' -c '~/.dotfiles'
-tmux send-keys -t 0 'ranger' Enter
-tmux split-window -h -p 50 -c '~/.dotfiles'
-tmux send-keys -t 1 'git status' Enter
-tmux send-keys -t 1 'git remote show origin' Enter
-tmux send-keys -t 1 'git branch -avv' Enter
-tmux send-keys -t 1 'git pull'
+tmux new-window -t ${session} -n 'dotfiles' -c '~/.dotfiles'
+tmux send-keys -t ${session} 'ranger' Enter
+tmux split-window -t ${session} -h -p 50 -c '~/.dotfiles'
+tmux send-keys -t ${session} 'git status' Enter
+tmux send-keys -t ${session} 'git remote show origin' Enter
+tmux send-keys -t ${session} 'git branch -avv' Enter
+tmux send-keys -t ${session} 'git pull'
 
 # english
-tmux new-window -n 'english' -c '/cygdrive/d/download/en'
-tmux send-keys -t 0 'gn edit 2'
-tmux split-window -h -p 50 -c '/cygdrive/d/download/en'
-tmux send-keys -t 1 'gn show 2 | tee eng_$(date +"%y%m%d_%H%M%S") | checkeng' Enter
+tmux new-window -t ${session} -n 'english' -c '/cygdrive/d/download/en'
+tmux send-keys -t ${session} 'gn edit 2'
+tmux split-window -t ${session} -h -p 50 -c '/cygdrive/d/download/en'
+tmux send-keys -t ${session} 'gn show 2 | tee eng_$(date +"%y%m%d_%H%M%S") | checkeng' Enter
 
 # tmp
-tmux new-window -n 'tmp' -c '/cygdrive/d/download'
-tmux send-keys -t 0 'ranger-cd' Enter
+tmux new-window -t ${session} -n 'tmp' -c '/cygdrive/d/download'
+tmux send-keys -t ${session} 'ranger-cd' Enter
 
 # backup
-tmux new-window -n 'backup' -c '/cygdrive/k/backup_rsync'
-tmux send-keys -t 0 'll'
+tmux new-window -t ${session} -n 'backup' -c '/cygdrive/k/backup_rsync'
+tmux send-keys -t ${session} 'll'
 
-# last
-tmux select-window -t 'dotfiles'
-
+# # last
+# tmux refresh-client
+if [[ -n "$TMUX" ]]; then
+    tmux switch-client -t ${session}
+else
+    tmux attach-session -t ${session}
+fi
+tmux select-window -t ${session}:dotfiles

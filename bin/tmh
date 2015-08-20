@@ -3,9 +3,8 @@
 session="H"
 
 if tmux has-session -t ${session} 2>/dev/null; then
-    tmux new-window -t ${session} -n 'is' -c '/mnt/is'
+    tmux new-window -t ${session} -n 'is' -c '/mnt/is/pobrane'
 else
-    # [[ -n "${TMUX}" ]] && tmux detach-client
     if [[ -n "${TMUX}" ]]; then
         # needed so it won't trigger error: sessions should be nested with care, unset $TMUX to force
         TMUX= tmux new-session -d -s ${session} -n 'is'
