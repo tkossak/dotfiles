@@ -3,7 +3,7 @@
 session="H"
 
 if tmux has-session -t ${session} 2>/dev/null; then
-    tmux new-window -t ${session} -n 'is' -c '/mnt/is/pobrane'
+    tmux new-window -t ${session} -n 'is' -c '/mnt/is'
 else
     if [[ -n "${TMUX}" ]]; then
         # needed so it won't trigger error: sessions should be nested with care, unset $TMUX to force
@@ -12,7 +12,7 @@ else
     else
         tmux new-session -d -s H -n 'is'
     fi
-    [[ -z "${TMUX}" ]] && tmux send-keys 'cd /mnt/is/pobrane' Enter
+    [[ -z "${TMUX}" ]] && tmux send-keys 'cd /mnt/is' Enter
 fi
 
 
@@ -44,7 +44,6 @@ tmux new-window -t ${session} -n 'tmp' -c '~/Downloads'
 tmux send-keys -t ${session} 'ranger-cd' Enter
 
 # # last
-# tmux refresh-client
 if [[ -n "$TMUX" ]]; then
     tmux switch-client -t ${session}
 else
