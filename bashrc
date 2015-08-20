@@ -8,7 +8,9 @@
 color_prompt=yes;
 
 # export TERM=screen
-export TERM=screen-256color
+[[ -n "$TMUX" ]] &&
+    export TERM=screen-256color ||
+    export TERM=xterm-256color
 # export TERM=screen-256color-bce
 # export TERM=xterm-256color
 
@@ -147,9 +149,14 @@ alias mplayer='mplayer -fs -softvol -softvol-max 300'
 alias dmp3='youtube-dl -cx --audio-format mp3 --restrict-filenames'
 alias dvid='youtube-dl -c --restrict-filenames'
 alias yt='youtube-dl'
-alias ta='tmux attach'
-alias tl='tmux list-sessions'
 alias gn='geeknote'
+
+# TMUX
+alias tl='tmux list-sessions'
+alias ta='tmux attach-session'
+alias tat='tmux attach-session -t'
+alias tn='tmux new-session'
+alias tns='tmux new-session -s'
 
 # say something
 say(){ mplayer -user-agent Mozilla "http://translate.google.com/translate_tts?tl=en&q=$(echo $* | sed 's#\ #\+#g')" > /dev/null 2>&1 ; }
