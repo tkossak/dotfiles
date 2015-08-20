@@ -3,21 +3,25 @@
 session="H"
 
 if tmux has-session -t ${session} 2>/dev/null; then
-    tmux new-window -t ${session} -n 'is' -c '/mnt/is'
+    tmux new-window -t ${session} -n 'is' #-c '/mnt/is'
 else
     if [[ -n "${TMUX}" ]]; then
         # needed so it won't trigger error: sessions should be nested with care, unset $TMUX to force
         TMUX= tmux new-session -d -s ${session} -n 'is'
         tmux switch-client -t ${session}
     else
-        tmux new-session -d -s H -n 'is'
+        tmux new-session -d -s ${session} -n 'is'
     fi
-    [[ -z "${TMUX}" ]] && tmux send-keys 'cd /mnt/is' Enter
+    # [[ -z "${TMUX}" ]] && tmux send-keys -t ${session}'cd /mnt/is' Enter
 fi
 
-
 # is
-tmux send-keys -t ${session} 'sshfs is: /mnt/is; cd pobrane' Enter
+if [[ -d /mnt/is/pobrane ]]; then
+    tmux send-keys -t ${session} 'cd /mnt/is/pobrane' Enter
+else
+    tmux send-keys -t ${session} 'sshfs is: /mnt/is && cd /mnt/is/pobrane' Enter
+fi
+
 tmux send-keys -t ${session} 'ranger' Enter
 tmux split-window -t ${session} -v -p 50 -c '/mnt/win_d/filmy/_watch_first_1'
 tmux send-keys -t ${session} 'ranger' Enter
@@ -43,10 +47,10 @@ tmux send-keys -t ${session} 'gn show 2 | tee eng_$(date +"%y%m%d_%H%M%S") | che
 tmux new-window -t ${session} -n 'tmp' -c '~/Downloads'
 tmux send-keys -t ${session} 'ranger-cd' Enter
 
-# # last
+# last
+tmux select-window -t ${session}:dotfiles
 if [[ -n "$TMUX" ]]; then
     tmux switch-client -t ${session}
 else
     tmux attach-session -t ${session}
 fi
-tmux select-window -t ${session}:dotfiles
