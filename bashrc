@@ -1,7 +1,7 @@
 # If not running interactively, don't do anything
 [[ -z "$PS1" ]] && exit
 
-# set a fancy prompt (non-color, unless we know we "want" color)
+#anger set a fancy prompt (non-color, unless we know we "want" color)
 # case "$TERM" in
 # xterm-color) color_prompt=yes;;
 # esac
