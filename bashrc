@@ -170,6 +170,9 @@ case ${__myos} in
                 net share IPC$ /delete
                 net share ADMIN$ /delete
             }
+            if [[ -z "${TMUX}" ]]; then
+                fixwin
+            fi
         fi
 
         # SSH-AGENT
