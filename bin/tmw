@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 session="W"
+# tmux new-session -s W
 
 if tmux has-session -t ${session} 2>/dev/null; then
     tmux new-window -t ${session} -n 'rap'

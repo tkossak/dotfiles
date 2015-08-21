@@ -73,6 +73,7 @@ loguj()
                     return 1
                 fi
                 shift
+                ;;
         esac
     done
 
@@ -111,6 +112,7 @@ fi
                     exit 1
                 fi
                 shift
+                ;;
         esac
     done
 
