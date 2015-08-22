@@ -11,7 +11,7 @@
 	<entry name="custom_command" mtime="1440273698" type="string">
 		<stringvalue></stringvalue>
 	</entry>
-	<entry name="palette" mtime="1440273723" type="string">
+	<entry name="palette" mtime="1440276935" type="string">
 		<stringvalue>#000000000000:#CDCB00000000:#0000CDCB0000:#CDCBCDCB0000:#1E1A908FFFFF:#CDCB0000CDCB:#0000CDCBCDCB:#E5E2E5E2E5E2:#4CCC4CCC4CCC:#FFFF00000000:#0000FFFF0000:#FFFFFFFF0000:#46458281B4AE:#FFFF0000FFFF:#0000FFFFFFFF:#FFFFFFFFFFFF</stringvalue>
 	</entry>
 	<entry name="default_show_menubar" mtime="1440273698" type="bool" value="false"/>
