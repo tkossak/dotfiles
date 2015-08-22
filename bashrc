@@ -106,7 +106,7 @@ bind '"\C-o":"ranger-cd\C-m"'
 # host/user/full dir
 # export PS1="\[${Cyan}\]$(((SHLVL>1)) && echo "${SHLVL}\[${IBlack}\].")\[${IGreen}\]\u\[${IBlack}\]@\[${Purple}\]\h\[${Blue}\]{ \w } \[${BRed}\]» \[${Color_Off}\]"
 # host/user/last dir only
-export PS1="\[${Cyan}\]$(((SHLVL>1)) && echo "${SHLVL}\[${IBlack}\].")\[${IGreen}\]\u\[${IBlack}\]@\[${Purple}\]\h\[${Blue}\]{ \W } \[${BRed}\]» \[${Color_Off}\]"
+export PS1="\[${Cyan}\]$( ((SHLVL>1)) && echo "${SHLVL}\[${IBlack}\]." )\[${IGreen}\]\u\[${IBlack}\]@\[${Purple}\]\h\[${Blue}\]{ \W }\[${Green}\] \$( git rev-parse --abbrev-ref HEAD 2> /dev/null || echo "" ) \[${BRed}\]» \[${Color_Off}\]"
 
 __myos="$(uname)"
 __myhost="$(uname -n)"
