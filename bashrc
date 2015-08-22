@@ -1,5 +1,6 @@
 # If not running interactively, don't do anything
-[[ -z "$PS1" ]] && exit
+[[ "$-" != *i* ]] && exit
+# [[ -z "$PS1" ]] && exit
 
 #anger set a fancy prompt (non-color, unless we know we "want" color)
 # case "$TERM" in
@@ -101,7 +102,11 @@ function ranger-cd
 
 bind '"\C-o":"ranger-cd\C-m"'
 
-export PS1="\[${Cyan}\]$(((SHLVL>1)) && echo "${SHLVL}\[${IBlack}\].")\[${IGreen}\]\u\[${IBlack}\]@\[${Purple}\]\h\[${IYellow}\] \w \$ \[${Color_Off}\]"
+# export PS1="\[${Cyan}\]$(((SHLVL>1)) && echo "${SHLVL}\[${IBlack}\].")\[${IGreen}\]\u\[${IBlack}\]@\[${Purple}\]\h\[${IYellow}\] \w \$ \[${Color_Off}\]"
+# host/user/full dir
+# export PS1="\[${Cyan}\]$(((SHLVL>1)) && echo "${SHLVL}\[${IBlack}\].")\[${IGreen}\]\u\[${IBlack}\]@\[${Purple}\]\h\[${Blue}\]{ \w } \[${BRed}\]» \[${Color_Off}\]"
+# host/user/last dir only
+export PS1="\[${Cyan}\]$(((SHLVL>1)) && echo "${SHLVL}\[${IBlack}\].")\[${IGreen}\]\u\[${IBlack}\]@\[${Purple}\]\h\[${Blue}\]{ \W } \[${BRed}\]» \[${Color_Off}\]"
 
 __myos="$(uname)"
 __myhost="$(uname -n)"

@@ -37,9 +37,12 @@ __myhost="$(uname -n)"
 
 hash cygpath 2>/dev/null \
     && __win_appdata="$(cygpath -au ${APPDATA:-})" || __win_appdata=""
-hash sudo 2>/dev/null \
-    && __sudo="sudo" \
-    || __sudo=""
+
+if [[ "${__myos}" == "LINUX" ]] && hash sudo 2>/dev/null; then
+    __sudo="sudo"
+else
+    __sudo=""
+fi
 
 # --------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------
@@ -183,11 +186,16 @@ loguj()
 # aptget install cmd:
 if hash apt-get 2>/dev/null; then
     __aptget_install_cmd="${__sudo} apt-get install -qyf"
+elif hash pact 2>/dev/null; then
+    __aptget_install_cmd="${__sudo} pact install"
 else
     loguj -w -t "---" "No aptget command"
 fi
+
 if hash dpkg 2>/dev/null; then
-    __aptget_check_cmd="dpkg -s"
+    __aptget_check_cmd="dpkg -s <<APP>>"
+elif hash pact 2>/dev/null; then
+    __aptget_check_cmd="pact show | grep '^<<APP>>$'"
 else
     loguj -w -t "---" "No aptget-check command"
 fi
@@ -395,6 +403,7 @@ aptget()
 {
     local app_install=""
     local app_run=""
+    local app_check=""
     local ltype="APT"
     local not_right=""
 
@@ -427,6 +436,7 @@ aptget()
             *)
                 if [[ -z "${app_install}" ]]; then
                     app_install="$1"
+                    app_check="${__aptget_check_cmd//<<APP>>/${app_install}}"
                     shift
                 elif [[ -z "${app_run}" ]]; then
                     app_run="$1"
@@ -451,7 +461,7 @@ aptget()
     if hash ${app_run} 2>/dev/null; then
         loguj -i -t "${ltype}" "Already installed: ${app_run}"
         return 0
-    elif [[ -n "${__aptget_check_cmd}" ]] &&  ${__aptget_check_cmd} ${app_install} &> /dev/null; then
+    elif [[ -n "${app_check}" ]] && ${app_check} &> /dev/null; then
         loguj -i -t "${ltype}" "Already installed: ${app_install}"
         return 0
     fi
