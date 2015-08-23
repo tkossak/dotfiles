@@ -8,9 +8,11 @@ set -o nounset
 # magic variables for links
 __sfile="$(readlink -f ${BASH_SOURCE[0]})"
 __sdir="$(cd "$(dirname "${__sfile}")" && pwd)"
+__dir_dlocal="$(cd "$(dirname "${__sdir}")" && pwd)/dotfiles.local"
+__dir_dlocal="$(readlink -f ${__dir_dlocal})"
 
 # --------------------------------------------------------------------------------
-source ${__sdir}/install.source
+source ${__sdir}/source/src_bash_install
 
 print_help()
 {
@@ -158,15 +160,16 @@ fi
 mkdir -p ${HOME}/apps
 mkdir -p ${HOME}/.emacs.d/mine
 # mkdir -p ~/.emacs.d/evil
-[[ -d ${__win_appdata} ]] &&
-    mkdir -p ${__win_appdata}/.emacs.d/mine
+find ${__dir_dlocal} -maxdepth 1 -type f -exec chmod -x {} \; || true
 find ${__sdir}/bin -type f -exec chmod u+x {} \;
-[[ -e "${__sdir}/bin/create_bash.model" ]] && chmod -x "${__sdir}/bin/create_bash.model"
+chmod -x "${__sdir}/bin/create_bash.model"
 
 find ${__sdir} -maxdepth 1 -type f -exec chmod -x {} \;
 [[ -e "${__sdir}/install" ]] && chmod u+x "${__sdir}/install"
 [[ -e "${__sdir}/i_git" ]] && chmod u+x "${__sdir}/i_git"
 
+[[ -d ${__win_appdata} ]] &&
+    mkdir -p ${__win_appdata}/.emacs.d/mine
 
 # --------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------
@@ -177,7 +180,7 @@ break_links()
     local ltype="BRK"
     local src
     loguj -ss -t "${ltype}" "BREAKING LINKS"
-    for link in ~/.bashrc ~/.bashrc.local ~/.bashrc.colors ~/.tmux.conf ~/.emacs ~/.emacs.d/mine/.emacs.local ~/.gitconfig ~/.gitconfig.local \
+    for link in ~/.bashrc ~/.bashrc.local ~/.tmux.conf ~/.emacs ~/.emacs.d/mine/.emacs.local ~/.gitconfig ~/.gitconfig.local \
         ~/.vimrc ~/.vimrc.local ~/.vimrc.plugins ~/.vimrc.functions \
         ~/.weechat/guile ~/.weechat/javascript ~/.weechat/lua ~/.weechat/perl ~/.weechat/python ~/.weechat/ruby ~/.weechat/script ~/.weechat/tcl ~/.weechat/xfer ~/.weechat/alias.conf ~/.weechat/aspell.conf ~/.weechat/buffers.conf ~/.weechat/charset.conf ~/.weechat/exec.conf ~/.weechat/irc.conf ~/.weechat/iset.conf ~/.weechat/logger.conf ~/.weechat/plugins.conf ~/.weechat/relay.conf ~/.weechat/script.conf ~/.weechat/sec.conf ~/.weechat/trigger.conf ~/.weechat/weechat.conf ~/.weechat/xfer.conf \
         ~/.config/ranger/rc.conf ~/.config/ranger/rifle.conf ~/.mplayer/config ~/.mplayer/input.conf ~/.gconf/apps/gnome-terminal ~/.config/vlc/vlcrc
@@ -216,11 +219,6 @@ install_dotfiles()
     local ltype="DOT"
     loguj -ss -t "${ltype}" "DOTFILES"
 
-    # Folders:
-    create_link ${__sdir} ~/.dotfiles
-    create_link ${__dir_dlocal} ~/.dotfiles.local || true
-    find ${__dir_dlocal} -maxdepth 1 -type f -exec chmod -x {} \; || true
-
     # TMUX
     create_link ${__sdir}/tmux.conf ~/.tmux.conf || true
 
@@ -231,7 +229,6 @@ install_dotfiles()
     # Bash:
     create_link ${__sdir}/bashrc ~/.bashrc || true
     create_link ${__dir_dlocal}/bashrc.local ~/.bashrc.local || true
-    create_link ${__sdir}/bashrc.colors ~/.bashrc.colors || true
 
     # Vim
     create_link ${__sdir}/vimrc ~/.vimrc || true
@@ -683,10 +680,13 @@ testing()
     return 0
 }
 
+
 # --------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------
-[[ ${if_break_links} == "Y" ]] && break_links
+
+create_link ${__sdir} ~/.dotfiles
+create_link ${__dir_dlocal} ~/.dotfiles.local || true
 
 # update repos?
 if [[ "${if_basics1}" == "Y" || "${if_basics2}" == "Y" || "${if_basics3_new_comp}" == "Y" ]]; then
@@ -694,6 +694,7 @@ if [[ "${if_basics1}" == "Y" || "${if_basics2}" == "Y" || "${if_basics3_new_comp
 fi
 
 [[ ${if_testing} == "Y" ]] && testing
+[[ ${if_break_links} == "Y" ]] && break_links
 [[ ${if_basics1} == "Y" ]] && install_apps_basic
 [[ ${if_basics2} == "Y" ]] && install_apps_basics2
 [[ ${if_basics3_new_comp} == "Y" ]] && install_apps_basic3_new_comp

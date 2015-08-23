@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+__myos="$(uname -s)"
+__myhost="$(uname -n)"
+            case ${__myos} in
+                CYGWIN*)
+                    __myos="CYGWIN"
+                    if [[ ${__myhost} = AWA* ]]; then
+                        __myhost="W"
+                    elif [[ ${__myhost} = HEAVEN ]]; then
+                        __myhost="H"
+                    else
+                        __myhost="OTHER"
+                    fi
+                    ;;
+                Linux)
+                    __myos="LINUX"
+                    if [[ ${__myhost} = LMQ ]]; then
+                        __myhost="H"
+                    else
+                        __myhost="OTHER"
+                    fi
+                    ;;
+                *)
+                    __myos="OTHER"
+                    __myhost="OTHER"
+                    ;;
+            esac

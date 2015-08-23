@@ -12,8 +12,8 @@ color_prompt=yes;
     export TERM=screen-256color ||
     export TERM=xterm-256color
 
-[[ -r ~/.bashrc.colors ]] &&
-    source ~/.bashrc.colors
+[[ -r ~/.dotfiles/source/src_bash_colors ]] &&
+    source ~/.dotfiles/source/src_bash_colors
 # eval `dircolors ~/.dir_colors`
 
 # set -o vi
@@ -33,6 +33,7 @@ shopt -s checkwinsize
 
 [[ -r ~/.bashrc.local ]] &&
     source ~/.bashrc.local
+source ~/.dotfiles/source/src_bash_myos
 
 export EDITOR=vim
 
@@ -68,6 +69,10 @@ alias dmp3='youtube-dl -cx --audio-format mp3 --restrict-filenames'
 alias dvid='youtube-dl -c --restrict-filenames'
 alias yt='youtube-dl'
 alias gn='geeknote'
+alias iftop='sudo iftop'
+alias nethogs='sudo nethogs'
+alias tcptrack='sudo tcptrack'
+alias atop='sudo atop'
 
 # TMUX
 alias tl='tmux list-sessions'
@@ -105,14 +110,32 @@ bind '"\C-o":"ranger-cd\C-m"'
 # export PS1="\[${Cyan}\]$(((SHLVL>1)) && echo "${SHLVL}\[${IBlack}\].")\[${IGreen}\]\u\[${IBlack}\]@\[${Purple}\]\h\[${IYellow}\] \w \$ \[${Color_Off}\]"
 # host/user/full dir
 # export PS1="\[${Cyan}\]$(((SHLVL>1)) && echo "${SHLVL}\[${IBlack}\].")\[${IGreen}\]\u\[${IBlack}\]@\[${Purple}\]\h\[${Blue}\]{ \w } \[${BRed}\]» \[${Color_Off}\]"
-# host/user/last dir only
-export PS1="\[${Cyan}\]$( ((SHLVL>1)) && echo "${SHLVL}\[${IBlack}\]." )\[${IGreen}\]\u\[${IBlack}\]@\[${Purple}\]\h\[${Blue}\]{ \W }\[${Green}\]\$( git rev-parse --abbrev-ref HEAD 2> /dev/null || echo "" ) \[${BRed}\]» \[${Color_Off}\]"
+# host/user/last dir only/git
+# export PS1="\[${Cyan}\]$( ((SHLVL>1)) && echo "${SHLVL}\[${IBlack}\]." )\[${IGreen}\]\u\[${IBlack}\]@\[${Purple}\]\h\[${Blue}\]{ \W }\[${Green}\]\$( git rev-parse --abbrev-ref HEAD 2> /dev/null || echo "" ) \[${BRed}\]» \[${Color_Off}\]"
 
-__myos="$(uname)"
-__myhost="$(uname -n)"
+PS1=""
+# SHLVL
+PS1+="\[${Cyan}\]$( ((SHLVL>1)) && echo "${SHLVL}\[${IBlack}\]." )"
+# user
+PS1+="\[${IGreen}\]\u"
+if [[ "${__myhost}" != "W" && "${__myhost}" != "H" ]]; then
+    # @host
+    PS1+="\[${IBlack}\]@\[${Purple}\]\h"
+fi
+
+# working dir
+PS1+="\[${Blue}\]{ \W }"
+# git
+PS1+="\[${Green}\]\$( git rev-parse --abbrev-ref HEAD 2> /dev/null || echo "" )"
+# last char based on root or not:
+PS1+=" \[${BRed}\]$((($UID == 0)) && echo '#' || echo '»' )"
+#Turn colors off + add space
+PS1+="\[${Color_Off}\] "
+export PS1
+
 
 case ${__myos} in
-    CYGWIN*)
+    CYGWIN)
 
         # -----------------------------------------------------------------------
         # -- CYGWIN
@@ -121,8 +144,8 @@ case ${__myos} in
         export LANG=en_US.UTF-8
         #export LC_ALL='C' # needed for uniq to work on polish letters
 
-        cyginstq() { $(get_param p_cdde)/setup-x86.exe -nqP "$1"; }
-        cyginst()  { $(get_param p_cdde)/setup-x86.exe -nP "$1"; }
+        # cyginstq() { $(get_param p_cdde)/setup-x86.exe -nqP "$1"; }
+        # cyginst()  { $(get_param p_cdde)/setup-x86.exe -nP "$1"; }
         cs() { cygstart $*; }
 
         __vTmp1="$(get_param p_cdp)"
@@ -158,7 +181,7 @@ case ${__myos} in
         #alias gvim="\"${_vProgsPath}/gvim/gvim.exe\""
 
 
-        if [[ $__myhost == "$(get_param whost)" ]]; then
+        if [[ ${__myhost} == "W" ]]; then
             proxyoff()
             {
                 reg add "hklm\software\wow6432node\microsoft\windows\currentversion\internet settings" /f /v proxyenable /t reg_dword /d 0
@@ -224,7 +247,6 @@ case ${__myos} in
         if [ $UID -ne 0 ]; then
             alias reboot='sudo reboot'
             alias apt-get='sudo apt-get'
-            alias atop='sudo atop'
             alias umount='sudo umount'
         fi
 
@@ -260,7 +282,6 @@ case ${__myos} in
 
         ;;
     *)
-
         echo 'other os?';;
 
 esac
@@ -290,16 +311,17 @@ if hash fasd 2>/dev/null; then
     unset fasd_cache
 
     # eval "$(fasd --init auto)"
-    alias v='f -e vim' # quick opening files with vim
+    # quick opening files with vim
+    alias v='fasd -fe vim'
     alias j='fasd_cd -d'
     case $__myos in
-        CYGWIN*)
-            alias o='a -e cygstart'
+        CYGWIN)
+            alias o='fasd -ae cygstart'
             ;;
         Linux)
-            alias o='a -e xdg-open'
+            alias o='fasd -ae xdg-open'
     esac
-    _fasd_bash_hook_cmd_complete f a s d v o
+    _fasd_bash_hook_cmd_complete v o
 fi
 
 

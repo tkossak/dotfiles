@@ -3,37 +3,10 @@
 __my_user=$(echo -n "${USER}")
 __logi_errors=()
 __logi_info=()
-__dir_dlocal="$(cd "$(dirname "${__sdir}")" && pwd)/dotfiles.local"
-__dir_dlocal="$(readlink -f ${__dir_dlocal})"
 __aptget_install_cmd=""
 __aptget_check_cmd=""
 
-__myos="$(uname -s)"
-__myhost="$(uname -n)"
-            case ${__myos} in
-                CYGWIN*)
-                    __myos="CYGWIN"
-                    if [[ ${__myhost} = AWA* ]]; then
-                        __myhost="W"
-                    elif [[ ${__myhost} = HEAVEN ]]; then
-                        __myhost="H"
-                    else
-                        __myhost="OTHER"
-                    fi
-                    ;;
-                Linux)
-                    __myos="LINUX"
-                    if [[ ${__myhost} = LMQ ]]; then
-                        __myhost="H"
-                    else
-                        __myhost="OTHER"
-                    fi
-                    ;;
-                *)
-                    __myos="OTHER"
-                    __myhost="OTHER"
-                    ;;
-            esac
+source "${__sdir}/source/src_bash_myos"
 
 hash cygpath 2>/dev/null \
     && __win_appdata="$(cygpath -au ${APPDATA:-})" || __win_appdata=""
