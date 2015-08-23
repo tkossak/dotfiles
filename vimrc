@@ -39,6 +39,7 @@ set smartcase " ignore case when all pattern is lowercase, CASE-SENSITIVE otherw
 
 set backspace=2 " backspace works on \n characters
 set mouse=a " use mouse in all modes
+set relativenumber
 set number " display line numbers
 set hidden " allow to switch between modified buffers
 set showmatch " when you insert closing bracket vim brifly jumps/highlights to opening bracket
