@@ -7,6 +7,7 @@ __aptget_install_cmd=""
 __aptget_check_cmd=""
 
 source "${__sdir}/source/src_bash_myos"
+source ${__sdir}/source/src_bash_colors
 
 hash cygpath 2>/dev/null \
     && __win_appdata="$(cygpath -au ${APPDATA:-})" || __win_appdata=""
@@ -45,6 +46,7 @@ loguj()
     local lprefix="==="
     local ltmp=""
     local if_print_only="N"
+    local color=""
 
     while [[ $# > 0 ]]; do
         case $1 in
@@ -70,18 +72,22 @@ loguj()
                 ;;
             -ss)
                 ltype="SEC_START"
+                color="${Yellow}"
                 shift
                 ;;
             -se)
                 ltype="SEC_END"
+                color="${Yellow}"
                 shift
                 ;;
             -e)
                 ltype="ERROR"
+                color="${Red}"
                 shift
                 ;;
             -w)
                 ltype="WARN"
+                color="${Red}"
                 shift
                 ;;
             -t)
@@ -108,36 +114,43 @@ loguj()
     done
 
     if [[ "${ltype}" = "INFO" ]]; then
-        ltmp="${lprefix}[${ltag}][INFO]: ${lmsg}"
-        echo  "${ltmp}"
+        ltmp="${color}${lprefix}[${ltag}][INFO]:${Color_Off} ${lmsg}"
+        printf "${ltmp}\n"
         [[ "${if_print_only}" = "N" ]] && __logi_info+=("${ltmp}")
     elif [[ "${ltype}" = "INFO_INSTALLED" ]]; then
-        ltmp="${lprefix}[${ltag}][INFO]: INSTALLED: ${lmsg} "
-        echo "${ltmp}"
+        ltmp="${color}${lprefix}[${ltag}][INFO]: INSTALLED:${Color_Off} ${lmsg} "
+        printf "${ltmp}\n"
         [[ "${if_print_only}" = "N" ]] && __logi_info+=("${ltmp}")
     elif [[ "${ltype}" = "INFO_LINKED" ]]; then
-        ltmp="${lprefix}[${ltag}][INFO]: LINKED: ${lmsg} "
-        echo "${ltmp}"
+        ltmp="${color}${lprefix}[${ltag}][INFO]: LINKED:${Color_Off} ${lmsg} "
+        printf "${ltmp}\n"
         [[ "${if_print_only}" = "N" ]] && __logi_info+=("${ltmp}")
     elif [[ "${ltype}" = "INFO_CLONED" ]]; then
-        ltmp="${lprefix}[${ltag}][INFO]: CLONED: ${lmsg} "
-        echo "${ltmp}"
+        ltmp="${color}${lprefix}[${ltag}][INFO]: CLONED:${Color_Off} ${lmsg} "
+        printf "${ltmp}\n"
         [[ "${if_print_only}" = "N" ]] && __logi_info+=("${ltmp}")
     elif [[ "${ltype}" = "INFO_DOWNLOADED" ]]; then
-        ltmp="${lprefix}[${ltag}][INFO]: DOWNLOADED: ${lmsg} "
-        echo "${ltmp}"
+        ltmp="${color}${lprefix}[${ltag}][INFO]: DOWNLOADED:${Color_Off} ${lmsg} "
+        printf "${ltmp}\n"
         [[ "${if_print_only}" = "N" ]] && __logi_info+=("${ltmp}")
     elif [[ "${ltype}" = "SEC_START" ]]; then
-        ltmp="${lprefix}[${ltag}]==================<<< START: ${lmsg} >>>=================="
-        echo "${ltmp}"
+        ltmp="${color}${lprefix}[${ltag}]==================<<< START: ${lmsg} >>>==================${Color_Off}"
+        printf "${ltmp}\n"
         [[ "${if_print_only}" = "N" ]] && __logi_info+=("${ltmp}")
     elif [[ "${ltype}" = "SEC_END" ]]; then
-        ltmp="${lprefix}[${ltag}]==================<<< END: ${lmsg} >>>=================="
-        echo "${ltmp}"
+        ltmp="${color}${lprefix}[${ltag}]==================<<< END: ${lmsg} >>>==================${Color_Off}"
+        printf "${ltmp}\n"
         [[ "${if_print_only}" = "N" ]] && __logi_info+=("${ltmp}")
-    elif [[ "${ltype}" = "ERROR" || "${ltype}" = "WARN" ]]; then
-        ltmp="${lprefix}[${ltag}][WARN]: ${lmsg}"
-        echo "${ltmp}"
+    elif [[ "${ltype}" = "WARN" ]]; then
+        ltmp="${color}${lprefix}[${ltag}][WARN]:${Color_Off} ${lmsg}"
+        printf "${ltmp}\n"
+        if [[ "${if_print_only}" = "N" ]]; then
+            __logi_info+=("${ltmp}")
+            __logi_errors+=("${ltmp}")
+        fi
+    elif [[ "${ltype}" = "ERROR" ]]; then
+        ltmp="${color}${lprefix}[${ltag}][ERRO]:${Color_Off} ${lmsg}"
+        printf "${ltmp}\n"
         if [[ "${if_print_only}" = "N" ]]; then
             __logi_info+=("${ltmp}")
             __logi_errors+=("${ltmp}")
@@ -726,15 +739,15 @@ pipinstall()
 # display_log_info
 display_log_info()
 {
-    echo ">>> LOG INFO START >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+    printf "${Yellow}>>> LOG INFO START >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>${Color_Off}\n"
     if [[ ${#__logi_info[@]} > 0 ]]; then
         for err in "${__logi_info[@]}"; do
-            echo ${err}
+            printf "${err}\n"
         done
     else
         echo "== No info logs?"
     fi
-    echo ">>> LOG INFO END >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+    printf "${Yellow}>>> LOG INFO END >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>${Color_Off}\n"
 }
 
 # --------------------------------------------------------------------------------
@@ -743,16 +756,15 @@ display_log_info()
 # display_log_error
 display_log_error()
 {
-    echo ">>> LOG ERROR START >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+    printf "${Yellow}>>> LOG ERROR START >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>${Color_Off}\n"
     if [[ ${#__logi_errors[@]} > 0 ]]; then
         for err in "${__logi_errors[@]}"; do
-            echo ${err}
+            printf "${err}\n"
         done
     else
         echo "=== No Errors."
     fi
-    echo ">>> LOG ERROR END >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
-
+    printf "${Yellow}>>> LOG ERROR END >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>${Color_Off}\n"
 }
 
 

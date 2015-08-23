@@ -139,7 +139,7 @@ shift $((OPTIND-1))
 
 # ================================================================================
 # print environment
-echo "=== ENVIRONMENT ============================================"
+printf "${Yellow}=== ENVIRONMENT ==================================================${Color_Off}\n"
 echo "__sdir=${__sdir}"
 if [[ -d "${__dir_dlocal}" ]]; then
     echo "__dir_dlocal (exists) =${__dir_dlocal}"
@@ -702,5 +702,4 @@ fi
 
 display_log_info
 display_log_error
-
 exit
