@@ -22,6 +22,7 @@ print_help()
     echo "  -b  :: install dotfiles + basics 1"
     echo "  -a  :: install dotfiles + basics 1 + 2"
     echo "  -A  :: install dotfiles + basics 1 + 2 + 3 (new comp)"
+    echo "  -u  :: update"
     return 0
 }
 
@@ -37,6 +38,7 @@ if_basics2="N"
 if_basics3_new_comp="N"
 if_break_links="N"
 if_testing="N"
+if_update="N"
 
 
 [[ $# = 0 ]] && if_dotfiles="Y"
@@ -46,6 +48,9 @@ while getopts ":hldbaAt" opt; do
         h)
             print_help
             exit 0
+            ;;
+        u)
+            if_update="Y"
             ;;
         l)
             if_break_links="Y"
@@ -89,53 +94,6 @@ while getopts ":hldbaAt" opt; do
 done
 
 shift $((OPTIND-1))
-
-# while [[ $# > 0 ]]; do
-#     case "$1" in
-#         -h)
-#             print_help
-#             exit 0
-#             ;;
-#         -l)
-#             shift
-#             if_break_links="Y"
-#             ;;
-#         -d)
-#             shift
-#             if_dotfiles="Y"
-#             ;;
-#         -b)
-#             shift
-#             if_break_links="Y"
-#             if_basics1="Y"
-#             if_dotfiles="Y"
-#             ;;
-#         -a)
-#             shift
-#             if_break_links="Y"
-#             if_basics1="Y"
-#             if_basics2="Y"
-#             if_dotfiles="Y"
-#             ;;
-#         -A)
-#             shift
-#             if_break_links="Y"
-#             if_basics1="Y"
-#             if_basics2="Y"
-#             if_basics3_new_comp="Y"
-#             if_dotfiles="Y"
-#             ;;
-#         -t)
-#             if_testing="Y"
-#             shift
-#             ;;
-#         *)
-#             loguj -e -t "${ltype}" "Unknown option: $1"
-#             print_help
-#             exit 1
-#             ;;
-#     esac
-# done
 
 # ================================================================================
 # print environment
@@ -397,113 +355,6 @@ install_dotfiles()
 # --------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------
-install_apps_basic3_new_comp()
-{
-
-    local ltype="BA3"
-    loguj -ss -t "${ltype}" "BASICS 3"
-
-    # Emacs
-    aptget emacs || true
-    if hash emacs 2>/dev/null; then
-        # evil-leader:
-        geturl https://raw.githubusercontent.com/cofi/evil-leader/master/evil-leader.el ~/.emacs.d/mine/evil-leader.el -sha1 00c336e55307dbcb3f73f47b1d9a1d759404341d || true
-        # key-chord:
-        geturl http://www.emacswiki.org/emacs/download/key-chord.el ~/.emacs.d/mine/key-chord.el -sha1 2da61bf970ca332c4de96c1977fc7e326df6c33a || true
-        # evil:
-        gitclone https://gitorious.org/evil/evil.git ~/.emacs.d/evil \
-            ||
-            {
-                loguj -i -t "${ltype}" "Manually downloading evil.git"
-                rm -rf ~/.emacs.d/evil
-                rm -rf ~/.emacs.d/lyro-evil*
-                cd ~/.emacs.d
-                if [[ ! -f evil-default.zip ]]; then
-                    ${__geturl_app} evil-default.zip https://bitbucket.org/lyro/evil/get/default.zip \
-                        ||
-                        {
-                            loguj -e -t "${ltype}" "Downloading evil.git (default.zip)"
-                        } \
-                        &&
-                        {
-                            unzip evil-default.zip
-                            mv ~/.emacs.d/lyro-evil* evil
-                            rm ~/.emacs.d/evil-default.zip
-                            loguj -d -t "${ltype}" "evil"
-                            loguj -e -t "${ltype}" "Evil downloaded manually."
-                        }
-                fi
-            }
-        # org-mode:
-        gitclone git://orgmode.org/org-mode.git ~/.emacs.d/org-mode "git checkout -b stable origin/maint" "git pull" "make autoloads" || true
-    fi
-
-    # geeknote
-    gitclone https://github.com/VitaliyRodnenko/geeknote.git ~/apps/geeknote "${__sudo} python setup.py install" "geeknote settings --editor vim" || true
-
-    # BeautifulSoup4
-    pipinstall -3 BeautifulSoup4 || true
-
-    # flake8
-    pipinstall -3 flake8 || true
-
-    # bashate
-    pipinstall -3 bashate || true
-
-    # httpie
-    pipinstall httpie || true
-
-    # different
-    aptget -ol vlc
-    aptget -ol mplayer
-    aptget -ol krdc
-    aptget -ol vpnc
-    aptget -ol openvpn
-    aptget -ol dos2unix
-
-    # geeknote login....?
-    loguj -se -t "${ltype}" "BASICS 3"
-    return 0
-}
-
-
-# --------------------------------------------------------------------------------
-# --------------------------------------------------------------------------------
-# --------------------------------------------------------------------------------
-# install_apps_basics2
-install_apps_basics2()
-{
-
-    local ltype="BA2"
-    loguj -ss -t "${ltype}" "BASICS 2"
-
-    # commacd
-    geturl https://raw.githubusercontent.com/shyiko/commacd/master/commacd.bash ~/.commacd.bash || true
-
-    # glances
-    aptget -ol glances \
-        &&
-        {
-            aptget lm-sensors || true
-            pipinstall -2 -H PySensors || true
-        } || true
-
-    # speedtest-cli
-    pipinstall -2 speedtest-cli || true
-
-    # fzf - asks questions
-    if [[ ! -d ~/.fzf ]]; then
-        git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install || true
-    fi
-
-    # geeknote login
-    loguj -se -t "${ltype}" "BASICS 2"
-    return 0
-}
-
-# --------------------------------------------------------------------------------
-# --------------------------------------------------------------------------------
-# --------------------------------------------------------------------------------
 # install_apps_basic
 install_apps_basic()
 {
@@ -651,6 +502,115 @@ install_apps_basic()
     loguj -se -t "${ltype}" "BASICS 1"
     return 0
 }
+
+
+# --------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------
+# install_apps_basics2
+install_apps_basics2()
+{
+
+    local ltype="BA2"
+    loguj -ss -t "${ltype}" "BASICS 2"
+
+    # commacd
+    geturl https://raw.githubusercontent.com/shyiko/commacd/master/commacd.bash ~/.commacd.bash || true
+
+    # glances
+    aptget -ol glances \
+        &&
+        {
+            aptget lm-sensors || true
+            pipinstall -2 -H PySensors || true
+        } || true
+
+    # speedtest-cli
+    pipinstall -2 speedtest-cli || true
+
+    # fzf - asks questions
+    if [[ ! -d ~/.fzf ]]; then
+        git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install || true
+    fi
+
+    # geeknote login
+    loguj -se -t "${ltype}" "BASICS 2"
+    return 0
+}
+
+
+# --------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------
+install_apps_basic3_new_comp()
+{
+
+    local ltype="BA3"
+    loguj -ss -t "${ltype}" "BASICS 3"
+
+    # Emacs
+    aptget emacs || true
+    if hash emacs 2>/dev/null; then
+        # evil-leader:
+        geturl https://raw.githubusercontent.com/cofi/evil-leader/master/evil-leader.el ~/.emacs.d/mine/evil-leader.el -sha1 00c336e55307dbcb3f73f47b1d9a1d759404341d || true
+        # key-chord:
+        geturl http://www.emacswiki.org/emacs/download/key-chord.el ~/.emacs.d/mine/key-chord.el -sha1 2da61bf970ca332c4de96c1977fc7e326df6c33a || true
+        # evil:
+        gitclone https://gitorious.org/evil/evil.git ~/.emacs.d/evil \
+            ||
+            {
+                loguj -i -t "${ltype}" "Manually downloading evil.git"
+                rm -rf ~/.emacs.d/evil
+                rm -rf ~/.emacs.d/lyro-evil*
+                cd ~/.emacs.d
+                if [[ ! -f evil-default.zip ]]; then
+                    ${__geturl_app} evil-default.zip https://bitbucket.org/lyro/evil/get/default.zip \
+                        ||
+                        {
+                            loguj -e -t "${ltype}" "Downloading evil.git (default.zip)"
+                        } \
+                        &&
+                        {
+                            unzip evil-default.zip
+                            mv ~/.emacs.d/lyro-evil* evil
+                            rm ~/.emacs.d/evil-default.zip
+                            loguj -d -t "${ltype}" "evil"
+                            loguj -e -t "${ltype}" "Evil downloaded manually."
+                        }
+                fi
+            }
+        # org-mode:
+        gitclone git://orgmode.org/org-mode.git ~/.emacs.d/org-mode "git checkout -b stable origin/maint" "git pull" "make autoloads" || true
+    fi
+
+    # geeknote
+    gitclone https://github.com/VitaliyRodnenko/geeknote.git ~/apps/geeknote "${__sudo} python setup.py install" "geeknote settings --editor vim" || true
+
+    # BeautifulSoup4
+    pipinstall -3 BeautifulSoup4 || true
+
+    # flake8
+    pipinstall -3 flake8 || true
+
+    # bashate
+    pipinstall -3 bashate || true
+
+    # httpie
+    pipinstall httpie || true
+
+    # different
+    aptget -ol vlc
+    aptget -ol mplayer
+    aptget -ol krdc
+    aptget -ol vpnc
+    aptget -ol openvpn
+    aptget -ol dos2unix
+
+    # geeknote login....?
+    loguj -se -t "${ltype}" "BASICS 3"
+    return 0
+}
+
 
 
 # --------------------------------------------------------------------------------
