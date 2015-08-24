@@ -401,9 +401,7 @@ install_apps_basic()
     # PIP2
     # changelog: https://pip.pypa.io/en/latest/news.html
     local if_getpip_downloaded="0"
-    # local cur_pip_verson="7.1.0"
-    # local cur_pip_sha1="89eb61fc5b59f14df7f0aa7b020afb5a6ded2e14"
-    local cur_pip_verson="7.1.1"
+    local cur_pip_verson="7.1.2"
     local cur_pip_sha1="190764458a659f5f38e37c09c16c1b50e1f5cb21"
     local installer="/tmp/get-pip.py"
     local cur_python_cmd="python2"

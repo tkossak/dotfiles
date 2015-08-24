@@ -3,8 +3,9 @@
 __my_user=$(echo -n "${USER}")
 __logi_errors=()
 __logi_info=()
-__aptget_install_cmd=""
 __aptget_check_cmd=""
+__aptget_install_cmd=""
+__aptget_update_cmd=""
 
 source "${__sdir}/source/src_bash_myos"
 source ${__sdir}/source/src_bash_colors
@@ -169,23 +170,22 @@ loguj()
 
 
 
-# aptget install cmd:
+# APT-GET variables
 if hash apt-get 2>/dev/null; then
-    __aptget_install_cmd="${__sudo} apt-get install -qyf"
+    __aptget_install_cmd="${__sudo} apt-get install -qyf <<APP>>"
+    __aptget_update_cmd="${__sudo} apt-get install --only-upgrade <<APP>>"
+    # hash dpkg 2>/dev/null &&
+    __aptget_check_cmd="dpkg -s <<APP>> &>/dev/null"
+
 elif hash pact 2>/dev/null; then
-    __aptget_install_cmd="${__sudo} pact install"
+    __aptget_install_cmd="pact install <<APP>>"
+    __aptget_update_cmd="pact update <<APP>>"
+    __aptget_check_cmd="pact show | grep '^<<APP>>$'"
 else
     loguj -w -t "---" "No aptget command"
 fi
 
-if hash dpkg 2>/dev/null; then
-    __aptget_check_cmd="dpkg -s <<APP>>"
-elif hash pact 2>/dev/null; then
-    __aptget_check_cmd="pact show | grep '^<<APP>>$'"
-else
-    loguj -w -t "---" "No aptget-check command"
-fi
-
+# __geturl_app
 if hash curl 2>/dev/null; then
     __geturl_app="curl -fL -o"
 elif hash wget 2>/dev/null; then
@@ -422,7 +422,8 @@ aptget()
             *)
                 if [[ -z "${app_install}" ]]; then
                     app_install="$1"
-                    app_check="${__aptget_check_cmd//<<APP>>/${app_install}}"
+                    [[ -n "${__aptget_check_cmd}" ]] &&
+                        app_check="${__aptget_check_cmd//<<APP>>/${app_install}}"
                     shift
                 elif [[ -z "${app_run}" ]]; then
                     app_run="$1"
@@ -462,7 +463,8 @@ aptget()
         return 1
     fi
 
-    local install_cmd="${__aptget_install_cmd} ${app_install}"
+    local install_cmd="${__aptget_install_cmd//<<APP>>/${app_install}}"
+
     loguj -p -i -t "${ltype}" "Installing: ${app_run}"
     ${install_cmd} \
         ||
