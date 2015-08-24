@@ -276,7 +276,7 @@ case ${__myos} in
 
         alias cs="xdg-open"
         # alias aptgo='apt-get update && apt-get -y upgrade && apt-get -y dist-upgrade && apt-get -fy install && apt-get -y autoremove && apt-get -y autoclean && apt-get -y clean'
-        alias aptgo='apt-get update && apt-get -y upgrade && apt-get -fy install && apt-get -y autoremove && apt-get -y autoclean && apt-get -y clean'
+        alias aptgo='sudo apt-get update && sudo apt-get -y upgrade && sudo apt-get -fy install && sudo apt-get -y autoremove && sudo apt-get -y autoclean && sudo apt-get -y clean'
         alias iotop='sudo iotop --only'
         alias fping='ping -c 5 -i.2'
 

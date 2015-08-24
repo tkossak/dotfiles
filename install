@@ -36,7 +36,10 @@ __if_dotfiles="N"
 # if_basics1="N"
 # if_basics2="N"
 # if_basics3_new_comp="N"
-__app_lvl=100
+
+__app_lvl=0
+# 100 = update
+
 __if_break_links="N"
 __if_testing="N"
 __if_update="N"
@@ -344,7 +347,11 @@ install_dotfiles()
     fi
 
     # vim +PluginInstall +PluginClean +qall
-    vim +PlugInstall +PlugClean +qall
+    if [[ "${__if_update}" == "Y" ]]; then
+        vim +PlugUpgrade +PlugInstall +PlugUpdate +PlugClean +qall
+    else
+        vim +PlugInstall +qall
+    fi
 
     loguj -se -t "${ltype}" "DOTFILES"
     return 0
@@ -359,26 +366,34 @@ install_apps()
 {
     local ltype="APP"
     local tmp_options
+    local update_option=""
+    if [[ "${__if_update}" == "Y" ]]; then
+        update_option="-u"
+        [[ "${__app_lvl}" == "0" ]] &&
+            __app_lvl=100
+        loguj -i -t "${ltype}" "Update option: ${update_option}"
+    fi
+
     loguj -ss -t "${ltype}" "BASICS ${__app_lvl}"
 
     # update repos?
     update_repos
 
     # curl
-    (( ${__app_lvl} <= 1 )) &&
-        aptget curl && __geturl_app="curl -o" || true
+    (( ${__app_lvl} >= 1 )) &&
+        aptget ${update_option} curl && __geturl_app="curl -o" || true
 
     # wget
-    (( ${__app_lvl} <= 1 )) &&
-        aptget wget && __geturl_app="wget -O" || true
+    (( ${__app_lvl} >= 1 )) &&
+        aptget ${update_option} wget && __geturl_app="wget -O" || true
 
     # git
-    (( ${__app_lvl} <= 1 )) &&
-        aptget git || true
+    (( ${__app_lvl} >= 1 )) &&
+        aptget ${update_option} git || true
 
     # vim
-    if (( ${__app_lvl} <= 1 )); then
-        aptget vim || true
+    if (( ${__app_lvl} >= 1 )); then
+        aptget ${update_option} vim || true
 
         # del Vundle:
         if [[ -d ~/.vim/bundle/Vundle.vim ]]; then
@@ -397,15 +412,15 @@ install_apps()
     fi
 
     # make
-    (( ${__app_lvl} <= 1 )) &&
-        aptget make || true
+    (( ${__app_lvl} >= 1 )) &&
+        aptget ${update_option} make || true
 
     # vim-vundle
     # gitclone https://github.com/gmarik/Vundle.vim.git ~/.vim/bundle/Vundle.vim || true
 
     # PIP2
     # changelog: https://pip.pypa.io/en/latest/news.html
-    if (( ${__app_lvl} <= 1 )); then
+    if (( ${__app_lvl} >= 1 )); then
 
         local if_getpip_downloaded="0"
         local cur_pip_verson="7.1.2"
@@ -454,7 +469,7 @@ install_apps()
     fi
 
     # PIP3
-    if (( ${__app_lvl} <= 1 )); then
+    if (( ${__app_lvl} >= 1 )); then
         cur_python_cmd="python3"
         cur_pip_cmd="pip3"
 
@@ -497,15 +512,15 @@ install_apps()
     fi
 
     # Ranger
-    (( ${__app_lvl} <= 1 )) &&
+    (( ${__app_lvl} >= 1 )) &&
         gitclone https://github.com/hut/ranger.git ~/apps/ranger "${__sudo} make install" "ranger --copy-config=all" || true
 
     # TMUX
-    (( ${__app_lvl} <= 1 )) &&
+    (( ${__app_lvl} >= 1 )) &&
         aptget tmux || true
 
     # dtrx
-    if (( ${__app_lvl} <= 1 )); then
+    if (( ${__app_lvl} >= 1 )); then
         if ! hash dtrx 2>/dev/null; then
             rm -rf /tmp/dtrx-7.1
             geturl -d http://brettcsmith.org/2007/dtrx/dtrx-7.1.tar.gz /tmp/dtrx-7.1.tar.gz -sha1 05cfe705a04a8b84571b0a5647cd2648720791a4 "tar -xf dtrx-7.1.tar.gz" "cd dtrx-7.1" "${__sudo} python setup.py install --prefix=/usr/local" "rm -rf /tmp/dtrx-7.1" "rm -rf /tmp/dtrx-7.1.tar.gz" || true
@@ -513,16 +528,16 @@ install_apps()
     fi
 
     # fasd
-    (( ${__app_lvl} <= 1 )) &&
+    (( ${__app_lvl} >= 1 )) &&
         gitclone https://github.com/clvv/fasd.git ~/apps/fasd "${__sudo} make install" || true
 
 
     # commacd
-    (( ${__app_lvl} <= 2 )) &&
+    (( ${__app_lvl} >= 2 )) &&
         geturl https://raw.githubusercontent.com/shyiko/commacd/master/commacd.bash ~/.commacd.bash || true
 
     # glances
-    if (( ${__app_lvl} <= 2 )); then
+    if (( ${__app_lvl} >= 2 )); then
         aptget -ol glances || true &&
             {
                 aptget lm-sensors || true
@@ -531,11 +546,11 @@ install_apps()
     fi
 
     # speedtest-cli
-    (( ${__app_lvl} <= 2 )) &&
+    (( ${__app_lvl} >= 2 )) &&
         pipinstall -2 speedtest-cli || true
 
     # fzf - asks questions
-    if (( ${__app_lvl} <= 2 )); then
+    if (( ${__app_lvl} >= 2 )); then
         if [[ ! -d ~/.fzf ]]; then
             git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install || true
         fi
@@ -543,7 +558,7 @@ install_apps()
 
 
     # Emacs
-    if (( ${__app_lvl} <= 3 )); then
+    if (( ${__app_lvl} >= 3 )); then
         aptget emacs || true
         if hash emacs 2>/dev/null; then
             # evil-leader:
@@ -580,27 +595,27 @@ install_apps()
                 fi
 
     # geeknote
-    (( ${__app_lvl} <= 3 )) &&
+    (( ${__app_lvl} >= 3 )) &&
         gitclone https://github.com/VitaliyRodnenko/geeknote.git ~/apps/geeknote "${__sudo} python setup.py install" "geeknote settings --editor vim" || true
 
     # BeautifulSoup4
-    (( ${__app_lvl} <= 3 )) &&
+    (( ${__app_lvl} >= 3 )) &&
         pipinstall -3 BeautifulSoup4 || true
 
     # flake8
-    (( ${__app_lvl} <= 3 )) &&
+    (( ${__app_lvl} >= 3 )) &&
         pipinstall -3 flake8 || true
 
     # bashate
-    (( ${__app_lvl} <= 3 )) &&
+    (( ${__app_lvl} >= 3 )) &&
         pipinstall -3 bashate || true
 
     # httpie
-    (( ${__app_lvl} <= 3 )) &&
+    (( ${__app_lvl} >= 3 )) &&
         pipinstall httpie || true
 
     # different
-    if (( ${__app_lvl} <= 3 )); then
+    if (( ${__app_lvl} >= 3 )); then
         aptget -ol vlc
         aptget -ol mplayer
         aptget -ol krdc

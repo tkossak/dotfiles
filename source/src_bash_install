@@ -100,6 +100,10 @@ loguj()
                 shift
                 if_print_only="Y"
                 ;;
+            -u)
+                shift
+                ltype="UPDATED"
+                ;;
             *)
                 if [[ -z "${lmsg}" ]]; then
                     lmsg="$1"
@@ -132,6 +136,10 @@ loguj()
         [[ "${if_print_only}" = "N" ]] && __logi_info+=("${ltmp}")
     elif [[ "${ltype}" = "INFO_DOWNLOADED" ]]; then
         ltmp="${color}${lprefix}[${ltag}][INFO]: DOWNLOADED:${Color_Off} ${lmsg} "
+        printf "${ltmp}\n"
+        [[ "${if_print_only}" = "N" ]] && __logi_info+=("${ltmp}")
+    elif [[ "${ltype}" = "UPDATED" ]]; then
+        ltmp="${color}${lprefix}[${ltag}][INFO]: UPDATED:${Color_Off} ${lmsg} "
         printf "${ltmp}\n"
         [[ "${if_print_only}" = "N" ]] && __logi_info+=("${ltmp}")
     elif [[ "${ltype}" = "SEC_START" ]]; then
@@ -464,7 +472,7 @@ aptget()
     fi
 
     # Update
-    if [[ "${if_app_installed}" = "Y" && "${Update}" = "Y" ]]; then
+    if [[ "${if_app_installed}" = "Y" && "${update}" = "Y" ]]; then
 
         # check if apt-get update exists
         if [[ -z "${__aptget_update_cmd}" ]]; then
@@ -474,7 +482,7 @@ aptget()
         local update_cmd="${__aptget_update_cmd//<<APP>>/${app_install}}"
         loguj -p -i -t "${ltype}" "Updating: ${app_run}"
         ${update_cmd} &&
-            loguj -s -t "${ltype}" "${app_run}" ||
+            loguj -u -t "${ltype}" "${app_run}" ||
             {
                 loguj -e -t "${ltype}" "During installation of ${app_install}"
                 return 1
