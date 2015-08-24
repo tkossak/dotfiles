@@ -13,7 +13,8 @@ color_prompt=yes;
     export TERM=xterm-256color
 
 [[ -r ~/.dotfiles/source/src_bash_colors ]] &&
-    source ~/.dotfiles/source/src_bash_colors
+    source ~/.dotfiles/source/src_bash_colors ||
+    echo "No src_bash_colors files!"
 # eval `dircolors ~/.dir_colors`
 
 # set -o vi
@@ -133,7 +134,6 @@ PS1+=" \[${BRed}\]$((($UID == 0)) && echo '#' || echo '»' )"
 PS1+="\[${Color_Off}\] "
 export PS1
 
-
 case ${__myos} in
     CYGWIN)
 
@@ -237,7 +237,7 @@ case ${__myos} in
             done
         }
         ;;
-    Linux)
+    LINUX)
 
         # -----------------------------------------------------------------------
         # -- LINUX

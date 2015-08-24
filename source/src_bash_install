@@ -187,7 +187,7 @@ fi
 
 # __geturl_app
 if hash curl 2>/dev/null; then
-    __geturl_app="curl -fL -o"
+    __geturl_app="curl -fLo"
 elif hash wget 2>/dev/null; then
     __geturl_app="wget -O"
 else
@@ -383,6 +383,7 @@ create_link()
 #   -oc :: only cygwin
 #   -ow :: only host W
 #   -oh :: only host H
+#   -u  :: update if it's installed
 # $1 = app name to install (passed to apt-get)
 # $2 = app name to check if it's installed already
 aptget()
@@ -392,6 +393,8 @@ aptget()
     local app_check=""
     local ltype="APT"
     local not_right=""
+    local update="N"
+    local if_app_installed="N"
 
     while [[ $# > 0 ]]; do
         case $1 in
@@ -419,6 +422,10 @@ aptget()
                 fi
                 shift
                 ;;
+            -u)
+                update="Y"
+                shift
+                ;;
             *)
                 if [[ -z "${app_install}" ]]; then
                     app_install="$1"
@@ -443,41 +450,55 @@ aptget()
         return 1
     fi
 
-
     # check if app is installed
     if hash ${app_run} 2>/dev/null; then
         loguj -i -t "${ltype}" "Already installed: ${app_run}"
-        return 0
+        if_app_installed="Y"
+        [[ "${update}" = "N" ]] &&
+            return 0
     elif [[ -n "${app_check}" ]] && ${app_check} &> /dev/null; then
         loguj -i -t "${ltype}" "Already installed: ${app_install}"
-        return 0
+        if_app_installed="Y"
+        [[ "${update}" = "N" ]] &&
+            return 0
     fi
 
-    # build instal command
-    # add sudo
-    # instal_cmd="${instal_cmd}sudo "
+    # Update
+    if [[ "${if_app_installed}" = "Y" && "${Update}" = "Y" ]]; then
 
-    # add apt-get
-    if [[ -z "${__aptget_install_cmd}" ]]; then
-        loguj -e -t "${ltype}" "No apt-get tool (${app_install})"
-        return 1
-    fi
-
-    local install_cmd="${__aptget_install_cmd//<<APP>>/${app_install}}"
-
-    loguj -p -i -t "${ltype}" "Installing: ${app_run}"
-    ${install_cmd} \
-        ||
-        {
-            loguj -e -t "${ltype}" "During installation of ${app_install}"
+        # check if apt-get update exists
+        if [[ -z "${__aptget_update_cmd}" ]]; then
+            loguj -e -t "${ltype}" "No apt-get update tool (${app_install})"
             return 1
+        fi
+        local update_cmd="${__aptget_update_cmd//<<APP>>/${app_install}}"
+        loguj -p -i -t "${ltype}" "Updating: ${app_run}"
+        ${update_cmd} &&
+            loguj -s -t "${ltype}" "${app_run}" ||
+            {
+                loguj -e -t "${ltype}" "During installation of ${app_install}"
+                return 1
+            }
 
-        } \
-        &&
-        {
-            loguj -s -t "${ltype}" "${app_run}"
-        }
-    return 0
+    else # Installation
+
+        # check if apt-get install exists
+        if [[ -z "${__aptget_install_cmd}" ]]; then
+            loguj -e -t "${ltype}" "No apt-get install tool (${app_install})"
+            return 1
+        fi
+
+        local install_cmd="${__aptget_install_cmd//<<APP>>/${app_install}}"
+
+        loguj -p -i -t "${ltype}" "Installing: ${app_run}"
+        ${install_cmd} &&
+            loguj -s -t "${ltype}" "${app_run}" ||
+            {
+                loguj -e -t "${ltype}" "During installation of ${app_install}"
+                return 1
+            }
+   fi
+   return 0
 }
 
 
@@ -529,7 +550,7 @@ gitclone()
 # --------------------------------------------------------------------------------
 # geturl [OPTIONS] <URL> <FILE> [OPTIONS] [RUN_LATER_CMDS]
 # OPTIONS:
-#     -u  :: update (delete the file/folder and redownload it)
+#     -u  :: download file even if it exists
 #     -d  :: delete the file bofore downloading and after succussful install
 #     -sha1 <SUM> :: sha1sum of the file to check. If it fails, file is not installed
 geturl()
@@ -579,15 +600,12 @@ geturl()
         rm -rf "${file}"
     fi
 
-    tmpfile="${file}#.#"
+    tmpfile="$(mktemp)"
 
     if [[ -z "${__geturl_app}" ]]; then
         loguj -e -t "${ltype}" "No curl/wget app. (${url})"
         return 99
     fi
-
-
-    # [[ ! -z "${file}" ]] && file="-o ${file}"
 
     if [[ "${update}" = "Y" && -e ${file} ]]; then
         mv "${file}" "${tmpfile}"

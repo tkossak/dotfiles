@@ -17,12 +17,12 @@ source ${__sdir}/source/src_bash_install
 print_help()
 {
     echo "CLI options:"
-    echo "  -l  :: break links"
-    echo "  -d  :: install dotfiles"
-    echo "  -b  :: install dotfiles + basics 1"
-    echo "  -a  :: install dotfiles + basics 1 + 2"
-    echo "  -A  :: install dotfiles + basics 1 + 2 + 3 (new comp)"
-    echo "  -u  :: update"
+    echo "  -l      :: break links"
+    echo "  -d      :: install dotfiles"
+    echo "  -b, -1  :: install dotfiles + basics 1"
+    echo "  -a, -2  :: install dotfiles + basics 1 + 2"
+    echo "  -A, -3  :: install dotfiles + basics 1 + 2 + 3 (new comp)"
+    echo "  -u      :: update existing apps"
     return 0
 }
 
@@ -32,52 +32,50 @@ if [[ $# = 0 ]]; then
 fi
 
 ltype="---"
-if_dotfiles="N"
-if_basics1="N"
-if_basics2="N"
-if_basics3_new_comp="N"
-if_break_links="N"
-if_testing="N"
-if_update="N"
+__if_dotfiles="N"
+# if_basics1="N"
+# if_basics2="N"
+# if_basics3_new_comp="N"
+__app_lvl=100
+__if_break_links="N"
+__if_testing="N"
+__if_update="N"
 
 
-[[ $# = 0 ]] && if_dotfiles="Y"
+[[ $# = 0 ]] && __if_dotfiles="Y"
 
-while getopts ":hldbaAt" opt; do
+while getopts ":hldb1a2A3tu" opt; do
     case "$opt" in
         h)
             print_help
             exit 0
             ;;
         u)
-            if_update="Y"
+            __if_update="Y"
             ;;
         l)
-            if_break_links="Y"
+            __if_break_links="Y"
             ;;
         d)
-            if_dotfiles="Y"
+            __if_dotfiles="Y"
             ;;
-        b)
-            if_break_links="Y"
-            if_basics1="Y"
-            if_dotfiles="Y"
+        b|1)
+            __if_break_links="Y"
+            __app_lvl=1
+            __if_dotfiles="Y"
             ;;
-        a)
-            if_break_links="Y"
-            if_basics1="Y"
-            if_basics2="Y"
-            if_dotfiles="Y"
+        a|2)
+            __if_break_links="Y"
+            __app_lvl=2
+            __if_dotfiles="Y"
             ;;
-        A)
-            if_break_links="Y"
-            if_basics1="Y"
-            if_basics2="Y"
-            if_basics3_new_comp="Y"
-            if_dotfiles="Y"
+        A|3)
+            __if_break_links="Y"
+            __app_lvl=3
+            __if_dotfiles="Y"
             ;;
         t)
-            if_testing="Y"
+            __if_testing="Y"
             ;;
 
         \?)
@@ -111,6 +109,7 @@ if [[ -d "${__win_appdata}" ]]; then
 else
     echo "__win_appdata (NOT exists) =${__win_appdata}"
 fi
+echo "__app_lvl=${__app_lvl}"
 
 # ================================================================================
 # Initial cmds:
@@ -356,29 +355,31 @@ install_dotfiles()
 # --------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------
 # install_apps_basic
-install_apps_basic()
+install_apps()
 {
-
-    local ltype="BA1"
+    local ltype="APP"
     local tmp_options
-    loguj -ss -t "${ltype}" "BASICS 1"
+    loguj -ss -t "${ltype}" "BASICS ${__app_lvl}"
 
-    # update repositories
-    # if hash apt-get 2>/dev/null; then
-    #     ${__sudo} apt-get update
-    # fi
+    # update repos?
+    update_repos
 
     # curl
-    aptget curl && __geturl_app="curl -o" || true
+    (( ${__app_lvl} <= 1 )) &&
+        aptget curl && __geturl_app="curl -o" || true
 
     # wget
-    aptget wget && __geturl_app="wget -O" || true
+    (( ${__app_lvl} <= 1 )) &&
+        aptget wget && __geturl_app="wget -O" || true
 
     # git
-    aptget git || true
+    (( ${__app_lvl} <= 1 )) &&
+        aptget git || true
 
     # vim
-    aptget vim || true
+    if (( ${__app_lvl} <= 1 )); then
+        aptget vim || true
+
         # del Vundle:
         if [[ -d ~/.vim/bundle/Vundle.vim ]]; then
             loguj -i -t "${ltype}" "Old Vundle present - deleting whole ~/.vim"
@@ -386,226 +387,229 @@ install_apps_basic()
         fi
         # install Plug:
         if [[ ! -e ~/.vim/autoload/plug.vim ]]; then
-            curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
-                https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim \
-            && loguj -s -t "${ltype}" "Vim plugin 'Plug' installed" \
-            || loguj -e -t "${ltype}" "Vim plugin 'Plug' NOT installed"
+            # curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
+            #     https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim \
+            geturl https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim \
+                ~/.vim/autoload/plug.vim
+            # && loguj -s -t "${ltype}" "Vim plugin 'Plug' installed" \
+            # || loguj -e -t "${ltype}" "Vim plugin 'Plug' NOT installed"
         fi
+    fi
 
     # make
-    aptget make || true
+    (( ${__app_lvl} <= 1 )) &&
+        aptget make || true
 
     # vim-vundle
     # gitclone https://github.com/gmarik/Vundle.vim.git ~/.vim/bundle/Vundle.vim || true
 
     # PIP2
     # changelog: https://pip.pypa.io/en/latest/news.html
-    local if_getpip_downloaded="0"
-    local cur_pip_verson="7.1.2"
-    local cur_pip_sha1="190764458a659f5f38e37c09c16c1b50e1f5cb21"
-    local installer="/tmp/get-pip.py"
-    local cur_python_cmd="python2"
-    local cur_pip_cmd="pip2"
-    local ver=""
+    if (( ${__app_lvl} <= 1 )); then
 
-    # check czy juz istnieje:
-    if [[ -e "${installer}" ]]; then
-        if checksum "${installer}" -sha1 "${cur_pip_sha1}"; then
-            if_getpip_downloaded=1
-        else
-            rm -rf "${installer}"
-        fi
-    fi
+        local if_getpip_downloaded="0"
+        local cur_pip_verson="7.1.2"
+        local cur_pip_sha1="4645795f303c2a8a02d9957514af8a28fd8770c2"
+        local installer="/tmp/get-pip.py"
+        local cur_python_cmd="python2"
+        local cur_pip_cmd="pip2"
+        local ver=""
 
-    if hash ${cur_python_cmd} 2>/dev/null; then
-        hash ${cur_pip_cmd} 2>/dev/null \
-            && ver="$(${cur_pip_cmd} --version | sed 's/ /\n/g' | sed -n '2p')" \
-            || ver="no ${cur_pip_cmd}"
+        if hash ${cur_python_cmd} 2>/dev/null; then
+            hash ${cur_pip_cmd} 2>/dev/null \
+                && ver="$(${cur_pip_cmd} --version | sed 's/ /\n/g' | sed -n '2p')" \
+                || ver="no ${cur_pip_cmd}"
 
-        if [[ "${ver}" != "${cur_pip_verson}" ]]; then
-            # download
-            loguj -i -t "${ltype}" "Current ${cur_pip_cmd} version: ${ver}. Installing."
-            if [[ "${if_getpip_downloaded}" = "0" ]]; then
-                geturl https://bootstrap.pypa.io/get-pip.py "${installer}" -sha1 "${cur_pip_sha1}" \
-                    && if_getpip_downloaded="1"
-            fi
+            if [[ "${ver}" != "${cur_pip_verson}" ]]; then
+                # check czy juz istnieje:
+                if [[ -e "${installer}" ]]; then
+                    if checksum "${installer}" -sha1 "${cur_pip_sha1}"; then
+                        if_getpip_downloaded=1
+                    else
+                        rm -rf "${installer}"
+                        if_getpip_downloaded=0
+                    fi
+                fi
 
-            # install
-            if [[ "${if_getpip_downloaded}" = "1" ]]; then
-                [[ -n "${__sudo}" ]] && tmp_options="-H" || tmp_options=""
-                ${__sudo} ${tmp_options} ${cur_python_cmd} "${installer}" \
-                    && loguj -s -t "${ltype}" "${cur_pip_cmd}" \
-                    || loguj -e -t "${ltype}" "Problem instalilng ${cur_pip_cmd}"
+                # download
+                loguj -i -t "${ltype}" "Current ${cur_pip_cmd} version: ${ver}. Installing."
+                if [[ "${if_getpip_downloaded}" = "0" ]]; then
+                    geturl https://bootstrap.pypa.io/get-pip.py "${installer}" -sha1 "${cur_pip_sha1}" \
+                        && if_getpip_downloaded="1"
+                fi
+
+                # install
+                if [[ "${if_getpip_downloaded}" = "1" ]]; then
+                    [[ -n "${__sudo}" ]] && tmp_options="-H" || tmp_options=""
+                    ${__sudo} ${tmp_options} ${cur_python_cmd} "${installer}" \
+                        && loguj -s -t "${ltype}" "${cur_pip_cmd}" \
+                        || loguj -e -t "${ltype}" "Problem instalilng ${cur_pip_cmd}"
+                else
+                    loguj -e -t "${ltype}" "Problem downloading ${cur_pip_cmd}"
+                fi
             else
-                loguj -e -t "${ltype}" "Problem downloading ${cur_pip_cmd}"
+                loguj -i -t "${ltype}" "${cur_pip_cmd} is already up to date (${ver})"
             fi
-        else
-            loguj -i -t "${ltype}" "${cur_pip_cmd} is already up to date (${ver})"
         fi
     fi
 
     # PIP3
-    cur_python_cmd="python3"
-    cur_pip_cmd="pip3"
-    if hash ${cur_python_cmd} 2>/dev/null; then
-        hash ${cur_pip_cmd} 2>/dev/null \
-            && ver="$(${cur_pip_cmd} --version | sed 's/ /\n/g' | sed -n '2p')" \
-            || ver="no ${cur_pip_cmd}"
+    if (( ${__app_lvl} <= 1 )); then
+        cur_python_cmd="python3"
+        cur_pip_cmd="pip3"
 
-        if [[ "${ver}" != "${cur_pip_verson}" ]]; then
-            # download
-            loguj -i -t "${ltype}" "Current ${cur_pip_cmd} version: ${ver}. Installing."
-            if [[ "${if_getpip_downloaded}" = "0" ]]; then
-                geturl https://bootstrap.pypa.io/get-pip.py "${installer}" -sha1 "${cur_pip_sha1}" \
-                    && if_getpip_downloaded="1"
-            fi
+        if hash ${cur_python_cmd} 2>/dev/null; then
+            hash ${cur_pip_cmd} 2>/dev/null \
+                && ver="$(${cur_pip_cmd} --version | sed 's/ /\n/g' | sed -n '2p')" \
+                || ver="no ${cur_pip_cmd}"
 
-            # install
-            if [[ "${if_getpip_downloaded}" = "1" ]]; then
-                [[ -n "${__sudo}" ]] && tmp_options="-H" || tmp_options=""
-                ${__sudo} ${tmp_options} ${cur_python_cmd} "${installer}" \
-                    && loguj -s -t "${ltype}" "${cur_pip_cmd}" \
-                    || loguj -e -t "${ltype}" "Problem instalilng ${cur_pip_cmd}"
+            if [[ "${ver}" != "${cur_pip_verson}" ]]; then
+                # check czy juz istnieje:
+                if [[ -e "${installer}" ]]; then
+                    if checksum "${installer}" -sha1 "${cur_pip_sha1}"; then
+                        if_getpip_downloaded=1
+                    else
+                        rm -rf "${installer}"
+                        if_getpip_downloaded=0
+                    fi
+                fi
+
+                # download
+                loguj -i -t "${ltype}" "Current ${cur_pip_cmd} version: ${ver}. Installing."
+                if [[ "${if_getpip_downloaded}" = "0" ]]; then
+                    geturl https://bootstrap.pypa.io/get-pip.py "${installer}" -sha1 "${cur_pip_sha1}" \
+                        && if_getpip_downloaded="1"
+                fi
+
+                # install
+                if [[ "${if_getpip_downloaded}" = "1" ]]; then
+                    [[ -n "${__sudo}" ]] && tmp_options="-H" || tmp_options=""
+                    ${__sudo} ${tmp_options} ${cur_python_cmd} "${installer}" \
+                        && loguj -s -t "${ltype}" "${cur_pip_cmd}" \
+                        || loguj -e -t "${ltype}" "Problem instalilng ${cur_pip_cmd}"
+                else
+                    loguj -e -t "${ltype}" "Problem downloading ${cur_pip_cmd}"
+                fi
             else
-                loguj -e -t "${ltype}" "Problem downloading ${cur_pip_cmd}"
+                loguj -i -t "${ltype}" "${cur_pip_cmd} is already up to date (${ver})"
             fi
-        else
-            loguj -i -t "${ltype}" "${cur_pip_cmd} is already up to date (${ver})"
         fi
     fi
 
-    # [[ "${if_getpip_downloaded}" = "1" ]] && rm -rf "${installer}"
-
     # Ranger
-    # rm -rf ~/apps/ranger ~/.config/ranger
-    gitclone https://github.com/hut/ranger.git ~/apps/ranger "${__sudo} make install" "ranger --copy-config=all" || true
+    (( ${__app_lvl} <= 1 )) &&
+        gitclone https://github.com/hut/ranger.git ~/apps/ranger "${__sudo} make install" "ranger --copy-config=all" || true
 
     # TMUX
-    aptget tmux || true
+    (( ${__app_lvl} <= 1 )) &&
+        aptget tmux || true
 
     # dtrx
-    if ! hash dtrx 2>/dev/null; then
-        rm -rf /tmp/dtrx-7.1
-        geturl -d http://brettcsmith.org/2007/dtrx/dtrx-7.1.tar.gz /tmp/dtrx-7.1.tar.gz -sha1 05cfe705a04a8b84571b0a5647cd2648720791a4 "tar -xf dtrx-7.1.tar.gz" "cd dtrx-7.1" "${__sudo} python setup.py install --prefix=/usr/local" "rm -rf /tmp/dtrx-7.1" "rm -rf /tmp/dtrx-7.1.tar.gz" || true
+    if (( ${__app_lvl} <= 1 )); then
+        if ! hash dtrx 2>/dev/null; then
+            rm -rf /tmp/dtrx-7.1
+            geturl -d http://brettcsmith.org/2007/dtrx/dtrx-7.1.tar.gz /tmp/dtrx-7.1.tar.gz -sha1 05cfe705a04a8b84571b0a5647cd2648720791a4 "tar -xf dtrx-7.1.tar.gz" "cd dtrx-7.1" "${__sudo} python setup.py install --prefix=/usr/local" "rm -rf /tmp/dtrx-7.1" "rm -rf /tmp/dtrx-7.1.tar.gz" || true
+        fi
     fi
-    # aptget dtrx ||
-    #     {
-    #         rm -rf /tmp/dtrx-7.1
-    #         geturl -d http://brettcsmith.org/2007/dtrx/dtrx-7.1.tar.gz /tmp/dtrx-7.1.tar.gz -sha1 05cfe705a04a8b84571b0a5647cd2648720791a4 "tar -xf dtrx-7.1.tar.gz" "cd dtrx-7.1" "${__sudo} python setup.py install --prefix=/usr/local" "rm -rf /tmp/dtrx-7.1" "rm -rf /tmp/dtrx-7.1.tar.gz" || true
-    #     }
 
     # fasd
-    gitclone https://github.com/clvv/fasd.git ~/apps/fasd "${__sudo} make install" || true
+    (( ${__app_lvl} <= 1 )) &&
+        gitclone https://github.com/clvv/fasd.git ~/apps/fasd "${__sudo} make install" || true
 
-    loguj -se -t "${ltype}" "BASICS 1"
-    return 0
-}
-
-
-# --------------------------------------------------------------------------------
-# --------------------------------------------------------------------------------
-# --------------------------------------------------------------------------------
-# install_apps_basics2
-install_apps_basics2()
-{
-
-    local ltype="BA2"
-    loguj -ss -t "${ltype}" "BASICS 2"
 
     # commacd
-    geturl https://raw.githubusercontent.com/shyiko/commacd/master/commacd.bash ~/.commacd.bash || true
+    (( ${__app_lvl} <= 2 )) &&
+        geturl https://raw.githubusercontent.com/shyiko/commacd/master/commacd.bash ~/.commacd.bash || true
 
     # glances
-    aptget -ol glances \
-        &&
-        {
-            aptget lm-sensors || true
-            pipinstall -2 -H PySensors || true
-        } || true
+    if (( ${__app_lvl} <= 2 )); then
+        aptget -ol glances || true &&
+            {
+                aptget lm-sensors || true
+                pipinstall -2 -H PySensors || true
+            }
+    fi
 
     # speedtest-cli
-    pipinstall -2 speedtest-cli || true
+    (( ${__app_lvl} <= 2 )) &&
+        pipinstall -2 speedtest-cli || true
 
     # fzf - asks questions
-    if [[ ! -d ~/.fzf ]]; then
-        git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install || true
+    if (( ${__app_lvl} <= 2 )); then
+        if [[ ! -d ~/.fzf ]]; then
+            git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install || true
+        fi
     fi
 
-    # geeknote login
-    loguj -se -t "${ltype}" "BASICS 2"
-    return 0
-}
-
-
-# --------------------------------------------------------------------------------
-# --------------------------------------------------------------------------------
-# --------------------------------------------------------------------------------
-install_apps_basic3_new_comp()
-{
-
-    local ltype="BA3"
-    loguj -ss -t "${ltype}" "BASICS 3"
 
     # Emacs
-    aptget emacs || true
-    if hash emacs 2>/dev/null; then
-        # evil-leader:
-        geturl https://raw.githubusercontent.com/cofi/evil-leader/master/evil-leader.el ~/.emacs.d/mine/evil-leader.el -sha1 00c336e55307dbcb3f73f47b1d9a1d759404341d || true
-        # key-chord:
-        geturl http://www.emacswiki.org/emacs/download/key-chord.el ~/.emacs.d/mine/key-chord.el -sha1 2da61bf970ca332c4de96c1977fc7e326df6c33a || true
-        # evil:
-        gitclone https://gitorious.org/evil/evil.git ~/.emacs.d/evil \
-            ||
-            {
-                loguj -i -t "${ltype}" "Manually downloading evil.git"
-                rm -rf ~/.emacs.d/evil
-                rm -rf ~/.emacs.d/lyro-evil*
-                cd ~/.emacs.d
-                if [[ ! -f evil-default.zip ]]; then
-                    ${__geturl_app} evil-default.zip https://bitbucket.org/lyro/evil/get/default.zip \
-                        ||
-                        {
-                            loguj -e -t "${ltype}" "Downloading evil.git (default.zip)"
-                        } \
-                        &&
-                        {
-                            unzip evil-default.zip
-                            mv ~/.emacs.d/lyro-evil* evil
-                            rm ~/.emacs.d/evil-default.zip
-                            loguj -d -t "${ltype}" "evil"
-                            loguj -e -t "${ltype}" "Evil downloaded manually."
+    if (( ${__app_lvl} <= 3 )); then
+        aptget emacs || true
+        if hash emacs 2>/dev/null; then
+            # evil-leader:
+            geturl https://raw.githubusercontent.com/cofi/evil-leader/master/evil-leader.el ~/.emacs.d/mine/evil-leader.el -sha1 00c336e55307dbcb3f73f47b1d9a1d759404341d || true
+            # key-chord:
+            geturl http://www.emacswiki.org/emacs/download/key-chord.el ~/.emacs.d/mine/key-chord.el -sha1 2da61bf970ca332c4de96c1977fc7e326df6c33a || true
+            # evil:
+            gitclone https://gitorious.org/evil/evil.git ~/.emacs.d/evil \
+                ||
+                {
+                    loguj -i -t "${ltype}" "Manually downloading evil.git"
+                    rm -rf ~/.emacs.d/evil
+                    rm -rf ~/.emacs.d/lyro-evil*
+                    cd ~/.emacs.d
+                    if [[ ! -f evil-default.zip ]]; then
+                        ${__geturl_app} evil-default.zip https://bitbucket.org/lyro/evil/get/default.zip \
+                            ||
+                            {
+                                loguj -e -t "${ltype}" "Downloading evil.git (default.zip)"
+                            } \
+                                &&
+                                {
+                                    unzip evil-default.zip
+                                    mv ~/.emacs.d/lyro-evil* evil
+                                    rm ~/.emacs.d/evil-default.zip
+                                    loguj -d -t "${ltype}" "evil"
+                                    loguj -e -t "${ltype}" "Evil downloaded manually."
+                                }
+                            fi
                         }
+                        # org-mode:
+                        gitclone git://orgmode.org/org-mode.git ~/.emacs.d/org-mode "git checkout -b stable origin/maint" "git pull" "make autoloads" || true
+                    fi
                 fi
-            }
-        # org-mode:
-        gitclone git://orgmode.org/org-mode.git ~/.emacs.d/org-mode "git checkout -b stable origin/maint" "git pull" "make autoloads" || true
-    fi
 
     # geeknote
-    gitclone https://github.com/VitaliyRodnenko/geeknote.git ~/apps/geeknote "${__sudo} python setup.py install" "geeknote settings --editor vim" || true
+    (( ${__app_lvl} <= 3 )) &&
+        gitclone https://github.com/VitaliyRodnenko/geeknote.git ~/apps/geeknote "${__sudo} python setup.py install" "geeknote settings --editor vim" || true
 
     # BeautifulSoup4
-    pipinstall -3 BeautifulSoup4 || true
+    (( ${__app_lvl} <= 3 )) &&
+        pipinstall -3 BeautifulSoup4 || true
 
     # flake8
-    pipinstall -3 flake8 || true
+    (( ${__app_lvl} <= 3 )) &&
+        pipinstall -3 flake8 || true
 
     # bashate
-    pipinstall -3 bashate || true
+    (( ${__app_lvl} <= 3 )) &&
+        pipinstall -3 bashate || true
 
     # httpie
-    pipinstall httpie || true
+    (( ${__app_lvl} <= 3 )) &&
+        pipinstall httpie || true
 
     # different
-    aptget -ol vlc
-    aptget -ol mplayer
-    aptget -ol krdc
-    aptget -ol vpnc
-    aptget -ol openvpn
-    aptget -ol dos2unix
+    if (( ${__app_lvl} <= 3 )); then
+        aptget -ol vlc
+        aptget -ol mplayer
+        aptget -ol krdc
+        aptget -ol vpnc
+        aptget -ol openvpn
+        aptget -ol dos2unix
+    fi
 
-    # geeknote login....?
-    loguj -se -t "${ltype}" "BASICS 3"
+    loguj -se -t "${ltype}" "BASICS ${__app_lvl}"
     return 0
 }
 
@@ -646,17 +650,12 @@ testing()
 create_link ${__sdir} ~/.dotfiles
 create_link ${__dir_dlocal} ~/.dotfiles.local || true
 
-# update repos?
-if [[ "${if_basics1}" == "Y" || "${if_basics2}" == "Y" || "${if_basics3_new_comp}" == "Y" ]]; then
-    update_repos
+[[ ${__if_testing} == "Y" ]] && testing
+[[ ${__if_break_links} == "Y" ]] && break_links
+if (( ${__app_lvl} < 100 )) || [[ "${__if_update}" == "Y" ]]; then
+    install_apps
 fi
-
-[[ ${if_testing} == "Y" ]] && testing
-[[ ${if_break_links} == "Y" ]] && break_links
-[[ ${if_basics1} == "Y" ]] && install_apps_basic
-[[ ${if_basics2} == "Y" ]] && install_apps_basics2
-[[ ${if_basics3_new_comp} == "Y" ]] && install_apps_basic3_new_comp
-[[ ${if_dotfiles} == "Y" ]] && install_dotfiles
+[[ ${__if_dotfiles} == "Y" ]] && install_dotfiles
 
 display_log_info
 display_log_error
