@@ -1,5 +1,6 @@
 # If not running interactively, don't do anything
 [[ "$-" != *i* ]] && exit
+# echo ".bashrc start"
 # [[ -z "$PS1" ]] && exit
 
 [[ -z ${USER_BASHRC} ]] && USER_BASHRC="1" || return

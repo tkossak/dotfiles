@@ -365,13 +365,15 @@ install_dotfiles()
 install_apps()
 {
     local ltype="APP"
-    local tmp_options
     local update_option=""
+    local sudo_options=""
+    [[ "${__myos}" == "LINUX" ]] && sudo_options="-H"
 
-    if [[ "${__if_update}" == "Y" && "${__app_lvl}" == "0" ]]; then
-        update_option="-u" # update only
-    elif [[ "${__if_update}" == "Y" && "${__app_lvl}" != "0" ]]; then
-        update_option="-U" # update or install if not already installed
+    if [[ "${__if_update}" == "Y" ]]; then
+        update_option="-u"
+    fi
+    if [[ "${__app_lvl}" == "0" ]]; then
+        __app_lvl=100
     fi
 
     # if [[ "${__if_update}" == "Y" && "${__app_lvl}" == "0" ]]; then
@@ -428,104 +430,129 @@ install_apps()
     # changelog: https://pip.pypa.io/en/latest/news.html
     if (( ${__app_lvl} >= 1 )); then
 
-        local if_getpip_downloaded="0"
         local cur_pip_verson="7.1.2"
         local cur_pip_sha1="4645795f303c2a8a02d9957514af8a28fd8770c2"
+        local if_getpip_downloaded="0"
         local installer="/tmp/get-pip.py"
         local cur_python_cmd="python2"
         local cur_pip_cmd="pip2"
-        local ver=""
 
         if hash ${cur_python_cmd} 2>/dev/null; then
-            hash ${cur_pip_cmd} 2>/dev/null \
-                && ver="$(${cur_pip_cmd} --version | sed 's/ /\n/g' | sed -n '2p')" \
-                || ver="no ${cur_pip_cmd}"
 
-            if [[ "${ver}" != "${cur_pip_verson}" ]]; then
-                # check czy juz istnieje:
-                if [[ -e "${installer}" ]]; then
-                    if checksum "${installer}" -sha1 "${cur_pip_sha1}"; then
-                        if_getpip_downloaded=1
+            if hash ${cur_pip_cmd} 2>/dev/null; then
+                # 1. PIP=yes
+                if [[ "${__if_update}" == "Y" ]]; then
+                    # 1.1 action=update
+                    ${__sudo} ${sudo_options} ${cur_pip_cmd} install -U pip
+                    loguj -i -t "${ltype}" "UPDATED: ${cur_pip_cmd}"
+                else
+                    # 1.2 action=install
+                    loguj -i -t "${ltype}" "Already installed: ${cur_pip_cmd}"
+                fi
+
+            else
+                # 2. PIP=no
+                if [[ "${__if_update}" == "Y" ]]; then
+                    # 2.1 action=update
+                    loguj -i -t "${ltype}" "App not installed: ${cur_pip_cmd}"
+                else
+                    # 2.2 action=install
+                    # check czy get-pip.py juz istnieje:
+                    if [[ -e "${installer}" ]]; then
+                        if checksum "${installer}" -sha1 "${cur_pip_sha1}"; then
+                            if_getpip_downloaded=1
+                        else
+                            rm -rf "${installer}"
+                            if_getpip_downloaded=0
+                        fi
+                    fi
+
+                    # download
+                    if [[ "${if_getpip_downloaded}" = "0" ]]; then
+                        geturl https://bootstrap.pypa.io/get-pip.py "${installer}" -sha1 "${cur_pip_sha1}" \
+                            && if_getpip_downloaded="1"
+                    fi
+
+                    # install
+                    if [[ "${if_getpip_downloaded}" = "1" ]]; then
+                        ${__sudo} ${sudo_options} ${cur_python_cmd} "${installer}" \
+                            && loguj -s -t "${ltype}" "${cur_pip_cmd}" \
+                            || loguj -e -t "${ltype}" "Problem instalilng ${cur_pip_cmd}"
                     else
-                        rm -rf "${installer}"
-                        if_getpip_downloaded=0
+                        loguj -e -t "${ltype}" "Problem downloading ${cur_pip_cmd}"
                     fi
                 fi
 
-                # download
-                loguj -i -t "${ltype}" "Current ${cur_pip_cmd} version: ${ver}. Installing."
-                if [[ "${if_getpip_downloaded}" = "0" ]]; then
-                    geturl https://bootstrap.pypa.io/get-pip.py "${installer}" -sha1 "${cur_pip_sha1}" \
-                        && if_getpip_downloaded="1"
-                fi
-
-                # install
-                if [[ "${if_getpip_downloaded}" = "1" ]]; then
-                    [[ -n "${__sudo}" ]] && tmp_options="-H" || tmp_options=""
-                    ${__sudo} ${tmp_options} ${cur_python_cmd} "${installer}" \
-                        && loguj -s -t "${ltype}" "${cur_pip_cmd}" \
-                        || loguj -e -t "${ltype}" "Problem instalilng ${cur_pip_cmd}"
-                else
-                    loguj -e -t "${ltype}" "Problem downloading ${cur_pip_cmd}"
-                fi
-            else
-                loguj -i -t "${ltype}" "${cur_pip_cmd} is already up to date (${ver})"
             fi
         fi
     fi
 
-    # PIP3
+    # PIP3 -----------------------------------
     if (( ${__app_lvl} >= 1 )); then
+
         cur_python_cmd="python3"
         cur_pip_cmd="pip3"
 
         if hash ${cur_python_cmd} 2>/dev/null; then
-            hash ${cur_pip_cmd} 2>/dev/null \
-                && ver="$(${cur_pip_cmd} --version | sed 's/ /\n/g' | sed -n '2p')" \
-                || ver="no ${cur_pip_cmd}"
 
-            if [[ "${ver}" != "${cur_pip_verson}" ]]; then
-                # check czy juz istnieje:
-                if [[ -e "${installer}" ]]; then
-                    if checksum "${installer}" -sha1 "${cur_pip_sha1}"; then
-                        if_getpip_downloaded=1
+            if hash ${cur_pip_cmd} 2>/dev/null; then
+                # 1. PIP=yes
+                if [[ "${__if_update}" == "Y" ]]; then
+                    # 1.1 action=update
+                    ${__sudo} ${sudo_options} ${cur_pip_cmd} install -U pip
+                    loguj -i -t "${ltype}" "UPDATED: ${cur_pip_cmd}"
+                else
+                    # 1.2 action=install
+                    loguj -i -t "${ltype}" "Already installed: ${cur_pip_cmd}"
+                fi
+
+            else
+                # 2. PIP=no
+                if [[ "${__if_update}" == "Y" ]]; then
+                    # 2.1 action=update
+                    loguj -i -t "${ltype}" "App not installed: ${cur_pip_cmd}"
+                else
+                    # 2.2 action=install
+                    # check czy get-pip.py juz istnieje:
+                    if [[ -e "${installer}" ]]; then
+                        if checksum "${installer}" -sha1 "${cur_pip_sha1}"; then
+                            if_getpip_downloaded=1
+                        else
+                            rm -rf "${installer}"
+                            if_getpip_downloaded=0
+                        fi
+                    fi
+
+                    # download
+                    if [[ "${if_getpip_downloaded}" = "0" ]]; then
+                        geturl https://bootstrap.pypa.io/get-pip.py "${installer}" -sha1 "${cur_pip_sha1}" \
+                            && if_getpip_downloaded="1"
+                    fi
+
+                    # install
+                    if [[ "${if_getpip_downloaded}" = "1" ]]; then
+                        ${__sudo} ${sudo_options} ${cur_python_cmd} "${installer}" \
+                            && loguj -s -t "${ltype}" "${cur_pip_cmd}" \
+                            || loguj -e -t "${ltype}" "Problem instalilng ${cur_pip_cmd}"
                     else
-                        rm -rf "${installer}"
-                        if_getpip_downloaded=0
+                        loguj -e -t "${ltype}" "Problem downloading ${cur_pip_cmd}"
                     fi
                 fi
 
-                # download
-                loguj -i -t "${ltype}" "Current ${cur_pip_cmd} version: ${ver}. Installing."
-                if [[ "${if_getpip_downloaded}" = "0" ]]; then
-                    geturl https://bootstrap.pypa.io/get-pip.py "${installer}" -sha1 "${cur_pip_sha1}" \
-                        && if_getpip_downloaded="1"
-                fi
-
-                # install
-                if [[ "${if_getpip_downloaded}" = "1" ]]; then
-                    [[ -n "${__sudo}" ]] && tmp_options="-H" || tmp_options=""
-                    ${__sudo} ${tmp_options} ${cur_python_cmd} "${installer}" \
-                        && loguj -s -t "${ltype}" "${cur_pip_cmd}" \
-                        || loguj -e -t "${ltype}" "Problem instalilng ${cur_pip_cmd}"
-                else
-                    loguj -e -t "${ltype}" "Problem downloading ${cur_pip_cmd}"
-                fi
-            else
-                loguj -i -t "${ltype}" "${cur_pip_cmd} is already up to date (${ver})"
             fi
         fi
     fi
 
     # Ranger
     (( ${__app_lvl} >= 1 )) &&
-        gitclone https://github.com/hut/ranger.git ~/apps/ranger "${__sudo} make install" "ranger --copy-config=all" || true
+        gitclone ${update_option} https://github.com/hut/ranger.git ~/apps/ranger "${__sudo} make install" "ranger --copy-config=all" || true
 
     # TMUX
     (( ${__app_lvl} >= 1 )) &&
-        aptget tmux || true
+        aptget ${update_option} tmux || true
 
     # dtrx
+    # without updating
     if (( ${__app_lvl} >= 1 )); then
         if ! hash dtrx 2>/dev/null; then
             rm -rf /tmp/dtrx-7.1
@@ -535,44 +562,44 @@ install_apps()
 
     # fasd
     (( ${__app_lvl} >= 1 )) &&
-        gitclone https://github.com/clvv/fasd.git ~/apps/fasd "${__sudo} make install" || true
+        gitclone ${update_option} https://github.com/clvv/fasd.git ~/apps/fasd "${__sudo} make install" || true
 
 
     # commacd
     (( ${__app_lvl} >= 2 )) &&
-        geturl https://raw.githubusercontent.com/shyiko/commacd/master/commacd.bash ~/.commacd.bash || true
+        geturl ${update_option} https://raw.githubusercontent.com/shyiko/commacd/master/commacd.bash ~/.commacd.bash || true
 
     # glances
     if (( ${__app_lvl} >= 2 )); then
-        aptget -ol glances || true &&
+        aptget -ol ${update_option} glances || true &&
             {
-                aptget lm-sensors || true
-                pipinstall -2 -H PySensors || true
+                aptget ${update_option} lm-sensors || true
+                pipinstall -2 -H ${update_option} PySensors || true
             }
     fi
 
     # speedtest-cli
     (( ${__app_lvl} >= 2 )) &&
-        pipinstall -2 speedtest-cli || true
+        pipinstall -2 -H ${update_option} speedtest-cli || true
 
     # fzf - asks questions
     if (( ${__app_lvl} >= 2 )); then
         if [[ ! -d ~/.fzf ]]; then
-            git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install || true
+            git clone --depth 1 ${update_option} https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install || true
         fi
     fi
 
 
     # Emacs
     if (( ${__app_lvl} >= 3 )); then
-        aptget emacs || true
+        aptget ${update_option} emacs || true
         if hash emacs 2>/dev/null; then
             # evil-leader:
             geturl https://raw.githubusercontent.com/cofi/evil-leader/master/evil-leader.el ~/.emacs.d/mine/evil-leader.el -sha1 00c336e55307dbcb3f73f47b1d9a1d759404341d || true
             # key-chord:
             geturl http://www.emacswiki.org/emacs/download/key-chord.el ~/.emacs.d/mine/key-chord.el -sha1 2da61bf970ca332c4de96c1977fc7e326df6c33a || true
             # evil:
-            gitclone https://gitorious.org/evil/evil.git ~/.emacs.d/evil \
+            gitclone ${update_option} https://gitorious.org/evil/evil.git ~/.emacs.d/evil \
                 ||
                 {
                     loguj -i -t "${ltype}" "Manually downloading evil.git"
@@ -602,32 +629,32 @@ install_apps()
 
     # geeknote
     (( ${__app_lvl} >= 3 )) &&
-        gitclone https://github.com/VitaliyRodnenko/geeknote.git ~/apps/geeknote "${__sudo} python setup.py install" "geeknote settings --editor vim" || true
+        gitclone ${update_option} https://github.com/VitaliyRodnenko/geeknote.git ~/apps/geeknote "${__sudo} python setup.py install" "geeknote settings --editor vim" || true
 
     # BeautifulSoup4
     (( ${__app_lvl} >= 3 )) &&
-        pipinstall -3 BeautifulSoup4 || true
+        pipinstall -3 ${update_option} BeautifulSoup4 || true
 
     # flake8
     (( ${__app_lvl} >= 3 )) &&
-        pipinstall -3 flake8 || true
+        pipinstall -3 ${update_option} flake8 || true
 
     # bashate
     (( ${__app_lvl} >= 3 )) &&
-        pipinstall -3 bashate || true
+        pipinstall -3 ${update_option} bashate || true
 
     # httpie
     (( ${__app_lvl} >= 3 )) &&
-        pipinstall httpie || true
+        pipinstall ${update_option} httpie || true
 
     # different
     if (( ${__app_lvl} >= 3 )); then
-        aptget -ol vlc
-        aptget -ol mplayer
-        aptget -ol krdc
-        aptget -ol vpnc
-        aptget -ol openvpn
-        aptget -ol dos2unix
+        aptget -ol ${update_option} vlc
+        aptget -ol ${update_option} mplayer
+        aptget -ol ${update_option} krdc
+        aptget -ol ${update_option} vpnc
+        aptget -ol ${update_option} openvpn
+        aptget -ol ${update_option} dos2unix
     fi
 
     loguj -se -t "${ltype}" "BASICS ${__app_lvl}"
@@ -645,6 +672,7 @@ testing()
     echo "=== TESTING START =================================================="
     echo "install git test"
 
+    # gitclone -u https://github.com/hut/ranger.git ~/apps/ranger "${__sudo} make install" "ranger --copy-config=all" || true
     # local cur_git_ver="2.5.0"
     # sudo apt-get install git libcurl4-gnutls-dev libexpat1-dev gettext libz-dev libssl-dev
 
@@ -673,7 +701,7 @@ create_link ${__dir_dlocal} ~/.dotfiles.local || true
 
 [[ ${__if_testing} == "Y" ]] && testing
 [[ ${__if_break_links} == "Y" ]] && break_links
-if (( ${__app_lvl} < 100 )) || [[ "${__if_update}" == "Y" ]]; then
+if (( ${__app_lvl} > 0 )) || [[ "${__if_update}" == "Y" ]]; then
     install_apps
 fi
 [[ ${__if_dotfiles} == "Y" ]] && install_dotfiles
