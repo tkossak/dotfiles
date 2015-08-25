@@ -391,7 +391,8 @@ create_link()
 #   -oc :: only cygwin
 #   -ow :: only host W
 #   -oh :: only host H
-#   -u  :: update if it's installed
+#   -u  :: update - only if it's installed
+#   -U  :: update or install if it's not installed
 # $1 = app name to install (passed to apt-get)
 # $2 = app name to check if it's installed already
 aptget()
@@ -430,8 +431,12 @@ aptget()
                 fi
                 shift
                 ;;
-            -u)
-                update="Y"
+            -U) # update or install
+                update="U"
+                shift
+                ;;
+            -u) # update only if already installed
+                update="u"
                 shift
                 ;;
             *)
@@ -460,19 +465,18 @@ aptget()
 
     # check if app is installed
     if hash ${app_run} 2>/dev/null; then
-        loguj -i -t "${ltype}" "Already installed: ${app_run}"
         if_app_installed="Y"
-        [[ "${update}" = "N" ]] &&
-            return 0
     elif [[ -n "${app_check}" ]] && ${app_check} &> /dev/null; then
-        loguj -i -t "${ltype}" "Already installed: ${app_install}"
         if_app_installed="Y"
-        [[ "${update}" = "N" ]] &&
-            return 0
     fi
 
-    # Update
-    if [[ "${if_app_installed}" = "Y" && "${update}" = "Y" ]]; then
+
+    # What to do
+    if [[ "${if_app_installed}" = "Y" && "${update}" = "N" ]]; then
+        loguj -i -t "${ltype}" "App installed, not updating: ${app_run}"
+        return 0
+
+    elif [[ "${if_app_installed}" = "Y" && "${update}" =~ u ]]; then
 
         # check if apt-get update exists
         if [[ -z "${__aptget_update_cmd}" ]]; then
@@ -484,11 +488,15 @@ aptget()
         ${update_cmd} &&
             loguj -u -t "${ltype}" "${app_run}" ||
             {
-                loguj -e -t "${ltype}" "During installation of ${app_install}"
+                loguj -e -t "${ltype}" "Updating: ${app_install}"
                 return 1
             }
 
-    else # Installation
+    elif [[ "${if_app_installed}" = "N" && "${update}" = "u" ]]; then
+        loguj -i -t "${ltype}" "App NOT installed (update only option): ${app_run}"
+        return 0
+
+    else [[ "${if_app_installed}" = "N" || "${update}" = "U" ]]; then # Installation
 
         # check if apt-get install exists
         if [[ -z "${__aptget_install_cmd}" ]]; then
@@ -502,9 +510,12 @@ aptget()
         ${install_cmd} &&
             loguj -s -t "${ltype}" "${app_run}" ||
             {
-                loguj -e -t "${ltype}" "During installation of ${app_install}"
+                loguj -e -t "${ltype}" "Installing: ${app_install}"
                 return 1
             }
+    else
+        loguj -e -t "${ltype}" "It should never get here".
+        return 1
    fi
    return 0
 }

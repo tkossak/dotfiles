@@ -367,15 +367,21 @@ install_apps()
     local ltype="APP"
     local tmp_options
     local update_option=""
-    if [[ "${__if_update}" == "Y" ]]; then
-        update_option="-u"
-        [[ "${__app_lvl}" == "0" ]] &&
-            __app_lvl=100
-        loguj -i -t "${ltype}" "Update option: ${update_option}"
+
+    if [[ "${__if_update}" == "Y" && "${__app_lvl}" == "0" ]]; then
+        update_option="-u" # update only
+    elif [[ "${__if_update}" == "Y" && "${__app_lvl}" != "0" ]]; then
+        update_option="-U" # update or install if not already installed
     fi
 
-    loguj -ss -t "${ltype}" "BASICS ${__app_lvl}"
+    # if [[ "${__if_update}" == "Y" && "${__app_lvl}" == "0" ]]; then
+    #     update_option="-u" # update only
+    # elif [[ "${__if_update}" == "Y" && "${__app_lvl}" != "0" ]]; then
+    #     update_option="-U" # update or install if not already installed
+    # fi
 
+    loguj -ss -t "${ltype}" "BASICS ${__app_lvl}"
+    loguj -i -t "${ltype}" "Update option: ${update_option}"
     # update repos?
     update_repos
 

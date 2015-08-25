@@ -2,6 +2,8 @@
 [[ "$-" != *i* ]] && exit
 # [[ -z "$PS1" ]] && exit
 
+[[ -z ${USER_BASHRC} ]] && USER_BASHRC="1" || return
+
 #anger set a fancy prompt (non-color, unless we know we "want" color)
 # case "$TERM" in
 # xterm-color) color_prompt=yes;;
