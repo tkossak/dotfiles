@@ -183,7 +183,9 @@ if hash apt-get 2>/dev/null; then
     __aptget_install_cmd="${__sudo} apt-get install -qyf <<APP>>"
     __aptget_update_cmd="${__sudo} apt-get install --only-upgrade <<APP>>"
     # hash dpkg 2>/dev/null &&
-    __aptget_check_cmd="dpkg -s <<APP>> &>/dev/null"
+    # __aptget_check_cmd="dpkg -s <<APP>> &> /dev/null"
+    # __aptget_check_cmd='dpkg -s <<APP>>'
+    __aptget_check_cmd='dpkg -s <<APP>> &>/dev/null'
 
 elif hash pact 2>/dev/null; then
     __aptget_install_cmd="pact install <<APP>>"
@@ -466,7 +468,8 @@ aptget()
     # check if app is installed
     if hash ${app_run} 2>/dev/null; then
         if_app_installed="Y"
-    elif [[ -n "${app_check}" ]] && ${app_check} &> /dev/null; then
+    # elif [[ -n "${app_check}" ]] && ${app_check} &> /dev/null; then
+    elif [[ -n "${app_check}" ]] && eval "${app_check}" ; then
         if_app_installed="Y"
     fi
 
@@ -567,7 +570,7 @@ gitclone()
         if [[ "${update}" == "u" ]]; then
             # update
            cd "${gitfolder}"
-           git pull ||
+           git up ||
                {
                    loguj -e -t "${ltype}" "Updating $(basename ${gitfolder} .sh)"
                    return 1
@@ -751,35 +754,39 @@ pipinstall()
     local appinstall=""
     local cmdinstall=""
 
-    while [[ $# > 0 ]]; do
-        case "$1" in
-            -2)
-                shift
+    while getopts ":23uH" opt; do
+        case $opt in
+            2)
                 pip="pip2"
                 ;;
-            -3)
-                shift
+            3)
                 pip="pip3"
                 ;;
-            -u)
-                shift
+            u)
                 update="-U"
                 ;;
-            -H)
-                shift
-                [[ -n "${__sudo}" ]] && sudo_options+=" -H"
+            H)
+                [[ -n "${__sudo}" ]] && sudo_options="-H"
                 ;;
-            *)
-                if [[ -z "${appinstall}" ]]; then
-                    appinstall="${1}"
-                else
-                    loguj -e -t "${ltype}" "Unknown option? ($1)"
-                    return 3
-                fi
-                shift
+            \?)
+                echo "Invalid option: -${OPTARG}"
+                return 1
+                ;;
+            :)
+                echo "Option -${OPTARG} requires an argument."
+                return 1
                 ;;
         esac
     done
+
+    shift $((OPTIND-1))
+
+    if (( $# == 1 )); then
+        appinstall="${1}"
+    else
+        loguj -e -t "${ltype}" "Unknown option? $@"
+        return 3
+    fi
 
     if ! hash ${pip} 2>/dev/null; then
         loguj -e -t "${ltype}" "PIP not installed (${pip})"

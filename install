@@ -447,7 +447,7 @@ install_apps()
                     loguj -i -t "${ltype}" "UPDATED: ${cur_pip_cmd}"
                 else
                     # 1.2 action=install
-                    loguj -i -t "${ltype}" "Already installed: ${cur_pip_cmd}"
+                    loguj -i -t "${ltype}" "App installed, not updating: ${cur_pip_cmd}"
                 fi
 
             else
@@ -503,7 +503,7 @@ install_apps()
                     loguj -i -t "${ltype}" "UPDATED: ${cur_pip_cmd}"
                 else
                     # 1.2 action=install
-                    loguj -i -t "${ltype}" "Already installed: ${cur_pip_cmd}"
+                    loguj -i -t "${ltype}" "App installed, not updating: ${cur_pip_cmd}"
                 fi
 
             else
@@ -574,18 +574,18 @@ install_apps()
         aptget -ol ${update_option} glances || true &&
             {
                 aptget ${update_option} lm-sensors || true
-                pipinstall -2 -H ${update_option} PySensors || true
+                pipinstall -2H ${update_option} PySensors || true
             }
     fi
 
     # speedtest-cli
     (( ${__app_lvl} >= 2 )) &&
-        pipinstall -2 -H ${update_option} speedtest-cli || true
+        pipinstall -2H ${update_option} speedtest-cli || true
 
     # fzf - asks questions
     if (( ${__app_lvl} >= 2 )); then
         if [[ ! -d ~/.fzf ]]; then
-            git clone --depth 1 ${update_option} https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install || true
+            git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install || true
         fi
     fi
 
@@ -672,21 +672,8 @@ testing()
     echo "=== TESTING START =================================================="
     echo "install git test"
 
-    # gitclone -u https://github.com/hut/ranger.git ~/apps/ranger "${__sudo} make install" "ranger --copy-config=all" || true
-    # local cur_git_ver="2.5.0"
-    # sudo apt-get install git libcurl4-gnutls-dev libexpat1-dev gettext libz-dev libssl-dev
 
-    # cd ${HOME}/apps
-    # git clone git://git.kernel.org/pub/scm/git/git.git
-    # cd ${HOME}/apps/git
-
-    # sudo apt-get install asciidoc xsltproc docbook2X xmlto
-    # make prefix=/usr all doc info
-    # # ... lasted in vb: 14 min
-
-    # sudo make prefix=/usr install install-doc install-html install-info
-    # # ... lasted in vb: 12s
-
+    aptget lm-sensors || true
     echo "=== TESTING END ===================================================="
     return 0
 }
