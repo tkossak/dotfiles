@@ -405,7 +405,7 @@ aptget()
     local update="N"
     local if_app_installed="N"
 
-    while [[ $# > 0 ]]; do
+    while (( $# > 0 )); do
         case $1 in
             -ol)
                 if [[ ${__myos} != "LINUX" ]]; then
@@ -492,12 +492,12 @@ aptget()
                 return 1
             }
 
-    elif [[ "${if_app_installed}" = "N" && "${update}" = "u" ]]; then
+    elif [[ "${if_app_installed}" == "N" && "${update}" == "u" ]]; then
         loguj -i -t "${ltype}" "App NOT installed (update only option): ${app_run}"
         return 0
 
-    else [[ "${if_app_installed}" = "N" || "${update}" = "U" ]]; then # Installation
-
+    elif [[ "${if_app_installed}" == "N" || "${update}" == "U" ]]; then
+        # Installation
         # check if apt-get install exists
         if [[ -z "${__aptget_install_cmd}" ]]; then
             loguj -e -t "${ltype}" "No apt-get install tool (${app_install})"
@@ -524,30 +524,69 @@ aptget()
 # --------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------
-# gitclone
+# gitclone <OPTIONS> <GIT_URL> <GIT_FOLDER>
+# -u  :: update only if folder exists
 # $1  = git url to clone
 # $2  = git folder to clone to
 # $3- = script to run after cloning
 gitclone()
 {
-    local giturl="${1:?Error: Git url not set}"
-    local gitfolder="${2:?Error: Git folder not set}"
-    shift
-    shift
-    local runlater=("$@")
     local ltype="GIT"
+    local giturl=""
+    local gitfolder=""
+    local runlater=()
+    local update=""
 
-    if [[ -d ${gitfolder} ]]; then
-        loguj -i -t "${ltype}" "Already exists: $(basename ${gitfolder} .sh)"
-        return 0
+    while (( $# > 0 )); do
+        case $1 in
+            -u) # update only if already installed
+                update="u"
+                shift
+                ;;
+            *)
+                if [[ -z "${giturl}" ]]; then
+                    giturl="$1"
+                    shift
+                elif [[ -z "${gitfolder}" ]]; then
+                    gitfolder="$1"
+                    shift
+                else
+                    runlater+=("$1")
+                    shift
+                fi
+                ;;
+        esac
+    done
+
+    if [[ -z "${gitfolder}" ]]; then
+        loguj -e -t "${ltype}" "Lack of gitfolder!"
+        return 1
     fi
-    loguj -p -i -t "${ltype}" "Cloning ${giturl} ===TO=== $(basename ${gitfolder} .sh)"
-    git clone "${giturl}" "${gitfolder}" ||
-        {
-            loguj -e -t "${ltype}" "Problem cloning ${giturl} ===TO=== $(basename ${gitfolder} .sh)"
-            return 1
-        }
 
+    if [[ -d "${gitfolder}" ]]; then
+        if [[ "${update}" == "u" ]]; then
+            # update
+           cd "${gitfolder}"
+           git pull ||
+               {
+                   loguj -e -t "${ltype}" "Updating $(basename ${gitfolder} .sh)"
+                   return 1
+               }
+        else
+            loguj -i -t "${ltype}" "Already exists: $(basename ${gitfolder} .sh)"
+            return 0
+        fi
+    else
+        # install
+        loguj -p -i -t "${ltype}" "Cloning ${giturl} ===TO=== $(basename ${gitfolder} .sh)"
+        git clone "${giturl}" "${gitfolder}" ||
+            {
+                loguj -e -t "${ltype}" "Problem cloning ${giturl} ===TO=== $(basename ${gitfolder} .sh)"
+                return 1
+            }
+    fi
+
+    # run later
     if [[ "${#runlater[@]:-}" > 0 ]]; then
         cd ${gitfolder}
         for run in "${runlater[@]:-}" ; do
