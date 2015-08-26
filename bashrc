@@ -1,7 +1,7 @@
 # If not running interactively, don't do anything
 [[ "$-" != *i* ]] && exit
 # [[ -z "$PS1" ]] && exit
-
+# echo "~/.bashrc starting"
 [[ -z ${USER_BASHRC} ]] && USER_BASHRC="1" || return
 
 #anger set a fancy prompt (non-color, unless we know we "want" color)
