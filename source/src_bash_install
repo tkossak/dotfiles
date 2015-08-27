@@ -461,7 +461,7 @@ aptget()
 
     [[ -z "${app_run}" ]] && app_run="${app_install}"
     if [[ "${__if_update}" == "Y" ]]; then
-        loguj -i -t "${ltype}" "Updating later (${app_run}"
+        loguj -i -t "${ltype}" "Updating later (${app_run})"
         return 0
     fi
 
@@ -588,7 +588,7 @@ gitclone()
                    return 1
                }
         else
-            loguj -i -t "${ltype}" "Already exists: $(basename ${gitfolder} .sh)"
+            loguj -i -t "${ltype}" "App installed, not updating: $(basename ${gitfolder} .sh)"
             return 0
         fi
     else
@@ -684,7 +684,7 @@ geturl()
         mv "${file}" "${tmpfile}"
         if_moved_to_tmpfile=1
     elif [[ -e ${file} ]]; then
-        loguj -i -t "${ltype}" "File already exists: $(basename ${file} .sh)"
+        loguj -i -t "${ltype}" "App installed, not updating: $(basename ${file} .sh)"
         return 0
     fi
 
@@ -808,7 +808,7 @@ pipinstall()
 
     if ${pip} -q show ${appinstall}; then # app is installed
         if [[ -z "${update}" ]]; then
-            loguj -i -t "${ltype}" "App already installed: ${appinstall}"
+            loguj -i -t "${ltype}" "App installed, not updating: ${appinstall}"
             return 0
         fi
     fi
@@ -818,7 +818,7 @@ pipinstall()
     ${cmdinstall} \
         &&
         {
-            loguj -l -t "${ltype}" "${appinstall}"
+            loguj -s -t "${ltype}" "${appinstall}"
         } \
         ||
         {

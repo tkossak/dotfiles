@@ -587,7 +587,7 @@ install_apps()
 
     # fzf - asks questions
     (( ${__app_lvl} >= 2 )) &&
-            gitclone -p 1 ${update_option} https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install || true
+            gitclone -p 1 ${update_option} https://github.com/junegunn/fzf.git ~/.fzf ~/.fzf/install || true
 
         # if [[ -d ~/.fzf && "${__if_update}" == "N" ]]; then
         # elif [[ -d ~/.fzf && "${__if_update}" == "Y" ]]; then
@@ -657,19 +657,19 @@ install_apps()
 
     # BeautifulSoup4
     (( ${__app_lvl} >= 3 )) &&
-        pipinstall -3 ${update_option} BeautifulSoup4 || true
+        pipinstall -3H ${update_option} BeautifulSoup4 || true
 
     # flake8
     (( ${__app_lvl} >= 3 )) &&
-        pipinstall -3 ${update_option} flake8 || true
+        pipinstall -3H ${update_option} flake8 || true
 
     # bashate
     (( ${__app_lvl} >= 3 )) &&
-        pipinstall -3 ${update_option} bashate || true
+        pipinstall -3H ${update_option} bashate || true
 
     # httpie
     (( ${__app_lvl} >= 3 )) &&
-        pipinstall ${update_option} httpie || true
+        pipinstall -H ${update_option} httpie || true
 
     # different
     if (( ${__app_lvl} >= 3 )); then
@@ -681,6 +681,18 @@ install_apps()
         aptget -ol ${update_option} dos2unix
     fi
 
+    if [[ "${__if_update}" == "Y" ]]; then
+        if hash apt-get 2>/dev/null; then
+            ${sudo} sudo apt-get update
+            ${sudo} sudo apt-get -y upgrade
+            ${sudo} sudo apt-get -fy install
+            ${sudo} sudo apt-get -y autoremove
+            ${sudo} sudo apt-get -y autoclean
+            ${sudo} sudo apt-get -y clean
+        elif hash babun 2>/dev/null; then
+            babun update
+        fi
+    fi
     loguj -se -t "${ltype}" "BASICS ${__app_lvl}"
     return 0
 }
@@ -711,12 +723,19 @@ create_link ${__sdir} ~/.dotfiles
 create_link ${__dir_dlocal} ~/.dotfiles.local || true
 
 [[ ${__if_testing} == "Y" ]] && testing
-[[ ${__if_break_links} == "Y" ]] && break_links
+[[ ${__if_dotfiles} == "Y" ]] && install_dotfiles
+# [[ ${__if_break_links} == "Y" ]] && break_links
 if (( ${__app_lvl} > 0 )) || [[ "${__if_update}" == "Y" ]]; then
     install_apps
 fi
-[[ ${__if_dotfiles} == "Y" ]] && install_dotfiles
+# [[ ${__if_dotfiles} == "Y" ]] && install_dotfiles
 
 display_log_info
 display_log_error
+
+cd "${__sdir}"
+git st
+git remote show origin
+
 exit
+
