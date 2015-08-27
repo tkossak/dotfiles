@@ -113,6 +113,7 @@ else
     echo "__win_appdata (NOT exists) =${__win_appdata}"
 fi
 echo "__app_lvl=${__app_lvl}"
+echo "__if_update=${__if_update}"
 
 # ================================================================================
 # Initial cmds:
@@ -571,11 +572,12 @@ install_apps()
 
     # glances
     if (( ${__app_lvl} >= 2 )); then
-        aptget -ol ${update_option} glances || true &&
+        aptget -ol ${update_option} glances &&
             {
                 aptget ${update_option} lm-sensors || true
                 pipinstall -2H ${update_option} PySensors || true
-            }
+            } ||
+            true
     fi
 
     # speedtest-cli
@@ -583,11 +585,32 @@ install_apps()
         pipinstall -2H ${update_option} speedtest-cli || true
 
     # fzf - asks questions
-    if (( ${__app_lvl} >= 2 )); then
-        if [[ ! -d ~/.fzf ]]; then
-            git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install || true
-        fi
-    fi
+    (( ${__app_lvl} >= 2 )) &&
+            gitclone -p 1 ${update_option} https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install || true
+
+        # if [[ -d ~/.fzf && "${__if_update}" == "N" ]]; then
+        # elif [[ -d ~/.fzf && "${__if_update}" == "Y" ]]; then
+        #     gitclone ${update_option} https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install || true
+        # elif
+
+        #     gitclone -p 1 https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install || true
+        # elif [[ "${__if_update}" == "Y" ]]; then
+        #     # update
+        # fi
+
+    # if [[ "${__if_update}" == "Y" ]]; then
+    #     if [[ -d ~/.fzf ]]; then
+    #         cd ~/.fzf
+    #         git up
+    #     else
+
+    #     fi
+
+    # elif (( ${__app_lvl} >= 2 )); then
+    #     if [[ ! -d ~/.fzf ]]; then
+    #         git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install || true
+    #     fi
+    # fi
 
 
     # Emacs
@@ -673,7 +696,7 @@ testing()
     echo "install git test"
 
 
-    aptget lm-sensors || true
+    pipinstall httpie || true
     echo "=== TESTING END ===================================================="
     return 0
 }
