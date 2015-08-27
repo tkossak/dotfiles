@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+
 __my_user=$(echo -n "${USER}")
 __logi_errors=()
 __logi_info=()
@@ -765,9 +766,6 @@ pipinstall()
     local appinstall=""
     local cmdinstall=""
 
-    echo "ile=$#"
-    echo "opcje=$@"
-    set -x
     while getopts ":23uH" opt; do
         case $opt in
             2)
@@ -792,8 +790,8 @@ pipinstall()
                 ;;
         esac
     done
-
     shift $((OPTIND-1))
+    OPTIND=1
 
     if (( $# == 1 )); then
         appinstall="${1}"
@@ -801,7 +799,6 @@ pipinstall()
         loguj -e -t "${ltype}" "Unknown option? $@"
         return 3
     fi
-    set +x
 
     if ! hash ${pip} 2>/dev/null; then
         loguj -e -t "${ltype}" "PIP not installed (${pip})"

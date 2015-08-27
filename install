@@ -95,6 +95,7 @@ while getopts ":hldb1a2A3tu" opt; do
 done
 
 shift $((OPTIND-1))
+OPTIND=1
 
 # ================================================================================
 # print environment
