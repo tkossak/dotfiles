@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+set -o errexit
+set -o pipefail
+set -o nounset
+# set -o xtrace
+
+${HOME}/.dotfiles/bin/colors1
+${HOME}/.dotfiles/bin/colors2
+${HOME}/.dotfiles/bin/colors3
