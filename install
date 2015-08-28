@@ -185,7 +185,10 @@ install_dotfiles()
 
     # TMUX
     create_link ${__sdir}/tmux.conf ~/.tmux.conf || true
-    create_link ${__sdir}/minttyrc ~/.minttyrc || true
+
+    # minttyrc
+    [[ -e ${HOME}/.minttyrc ]] &&
+        create_link ${__sdir}/minttyrc ~/.minttyrc || true
 
     # Git
     create_link ${__sdir}/gitconfig ~/.gitconfig || true
