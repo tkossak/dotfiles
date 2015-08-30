@@ -3,7 +3,7 @@
 # echo ".bashrc start"
 # [[ -z "$PS1" ]] && exit
 # echo "~/.bashrc starting"
-[[ -z ${USER_BASHRC} ]] && USER_BASHRC="1" || return
+# [[ -z ${USER_BASHRC} ]] && USER_BASHRC="1" || return
 
 #anger set a fancy prompt (non-color, unless we know we "want" color)
 # case "$TERM" in
@@ -88,9 +88,10 @@ alias tns='tmux new-session -s'
 # say something
 say(){ mplayer -user-agent Mozilla "http://translate.google.com/translate_tts?tl=en&q=$(echo $* | sed 's#\ #\+#g')" > /dev/null 2>&1 ; }
 saypl(){ mplayer -user-agent Mozilla "http://translate.google.com/translate_tts?tl=pl&q=$(echo $* | sed 's#\ #\+#g')" > /dev/null 2>&1 ; }
-
 # translate english => polish
-t() { wget -U "Mozilla/5.0" -qO - "http://translate.google.com/translate_a/t?client=t&text=$1&sl=${2:-en}&tl=${3:-pl}" | sed 's/\[\[\[\"//' | cut -d \" -f 1; }
+t(){ wget -U "Mozilla/5.0" -qO - "http://translate.google.com/translate_a/t?client=t&text=$1&sl=${2:-en}&tl=${3:-pl}" | sed 's/\[\[\[\"//' | cut -d \" -f 1; }
+# locate movies
+lom(){ locate -i --regex "$1"'.*\.(avi|mkv|mp4|rmvb|flv)'; }
 
 function ranger-cd
 {
