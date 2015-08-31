@@ -244,6 +244,7 @@ set background=dark
 " colorscheme koehler
 " colorscheme solarized
 colorscheme jellybeans
+" colorscheme meta5
 
 " GUI only
 if has('gui_running')

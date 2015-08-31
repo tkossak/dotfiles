@@ -19,6 +19,7 @@ Plug 'EinfachToll/DidYouMean'
 Plug 'KabbAmine/zeavim.vim' " Zeal for vim: https://github.com/KabbAmine/zeavim.vim
 Plug 'nanotech/jellybeans.vim' " color scheme
 Plug 'nathanaelkane/vim-indent-guides'
+" Plug 'christophermca/meta5'
 call plug#end()
 
 " fugitive
