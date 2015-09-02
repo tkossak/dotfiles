@@ -33,16 +33,18 @@ fi
 
 ltype="---"
 __if_dotfiles="N"
-# if_basics1="N"
-# if_basics2="N"
-# if_basics3_new_comp="N"
-
 __app_lvl=0
-# 100 = update
-
 __if_break_links="N"
 __if_testing="N"
 __if_update="N"
+
+__vim_gvim_root="/cygdrive/d/Kossak/progs/gvim"
+if [[ -d "${__vim_gvim_root}" ]]; then
+    __vim_gvimplug_path="${__vim_gvim_root}/autoload/plug.vim"
+    __vim_gvim_home="/cygdrive/k"
+else
+    __vim_gvim_root=""
+fi
 
 
 [[ $# = 0 ]] && __if_dotfiles="Y"
@@ -408,6 +410,8 @@ install_apps()
         aptget ${update_option} git || true
 
     # vim
+    __vim_vimplug_url="https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
+    __vim_vimplug_path="${HOME}/.vim/autoload/plug.vim"
     if (( ${__app_lvl} >= 1 )); then
         aptget ${update_option} vim || true
 
@@ -417,13 +421,21 @@ install_apps()
             rm -rf ~/.vim
         fi
         # install Plug:
-        if [[ ! -e ~/.vim/autoload/plug.vim ]]; then
-            # curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
-            #     https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim \
-            geturl https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim \
-                ~/.vim/autoload/plug.vim
+        if [[ ! -e "${__vim_vimplug_path}" ]]; then
+            geturl "${__vim_vimplug_url}" "${__vim_vimplug_path}"
             # && loguj -s -t "${ltype}" "Vim plugin 'Plug' installed" \
             # || loguj -e -t "${ltype}" "Vim plugin 'Plug' NOT installed"
+        fi
+    fi
+
+    # gvim
+    if (( ${__app_lvl} >= 1 )) && [[ -d "${__vim_gvim_root}" ]]; then
+        if [[ ! -e "${__vim_gvimplug_path}" ]]; then
+            if [[ -r "${__vim_vimplug_path}" ]]; then
+                cp "${__vim_vimplug_path}" "${__vim_gvimplug_path}"
+            else
+                geturl "${__vim_vimplug_url}" "${__vim_gvimplug_path}"
+            fi
         fi
     fi
 
