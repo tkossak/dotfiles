@@ -286,3 +286,15 @@ if filereadable($LOCALFILE)
     source $LOCALFILE
 endif
 
+
+" ==================================================================
+" pretty print / beautify
+" ==================================================================
+" xml
+nnoremap <leader>rx :%!tidy -xml -i<CR>
+" html
+nnoremap <leader>rh :%!tidy -i<CR>
+" javascript
+nnoremap <leader>rj :UnMinify<CR>
+
+

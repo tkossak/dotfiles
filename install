@@ -697,6 +697,7 @@ install_apps()
         aptget -ol ${update_option} vpnc
         aptget -ol ${update_option} openvpn
         aptget -ol ${update_option} dos2unix
+        aptget -ol ${update_option} tidy
     fi
 
     if [[ "${__if_update}" == "Y" ]]; then
