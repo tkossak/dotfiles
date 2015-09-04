@@ -120,12 +120,14 @@ echo "__if_update=${__if_update}"
 
 # ================================================================================
 # Initial cmds:
-
+loguj -p -i -t "${ltype}" "Initial cmds..."
 mkdir -p ${HOME}/apps
 mkdir -p ${HOME}/.emacs.d/mine
+mkdir -p ${HOME}/.vim/autoload
 # mkdir -p ~/.emacs.d/evil
-find ${__dir_dlocal} -maxdepth 1 -type f -exec chmod -x {} \; || true
-find ${__sdir}/bin -type f -exec chmod u+x {} \;
+[[ -d "${__dir_dlocal}" ]] &&
+    find "${__dir_dlocal}" -maxdepth 1 -type f -exec chmod -x {} \; || true
+find "${__sdir}/bin" -type f -exec chmod u+x {} \;
 chmod -x "${__sdir}/bin/create_bash.model"
 
 find ${__sdir} -maxdepth 1 -type f -exec chmod -x {} \;
@@ -134,6 +136,8 @@ find ${__sdir} -maxdepth 1 -type f -exec chmod -x {} \;
 
 [[ -d ${__win_appdata} ]] &&
     mkdir -p ${__win_appdata}/.emacs.d/mine
+
+loguj -p -i -t "${ltype}" "Initial cmds... Done"
 
 # --------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------
@@ -306,7 +310,8 @@ install_dotfiles()
             loguj -i -t "${ltype}" "CP: rifle.conf (default - no local dotfiles)"
         fi
         # if [[ "${__myos}" == "LINUX" ]]; then
-        ${__sudo} chown ${__my_user} ~/.config/ranger/bookmarks
+        [[ -e ~/.config/ranger/bookmarks ]] &&
+            ${__sudo} chown ${__my_user} ~/.config/ranger/bookmarks
         # fi
     else
         loguj -i -t "${ltype}" "Ranger not found. Not creating links."
@@ -584,7 +589,6 @@ install_apps()
     (( ${__app_lvl} >= 1 )) &&
         gitclone ${update_option} https://github.com/clvv/fasd.git ~/apps/fasd "${__sudo} make install" || true
 
-
     # commacd
     (( ${__app_lvl} >= 2 )) &&
         geturl ${update_option} https://raw.githubusercontent.com/shyiko/commacd/master/commacd.bash ~/.commacd.bash || true
@@ -599,14 +603,14 @@ install_apps()
             true
     fi
 
-    # speedtest-cli
-    (( ${__app_lvl} >= 2 )) &&
-        pipinstall -2H ${update_option} speedtest-cli || true
-
     # fzf - asks questions
     (( ${__app_lvl} >= 2 )) &&
-            gitclone -p 1 ${update_option} https://github.com/junegunn/fzf.git ~/.fzf ~/.fzf/install || true
+        gitclone -p 1 ${update_option} https://github.com/junegunn/fzf.git ~/.fzf ~/.fzf/install || true
 
+    if (( ${__app_lvl} >= 2 )); then
+        pipinstall -2H ${update_option} speedtest-cli || true
+        pipinstall -3H ${update_option} youtube_dl
+    fi
         # if [[ -d ~/.fzf && "${__if_update}" == "N" ]]; then
         # elif [[ -d ~/.fzf && "${__if_update}" == "Y" ]]; then
         #     gitclone ${update_option} https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install || true
@@ -697,16 +701,19 @@ install_apps()
         aptget -ol ${update_option} vpnc
         aptget -ol ${update_option} openvpn
         aptget -ol ${update_option} dos2unix
+        aptget -ol ${update_option} tidy
+        pipinstall -3H git+git://github.com/badele/gitcheck.git
+        pipinstall -3H ${update_option} livestreamer
     fi
 
     if [[ "${__if_update}" == "Y" ]]; then
         if hash apt-get 2>/dev/null; then
-            ${sudo} sudo apt-get update
-            ${sudo} sudo apt-get -y upgrade
-            ${sudo} sudo apt-get -fy install
-            ${sudo} sudo apt-get -y autoremove
-            ${sudo} sudo apt-get -y autoclean
-            ${sudo} sudo apt-get -y clean
+            ${__sudo} sudo apt-get update
+            ${__sudo} sudo apt-get -y upgrade
+            ${__sudo} sudo apt-get -fy install
+            ${__sudo} sudo apt-get -y autoremove
+            ${__sudo} sudo apt-get -y autoclean
+            ${__sudo} sudo apt-get -y clean
         elif hash babun 2>/dev/null; then
             babun update
         fi
@@ -741,19 +748,19 @@ create_link ${__sdir} ~/.dotfiles
 create_link ${__dir_dlocal} ~/.dotfiles.local || true
 
 [[ ${__if_testing} == "Y" ]] && testing
-[[ ${__if_dotfiles} == "Y" ]] && install_dotfiles
 # [[ ${__if_break_links} == "Y" ]] && break_links
 if (( ${__app_lvl} > 0 )) || [[ "${__if_update}" == "Y" ]]; then
     install_apps
 fi
+[[ ${__if_dotfiles} == "Y" ]] && install_dotfiles
 # [[ ${__if_dotfiles} == "Y" ]] && install_dotfiles
 
 display_log_info
 display_log_error
 
-cd "${__sdir}"
-git st
-git remote show origin
+# cd "${__sdir}"
+# git st
+# git remote show origin
 
 exit
 

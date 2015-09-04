@@ -20,6 +20,7 @@ Plug 'KabbAmine/zeavim.vim' " Zeal for vim: https://github.com/KabbAmine/zeavim.
 Plug 'nanotech/jellybeans.vim' " color scheme
 Plug 'nathanaelkane/vim-indent-guides'
 " Plug 'christophermca/meta5'
+Plug 'godlygeek/tabular'
 call plug#end()
 
 " fugitive
