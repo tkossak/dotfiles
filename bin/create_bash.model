@@ -11,19 +11,19 @@ set -o nounset
 # Example link: /usr/bin/link.sh
 # to example file: /home/user/bin/file.abc
 
-# ie: /usr/bin
+# ie: /usr/bin (folder of the script)
 # __dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# ie: /usr/bin/link.sh
+# ie: /usr/bin/link.sh (path to the script)
 # __file="${__dir}/$(basename "${BASH_SOURCE[0]}")"
-# ie: link.sh
+# ie: link.sh (script file name)
 __base="$(basename "${BASH_SOURCE[0]}")"
-# ie: /usr
+# ie: /usr (parent folder of the folder of the script)
 # __root="$(cd "$(dirname "${__dir}")" && pwd)"
 
 # magic variables for links
-# ie: /home/user/bin/file.abc
+# ie: /home/user/bin/file.abc (path to the script, not link)
 # __sfile="$(readlink -f ${BASH_SOURCE[0]})"
-# ie: /home/user/bin
+# ie: /home/user/bin (folder of the script, not link)
 # __sdir="$(cd "$(dirname "${__sfile}")" && pwd)"
 
 

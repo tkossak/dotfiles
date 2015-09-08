@@ -696,12 +696,15 @@ install_apps()
     # different
     if (( ${__app_lvl} >= 3 )); then
         aptget -ol ${update_option} vlc
+        aptget -ol ${update_option} dos2unix
         aptget -ol ${update_option} mplayer
+        aptget -ol ${update_option} mediainfo
+        aptget -ol ${update_option} lame
         aptget -ol ${update_option} krdc
         aptget -ol ${update_option} vpnc
         aptget -ol ${update_option} openvpn
-        aptget -ol ${update_option} dos2unix
         aptget -ol ${update_option} tidy
+        aptget -ol ${update_option} iconv
         pipinstall -3H git+git://github.com/badele/gitcheck.git
         pipinstall -3H ${update_option} livestreamer
     fi

@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# vimdiff for cygwin, with foreign characters
+
 set -o errexit
 set -o pipefail
 set -o nounset
@@ -8,23 +10,7 @@ set -o nounset
 # -------------------------------------------------------------------------------
 # GLOBAL VARS/CONSTANTS
 
-# Example link: /usr/bin/link.sh
-# to example file: /home/user/bin/file.abc
-
-# ie: /usr/bin
-# __dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# ie: /usr/bin/link.sh
-# __file="${__dir}/$(basename "${BASH_SOURCE[0]}")"
-# ie: link.sh
 __base="$(basename "${BASH_SOURCE[0]}")"
-# ie: /usr
-# __root="$(cd "$(dirname "${__dir}")" && pwd)"
-
-# magic variables for links
-# ie: /home/user/bin/file.abc
-# __sfile="$(readlink -f ${BASH_SOURCE[0]})"
-# ie: /home/user/bin
-# __sdir="$(cd "$(dirname "${__sfile}")" && pwd)"
 
 
 if_sort="N"
