@@ -25,7 +25,7 @@ tmux send-keys -t ${session} 'cd ~/.dotfiles' Enter
 tmux send-keys -t ${session} 'git status' Enter
 tmux send-keys -t ${session} 'git remote show origin' Enter
 tmux send-keys -t ${session} 'git branch -avv' Enter
-tmux send-keys -t ${session} 'git pull'
+tmux send-keys -t ${session} 'git up'
 
 # vim-tmp
 tmux new-window -t ${session} -n 'vim-tmp'

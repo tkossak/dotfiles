@@ -37,7 +37,7 @@ tmux split-window -t ${session} -h -p 50 -c '~/.dotfiles'
 tmux send-keys -t ${session} 'git sr' Enter
 # tmux send-keys -t ${session} 'git remote show origin' Enter
 tmux send-keys -t ${session} 'git branch -avv' Enter
-tmux send-keys -t ${session} 'git pull'
+tmux send-keys -t ${session} 'git up'
 
 # # english
 tmux new-window -t ${session} -n 'english' -c '~/Downloads/en'
