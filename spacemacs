@@ -162,5 +162,7 @@ before layers configuration."
 layers configuration."
 )
 
+(define-key global-map (kbd "<f2>") 'toggle-truncate-lines) ;; wyrownanie do regexpa
+
 ;; Do not write anything past this comment. This is where Emacs will
 ;; auto-generate custom variable definitions.
