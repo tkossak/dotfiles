@@ -65,17 +65,14 @@ while getopts ":hldb1a2A3tu" opt; do
             __if_dotfiles="Y"
             ;;
         b|1)
-            __if_break_links="Y"
             __app_lvl=1
             __if_dotfiles="Y"
             ;;
         a|2)
-            __if_break_links="Y"
             __app_lvl=2
             __if_dotfiles="Y"
             ;;
         A|3)
-            __if_break_links="Y"
             __app_lvl=3
             __if_dotfiles="Y"
             ;;
@@ -216,25 +213,25 @@ install_dotfiles()
     fi
 
     # Emacs Linux:
-    if hash emacs 2>/dev/null; then
-        create_link ${__sdir}/emacs ~/.emacs || true
-        create_link ${__dir_dlocal}/emacs.local ~/.emacs.d/mine/.emacs.local || true
-    fi
+    # if hash emacs 2>/dev/null; then
+    #     create_link ${__sdir}/emacs ~/.emacs || true
+    #     create_link ${__dir_dlocal}/emacs.local ~/.emacs.d/mine/.emacs.local || true
+    # fi
 
     # Emacs Win:
-    if [[ -f ${__win_appdata} ]]; then
-        loguj -p -i -t "${ltype}" "Linking windows emacs links in ${__win_appdata}"
-        create_link -w ${__sdir}/emacs ${__win_appdata}/.emacs || true
-        create_link -w ${__dir_dlocal}/emacs.local ${__win_appdata}/.emacs.d/mine/.emacs.local || true
-        # evil-leader:
-        create_link -w ~/.emacs.d/mine/evil-leader.el ${__win_appdata}/.emacs.d/mine/evil-leader.el || true
-        # key-chord:
-        create_link -w ~/.emacs.d/mine/key-chord.el ${__win_appdata}/.emacs.d/mine/key-chord.el || true
-        # evil:
-        create_link -w ~/.emacs.d/evil ${__win_appdata}/.emacs.d/evil || true
-        # org-mode:
-        create_link -w ~/.emacs.d/org-mode ${__win_appdata}/.emacs.d/org-mode || true
-    fi
+    # if [[ -f ${__win_appdata} ]]; then
+    #     loguj -p -i -t "${ltype}" "Linking windows emacs links in ${__win_appdata}"
+    #     create_link -w ${__sdir}/emacs ${__win_appdata}/.emacs || true
+    #     create_link -w ${__dir_dlocal}/emacs.local ${__win_appdata}/.emacs.d/mine/.emacs.local || true
+    #     # evil-leader:
+    #     create_link -w ~/.emacs.d/mine/evil-leader.el ${__win_appdata}/.emacs.d/mine/evil-leader.el || true
+    #     # key-chord:
+    #     create_link -w ~/.emacs.d/mine/key-chord.el ${__win_appdata}/.emacs.d/mine/key-chord.el || true
+    #     # evil:
+    #     create_link -w ~/.emacs.d/evil ${__win_appdata}/.emacs.d/evil || true
+    #     # org-mode:
+    #     create_link -w ~/.emacs.d/org-mode ${__win_appdata}/.emacs.d/org-mode || true
+    # fi
 
     # if [[ -d ${__dir_dlocal} ]]; then
     #     # create_link ${__dir_dlocal} ~/.dotfiles.local || true
@@ -636,42 +633,44 @@ install_apps()
     # fi
 
 
-    # Emacs
-    if (( ${__app_lvl} >= 3 )); then
-        aptget ${update_option} emacs || true
-        if hash emacs 2>/dev/null; then
-            # evil-leader:
-            geturl https://raw.githubusercontent.com/cofi/evil-leader/master/evil-leader.el ~/.emacs.d/mine/evil-leader.el -sha1 00c336e55307dbcb3f73f47b1d9a1d759404341d || true
-            # key-chord:
-            geturl http://www.emacswiki.org/emacs/download/key-chord.el ~/.emacs.d/mine/key-chord.el -sha1 2da61bf970ca332c4de96c1977fc7e326df6c33a || true
-            # evil:
-            gitclone ${update_option} https://gitorious.org/evil/evil.git ~/.emacs.d/evil \
-                ||
-                {
-                    loguj -i -t "${ltype}" "Manually downloading evil.git"
-                    rm -rf ~/.emacs.d/evil
-                    rm -rf ~/.emacs.d/lyro-evil*
-                    cd ~/.emacs.d
-                    if [[ ! -f evil-default.zip ]]; then
-                        ${__geturl_app} evil-default.zip https://bitbucket.org/lyro/evil/get/default.zip \
-                            ||
-                            {
-                                loguj -e -t "${ltype}" "Downloading evil.git (default.zip)"
-                            } \
-                                &&
-                                {
-                                    unzip evil-default.zip
-                                    mv ~/.emacs.d/lyro-evil* evil
-                                    rm ~/.emacs.d/evil-default.zip
-                                    loguj -d -t "${ltype}" "evil"
-                                    loguj -e -t "${ltype}" "Evil downloaded manually."
-                                }
-                            fi
-                        }
-                        # org-mode:
-                        gitclone git://orgmode.org/org-mode.git ~/.emacs.d/org-mode "git checkout -b stable origin/maint" "git pull" "make autoloads" || true
-                    fi
-                fi
+    # Spacemacs
+    if (( ${__app_lvl} >= 4 )); then
+        git clone --recursive https://github.com/syl20bnr/spacemacs ~/.emacs.d
+    fi
+
+    # Emacs Linux - old
+    # if (( ${__app_lvl} >= 3 )); then
+    #     aptget ${update_option} emacs || true
+    #     if hash emacs 2>/dev/null; then
+    #         # evil-leader:
+    #         geturl https://raw.githubusercontent.com/cofi/evil-leader/master/evil-leader.el ~/.emacs.d/mine/evil-leader.el -sha1 00c336e55307dbcb3f73f47b1d9a1d759404341d || true
+    #         # key-chord:
+    #         geturl http://www.emacswiki.org/emacs/download/key-chord.el ~/.emacs.d/mine/key-chord.el -sha1 2da61bf970ca332c4de96c1977fc7e326df6c33a || true
+    #         # evil:
+    #         gitclone ${update_option} https://gitorious.org/evil/evil.git ~/.emacs.d/evil ||
+    #             {
+    #                 loguj -i -t "${ltype}" "Manually downloading evil.git"
+    #                 rm -rf ~/.emacs.d/evil
+    #                 rm -rf ~/.emacs.d/lyro-evil*
+    #                 cd ~/.emacs.d
+    #                 if [[ ! -f evil-default.zip ]]; then
+    #                     ${__geturl_app} evil-default.zip https://bitbucket.org/lyro/evil/get/default.zip &&
+    #                         {
+    #                             unzip evil-default.zip
+    #                             mv ~/.emacs.d/lyro-evil* evil
+    #                             rm ~/.emacs.d/evil-default.zip
+    #                             loguj -d -t "${ltype}" "evil"
+    #                             loguj -e -t "${ltype}" "Evil downloaded manually."
+    #                         } ||
+    #                             {
+    #                                 loguj -e -t "${ltype}" "Downloading evil.git (default.zip)"
+    #                             }
+    #                         fi
+    #                     }
+    #                     # org-mode:
+    #                     gitclone git://orgmode.org/org-mode.git ~/.emacs.d/org-mode "git checkout -b stable origin/maint" "git pull" "make autoloads" || true
+    #                 fi
+    #             fi
 
     # geeknote
     (( ${__app_lvl} >= 3 )) &&
@@ -751,12 +750,12 @@ create_link ${__sdir} ~/.dotfiles
 create_link ${__dir_dlocal} ~/.dotfiles.local || true
 
 [[ ${__if_testing} == "Y" ]] && testing
-# [[ ${__if_break_links} == "Y" ]] && break_links
 if (( ${__app_lvl} > 0 )) || [[ "${__if_update}" == "Y" ]]; then
     install_apps
 fi
 [[ ${__if_dotfiles} == "Y" ]] && install_dotfiles
 # [[ ${__if_dotfiles} == "Y" ]] && install_dotfiles
+[[ ${__if_break_links} == "Y" ]] && break_links
 
 display_log_info
 display_log_error
