@@ -160,9 +160,15 @@ before layers configuration."
   "Configuration function.
  This function is called at the very end of Spacemacs initialization after
 layers configuration."
-)
 
-(define-key global-map (kbd "<f2>") 'toggle-truncate-lines) ;; wyrownanie do regexpa
+  (define-key global-map (kbd "<f2>") 'toggle-truncate-lines) ;; wyrownanie do regexpa
+
+  (require 'key-chord)
+  (setq key-chord-two-keys-delay 0.1)
+  (key-chord-define evil-insert-state-map "jk" 'evil-normal-state)
+  (key-chord-mode 1)
+
+)
 
 ;; Do not write anything past this comment. This is where Emacs will
 ;; auto-generate custom variable definitions.
