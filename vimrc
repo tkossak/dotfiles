@@ -142,7 +142,7 @@ nnoremap { {zz
 nnoremap <Leader>h :nohl<CR>
 
 " " quick save
-nnoremap <Leader>w :update<CR>
+nnoremap <Leader>fs :update<CR>
 
 " Quick quit command
 nnoremap <Leader>e :quit<CR>

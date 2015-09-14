@@ -290,3 +290,6 @@ then it takes a second \\[keyboard-quit] to abort the minibuffer."
 (evil-leader/set-key
   "y" 'copy-to-clipboard
   "p" 'paste-from-clipboard)
+
+(setq paragraph-start "\\|[    ]*$")
+(setq paragraph-separate "[     ]*$")

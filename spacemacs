@@ -162,11 +162,12 @@ before layers configuration."
 layers configuration."
 
   (define-key global-map (kbd "<f2>") 'toggle-truncate-lines) ;; wyrownanie do regexpa
+  (setq evil-escape-key-sequence "jk")
 
-  (require 'key-chord)
-  (setq key-chord-two-keys-delay 0.1)
-  (key-chord-define evil-insert-state-map "jk" 'evil-normal-state)
-  (key-chord-mode 1)
+;;  (require 'key-chord)
+;;  (setq key-chord-two-keys-delay 0.1)
+;;  (key-chord-define evil-insert-state-map "jk" 'evil-normal-state)
+;;  (key-chord-mode 1)
 
 )
 
