@@ -7,12 +7,12 @@ set -o nounset
 
 # magic variables for links
 __sfile="$(readlink -f ${BASH_SOURCE[0]})"
-__sdir="$(cd "$(dirname "${__sfile}")" && pwd)"
-__dir_dlocal="$(cd "$(dirname "${__sdir}")" && pwd)/dotfiles.local"
-__dir_dlocal="$(readlink -f ${__dir_dlocal})"
+__dir_dotfiles="$(cd "$(dirname "${__sfile}")" && pwd)"
+__dir_dotlocal="$(cd "$(dirname "${__dir_dotfiles}")" && pwd)/dotfiles.local"
+__dir_dotlocal="$(readlink -f ${__dir_dotlocal})"
 
 # --------------------------------------------------------------------------------
-source ${__sdir}/source/src_bash_install
+source ${__dir_dotfiles}/source/src_bash_install
 
 print_help()
 {
@@ -38,12 +38,12 @@ __if_break_links="N"
 __if_testing="N"
 __if_update="N"
 
-__vim_gvim_root="/cygdrive/d/Kossak/progs/gvim"
-if [[ -d "${__vim_gvim_root}" ]]; then
-    __vim_gvimplug_path="${__vim_gvim_root}/autoload/plug.vim"
-    __vim_gvim_home="/cygdrive/k"
+__dir_gvim_root="/cygdrive/d/Kossak/progs/gvim"
+if [[ -d "${__dir_gvim_root}" ]]; then
+    __file_gvim_plug="${__dir_gvim_root}/autoload/plug.vim"
+    __dir_gvim_home="/cygdrive/k"
 else
-    __vim_gvim_root=""
+    __dir_gvim_root=""
 fi
 
 
@@ -99,19 +99,19 @@ OPTIND=1
 # ================================================================================
 # print environment
 printf "${Yellow}=== ENVIRONMENT ==================================================${Color_Off}\n"
-echo "__sdir=${__sdir}"
-if [[ -d "${__dir_dlocal}" ]]; then
-    echo "__dir_dlocal (exists) =${__dir_dlocal}"
+echo "__dir_dotfiles=${__dir_dotfiles}"
+if [[ -d "${__dir_dotlocal}" ]]; then
+    echo "__dir_dotlocal (exists) =${__dir_dotlocal}"
 else
-    echo "__dir_dlocal (NOT exists) =${__dir_dlocal}"
+    echo "__dir_dotlocal (NOT exists) =${__dir_dotlocal}"
+fi
+if [[ -d "${__dir_win_home}" ]]; then
+    echo "__dir_win_home (exists) =${__dir_win_home}"
+else
+    echo "__dir_win_home (NOT exists) =${__dir_win_home}"
 fi
 echo "__myos=${__myos}"
 echo "__myhost=${__myhost}"
-if [[ -d "${__win_appdata}" ]]; then
-    echo "__win_appdata (exists) =${__win_appdata}"
-else
-    echo "__win_appdata (NOT exists) =${__win_appdata}"
-fi
 echo "__app_lvl=${__app_lvl}"
 echo "__if_update=${__if_update}"
 
@@ -122,17 +122,17 @@ mkdir -p ${HOME}/apps
 mkdir -p ${HOME}/.emacs.d/mine
 mkdir -p ${HOME}/.vim/autoload
 # mkdir -p ~/.emacs.d/evil
-[[ -d "${__dir_dlocal}" ]] &&
-    find "${__dir_dlocal}" -maxdepth 1 -type f -exec chmod -x {} \; || true
-find "${__sdir}/bin" -type f -exec chmod u+x {} \;
-chmod -x "${__sdir}/bin/create_bash.model"
+[[ -d "${__dir_dotlocal}" ]] &&
+    find "${__dir_dotlocal}" -maxdepth 1 -type f -exec chmod -x {} \; || true
+find "${__dir_dotfiles}/bin" -type f -exec chmod u+x {} \;
+chmod -x "${__dir_dotfiles}/bin/create_bash.model"
 
-find ${__sdir} -maxdepth 1 -type f -exec chmod -x {} \;
-[[ -e "${__sdir}/install" ]] && chmod u+x "${__sdir}/install"
-[[ -e "${__sdir}/i_git" ]] && chmod u+x "${__sdir}/i_git"
+find ${__dir_dotfiles} -maxdepth 1 -type f -exec chmod -x {} \;
+[[ -e "${__dir_dotfiles}/install" ]] && chmod u+x "${__dir_dotfiles}/install"
+[[ -e "${__dir_dotfiles}/i_git" ]] && chmod u+x "${__dir_dotfiles}/i_git"
 
-[[ -d ${__win_appdata} ]] &&
-    mkdir -p ${__win_appdata}/.emacs.d/mine
+[[ -d ${__dir_win_home} ]] &&
+    mkdir -p ${__dir_win_home}/.emacs.d/mine
 
 loguj -p -i -t "${ltype}" "Initial cmds... Done"
 
@@ -189,64 +189,71 @@ install_dotfiles()
     loguj -ss -t "${ltype}" "DOTFILES"
 
     # TMUX
-    create_link ${__sdir}/tmux.conf ~/.tmux.conf || true
+    create_link ${__dir_dotfiles}/tmux.conf ~/.tmux.conf || true
 
     # minttyrc
     [[ -e ${HOME}/.minttyrc ]] &&
-        create_link ${__sdir}/minttyrc ~/.minttyrc || true
+        create_link ${__dir_dotfiles}/minttyrc ~/.minttyrc || true
 
     # Git
-    create_link ${__sdir}/gitconfig ~/.gitconfig || true
-    create_link ${__dir_dlocal}/gitconfig.local ~/.gitconfig.local || true
+    create_link ${__dir_dotfiles}/gitconfig ~/.gitconfig || true
+    create_link ${__dir_dotlocal}/gitconfig.local ~/.gitconfig.local || true
 
     # Bash:
-    create_link ${__sdir}/bashrc ~/.bashrc || true
-    create_link ${__dir_dlocal}/bashrc.local ~/.bashrc.local || true
+    create_link ${__dir_dotfiles}/bashrc ~/.bashrc || true
+    create_link ${__dir_dotlocal}/bashrc.local ~/.bashrc.local || true
 
     # Vim
-    create_link ${__sdir}/vimrc ~/.vimrc || true
-    create_link ${__dir_dlocal}/vimrc.local ~/.vimrc.local || true
-    create_link ${__sdir}/vimrc.plugins ~/.vimrc.plugins || true
-    create_link ${__sdir}/vimrc.functions ~/.vimrc.functions || true
+    create_link ${__dir_dotfiles}/vimrc ~/.vimrc || true
+    create_link ${__dir_dotlocal}/vimrc.local ~/.vimrc.local || true
+    create_link ${__dir_dotfiles}/vimrc.plugins ~/.vimrc.plugins || true
+    create_link ${__dir_dotfiles}/vimrc.functions ~/.vimrc.functions || true
 
     # gnome-terminal
     if [[ -d ~/.gconf/apps/gnome-terminal ]]; then
-        create_link ${__sdir}/gnome-terminal ~/.gconf/apps/gnome-terminal || true
+        create_link ${__dir_dotfiles}/gnome-terminal ~/.gconf/apps/gnome-terminal || true
     fi
 
     # Spacemacs
     if hash emacs 2>/dev/null; then
-        create_link ${__sdir}/spacemacs ~/.spacemacs || true
+        create_link ${__dir_dotfiles}/spacemacs "${HOME}/.spacemacs" || true
+        # Win
+        if [[ -d "${__dir_win_home}" ]]; then
+            create_link -w ${__dir_dotfiles}/spacemacs "${__dir_win_home}/.spacemacs" || true
+        fi
+        if [[ -d "${__dir_win_home}/.emacs.d" ]]; then
+            create_link -w ${__dir_dotlocal}/emacs.local "${__dir_win_home}/.spacemacs.local" || true
+        fi
     fi
 
     # Emacs Linux:
     # if hash emacs 2>/dev/null; then
-    #     create_link ${__sdir}/emacs ~/.emacs || true
-    #     create_link ${__dir_dlocal}/emacs.local ~/.emacs.d/mine/.emacs.local || true
+    #     create_link ${__dir_dotfiles}/emacs ~/.emacs || true
+    #     create_link ${__dir_dotlocal}/emacs.local ~/.emacs.d/mine/.emacs.local || true
     # fi
 
     # Emacs Win:
-    # if [[ -f ${__win_appdata} ]]; then
-    #     loguj -p -i -t "${ltype}" "Linking windows emacs links in ${__win_appdata}"
-    #     create_link -w ${__sdir}/emacs ${__win_appdata}/.emacs || true
-    #     create_link -w ${__dir_dlocal}/emacs.local ${__win_appdata}/.emacs.d/mine/.emacs.local || true
+    # if [[ -f ${__dir_win_home} ]]; then
+    #     loguj -p -i -t "${ltype}" "Linking windows emacs links in ${__dir_win_home}"
+    #     create_link -w ${__dir_dotfiles}/emacs ${__dir_win_home}/.emacs || true
+    #     create_link -w ${__dir_dotlocal}/emacs.local ${__dir_win_home}/.emacs.d/mine/.emacs.local || true
     #     # evil-leader:
-    #     create_link -w ~/.emacs.d/mine/evil-leader.el ${__win_appdata}/.emacs.d/mine/evil-leader.el || true
+    #     create_link -w ~/.emacs.d/mine/evil-leader.el ${__dir_win_home}/.emacs.d/mine/evil-leader.el || true
     #     # key-chord:
-    #     create_link -w ~/.emacs.d/mine/key-chord.el ${__win_appdata}/.emacs.d/mine/key-chord.el || true
+    #     create_link -w ~/.emacs.d/mine/key-chord.el ${__dir_win_home}/.emacs.d/mine/key-chord.el || true
     #     # evil:
-    #     create_link -w ~/.emacs.d/evil ${__win_appdata}/.emacs.d/evil || true
+    #     create_link -w ~/.emacs.d/evil ${__dir_win_home}/.emacs.d/evil || true
     #     # org-mode:
-    #     create_link -w ~/.emacs.d/org-mode ${__win_appdata}/.emacs.d/org-mode || true
+    #     create_link -w ~/.emacs.d/org-mode ${__dir_win_home}/.emacs.d/org-mode || true
     # fi
 
-    # if [[ -d ${__dir_dlocal} ]]; then
-    #     # create_link ${__dir_dlocal} ~/.dotfiles.local || true
-    #     # create_link ${__dir_dlocal}/bashrc.local ~/.bashrc.local || true
-    #     # create_link ${__dir_dlocal}/vimrc.local ~/.vimrc.local || true
-    #     # create_link ${__dir_dlocal}/gitconfig.local ~/.gitconfig.local || true
-    #     # create_link ${__dir_dlocal}/emacs.local ~/.emacs.d/mine/.emacs.local || true
-    #     # [[ -d "${__win_appdata}" ]] && create_link -w ${__dir_dlocal}/emacs.local ${__win_appdata}/.emacs.d/mine/.emacs.local || true
+    # if [[ -d ${__dir_dotlocal} ]]; then
+    #     # create_link ${__dir_dotlocal} ~/.dotfiles.local || true
+    #     # create_link ${__dir_dotlocal}/bashrc.local ~/.bashrc.local || true
+    #     # create_link ${__dir_dotlocal}/vimrc.local ~/.vimrc.local || true
+    #     # create_link ${__dir_dotlocal}/gitconfig.local ~/.gitconfig.local || true
+    #     # create_link ${__dir_dotlocal}/emacs.local ~/.emacs.d/mine/.emacs.local || true
+    #     # [[ -d "${__dir_win_home}" ]] && create_link -w ${__dir_dotlocal}/emacs.local ${__dir_win_home}/.emacs.d/mine/.emacs.local || true
     # else
     #     loguj -i -t "${ltype}" "Emacs: no local dir."
     # fi
@@ -268,22 +275,22 @@ install_dotfiles()
         # replace rifle.conf:
         sed -i 's/mime \^video,       has mplayer,  X, flag f = mplayer -- "$@"/mime ^video,       has mplayer,  X, flag f = mplayer -fs -softvol -softvol-max 300 -- "$@"/' ~/.config/ranger/rifle.conf
 
-        if [[ -d "${__dir_dlocal}" ]]; then
+        if [[ -d "${__dir_dotlocal}" ]]; then
             case ${__myos} in
                 CYGWIN)
                     if [[ ${__myhost} = W ]]; then
                         # create_link ~/.dotfiles.local/rifle.conf.w.cygwin ~/.config/ranger/rifle.conf
-                        cat ~/.config/ranger/rifle.conf ${__dir_dlocal}/rifle.conf.w.cygwin > ~/.config/ranger/rifletmp.conf
+                        cat ~/.config/ranger/rifle.conf ${__dir_dotlocal}/rifle.conf.w.cygwin > ~/.config/ranger/rifletmp.conf
                         mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
                         loguj -i -t "${ltype}" "CP: rifle.conf (C-W)"
                     elif [[ ${__myhost} = H ]]; then
                         # create_link ~/.dotfiles.local/rifle.conf.h.cygwin ~/.config/ranger/rifle.conf
-                        cat ~/.config/ranger/rifle.conf ${__dir_dlocal}/rifle.conf.h.cygwin > ~/.config/ranger/rifletmp.conf
+                        cat ~/.config/ranger/rifle.conf ${__dir_dotlocal}/rifle.conf.h.cygwin > ~/.config/ranger/rifletmp.conf
                         mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
                         loguj -i -t "${ltype}" "CP: rifle.conf (C-H)"
                     else
                         # loguj -i -t "${ltype}" "Ranger - cygwin - unknown host Copying default file."
-                        cat ~/.config/ranger/rifle.conf ${__sdir}/rifle.conf > ~/.config/ranger/rifletmp.conf
+                        cat ~/.config/ranger/rifle.conf ${__dir_dotfiles}/rifle.conf > ~/.config/ranger/rifletmp.conf
                         mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
                         loguj -i -t "${ltype}" "CP: rifle.conf (C-OTHER)"
                     fi
@@ -291,24 +298,24 @@ install_dotfiles()
                 LINUX)
                     if [[ ${__myhost} = H ]]; then
                         # create_link ~/.dotfiles.local/rifle.conf.h.linux ~/.config/ranger/rifle.conf
-                        cat ~/.config/ranger/rifle.conf ${__dir_dlocal}/rifle.conf.h.linux > ~/.config/ranger/rifletmp.conf
+                        cat ~/.config/ranger/rifle.conf ${__dir_dotlocal}/rifle.conf.h.linux > ~/.config/ranger/rifletmp.conf
                         mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
                         loguj -i -t "${ltype}" "CP: rifle.conf (L-H)"
                     else
                         loguj -i -t "${ltype}" "Ranger - linux - unknown host Copying default file."
-                        cat ~/.config/ranger/rifle.conf ${__sdir}/rifle.conf > ~/.config/ranger/rifletmp.conf
+                        cat ~/.config/ranger/rifle.conf ${__dir_dotfiles}/rifle.conf > ~/.config/ranger/rifletmp.conf
                         mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
                         loguj -i -t "${ltype}" "CP: rifle.conf (L-OTHER)"
                     fi
                     ;;
                 *)
-                    cat ~/.config/ranger/rifle.conf ${__sdir}/rifle.conf > ~/.config/ranger/rifletmp.conf
+                    cat ~/.config/ranger/rifle.conf ${__dir_dotfiles}/rifle.conf > ~/.config/ranger/rifletmp.conf
                     mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
                     loguj -i -t "${ltype}" "CP: rifle.conf (OTHER-OTHER)"
                     ;;
             esac
         else
-            cat ~/.config/ranger/rifle.conf ${__sdir}/rifle.conf > ~/.config/ranger/rifletmp.conf
+            cat ~/.config/ranger/rifle.conf ${__dir_dotfiles}/rifle.conf > ~/.config/ranger/rifletmp.conf
             mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
             # loguj -i -t "${ltype}" "Ranger - no local dotfiles. Copying default file."
             loguj -i -t "${ltype}" "CP: rifle.conf (default - no local dotfiles)"
@@ -323,37 +330,37 @@ install_dotfiles()
 
     # mplayer
     if hash mplayer 2>/dev/null || [[ -d ~/.mplayer ]]; then
-        create_link ${__sdir}/mplayer_config ~/.mplayer/config || true
-        create_link ${__sdir}/mplayer_input.conf ~/.mplayer/input.conf || true
+        create_link ${__dir_dotfiles}/mplayer_config ~/.mplayer/config || true
+        create_link ${__dir_dotfiles}/mplayer_input.conf ~/.mplayer/input.conf || true
     fi
 
     # weechat
-    if ( hash weechat 2>/dev/null || [[ -d ~/.weechat ]] ) && [[ -d ${__dir_dlocal} ]]; then
-        if [[ -d ${__dir_dlocal}/weechat ]]; then
-           create_link ${__dir_dlocal}/weechat/guile ~/.weechat/guile || true
-           create_link ${__dir_dlocal}/weechat/javascript ~/.weechat/javascript || true
-           create_link ${__dir_dlocal}/weechat/lua ~/.weechat/lua || true
-           create_link ${__dir_dlocal}/weechat/perl ~/.weechat/perl || true
-           create_link ${__dir_dlocal}/weechat/python ~/.weechat/python || true
-           create_link ${__dir_dlocal}/weechat/ruby ~/.weechat/ruby || true
-           create_link ${__dir_dlocal}/weechat/script ~/.weechat/script || true
-           create_link ${__dir_dlocal}/weechat/tcl ~/.weechat/tcl || true
-           create_link ${__dir_dlocal}/weechat/xfer ~/.weechat/xfer || true
-           create_link ${__dir_dlocal}/weechat/alias.conf ~/.weechat/alias.conf || true
-           create_link ${__dir_dlocal}/weechat/aspell.conf ~/.weechat/aspell.conf || true
-           create_link ${__dir_dlocal}/weechat/buffers.conf ~/.weechat/buffers.conf || true
-           create_link ${__dir_dlocal}/weechat/charset.conf ~/.weechat/charset.conf || true
-           create_link ${__dir_dlocal}/weechat/exec.conf ~/.weechat/exec.conf || true
-           create_link ${__dir_dlocal}/weechat/irc.conf ~/.weechat/irc.conf || true
-           create_link ${__dir_dlocal}/weechat/iset.conf ~/.weechat/iset.conf || true
-           create_link ${__dir_dlocal}/weechat/logger.conf ~/.weechat/logger.conf || true
-           create_link ${__dir_dlocal}/weechat/plugins.conf ~/.weechat/plugins.conf || true
-           create_link ${__dir_dlocal}/weechat/relay.conf ~/.weechat/relay.conf || true
-           create_link ${__dir_dlocal}/weechat/script.conf ~/.weechat/script.conf || true
-           create_link ${__dir_dlocal}/weechat/sec.conf ~/.weechat/sec.conf || true
-           create_link ${__dir_dlocal}/weechat/trigger.conf ~/.weechat/trigger.conf || true
-           create_link ${__dir_dlocal}/weechat/weechat.conf ~/.weechat/weechat.conf || true
-           create_link ${__dir_dlocal}/weechat/xfer.conf ~/.weechat/xfer.conf || true
+    if ( hash weechat 2>/dev/null || [[ -d ~/.weechat ]] ) && [[ -d ${__dir_dotlocal} ]]; then
+        if [[ -d ${__dir_dotlocal}/weechat ]]; then
+           create_link ${__dir_dotlocal}/weechat/guile ~/.weechat/guile || true
+           create_link ${__dir_dotlocal}/weechat/javascript ~/.weechat/javascript || true
+           create_link ${__dir_dotlocal}/weechat/lua ~/.weechat/lua || true
+           create_link ${__dir_dotlocal}/weechat/perl ~/.weechat/perl || true
+           create_link ${__dir_dotlocal}/weechat/python ~/.weechat/python || true
+           create_link ${__dir_dotlocal}/weechat/ruby ~/.weechat/ruby || true
+           create_link ${__dir_dotlocal}/weechat/script ~/.weechat/script || true
+           create_link ${__dir_dotlocal}/weechat/tcl ~/.weechat/tcl || true
+           create_link ${__dir_dotlocal}/weechat/xfer ~/.weechat/xfer || true
+           create_link ${__dir_dotlocal}/weechat/alias.conf ~/.weechat/alias.conf || true
+           create_link ${__dir_dotlocal}/weechat/aspell.conf ~/.weechat/aspell.conf || true
+           create_link ${__dir_dotlocal}/weechat/buffers.conf ~/.weechat/buffers.conf || true
+           create_link ${__dir_dotlocal}/weechat/charset.conf ~/.weechat/charset.conf || true
+           create_link ${__dir_dotlocal}/weechat/exec.conf ~/.weechat/exec.conf || true
+           create_link ${__dir_dotlocal}/weechat/irc.conf ~/.weechat/irc.conf || true
+           create_link ${__dir_dotlocal}/weechat/iset.conf ~/.weechat/iset.conf || true
+           create_link ${__dir_dotlocal}/weechat/logger.conf ~/.weechat/logger.conf || true
+           create_link ${__dir_dotlocal}/weechat/plugins.conf ~/.weechat/plugins.conf || true
+           create_link ${__dir_dotlocal}/weechat/relay.conf ~/.weechat/relay.conf || true
+           create_link ${__dir_dotlocal}/weechat/script.conf ~/.weechat/script.conf || true
+           create_link ${__dir_dotlocal}/weechat/sec.conf ~/.weechat/sec.conf || true
+           create_link ${__dir_dotlocal}/weechat/trigger.conf ~/.weechat/trigger.conf || true
+           create_link ${__dir_dotlocal}/weechat/weechat.conf ~/.weechat/weechat.conf || true
+           create_link ${__dir_dotlocal}/weechat/xfer.conf ~/.weechat/xfer.conf || true
 
         else
             loguj -i -t "${ltype}" "No weechat local dotfiles."
@@ -361,8 +368,8 @@ install_dotfiles()
     fi
 
     # vlc
-    if [[ -f "${__dir_dlocal}/vlcrc" ]]; then
-        create_link "${__dir_dlocal}/vlcrc" "${HOME}/.config/vlc/vlcrc"
+    if [[ -f "${__dir_dotlocal}/vlcrc" ]]; then
+        create_link "${__dir_dotlocal}/vlcrc" "${HOME}/.config/vlc/vlcrc"
     fi
 
     # vim +PluginInstall +PluginClean +qall
@@ -438,12 +445,12 @@ install_apps()
     fi
 
     # gvim
-    if (( ${__app_lvl} >= 1 )) && [[ -d "${__vim_gvim_root}" ]]; then
-        if [[ ! -e "${__vim_gvimplug_path}" ]]; then
+    if (( ${__app_lvl} >= 1 )) && [[ -d "${__dir_gvim_root}" ]]; then
+        if [[ ! -e "${__file_gvim_plug}" ]]; then
             if [[ -r "${__vim_vimplug_path}" ]]; then
-                cp "${__vim_vimplug_path}" "${__vim_gvimplug_path}"
+                cp "${__vim_vimplug_path}" "${__file_gvim_plug}"
             else
-                geturl "${__vim_vimplug_url}" "${__vim_gvimplug_path}"
+                geturl "${__vim_vimplug_url}" "${__file_gvim_plug}"
             fi
         fi
     fi
@@ -643,7 +650,7 @@ install_apps()
     # Spacemacs
     if (( ${__app_lvl} >= 4 )); then
         # TODO: cp .emacs to .emacs.old
-        git clone --recursive https://github.com/syl20bnr/spacemacs ~/.emacs.d
+        git clone --recursive https://github.com/syl20bnr/spacemacs "${HOME}/.emacs.d"
     fi
 
     # Emacs Linux - old
@@ -754,8 +761,8 @@ testing()
 # --------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------
 
-create_link ${__sdir} ~/.dotfiles
-create_link ${__dir_dlocal} ~/.dotfiles.local || true
+create_link ${__dir_dotfiles} ~/.dotfiles
+create_link ${__dir_dotlocal} ~/.dotfiles.local || true
 
 [[ ${__if_testing} == "Y" ]] && testing
 if (( ${__app_lvl} > 0 )) || [[ "${__if_update}" == "Y" ]]; then
@@ -768,7 +775,7 @@ fi
 display_log_info
 display_log_error
 
-# cd "${__sdir}"
+# cd "${__dir_dotfiles}"
 # git st
 # git remote show origin
 

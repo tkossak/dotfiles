@@ -8,11 +8,11 @@ __aptget_check_cmd=""
 __aptget_install_cmd=""
 __aptget_update_cmd=""
 
-source "${__sdir}/source/src_bash_myos"
-source ${__sdir}/source/src_bash_colors
+source "${__dir_dotfiles}/source/src_bash_myos"
+source ${__dir_dotfiles}/source/src_bash_colors
 
 hash cygpath 2>/dev/null \
-    && __win_appdata="$(cygpath -au ${APPDATA:-})" || __win_appdata=""
+    && __dir_win_home="$(cygpath -au ${APPDATA:-})" || __dir_win_home=""
 
 if [[ "${__myos}" == "LINUX" ]] && hash sudo 2>/dev/null; then
     __sudo="sudo"

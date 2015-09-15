@@ -161,13 +161,19 @@ before layers configuration."
  This function is called at the very end of Spacemacs initialization after
 layers configuration."
 
+  (load-library "~/.spacemacs.local")
+
+  ;; EMACS-KEYS
   (define-key global-map (kbd "<f2>") 'toggle-truncate-lines) ;; wyrownanie do regexpa
+
+  ;; EVIL-MODE keys
   (setq evil-escape-key-sequence "jk")
 
-;;  (require 'key-chord)
-;;  (setq key-chord-two-keys-delay 0.1)
-;;  (key-chord-define evil-insert-state-map "jk" 'evil-normal-state)
-;;  (key-chord-mode 1)
+  ;; ORG-MODE: keys
+  (define-key global-map "\C-ca" 'org-agenda)
+
+
+  ;; ORG-MODE: options
 
 )
 
