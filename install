@@ -217,6 +217,7 @@ install_dotfiles()
     # Spacemacs
     if hash emacs 2>/dev/null; then
         create_link ${__dir_dotfiles}/spacemacs "${HOME}/.spacemacs" || true
+        create_link ${__dir_dotlocal}/emacs.local "${HOME}/.spacemacs.local" || true
         # Win
         if [[ -d "${__dir_win_home}" ]]; then
             create_link -w ${__dir_dotfiles}/spacemacs "${__dir_win_home}/.spacemacs" || true

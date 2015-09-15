@@ -166,12 +166,22 @@ layers configuration."
   ;; EMACS-KEYS
   (define-key global-map (kbd "<f2>") 'toggle-truncate-lines) ;; wyrownanie do regexpa
 
+
   ;; EVIL-MODE keys
   (setq evil-escape-key-sequence "jk")
+  (define-key evil-normal-state-map (kbd "M-j") 'org-metadown)
+  (define-key evil-normal-state-map (kbd "M-k") 'org-metaup)
+  ;;(define-key evil-normal-state-map (kbd "M-h") 'org-metaleft) ;; used for marking element
+  (define-key evil-normal-state-map (kbd "M-l") 'org-metaright)
+
+  (define-key evil-normal-state-map (kbd "M-J") 'org-shiftmetadown)
+  (define-key evil-normal-state-map (kbd "M-K") 'org-shiftmetaup)
+  (define-key evil-normal-state-map (kbd "M-H") 'org-shiftmetaleft)
+  (define-key evil-normal-state-map (kbd "M-L") 'org-shiftmetaright)
+
 
   ;; ORG-MODE: keys
   (define-key global-map "\C-ca" 'org-agenda)
-
 
   ;; ORG-MODE: options
 
