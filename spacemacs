@@ -163,10 +163,12 @@ layers configuration."
 
   (load-library "~/.spacemacs.local")
 
+  ;; ================================================================================
   ;; EMACS-KEYS
   (define-key global-map (kbd "<f2>") 'toggle-truncate-lines) ;; wyrownanie do regexpa
 
 
+  ;; ================================================================================
   ;; EVIL-MODE keys
   (setq evil-escape-key-sequence "jk")
   (define-key evil-normal-state-map (kbd "M-j") 'org-metadown)
@@ -180,11 +182,52 @@ layers configuration."
   (define-key evil-normal-state-map (kbd "M-L") 'org-shiftmetaright)
 
 
+  ;; ================================================================================
   ;; ORG-MODE: keys
   (define-key global-map "\C-ca" 'org-agenda)
 
+
+  ;; ================================================================================
+  ;; EVIL-MODE options
+  ; treat "_" as part of the word
+  (modify-syntax-entry ?_ "w")
+
+
+  ;; ================================================================================
   ;; ORG-MODE: options
 
+  (setq org-log-done t)
+  (setq org-agenda-skip-deadline-prewarning-if-scheduled t)
+  (setq org-agenda-restore-windows-after-quit t)
+  (setq org-deadline-warning-days 7)
+  (setq org-goto-auto-isearch nil) ; additional keys for C-c C-j
+  (setq org-refile-targets (quote ((nil :maxlevel . 9)
+                                   (org-agenda-files :maxlevel . 9))))
+  (setq org-archive-reversed-order t)
+  (setq org-archive-location "archive/archive_%s::") ; archive location
+  ;; Use full outline paths for refile targets - we file directly with IDO
+  (setq org-refile-use-outline-path t)
+  ;; Targets complete directly with IDO
+  (setq org-outline-path-complete-in-steps t)
+
+  (setq org-src-fontify-natively t) ;; syntax highlighting in begin_src
+  (setq org-clock-into-drawer 3) ;; group clock entries into the LOGBOOK drawer
+  (setq org-clock-mode-line-total 'today)
+  (setq org-clock-report-include-clocking-task "t")
+
+  (setq org-agenda-clock-consistency-checks
+        (quote
+         (:max-duration "10:00" :min-duration "00:01" :max-gap "0:00" :gap-ok-around
+                        ("00:00")
+                        :default-face
+                        ((:background "DarkRed")
+                         (:foreground "white"))
+                        :overlap-face nil :gap-face nil :no-end-time-face nil :long-face nil :short-face nil))
+        )
+
+                                        ; clocksums display hours, not days:
+  (setq org-time-clocksum-format
+        '(:hours "%d" :require-hours t :minutes ":%02d" :require-minutes t))
 )
 
 ;; Do not write anything past this comment. This is where Emacs will
