@@ -166,7 +166,7 @@ layers configuration."
   ;; ================================================================================
   ;; EMACS-KEYS
   (define-key global-map (kbd "<f2>") 'toggle-truncate-lines) ;; wyrownanie do regexpa
-
+  (define-key global-map (kbd "<f4>") 'align-regexp) ;; wyrownanie do regexpa
 
   ;; ================================================================================
   ;; EVIL-MODE keys
@@ -228,6 +228,13 @@ layers configuration."
                                         ; clocksums display hours, not days:
   (setq org-time-clocksum-format
         '(:hours "%d" :require-hours t :minutes ":%02d" :require-minutes t))
+
+
+  ;; inne
+  (add-hook 'python-mode-hook
+            (lambda ()
+              (set (make-local-variable 'compile-command)
+                   (concat "python " buffer-file-name))))
 )
 
 ;; Do not write anything past this comment. This is where Emacs will
