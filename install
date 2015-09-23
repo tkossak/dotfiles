@@ -218,6 +218,7 @@ install_dotfiles()
     if hash emacs 2>/dev/null; then
         create_link ${__dir_dotfiles}/spacemacs "${HOME}/.spacemacs" || true
         create_link ${__dir_dotlocal}/emacs.local "${HOME}/.spacemacs.local" || true
+
         # Win
         if [[ -d "${__dir_win_home}" ]]; then
             create_link -w ${__dir_dotfiles}/spacemacs "${__dir_win_home}/.spacemacs" || true
@@ -649,9 +650,21 @@ install_apps()
 
 
     # Spacemacs
-    if (( ${__app_lvl} >= 4 )); then
-        # TODO: cp .emacs to .emacs.old
+    if (( ${__app_lvl} >= 4 )) && [[ -z "${update_option}" ]]; then
+
         git clone --recursive https://github.com/syl20bnr/spacemacs "${HOME}/.emacs.d"
+
+
+        local file="${HOME}/.emacs"
+        if [[ -e "${file}" ]]; then
+            mv "${file}" "${file}.old"
+        fi
+
+        local file="${HOME}/.emacs.local"
+        if [[ -e "${file}" ]]; then
+            mv "${file}" "${file}.old"
+        fi
+
     fi
 
     # Emacs Linux - old
