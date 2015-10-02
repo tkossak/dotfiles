@@ -9,6 +9,8 @@ set -o nounset
 
 # -------------------------------------------------------------------------------
 # GLOBAL VARS/CONSTANTS
+# Usage:
+# vimdiffm file1 file2
 
 __base="$(basename "${BASH_SOURCE[0]}")"
 
