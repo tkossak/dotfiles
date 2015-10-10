@@ -5,21 +5,23 @@ set -o pipefail
 set -o nounset
 # set -o xtrace
 
+__dir_dotfiles="$(cd "$(dirname "${__sfile}")" && pwd)"
+
 # -------------------------------------------------------------------------------
 # GLOBAL VARS/CONSTANTS
 # magic variables for links
 __sfile="$(readlink -f ${BASH_SOURCE[0]})"
 __sdir="$(cd "$(dirname "${__sfile}")" && pwd)"
 
-source ${__sdir}/install.source
+source ${__sdir}/source/src_bash_install
 
 # install GIT
     loguj -p -ss -t "---" "Installing Git"
     update_repos
-    ${__aptget_install_cmd} git
+    sudo apt-get install git
     (
-        ${__aptget_install_cmd} libcurl4-gnutls-dev libexpat1-dev gettext libz-dev libssl-dev
-        ${__aptget_install_cmd} asciidoc xsltproc docbook2X xmlto
+        sudo apt-get install libcurl4-gnutls-dev libexpat1-dev gettext libz-dev libssl-dev
+        sudo apt-get install asciidoc xsltproc docbook2X xmlto
     ) &
 
 

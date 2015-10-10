@@ -23,6 +23,7 @@ print_help()
     echo "  -a, -2  :: install dotfiles + basics 1 + 2"
     echo "  -A, -3  :: install dotfiles + basics 1 + 2 + 3 (new comp)"
     echo "  -u      :: update existing apps"
+    echo "  -t      :: (DEBUG) run only TEST function"
     return 0
 }
 
@@ -375,11 +376,11 @@ install_dotfiles()
     fi
 
     # vim +PluginInstall +PluginClean +qall
-    if [[ "${__if_update}" == "Y" ]]; then
-        vim +PlugUpgrade +PlugInstall +PlugUpdate +PlugClean +qall
-    else
-        vim +PlugInstall +qall
-    fi
+    # if [[ "${__if_update}" == "Y" ]]; then
+    #     vim +PlugUpgrade +PlugInstall +PlugUpdate +PlugClean +qall
+    # else
+    #     vim +PlugInstall +qall
+    # fi
 
     loguj -se -t "${ltype}" "DOTFILES"
     return 0
@@ -456,6 +457,10 @@ install_apps()
             fi
         fi
     fi
+
+    # emacs
+    (( ${__app_lvl} >= 1 )) &&
+        aptget ${update_option} emacs || true
 
     # make
     (( ${__app_lvl} >= 1 )) &&
@@ -622,7 +627,9 @@ install_apps()
 
     if (( ${__app_lvl} >= 2 )); then
         pipinstall -2H ${update_option} speedtest-cli || true
-        pipinstall -3H ${update_option} youtube_dl
+        if ! hash youtube-dl 2>/dev/null; then
+            pipinstall -3H ${update_option} youtube_dl youtube-dl
+        fi
     fi
         # if [[ -d ~/.fzf && "${__if_update}" == "N" ]]; then
         # elif [[ -d ~/.fzf && "${__if_update}" == "Y" ]]; then
@@ -703,7 +710,11 @@ install_apps()
 
     # geeknote
     (( ${__app_lvl} >= 3 )) &&
-        gitclone ${update_option} https://github.com/VitaliyRodnenko/geeknote.git ~/apps/geeknote "${__sudo} python setup.py install" "geeknote settings --editor vim" || true
+        if ! hash geeknote 2> /dev/null; then
+            gitclone ${update_option} https://github.com/VitaliyRodnenko/geeknote.git ~/apps/geeknote || true
+            ${__sudo} python setup.py install
+            geeknote settings --editor vim
+        fi
 
     # BeautifulSoup4
     (( ${__app_lvl} >= 3 )) &&
@@ -723,6 +734,7 @@ install_apps()
 
     # different
     if (( ${__app_lvl} >= 3 )); then
+        aptget -ol ${update_option} sshfs
         aptget -ol ${update_option} vlc
         aptget -ol ${update_option} dos2unix
         aptget -ol ${update_option} mplayer
@@ -733,7 +745,8 @@ install_apps()
         aptget -ol ${update_option} openvpn
         aptget -ol ${update_option} tidy
         aptget -ol ${update_option} iconv
-        pipinstall -3H git+git://github.com/badele/gitcheck.git
+        aptget -ol ${update_option} steam
+        pipinstall -3H git+git://github.com/badele/gitcheck.git gitcheck
         pipinstall -3H ${update_option} livestreamer
     fi
 
@@ -765,7 +778,8 @@ testing()
     echo "install git test"
 
 
-    pipinstall httpie || true
+    pipinstall -2H speedtest-cli || true
+
     echo "=== TESTING END ===================================================="
     return 0
 }

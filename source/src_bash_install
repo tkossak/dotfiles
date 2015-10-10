@@ -764,11 +764,13 @@ geturl()
 # $1 = app name to install
 pipinstall()
 {
+    # set -x
     local ltype="PIP"
     local pip="pip"
     local sudo_options=""
     local update=""
     local appinstall=""
+    local appcheck=""
     local cmdinstall=""
 
     while getopts ":23uH" opt; do
@@ -798,9 +800,12 @@ pipinstall()
     shift $((OPTIND-1))
     OPTIND=1
 
-    if (( $# == 1 )); then
+    if (( $# >= 1 )); then
         appinstall="${1}"
-    else
+    fi
+    if (( $# == 2 )); then
+        appcheck="${2}"
+    elif (( $# >= 3 )) ; then
         loguj -e -t "${ltype}" "Unknown option? $@"
         return 3
     fi
@@ -811,7 +816,13 @@ pipinstall()
     fi
 
 
-    if ${pip} -q show ${appinstall}; then # app is installed
+    # check if app is installed
+    if [[ -n "${appcheck}" ]] && hash "${appcheck}" 2>/dev/null; then
+        if [[ -z "${update}" ]]; then
+            loguj -i -t "${ltype}" "App installed, not updating: ${appinstall}"
+            return 0
+        fi
+    elif ${pip} -q show ${appinstall}; then # app is installed
         if [[ -z "${update}" ]]; then
             loguj -i -t "${ltype}" "App installed, not updating: ${appinstall}"
             return 0
