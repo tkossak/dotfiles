@@ -746,6 +746,9 @@ install_apps()
         aptget -ol ${update_option} tidy
         aptget -ol ${update_option} iconv
         aptget -ol ${update_option} steam
+        aptget -ol ${update_option} nethogs
+        aptget -ol ${update_option} iftop
+        aptget -ol ${update_option} nload
         pipinstall -3H git+git://github.com/badele/gitcheck.git gitcheck
         pipinstall -3H ${update_option} livestreamer
     fi
