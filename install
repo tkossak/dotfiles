@@ -10,6 +10,7 @@ __sfile="$(readlink -f ${BASH_SOURCE[0]})"
 __dir_dotfiles="$(cd "$(dirname "${__sfile}")" && pwd)"
 __dir_dotlocal="$(cd "$(dirname "${__dir_dotfiles}")" && pwd)/dotfiles.local"
 __dir_dotlocal="$(readlink -f ${__dir_dotlocal})"
+__dir_installers="/tmp/installers"
 
 # --------------------------------------------------------------------------------
 source ${__dir_dotfiles}/source/src_bash_install
@@ -416,13 +417,13 @@ install_apps()
     # update repos?
     update_repos
 
-    # curl
-    (( ${__app_lvl} >= 1 )) &&
-        aptget ${update_option} curl && __geturl_app="curl -o" || true
-
     # wget
     (( ${__app_lvl} >= 1 )) &&
         aptget ${update_option} wget && __geturl_app="wget -O" || true
+
+    # curl
+    (( ${__app_lvl} >= 1 )) &&
+        aptget ${update_option} curl && __geturl_app="curl -Lo" || true
 
     # git
     (( ${__app_lvl} >= 1 )) &&
@@ -749,8 +750,22 @@ install_apps()
         aptget -ol ${update_option} nethogs
         aptget -ol ${update_option} iftop
         aptget -ol ${update_option} nload
+        aptget -ol ${update_option} xclip
         pipinstall -3H git+git://github.com/badele/gitcheck.git gitcheck
         pipinstall -3H ${update_option} livestreamer
+
+        # download installers
+        [[ ! -d "${__dir_installers}" ]] && mkdir "${__dir_installers}"
+
+        # Teamviewer Full Version - Ubuntu/Debian
+        local url="http://download.teamviewer.com/download/teamviewer_i386.deb"
+        geturl "${url}" "${__dir_installers}/${url##*/}"
+
+        # ffmpeg - x64 linux static builds (NOT ubuntu/debian)
+        local url="http://johnvansickle.com/ffmpeg/builds/ffmpeg-git-64bit-static.tar.xz"
+        geturl "${url}" "${__dir_installers}/${url##*/}"
+
+        loguj -i -t "${ltype}" "INSTALLERS DOWNLOADED - run them manually"
     fi
 
     if [[ "${__if_update}" == "Y" ]]; then
@@ -780,8 +795,7 @@ testing()
     echo "=== TESTING START =================================================="
     echo "install git test"
 
-
-    pipinstall -2H speedtest-cli || true
+    [[ ! -d "${__dir_installers}" ]] && mkdir "${__dir_installers}"
 
     echo "=== TESTING END ===================================================="
     return 0
