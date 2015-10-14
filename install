@@ -751,6 +751,8 @@ install_apps()
         aptget -ol ${update_option} iftop
         aptget -ol ${update_option} nload
         aptget -ol ${update_option} xclip
+        aptget -ol ${update_option} ipython3
+        aptget -ol ${update_option} ipython2
         pipinstall -3H git+git://github.com/badele/gitcheck.git gitcheck
         pipinstall -3H ${update_option} livestreamer
 
