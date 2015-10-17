@@ -27,7 +27,7 @@ tmux send-keys -t ${session} 'ranger-cd' Enter
 tmux split-window -t ${session} -v -p 50 -c '/mnt/win_d/filmy/_watch_first_1'
 tmux send-keys -t ${session} 'ranger-cd' Enter
 tmux split-window -t ${session}:is.0 -v -p 50 -c '/mnt/win_d/filmy/_watch_first_1'
-tmux send-keys -t ${session} 'ranger' Enter
+tmux send-keys -t ${session} 'ranger-cd' Enter
 tmux select-pane -t 1
 
 # dotfile
@@ -47,7 +47,7 @@ tmux send-keys -t ${session} 'gn show 2 | tee eng_$(date +"%y%m%d_%H%M%S") | che
 
 # # tmp
 tmux new-window -t ${session} -n 'tmp' -c '~/Downloads'
-tmux send-keys -t ${session} 'ranger-cd' Enter
+# tmux send-keys -t ${session} 'ranger-cd' Enter
 
 # last
 tmux select-window -t ${session}:dotfiles

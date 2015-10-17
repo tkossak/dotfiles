@@ -231,11 +231,14 @@ layers configuration."
         '(:hours "%d" :require-hours t :minutes ":%02d" :require-minutes t))
 
 
-  ;; inne
+  ;; compiling python files is easier (automatically insert compile string)
   (add-hook 'python-mode-hook
             (lambda ()
               (set (make-local-variable 'compile-command)
-                   (concat "python " buffer-file-name))))
+                   (concat "python3 " buffer-file-name))))
+
+  ;; fix anaconda error for python files:
+  ;; (setq python-shell-interpreter "python3")
 )
 
 ;; Do not write anything past this comment. This is where Emacs will

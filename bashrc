@@ -77,6 +77,24 @@ alias iftop='sudo iftop'
 alias nethogs='sudo nethogs'
 alias tcptrack='sudo tcptrack'
 alias atop='sudo atop'
+alias count_extension="find . -type f | sed 's/.*\.//gI' | sort | uniq -c"
+# locate movies
+lom(){ locate -i --regex "$1"'.*\.(avi|mkv|mp4|rmvb|flv|ts)'; }
+# translate english => polish
+t(){ wget -U "Mozilla/5.0" -qO - "http://translate.google.com/translate_a/t?client=t&text=$1&sl=${2:-en}&tl=${3:-pl}" | sed 's/\[\[\[\"//' | cut -d \" -f 1; }
+
+# translate word in different dictionaries in the browser
+e()
+{
+    local word="$*"
+    word="${word// /+}"
+    cs "http://dict.pl/dict?word=${word}" >/dev/null
+    cs "http://ling.pl/slownik/angielsko-polski/${word}" >/dev/null
+    cs "http://en.bab.la/dictionary/english-polish/${word}" >/dev/null
+    cs "http://www.thefreedictionary.com/${word}" >/dev/null
+    cs "http://en.pons.com/translate?q=${word}&l=enpl&in=&lf=en" > /dev/null
+    cs "http://www.urbandictionary.com/define.php?term=${word}" > /dev/null
+}
 
 # TMUX
 alias tl='tmux list-sessions'
@@ -88,10 +106,6 @@ alias tns='tmux new-session -s'
 # say something
 say(){ mplayer -user-agent Mozilla "http://translate.google.com/translate_tts?tl=en&q=$(echo $* | sed 's#\ #\+#g')" > /dev/null 2>&1 ; }
 saypl(){ mplayer -user-agent Mozilla "http://translate.google.com/translate_tts?tl=pl&q=$(echo $* | sed 's#\ #\+#g')" > /dev/null 2>&1 ; }
-# translate english => polish
-t(){ wget -U "Mozilla/5.0" -qO - "http://translate.google.com/translate_a/t?client=t&text=$1&sl=${2:-en}&tl=${3:-pl}" | sed 's/\[\[\[\"//' | cut -d \" -f 1; }
-# locate movies
-lom(){ locate -i --regex "$1"'.*\.(avi|mkv|mp4|rmvb|flv)'; }
 
 function ranger-cd
 {
@@ -290,19 +304,6 @@ case ${__myos} in
 
 esac
 # --- END CASE ---------------------------------------------------------
-
-e()
-{
-    local word="$*"
-    word="${word// /+}"
-    cs "http://dict.pl/dict?word=${word}" >/dev/null
-    cs "http://ling.pl/slownik/angielsko-polski/${word}" >/dev/null
-    cs "http://en.bab.la/dictionary/english-polish/${word}" >/dev/null
-    cs "http://www.thefreedictionary.com/${word}" >/dev/null
-    cs "http://en.pons.com/translate?q=${word}&l=enpl&in=&lf=en" > /dev/null
-    cs "http://www.urbandictionary.com/define.php?term=${word}" > /dev/null
-}
-
 
 # FASD -----------------------------------------------------------------
 if hash fasd 2>/dev/null; then
