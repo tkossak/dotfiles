@@ -83,19 +83,6 @@ lom(){ locate -i --regex "$1"'.*\.(avi|mkv|mp4|rmvb|flv|ts)'; }
 # translate english => polish
 t(){ wget -U "Mozilla/5.0" -qO - "http://translate.google.com/translate_a/t?client=t&text=$1&sl=${2:-en}&tl=${3:-pl}" | sed 's/\[\[\[\"//' | cut -d \" -f 1; }
 
-# translate word in different dictionaries in the browser
-e()
-{
-    local word="$*"
-    word="${word// /+}"
-    cs "http://dict.pl/dict?word=${word}" >/dev/null
-    cs "http://ling.pl/slownik/angielsko-polski/${word}" >/dev/null
-    cs "http://en.bab.la/dictionary/english-polish/${word}" >/dev/null
-    cs "http://www.thefreedictionary.com/${word}" >/dev/null
-    cs "http://en.pons.com/translate?q=${word}&l=enpl&in=&lf=en" > /dev/null
-    cs "http://www.urbandictionary.com/define.php?term=${word}" > /dev/null
-}
-
 # TMUX
 alias tl='tmux list-sessions'
 alias ta='tmux attach-session'
@@ -304,6 +291,18 @@ case ${__myos} in
 
 esac
 # --- END CASE ---------------------------------------------------------
+# translate word in different dictionaries in the browser
+e()
+{
+    local word="$*"
+    word="${word// /+}"
+    cs "http://dict.pl/dict?word=${word}" >/dev/null
+    cs "http://ling.pl/slownik/angielsko-polski/${word}" >/dev/null
+    cs "http://en.bab.la/dictionary/english-polish/${word}" >/dev/null
+    cs "http://www.thefreedictionary.com/${word}" >/dev/null
+    cs "http://en.pons.com/translate?q=${word}&l=enpl&in=&lf=en" > /dev/null
+    cs "http://www.urbandictionary.com/define.php?term=${word}" > /dev/null
+}
 
 # FASD -----------------------------------------------------------------
 if hash fasd 2>/dev/null; then
