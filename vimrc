@@ -105,10 +105,10 @@ noremap <down>  <C-W>-
 noremap <left>  3<C-W>>
 noremap <right> 3<C-W><
 
-nnoremap ; :
-nnoremap : ;
-vnoremap ; :
-vnoremap : ;
+" nnoremap ; :
+" nnoremap : ;
+" vnoremap ; :
+" vnoremap : ;
 
 " pasting from clipboard without indeting
 nnoremap <F10> :set invpaste paste?<CR>
