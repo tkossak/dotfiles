@@ -757,6 +757,7 @@ install_apps()
         pipinstall -3H ${update_option} livestreamer
         aptget -ol ${update_option} ppa-purge
         aptget -ol ${update_option} apt-file
+        aptget -ol ${update_option} autokey-gtk
         apt-file update
 
         # download installers
