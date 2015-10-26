@@ -50,7 +50,7 @@ tmux new-window -t ${session} -n 'tmp' -c '~/Downloads'
 # tmux send-keys -t ${session} 'ranger-cd' Enter
 
 # last
-tmux select-window -t ${session}:dotfiles
+tmux select-window -t ${session}:is
 if [[ -n "$TMUX" ]]; then
     tmux switch-client -t ${session}
 else
