@@ -77,7 +77,7 @@ alias iftop='sudo iftop'
 alias nethogs='sudo nethogs'
 alias tcptrack='sudo tcptrack'
 alias atop='sudo atop'
-alias count_extension="find . -type f | sed 's/.*\.//gI' | sort | uniq -c"
+alias extension_count="find . -type f | sed 's/.*\.//gI' | sort | uniq -c"
 # locate movies
 lom(){ locate -i --regex "$1"'.*\.(avi|mkv|mp4|rmvb|flv|ts)'; }
 lomf(){
