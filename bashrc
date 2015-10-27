@@ -80,6 +80,9 @@ alias atop='sudo atop'
 alias count_extension="find . -type f | sed 's/.*\.//gI' | sort | uniq -c"
 # locate movies
 lom(){ locate -i --regex "$1"'.*\.(avi|mkv|mp4|rmvb|flv|ts)'; }
+lomf(){
+    find /mnt/win_d/filmy /mnt/win_e/filmy "/mnt/d750/filmy HD" -iregex '.*'"$1"'.*\.\(avi\|mkv\|mp4\|rmvb\|flv\|ts\)' 
+}
 # translate english => polish
 t(){ wget -U "Mozilla/5.0" -qO - "http://translate.google.com/translate_a/t?client=t&text=$1&sl=${2:-en}&tl=${3:-pl}" | sed 's/\[\[\[\"//' | cut -d \" -f 1; }
 
