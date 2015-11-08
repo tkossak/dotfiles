@@ -171,7 +171,7 @@ layers configuration."
 
   ;; ================================================================================
   ;; EVIL-MODE keys
-  (setq evil-escape-key-sequence "jk")
+  (setq evil-escape-key-sequence "fd")
   (define-key evil-normal-state-map (kbd "M-j") 'org-metadown)
   (define-key evil-normal-state-map (kbd "M-k") 'org-metaup)
   ;;(define-key evil-normal-state-map (kbd "M-h") 'org-metaleft) ;; used for marking element
