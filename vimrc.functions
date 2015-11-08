@@ -1,4 +1,19 @@
 " ==================================================================
+" Sedify - remove sed special chars, so the file can be used as search string in sed scripts
+" ==================================================================
+command! Sedify call Sedify()
+function! Sedify()
+    %s/\\/\\\\/gi
+    %s/\//\\\//gi
+    %s/\$/\\\$/gi
+    %s/\./\\\./gi
+    %s/\*/\\\*/gi
+    %s/\[/\\\[/gi
+    %s/\]/\\\]/gi
+    %s/\^/\\\^/gi
+endfunction
+
+" ==================================================================
 " UnMinify
 " ==================================================================
 " Simple re-format for minified Javascript
