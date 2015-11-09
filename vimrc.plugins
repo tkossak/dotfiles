@@ -8,7 +8,7 @@ call plug#begin('~/.vim/plugged')
 Plug 'gregsexton/MatchTag'  " match HTML tags
 Plug 'haya14busa/incsearch.vim'
 Plug 'kien/ctrlp.vim'
-" Plug 'christoomey/vim-tmux-navigator'
+Plug 'christoomey/vim-tmux-navigator'
 Plug 'junegunn/fzf'
 Plug 'terryma/vim-expand-region'
 Plug 'tpope/vim-commentary'

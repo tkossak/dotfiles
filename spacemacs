@@ -20,7 +20,7 @@
      ;; auto-completion
      ;; better-defaults
      emacs-lisp
-     ;; python
+     python
      ;; git
      ;; markdown
      ;; org
