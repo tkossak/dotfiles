@@ -587,6 +587,12 @@ install_apps()
         fi
     fi
 
+    # Python modules
+    # if (( ${__app_lvl} >= 1 )); then
+    #     pipinstall -3H pyflakes livestreamer
+    # fi
+
+
     # Ranger
     (( ${__app_lvl} >= 1 )) &&
         gitclone ${update_option} https://github.com/hut/ranger.git ~/apps/ranger "${__sudo} make install" "ranger --copy-config=all" || true

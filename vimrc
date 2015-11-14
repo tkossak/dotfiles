@@ -52,6 +52,7 @@ set tabstop=4 " amount of spaces to visualize <tab> character
 set shiftwidth=4 " number of spaces for each step of autoindent
 set shiftround " round indent to multiple of 'shiftwidth'
 set nowrap
+set tw=79
 
 set listchars=eol:$,tab:>-,trail:~,extends:>,precedes:<
 " ↩ ↵ ↲ ␣ • … → » ∎ ¶ ▶ ▸ ▷ ▹
@@ -158,7 +159,15 @@ noremap <leader>bl :blast<CR>
 noremap <leader>bc :bwipe<CR>
 noremap <leader>bC :bwipe!<CR>
 
-" bind Ctrl+<movement> keys to move around the windows, instead of using Ctrl+w + <movement>
+" Window bindings
+nnoremap <leader>wj <c-w>j
+nnoremap <leader>wk <c-w>k
+nnoremap <leader>wh <c-w>h
+nnoremap <leader>wl <c-w>l
+nnoremap <leader>ws <c-w>s
+nnoremap <leader>wv <c-w>v
+nnoremap <leader>wm :call MaximizeToggle()<CR>" maximize
+nnoremap <leader>wc <c-w>c " close
 nnoremap <C-j> <c-w>j
 nnoremap <C-k> <c-w>k
 nnoremap <C-l> <c-w>l
@@ -231,6 +240,8 @@ set cursorline
 
 " automatic reloading of .vimrc
 autocmd! bufwritepost .vimrc source %
+autocmd! bufwritepost .vimrc.functions source %
+autocmd! bufwritepost .vimrc.plugins source %
 
 " Show whitespace
 " MUST be inserted BEFORE the colorscheme command
