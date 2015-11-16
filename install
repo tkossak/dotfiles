@@ -739,8 +739,8 @@ install_apps()
     (( ${__app_lvl} >= 3 )) &&
         pipinstall -H ${update_option} httpie || true
 
-    # different
-    if (( ${__app_lvl} >= 3 )); then
+    # different for LINUX
+    if [[ ${__myos} == "LINUX" ]] && (( ${__app_lvl} >= 3 )); then
         aptget -ol ${update_option} sshfs
         aptget -ol ${update_option} vlc
         aptget -ol ${update_option} dos2unix
@@ -759,12 +759,21 @@ install_apps()
         aptget -ol ${update_option} xclip
         aptget -ol ${update_option} ipython3
         aptget -ol ${update_option} ipython
-        pipinstall -3H git+git://github.com/badele/gitcheck.git gitcheck
-        pipinstall -3H ${update_option} livestreamer
         aptget -ol ${update_option} ppa-purge
         aptget -ol ${update_option} apt-file
         aptget -ol ${update_option} autokey-gtk
+        aptget -ol ${update_option} pandoc
         apt-file update
+        # calibre:
+        sudo -v && wget -nv -O-
+        https://raw.githubusercontent.com/kovidgoyal/calibre/master/setup/linux-installer.py \
+            | sudo python -c "import sys; main=lambda:sys.stderr.write('Download failed\n'); exec(sys.stdin.read()); main()"
+    fi
+
+    # different
+    if (( ${__app_lvl} >= 3 )); then
+        pipinstall -3H git+git://github.com/badele/gitcheck.git gitcheck
+        pipinstall -3H ${update_option} livestreamer
 
         # download installers
         [[ ! -d "${__dir_installers}" ]] && mkdir "${__dir_installers}"

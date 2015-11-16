@@ -81,7 +81,10 @@ alias extension_count="find . -type f | sed 's/.*\.//gI' | sort | uniq -c"
 # locate movies
 lom(){ locate -i --regex "$1"'.*\.(avi|mkv|mp4|rmvb|flv|ts)'; }
 lomf(){
-    find /mnt/win_d/filmy /mnt/win_e/filmy "/mnt/d750/filmy HD" -iregex '.*'"$1"'.*\.\(avi\|mkv\|mp4\|rmvb\|flv\|ts\)' 
+    find /mnt/win_d/filmy /mnt/win_e/filmy "/mnt/d750/filmy HD" -iregex '.*'"$1"'.*\.\(avi\|mkv\|mp4\|rmvb\|flv\|ts\)'
+}
+loml(){
+    find -L /mnt/win_d/filmy /mnt/win_e/filmy "/mnt/d750/filmy HD" -samefile "$1"
 }
 # translate english => polish
 t(){ wget -U "Mozilla/5.0" -qO - "http://translate.google.com/translate_a/t?client=t&text=$1&sl=${2:-en}&tl=${3:-pl}" | sed 's/\[\[\[\"//' | cut -d \" -f 1; }
@@ -283,11 +286,10 @@ case ${__myos} in
 
 
         alias cs="xdg-open"
-        # alias aptgo='apt-get update && apt-get -y upgrade && apt-get -y dist-upgrade && apt-get -fy install && apt-get -y autoremove && apt-get -y autoclean && apt-get -y clean'
-        alias aptgo='sudo apt-get update && sudo apt-get -y upgrade && sudo apt-get -fy install && sudo apt-get -y autoremove && sudo apt-get -y autoclean && sudo apt-get -y clean'
+        alias aptgo='sudo apt-get update && sudo apt-get -y upgrade && sudo apt-get -y dist-upgrade && apt-get -fy install && apt-get -y autoremove && apt-get -y autoclean && apt-get -y clean'
+        # alias aptgo='sudo apt-get update && sudo apt-get -y upgrade && sudo apt-get -fy install && sudo apt-get -y autoremove && sudo apt-get -y autoclean && sudo apt-get -y clean'
         alias iotop='sudo iotop --only'
         alias fping='ping -c 5 -i.2'
-
         ;;
     *)
         echo 'other os?';;
