@@ -1,0 +1,7 @@
+#!/usr/bin/env python3
+
+import sys
+from bs4 import BeautifulSoup
+
+b = BeautifulSoup(sys.stdin)
+print(b.prettify())
