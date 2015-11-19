@@ -190,7 +190,14 @@ case ${__myos} in
         # run last turned on
         rlt() { cs "${_vProgsPath}/_win_sys_tools\TurnedOnTimesView\TurnedOnTimesView.exe"; }
         #alias gvim="\"${_vProgsPath}/gvim/gvim.exe\""
-
+        # cd windows hosts file
+        cd_hosts() {
+            cd /cygdrive/c/Windows/System32/drivers/etc
+        }
+        # cd tnsnames
+        cd_tns() {
+            cd /cygdrive/c/app/$USER/product/11.2.0/client_1/network/admin
+        }
 
         if [[ ${__myhost} == "W" ]]; then
             proxyoff()
