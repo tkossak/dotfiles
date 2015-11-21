@@ -429,6 +429,31 @@ install_apps()
     (( ${__app_lvl} >= 1 )) &&
         aptget ${update_option} git || true
 
+    (( ${__app_lvl} >= 2 )) &&
+        aptget ${update_option} python
+        aptget ${update_option} python3
+
+    # CYGWIN
+    if (( ${__app_lvl} >= 1 )) && [[ ${__myos} == 'CYGWIN' ]]; then
+        # aptget ${update_option} curl # earlier
+        # aptget ${update_option} wget # earlier
+        aptget ${update_option} -oc python-setuptools
+        aptget ${update_option} -oc python3-setuptools
+        aptget ${update_option} -oc cygutils
+        aptget ${update_option} -oc cygutils-extra
+        aptget ${update_option} -oc ncurses
+        aptget ${update_option} -oc procps
+        aptget ${update_option} -oc bind-utils
+        aptget ${update_option} -oc binutils
+        # aptget ${update_option} -oc gnupg # use windows one from Kleopatra
+        aptget ${update_option} -oc gcc-g++
+        aptget ${update_option} -oc genisoimage
+        aptget ${update_option} -oc mkisofs
+        aptget ${update_option} -oc p7zip
+        aptget ${update_option} -oc rsnapshot
+        # aptget ${update_option} gnupg # use windows one from Kleopatra
+    fi
+
     # vim
     __vim_vimplug_url="https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
     __vim_vimplug_path="${HOME}/.vim/autoload/plug.vim"
@@ -723,21 +748,24 @@ install_apps()
             geeknote settings --editor vim
         fi
 
-    # BeautifulSoup4
-    (( ${__app_lvl} >= 3 )) &&
+    # PIP installs
+    if (( ${__app_lvl} >= 3 )); then
+        #ipythons
+        pipinstall -H ${update_option} ipython || true
+        pipinstall -3H ${update_option} ipython || true
+        # BeautifulSoup4
         pipinstall -3H ${update_option} BeautifulSoup4 || true
-
-    # flake8
-    (( ${__app_lvl} >= 3 )) &&
+        # flake8
         pipinstall -3H ${update_option} flake8 || true
-
-    # bashate
-    (( ${__app_lvl} >= 3 )) &&
+        # bashate
         pipinstall -3H ${update_option} bashate || true
-
-    # httpie
-    (( ${__app_lvl} >= 3 )) &&
+        # httpie
         pipinstall -H ${update_option} httpie || true
+        # gitcheck
+        pipinstall -3H git+git://github.com/badele/gitcheck.git gitcheck
+        # livestreamer
+        pipinstall -3H ${update_option} livestreamer
+    fi
 
     # different for LINUX
     if [[ ${__myos} == "LINUX" ]] && (( ${__app_lvl} >= 3 )); then
@@ -757,8 +785,6 @@ install_apps()
         aptget -ol ${update_option} iftop
         aptget -ol ${update_option} nload
         aptget -ol ${update_option} xclip
-        aptget -ol ${update_option} ipython3
-        aptget -ol ${update_option} ipython
         aptget -ol ${update_option} ppa-purge
         aptget -ol ${update_option} apt-file
         aptget -ol ${update_option} autokey-gtk
@@ -772,14 +798,11 @@ install_apps()
 
     # different
     if (( ${__app_lvl} >= 3 )); then
-        pipinstall -3H git+git://github.com/badele/gitcheck.git gitcheck
-        pipinstall -3H ${update_option} livestreamer
-
         # download installers
         [[ ! -d "${__dir_installers}" ]] && mkdir "${__dir_installers}"
 
         # Teamviewer Full Version - Ubuntu/Debian
-        local url="http://download.teamviewer.com/download/teamviewer_i386.deb"
+        local url="https://download.teamviewer.com/download/teamviewer_i386.deb"
         geturl "${url}" "${__dir_installers}/${url##*/}"
 
         # ffmpeg - x64 linux static builds (NOT ubuntu/debian)
@@ -787,6 +810,11 @@ install_apps()
         geturl "${url}" "${__dir_installers}/${url##*/}"
 
         loguj -i -t "${ltype}" "INSTALLERS DOWNLOADED - run them manually"
+        if hash xdg-open 2>/dev/null; then
+            xdg-open "${__dir_installers}"
+        elif hash cygstart 2>/dev/null; then
+            cygstart "${__dir_installers}"
+        fi
     fi
 
     if [[ "${__if_update}" == "Y" ]]; then
@@ -816,7 +844,27 @@ testing()
     echo "=== TESTING START =================================================="
     echo "install git test"
 
-    [[ ! -d "${__dir_installers}" ]] && mkdir "${__dir_installers}"
+        local cur_pip_verson="7.1.2"
+        local cur_pip_sha1="4645795f303c2a8a02d9957514af8a28fd8770c2"
+        local if_getpip_downloaded="0"
+        local installer="/tmp/get-pip.py"
+        local cur_python_cmd="python2"
+        local cur_pip_cmd="pip2"
+
+        cur_python_cmd="python3"
+        cur_pip_cmd="pip3"
+
+
+        local installer="/tmp/get-pip.py"
+
+                    # download
+                        geturl https://bootstrap.pypa.io/get-pip.py "${installer}" -sha1 "${cur_pip_sha1}" \
+                            && if_getpip_downloaded="1"
+
+                    # install
+                        ${__sudo} ${sudo_options} ${cur_python_cmd} "${installer}" \
+                            && loguj -s -t "${ltype}" "${cur_pip_cmd}" \
+                            || loguj -e -t "${ltype}" "Problem instalilng ${cur_pip_cmd}"
 
     echo "=== TESTING END ===================================================="
     return 0
@@ -834,7 +882,9 @@ create_link ${__dir_dotlocal} ~/.dotfiles.local || true
 if (( ${__app_lvl} > 0 )) || [[ "${__if_update}" == "Y" ]]; then
     install_apps
 fi
+
 [[ ${__if_dotfiles} == "Y" ]] && install_dotfiles
+
 # [[ ${__if_dotfiles} == "Y" ]] && install_dotfiles
 [[ ${__if_break_links} == "Y" ]] && break_links
 
