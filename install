@@ -432,6 +432,8 @@ install_apps()
     (( ${__app_lvl} >= 2 )) &&
         aptget ${update_option} python
         aptget ${update_option} python3
+        pipinstall -3H ${update_option} ipdb || true
+        pipinstall -H ${update_option} ipdb || true
 
     # CYGWIN
     if (( ${__app_lvl} >= 1 )) && [[ ${__myos} == 'CYGWIN' ]]; then
