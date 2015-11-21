@@ -791,6 +791,9 @@ install_apps()
         aptget -ol ${update_option} apt-file
         aptget -ol ${update_option} autokey-gtk
         aptget -ol ${update_option} pandoc
+        # pv - see progress through a pipeline
+        aptget -ol ${update_option} pv
+        aptget -ol ${update_option} traceroute
         apt-file update
         # calibre:
         sudo -v && wget -nv -O-
