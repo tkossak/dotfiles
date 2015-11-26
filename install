@@ -786,7 +786,6 @@ install_apps()
         aptget -ol ${update_option} nethogs
         aptget -ol ${update_option} iftop
         aptget -ol ${update_option} nload
-        aptget -ol ${update_option} xclip
         aptget -ol ${update_option} ppa-purge
         aptget -ol ${update_option} apt-file
         aptget -ol ${update_option} autokey-gtk
@@ -799,6 +798,14 @@ install_apps()
         sudo -v && wget -nv -O-
         https://raw.githubusercontent.com/kovidgoyal/calibre/master/setup/linux-installer.py \
             | sudo python -c "import sys; main=lambda:sys.stderr.write('Download failed\n'); exec(sys.stdin.read()); main()"
+    fi
+
+    # different for LINUX + CYGWIN
+    if (( ${__app_lvl} >= 3 )); then
+        # for pass:
+        aptget ${update_option} tree
+        aptget ${update_option} pwgen
+        aptget ${update_option} xclip
     fi
 
     # different for LINUX
