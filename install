@@ -794,6 +794,10 @@ install_apps()
         aptget -ol ${update_option} pv
         aptget -ol ${update_option} traceroute
         apt-file update
+        # roccat isku dirvers
+        aptget -ol ${update_option} cmake
+        aptget -ol ${update_option} libcaberra-dev
+        aptget -ol ${update_option} libnotify-dev
         # calibre:
         sudo -v && wget -nv -O-
         https://raw.githubusercontent.com/kovidgoyal/calibre/master/setup/linux-installer.py \
