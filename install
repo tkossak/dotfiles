@@ -5,6 +5,10 @@ set -o pipefail
 set -o nounset
 # set -o xtrace
 
+# MANUAL SET
+# gvim folder
+__dir_gvim_root="/cygdrive/d/Kossak/progs/gvim"
+
 # magic variables for links
 __sfile="$(readlink -f ${BASH_SOURCE[0]})"
 __dir_dotfiles="$(cd "$(dirname "${__sfile}")" && pwd)"
@@ -40,9 +44,8 @@ __if_break_links="N"
 __if_testing="N"
 __if_update="N"
 
-__dir_gvim_root="/cygdrive/d/Kossak/progs/gvim"
 if [[ -d "${__dir_gvim_root}" ]]; then
-    __file_gvim_plug="${__dir_gvim_root}/autoload/plug.vim"
+    __file_gvimplug_path="${__dir_gvim_root}/autoload/plug.vim"
     __dir_gvim_home="/cygdrive/k"
 else
     __dir_gvim_root=""
@@ -477,11 +480,11 @@ install_apps()
 
     # gvim
     if (( ${__app_lvl} >= 1 )) && [[ -d "${__dir_gvim_root}" ]]; then
-        if [[ ! -e "${__file_gvim_plug}" ]]; then
+        if [[ ! -e "${__file_gvimplug_path}" ]]; then
             if [[ -r "${__vim_vimplug_path}" ]]; then
-                cp "${__vim_vimplug_path}" "${__file_gvim_plug}"
+                cp "${__vim_vimplug_path}" "${__file_gvimplug_path}"
             else
-                geturl "${__vim_vimplug_url}" "${__file_gvim_plug}"
+                geturl "${__vim_vimplug_url}" "${__file_gvimplug_path}"
             fi
         fi
     fi

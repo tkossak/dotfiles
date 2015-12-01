@@ -84,9 +84,3 @@ vmap <C-v> <Plug>(expand_region_shrink)
 if filereadable("/cygdrive/d/Kossak/progs/zeal/zeal.exe")
     let g:zv_zeal_directory = "/cygdrive/d/Kossak/progs/zeal/zeal.exe"
 endif
-
-
-
-
-
-
