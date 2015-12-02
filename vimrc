@@ -68,6 +68,7 @@ set statusline=%t[%{strlen(&fenc)?&fenc:'none'},%{&ff}]%h%m%r%y%=%c,%l/%L\ %P
 
 set splitright
 set splitbelow
+set guifont=Source_Code_Pro::cDEFAULT
 
 " diff ignores whitespace
 set diffopt+=iwhite
@@ -75,7 +76,6 @@ set diffexpr=""
 
 " Make a simple "search" text object.
 " Type ys to copy the search hit.
-" Type "+ys to copy the hit to the clipboard.
 " Type cs to change the hit.
 " Type gUs to convert the hit to uppercase.
 " Type vs to visually select the hit. If you type another s you will extend the selection to the end of the next hit.

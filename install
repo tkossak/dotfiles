@@ -45,7 +45,7 @@ __if_testing="N"
 __if_update="N"
 
 if [[ -d "${__dir_gvim_root}" ]]; then
-    __file_gvimplug_path="${__dir_gvim_root}/autoload/plug.vim"
+    __dir_gvimplug_path="${__dir_gvim_root}/autoload/plug.vim"
     __dir_gvim_home="/cygdrive/k"
 else
     __dir_gvim_root=""
@@ -119,6 +119,9 @@ echo "__myos=${__myos}"
 echo "__myhost=${__myhost}"
 echo "__app_lvl=${__app_lvl}"
 echo "__if_update=${__if_update}"
+echo "__dir_gvim_root=${__dir_gvim_root}"
+echo "__dir_gvim_home=${__dir_gvim_home}"
+echo "__dir_gvimplug_path=${__dir_gvimplug_path}"
 
 # ================================================================================
 # Initial cmds:
@@ -210,10 +213,17 @@ install_dotfiles()
 
     # Vim
     create_link ${__dir_dotfiles}/vimrc ~/.vimrc || true
-    create_link ${__dir_dotlocal}/vimrc.local ~/.vimrc.local || true
+    # create_link ${__dir_dotlocal}/vimrc.local ~/.vimrc.local || true
     create_link ${__dir_dotfiles}/vimrc.plugins ~/.vimrc.plugins || true
     create_link ${__dir_dotfiles}/vimrc.functions ~/.vimrc.functions || true
 
+    # gvim windows
+    if [[ -d "${__dir_gvim_root}" ]]; then
+        create_link -c ${__dir_dotfiles}/vimrc "${__dir_gvim_home}/_gvimrc" || true
+        create_link -c ${__dir_dotfiles}/vimrc.plugins "${__dir_gvim_home}/.vimrc.plugins" || true
+        create_link -c ${__dir_dotfiles}/vimrc.functions "${__dir_gvim_home}/.vimrc.functions" || true
+
+    fi
     # gnome-terminal
     if [[ -d ~/.gconf/apps/gnome-terminal ]]; then
         create_link ${__dir_dotfiles}/gnome-terminal ~/.gconf/apps/gnome-terminal || true
@@ -480,11 +490,11 @@ install_apps()
 
     # gvim
     if (( ${__app_lvl} >= 1 )) && [[ -d "${__dir_gvim_root}" ]]; then
-        if [[ ! -e "${__file_gvimplug_path}" ]]; then
+        if [[ ! -e "${__dir_gvimplug_path}" ]]; then
             if [[ -r "${__vim_vimplug_path}" ]]; then
-                cp "${__vim_vimplug_path}" "${__file_gvimplug_path}"
+                cp "${__vim_vimplug_path}" "${__dir_gvimplug_path}"
             else
-                geturl "${__vim_vimplug_url}" "${__file_gvimplug_path}"
+                geturl "${__vim_vimplug_url}" "${__dir_gvimplug_path}"
             fi
         fi
     fi
