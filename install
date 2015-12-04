@@ -10,14 +10,15 @@ set -o nounset
 __dir_gvim_root="/cygdrive/d/Kossak/progs/gvim"
 
 # magic variables for links
-__sfile="$(readlink -f ${BASH_SOURCE[0]})"
+__sfile="$(readlink -f "${BASH_SOURCE[0]}")"
 __dir_dotfiles="$(cd "$(dirname "${__sfile}")" && pwd)"
 __dir_dotlocal="$(cd "$(dirname "${__dir_dotfiles}")" && pwd)/dotfiles.local"
-__dir_dotlocal="$(readlink -f ${__dir_dotlocal})"
+__dir_dotlocal="$(readlink -f "${__dir_dotlocal}")"
 __dir_installers="/tmp/installers"
 
 # --------------------------------------------------------------------------------
-source ${__dir_dotfiles}/source/src_bash_install
+# shellcheck source=source/src_bash_install
+source "${__dir_dotfiles}/source/src_bash_install"
 
 print_help()
 {
@@ -103,7 +104,8 @@ OPTIND=1
 
 # ================================================================================
 # print environment
-printf "${Yellow}=== ENVIRONMENT ==================================================${Color_Off}\n"
+printf "%s=== ENVIRONMENT
+==================================================%s\n" "${Yellow}" "${Color_Off}"
 echo "__dir_dotfiles=${__dir_dotfiles}"
 if [[ -d "${__dir_dotlocal}" ]]; then
     echo "__dir_dotlocal (exists) =${__dir_dotlocal}"
@@ -120,27 +122,28 @@ echo "__myhost=${__myhost}"
 echo "__app_lvl=${__app_lvl}"
 echo "__if_update=${__if_update}"
 echo "__dir_gvim_root=${__dir_gvim_root}"
-echo "__dir_gvim_home=${__dir_gvim_home}"
-echo "__dir_gvimplug_path=${__dir_gvimplug_path}"
+echo "__dir_gvim_home=${__dir_gvim_home:-}"
+echo "__dir_gvimplug_path=${__dir_gvimplug_path:-}"
 
 # ================================================================================
 # Initial cmds:
 loguj -p -i -t "${ltype}" "Initial cmds..."
-mkdir -p ${HOME}/apps
-mkdir -p ${HOME}/.emacs.d/mine
-mkdir -p ${HOME}/.vim/autoload
+mkdir -p "${HOME}/apps"
+mkdir -p "${HOME}/.emacs.d/mine"
+mkdir -p "${HOME}/.vim/autoload"
 # mkdir -p ~/.emacs.d/evil
-[[ -d "${__dir_dotlocal}" ]] &&
+if [[ -d "${__dir_dotlocal}" ]]; then
     find "${__dir_dotlocal}" -maxdepth 1 -type f -exec chmod -x {} \; || true
+fi
 find "${__dir_dotfiles}/bin" -type f -exec chmod u+x {} \;
 chmod -x "${__dir_dotfiles}/bin/create_bash.model"
 
-find ${__dir_dotfiles} -maxdepth 1 -type f -exec chmod -x {} \;
+find "${__dir_dotfiles}" -maxdepth 1 -type f -exec chmod -x {} \;
 [[ -e "${__dir_dotfiles}/install" ]] && chmod u+x "${__dir_dotfiles}/install"
 [[ -e "${__dir_dotfiles}/i_git" ]] && chmod u+x "${__dir_dotfiles}/i_git"
 
 [[ -d ${__dir_win_home} ]] &&
-    mkdir -p ${__dir_win_home}/.emacs.d/mine
+    mkdir -p "${__dir_win_home}/.emacs.d/mine"
 
 loguj -p -i -t "${ltype}" "Initial cmds... Done"
 
@@ -197,49 +200,50 @@ install_dotfiles()
     loguj -ss -t "${ltype}" "DOTFILES"
 
     # TMUX
-    create_link ${__dir_dotfiles}/tmux.conf ~/.tmux.conf || true
+    create_link "${__dir_dotfiles}/tmux.conf" ~/.tmux.conf || true
 
     # minttyrc
-    [[ -e ${HOME}/.minttyrc ]] &&
-        create_link ${__dir_dotfiles}/minttyrc ~/.minttyrc || true
+    if [[ -e ${HOME}/.minttyrc ]]; then
+        create_link "${__dir_dotfiles}/minttyrc" ~/.minttyrc || true
+    fi
 
     # Git
-    create_link ${__dir_dotfiles}/gitconfig ~/.gitconfig || true
-    create_link ${__dir_dotlocal}/gitconfig.local ~/.gitconfig.local || true
+    create_link "${__dir_dotfiles}/gitconfig" ~/.gitconfig || true
+    create_link "${__dir_dotlocal}/gitconfig.local" ~/.gitconfig.local || true
 
     # Bash:
-    create_link ${__dir_dotfiles}/bashrc ~/.bashrc || true
-    create_link ${__dir_dotlocal}/bashrc.local ~/.bashrc.local || true
+    create_link "${__dir_dotfiles}/bashrc" ~/.bashrc || true
+    create_link "${__dir_dotlocal}/bashrc.local" ~/.bashrc.local || true
 
     # Vim
-    create_link ${__dir_dotfiles}/vimrc ~/.vimrc || true
-    # create_link ${__dir_dotlocal}/vimrc.local ~/.vimrc.local || true
-    create_link ${__dir_dotfiles}/vimrc.plugins ~/.vimrc.plugins || true
-    create_link ${__dir_dotfiles}/vimrc.functions ~/.vimrc.functions || true
+    create_link "${__dir_dotfiles}/vimrc" ~/.vimrc || true
+    # create_link "${__dir_dotlocal}/vimrc.local" ~/.vimrc.local || true
+    create_link "${__dir_dotfiles}/vimrc.plugins" ~/.vimrc.plugins || true
+    create_link "${__dir_dotfiles}/vimrc.functions" ~/.vimrc.functions || true
 
     # gvim windows
     if [[ -d "${__dir_gvim_root}" ]]; then
-        create_link -c ${__dir_dotfiles}/vimrc "${__dir_gvim_home}/_gvimrc" || true
-        create_link -c ${__dir_dotfiles}/vimrc.plugins "${__dir_gvim_home}/.vimrc.plugins" || true
-        create_link -c ${__dir_dotfiles}/vimrc.functions "${__dir_gvim_home}/.vimrc.functions" || true
+        create_link -c "${__dir_dotfiles}/vimrc" "${__dir_gvim_home}/_gvimrc" || true
+        create_link -c "${__dir_dotfiles}/vimrc.plugins" "${__dir_gvim_home}/.vimrc.plugins" || true
+        create_link -c "${__dir_dotfiles}/vimrc.functions" "${__dir_gvim_home}/.vimrc.functions" || true
 
     fi
     # gnome-terminal
     if [[ -d ~/.gconf/apps/gnome-terminal ]]; then
-        create_link ${__dir_dotfiles}/gnome-terminal ~/.gconf/apps/gnome-terminal || true
+        create_link "${__dir_dotfiles}/gnome-terminal" ~/.gconf/apps/gnome-terminal || true
     fi
 
     # Spacemacs
     if hash emacs 2>/dev/null; then
-        create_link ${__dir_dotfiles}/spacemacs "${HOME}/.spacemacs" || true
-        create_link ${__dir_dotlocal}/emacs.local "${HOME}/.spacemacs.local" || true
+        create_link "${__dir_dotfiles}/spacemacs" "${HOME}/.spacemacs" || true
+        create_link "${__dir_dotlocal}/emacs.local" "${HOME}/.spacemacs.local" || true
 
         # Win
         if [[ -d "${__dir_win_home}" ]]; then
-            create_link -w ${__dir_dotfiles}/spacemacs "${__dir_win_home}/.spacemacs" || true
+            create_link -w "${__dir_dotfiles}/spacemacs" "${__dir_win_home}/.spacemacs" || true
         fi
         if [[ -d "${__dir_win_home}/.emacs.d" ]]; then
-            create_link -w ${__dir_dotlocal}/emacs.local "${__dir_win_home}/.spacemacs.local" || true
+            create_link -w "${__dir_dotlocal}/emacs.local" "${__dir_win_home}/.spacemacs.local" || true
         fi
     fi
 
@@ -297,17 +301,17 @@ install_dotfiles()
                 CYGWIN)
                     if [[ ${__myhost} = W ]]; then
                         # create_link ~/.dotfiles.local/rifle.conf.w.cygwin ~/.config/ranger/rifle.conf
-                        cat ~/.config/ranger/rifle.conf ${__dir_dotlocal}/rifle.conf.w.cygwin > ~/.config/ranger/rifletmp.conf
+                        cat ~/.config/ranger/rifle.conf "${__dir_dotlocal}/rifle.conf.w.cygwin" > ~/.config/ranger/rifletmp.conf
                         mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
                         loguj -i -t "${ltype}" "CP: rifle.conf (C-W)"
                     elif [[ ${__myhost} = H ]]; then
                         # create_link ~/.dotfiles.local/rifle.conf.h.cygwin ~/.config/ranger/rifle.conf
-                        cat ~/.config/ranger/rifle.conf ${__dir_dotlocal}/rifle.conf.h.cygwin > ~/.config/ranger/rifletmp.conf
+                        cat ~/.config/ranger/rifle.conf "${__dir_dotlocal}/rifle.conf.h.cygwin" > ~/.config/ranger/rifletmp.conf
                         mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
                         loguj -i -t "${ltype}" "CP: rifle.conf (C-H)"
                     else
                         # loguj -i -t "${ltype}" "Ranger - cygwin - unknown host Copying default file."
-                        cat ~/.config/ranger/rifle.conf ${__dir_dotfiles}/rifle.conf > ~/.config/ranger/rifletmp.conf
+                        cat ~/.config/ranger/rifle.conf "${__dir_dotfiles}/rifle.conf" > ~/.config/ranger/rifletmp.conf
                         mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
                         loguj -i -t "${ltype}" "CP: rifle.conf (C-OTHER)"
                     fi
@@ -315,31 +319,31 @@ install_dotfiles()
                 LINUX)
                     if [[ ${__myhost} = H ]]; then
                         # create_link ~/.dotfiles.local/rifle.conf.h.linux ~/.config/ranger/rifle.conf
-                        cat ~/.config/ranger/rifle.conf ${__dir_dotlocal}/rifle.conf.h.linux > ~/.config/ranger/rifletmp.conf
+                        cat ~/.config/ranger/rifle.conf "${__dir_dotlocal}/rifle.conf.h.linux" > ~/.config/ranger/rifletmp.conf
                         mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
                         loguj -i -t "${ltype}" "CP: rifle.conf (L-H)"
                     else
                         loguj -i -t "${ltype}" "Ranger - linux - unknown host Copying default file."
-                        cat ~/.config/ranger/rifle.conf ${__dir_dotfiles}/rifle.conf > ~/.config/ranger/rifletmp.conf
+                        cat ~/.config/ranger/rifle.conf "${__dir_dotfiles}/rifle.conf" > ~/.config/ranger/rifletmp.conf
                         mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
                         loguj -i -t "${ltype}" "CP: rifle.conf (L-OTHER)"
                     fi
                     ;;
                 *)
-                    cat ~/.config/ranger/rifle.conf ${__dir_dotfiles}/rifle.conf > ~/.config/ranger/rifletmp.conf
+                    cat ~/.config/ranger/rifle.conf "${__dir_dotfiles}/rifle.conf" > ~/.config/ranger/rifletmp.conf
                     mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
                     loguj -i -t "${ltype}" "CP: rifle.conf (OTHER-OTHER)"
                     ;;
             esac
         else
-            cat ~/.config/ranger/rifle.conf ${__dir_dotfiles}/rifle.conf > ~/.config/ranger/rifletmp.conf
+            cat ~/.config/ranger/rifle.conf "${__dir_dotfiles}/rifle.conf" > ~/.config/ranger/rifletmp.conf
             mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
             # loguj -i -t "${ltype}" "Ranger - no local dotfiles. Copying default file."
             loguj -i -t "${ltype}" "CP: rifle.conf (default - no local dotfiles)"
         fi
         # if [[ "${__myos}" == "LINUX" ]]; then
         [[ -e ~/.config/ranger/bookmarks ]] &&
-            ${__sudo} chown ${__my_user} ~/.config/ranger/bookmarks
+            ${__sudo} chown "${__my_user}" ~/.config/ranger/bookmarks
         # fi
     else
         loguj -i -t "${ltype}" "Ranger not found. Not creating links."
@@ -347,37 +351,37 @@ install_dotfiles()
 
     # mplayer
     if hash mplayer 2>/dev/null || [[ -d ~/.mplayer ]]; then
-        create_link ${__dir_dotfiles}/mplayer_config ~/.mplayer/config || true
-        create_link ${__dir_dotfiles}/mplayer_input.conf ~/.mplayer/input.conf || true
+        create_link "${__dir_dotfiles}/mplayer_config" ~/.mplayer/config || true
+        create_link "${__dir_dotfiles}/mplayer_input.conf" ~/.mplayer/input.conf || true
     fi
 
     # weechat
     if ( hash weechat 2>/dev/null || [[ -d ~/.weechat ]] ) && [[ -d ${__dir_dotlocal} ]]; then
         if [[ -d ${__dir_dotlocal}/weechat ]]; then
-           create_link ${__dir_dotlocal}/weechat/guile ~/.weechat/guile || true
-           create_link ${__dir_dotlocal}/weechat/javascript ~/.weechat/javascript || true
-           create_link ${__dir_dotlocal}/weechat/lua ~/.weechat/lua || true
-           create_link ${__dir_dotlocal}/weechat/perl ~/.weechat/perl || true
-           create_link ${__dir_dotlocal}/weechat/python ~/.weechat/python || true
-           create_link ${__dir_dotlocal}/weechat/ruby ~/.weechat/ruby || true
-           create_link ${__dir_dotlocal}/weechat/script ~/.weechat/script || true
-           create_link ${__dir_dotlocal}/weechat/tcl ~/.weechat/tcl || true
-           create_link ${__dir_dotlocal}/weechat/xfer ~/.weechat/xfer || true
-           create_link ${__dir_dotlocal}/weechat/alias.conf ~/.weechat/alias.conf || true
-           create_link ${__dir_dotlocal}/weechat/aspell.conf ~/.weechat/aspell.conf || true
-           create_link ${__dir_dotlocal}/weechat/buffers.conf ~/.weechat/buffers.conf || true
-           create_link ${__dir_dotlocal}/weechat/charset.conf ~/.weechat/charset.conf || true
-           create_link ${__dir_dotlocal}/weechat/exec.conf ~/.weechat/exec.conf || true
-           create_link ${__dir_dotlocal}/weechat/irc.conf ~/.weechat/irc.conf || true
-           create_link ${__dir_dotlocal}/weechat/iset.conf ~/.weechat/iset.conf || true
-           create_link ${__dir_dotlocal}/weechat/logger.conf ~/.weechat/logger.conf || true
-           create_link ${__dir_dotlocal}/weechat/plugins.conf ~/.weechat/plugins.conf || true
-           create_link ${__dir_dotlocal}/weechat/relay.conf ~/.weechat/relay.conf || true
-           create_link ${__dir_dotlocal}/weechat/script.conf ~/.weechat/script.conf || true
-           create_link ${__dir_dotlocal}/weechat/sec.conf ~/.weechat/sec.conf || true
-           create_link ${__dir_dotlocal}/weechat/trigger.conf ~/.weechat/trigger.conf || true
-           create_link ${__dir_dotlocal}/weechat/weechat.conf ~/.weechat/weechat.conf || true
-           create_link ${__dir_dotlocal}/weechat/xfer.conf ~/.weechat/xfer.conf || true
+           create_link "${__dir_dotlocal}/weechat/guile" ~/.weechat/guile || true
+           create_link "${__dir_dotlocal}/weechat/javascript" ~/.weechat/javascript || true
+           create_link "${__dir_dotlocal}/weechat/lua" ~/.weechat/lua || true
+           create_link "${__dir_dotlocal}/weechat/perl" ~/.weechat/perl || true
+           create_link "${__dir_dotlocal}/weechat/python" ~/.weechat/python || true
+           create_link "${__dir_dotlocal}/weechat/ruby" ~/.weechat/ruby || true
+           create_link "${__dir_dotlocal}/weechat/script" ~/.weechat/script || true
+           create_link "${__dir_dotlocal}/weechat/tcl" ~/.weechat/tcl || true
+           create_link "${__dir_dotlocal}/weechat/xfer" ~/.weechat/xfer || true
+           create_link "${__dir_dotlocal}/weechat/alias.conf" ~/.weechat/alias.conf || true
+           create_link "${__dir_dotlocal}/weechat/aspell.conf" ~/.weechat/aspell.conf || true
+           create_link "${__dir_dotlocal}/weechat/buffers.conf" ~/.weechat/buffers.conf || true
+           create_link "${__dir_dotlocal}/weechat/charset.conf" ~/.weechat/charset.conf || true
+           create_link "${__dir_dotlocal}/weechat/exec.conf" ~/.weechat/exec.conf || true
+           create_link "${__dir_dotlocal}/weechat/irc.conf" ~/.weechat/irc.conf || true
+           create_link "${__dir_dotlocal}/weechat/iset.conf" ~/.weechat/iset.conf || true
+           create_link "${__dir_dotlocal}/weechat/logger.conf" ~/.weechat/logger.conf || true
+           create_link "${__dir_dotlocal}/weechat/plugins.conf" ~/.weechat/plugins.conf || true
+           create_link "${__dir_dotlocal}/weechat/relay.conf" ~/.weechat/relay.conf || true
+           create_link "${__dir_dotlocal}/weechat/script.conf" ~/.weechat/script.conf || true
+           create_link "${__dir_dotlocal}/weechat/sec.conf" ~/.weechat/sec.conf || true
+           create_link "${__dir_dotlocal}/weechat/trigger.conf" ~/.weechat/trigger.conf || true
+           create_link "${__dir_dotlocal}/weechat/weechat.conf" ~/.weechat/weechat.conf || true
+           create_link "${__dir_dotlocal}/weechat/xfer.conf" ~/.weechat/xfer.conf || true
 
         else
             loguj -i -t "${ltype}" "No weechat local dotfiles."
@@ -431,25 +435,33 @@ install_apps()
     update_repos
 
     # wget
-    (( ${__app_lvl} >= 1 )) &&
-        aptget ${update_option} wget && __geturl_app="wget -O" || true
+    if (( __app_lvl >= 1 )); then
+        if aptget ${update_option} wget; then
+            __geturl_app="wget -O" || true
+        fi
+    fi
 
     # curl
-    (( ${__app_lvl} >= 1 )) &&
-        aptget ${update_option} curl && __geturl_app="curl -Lo" || true
+    if (( __app_lvl >= 1 )); then
+        if aptget ${update_option} curl; then
+            __geturl_app="curl -Lo" || true
+        fi
+    fi
 
     # git
-    (( ${__app_lvl} >= 1 )) &&
+    if (( __app_lvl >= 1 )); then
         aptget ${update_option} git || true
+    fi
 
-    (( ${__app_lvl} >= 2 )) &&
+    if (( __app_lvl >= 2 )); then
         aptget ${update_option} python
         aptget ${update_option} python3
         pipinstall -3H ${update_option} ipdb || true
         pipinstall -H ${update_option} ipdb || true
+    fi
 
     # CYGWIN
-    if (( ${__app_lvl} >= 1 )) && [[ ${__myos} == 'CYGWIN' ]]; then
+    if (( __app_lvl >= 1 )) && [[ ${__myos} == 'CYGWIN' ]]; then
         # aptget ${update_option} curl # earlier
         # aptget ${update_option} wget # earlier
         aptget ${update_option} -oc python-setuptools
@@ -472,7 +484,7 @@ install_apps()
     # vim
     __vim_vimplug_url="https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
     __vim_vimplug_path="${HOME}/.vim/autoload/plug.vim"
-    if (( ${__app_lvl} >= 1 )); then
+    if (( __app_lvl >= 1 )); then
         aptget ${update_option} vim || true
 
         # del Vundle:
@@ -489,7 +501,7 @@ install_apps()
     fi
 
     # gvim
-    if (( ${__app_lvl} >= 1 )) && [[ -d "${__dir_gvim_root}" ]]; then
+    if (( __app_lvl >= 1 )) && [[ -d "${__dir_gvim_root}" ]]; then
         if [[ ! -e "${__dir_gvimplug_path}" ]]; then
             if [[ -r "${__vim_vimplug_path}" ]]; then
                 cp "${__vim_vimplug_path}" "${__dir_gvimplug_path}"
@@ -500,21 +512,23 @@ install_apps()
     fi
 
     # emacs
-    (( ${__app_lvl} >= 1 )) &&
+    if (( __app_lvl >= 1 )); then
         aptget ${update_option} emacs || true
+    fi
 
     # make
-    (( ${__app_lvl} >= 1 )) &&
+    if (( __app_lvl >= 1 )); then
         aptget ${update_option} make || true
+    fi
 
     # vim-vundle
     # gitclone https://github.com/gmarik/Vundle.vim.git ~/.vim/bundle/Vundle.vim || true
 
     # PIP2
     # changelog: https://pip.pypa.io/en/latest/news.html
-    if (( ${__app_lvl} >= 1 )); then
+    if (( __app_lvl >= 1 )); then
 
-        local cur_pip_verson="7.1.2"
+        # local cur_pip_verson="7.1.2"
         local cur_pip_sha1="4645795f303c2a8a02d9957514af8a28fd8770c2"
         local if_getpip_downloaded="0"
         local installer="/tmp/get-pip.py"
@@ -559,9 +573,11 @@ install_apps()
 
                     # install
                     if [[ "${if_getpip_downloaded}" = "1" ]]; then
-                        ${__sudo} ${sudo_options} ${cur_python_cmd} "${installer}" \
-                            && loguj -s -t "${ltype}" "${cur_pip_cmd}" \
-                            || loguj -e -t "${ltype}" "Problem instalilng ${cur_pip_cmd}"
+                        if ${__sudo} ${sudo_options} ${cur_python_cmd} "${installer}"; then
+                            loguj -s -t "${ltype}" "${cur_pip_cmd}"
+                        else
+                            loguj -e -t "${ltype}" "Problem instalilng ${cur_pip_cmd}"
+                        fi
                     else
                         loguj -e -t "${ltype}" "Problem downloading ${cur_pip_cmd}"
                     fi
@@ -572,7 +588,7 @@ install_apps()
     fi
 
     # PIP3 -----------------------------------
-    if (( ${__app_lvl} >= 1 )); then
+    if (( __app_lvl >= 1 )); then
 
         cur_python_cmd="python3"
         cur_pip_cmd="pip3"
@@ -615,9 +631,11 @@ install_apps()
 
                     # install
                     if [[ "${if_getpip_downloaded}" = "1" ]]; then
-                        ${__sudo} ${sudo_options} ${cur_python_cmd} "${installer}" \
-                            && loguj -s -t "${ltype}" "${cur_pip_cmd}" \
-                            || loguj -e -t "${ltype}" "Problem instalilng ${cur_pip_cmd}"
+                        if ${__sudo} ${sudo_options} ${cur_python_cmd} "${installer}"; then
+                            loguj -s -t "${ltype}" "${cur_pip_cmd}"
+                        else
+                            loguj -e -t "${ltype}" "Problem instalilng ${cur_pip_cmd}"
+                        fi
                     else
                         loguj -e -t "${ltype}" "Problem downloading ${cur_pip_cmd}"
                     fi
@@ -628,22 +646,24 @@ install_apps()
     fi
 
     # Python modules
-    # if (( ${__app_lvl} >= 1 )); then
+    # if (( __app_lvl >= 1 )); then
     #     pipinstall -3H pyflakes livestreamer
     # fi
 
 
     # Ranger
-    (( ${__app_lvl} >= 1 )) &&
+    if (( __app_lvl >= 1 )); then
         gitclone ${update_option} https://github.com/hut/ranger.git ~/apps/ranger "${__sudo} make install" "ranger --copy-config=all" || true
+    fi
 
     # TMUX
-    (( ${__app_lvl} >= 1 )) &&
+    if (( __app_lvl >= 1 )); then
         aptget ${update_option} tmux || true
+    fi
 
     # dtrx
     # without updating
-    if (( ${__app_lvl} >= 1 )); then
+    if (( __app_lvl >= 1 )); then
         if ! hash dtrx 2>/dev/null; then
             rm -rf /tmp/dtrx-7.1
             geturl -d http://brettcsmith.org/2007/dtrx/dtrx-7.1.tar.gz /tmp/dtrx-7.1.tar.gz -sha1 05cfe705a04a8b84571b0a5647cd2648720791a4 "tar -xf dtrx-7.1.tar.gz" "cd dtrx-7.1" "${__sudo} python setup.py install --prefix=/usr/local" "rm -rf /tmp/dtrx-7.1" "rm -rf /tmp/dtrx-7.1.tar.gz" || true
@@ -651,31 +671,34 @@ install_apps()
     fi
 
     # fasd
-    (( ${__app_lvl} >= 1 )) &&
+    if (( __app_lvl >= 1 )); then
         gitclone ${update_option} https://github.com/clvv/fasd.git ~/apps/fasd "${__sudo} make install" || true
+    fi
 
     # commacd
-    (( ${__app_lvl} >= 2 )) &&
+    if (( __app_lvl >= 2 )); then
         geturl ${update_option} https://raw.githubusercontent.com/shyiko/commacd/master/commacd.bash ~/.commacd.bash || true
+    fi
 
     # glances
-    if (( ${__app_lvl} >= 2 )); then
-        aptget -ol ${update_option} glances &&
-            {
-                aptget ${update_option} lm-sensors || true
-                pipinstall -2H ${update_option} PySensors || true
-            } ||
+    if (( __app_lvl >= 2 )); then
+        if aptget -ol ${update_option} glances; then
+            aptget ${update_option} lm-sensors || true
+            pipinstall -2H "${update_option}" PySensors || true
+        else
             true
+        fi
     fi
 
     # fzf - asks questions
-    (( ${__app_lvl} >= 2 )) &&
-        gitclone -p 1 ${update_option} https://github.com/junegunn/fzf.git ~/.fzf ~/.fzf/install || true
+    if (( __app_lvl >= 2 )); then
+        gitclone -p 1 "${update_option}" https://github.com/junegunn/fzf.git ~/.fzf ~/.fzf/install || true
+    fi
 
-    if (( ${__app_lvl} >= 2 )); then
-        pipinstall -2H ${update_option} speedtest-cli || true
+    if (( __app_lvl >= 2 )); then
+        pipinstall -2H "${update_option}" speedtest-cli || true
         if ! hash youtube-dl 2>/dev/null; then
-            pipinstall -3H ${update_option} youtube_dl youtube-dl
+            pipinstall -3H "${update_option}" youtube_dl youtube-dl
         fi
     fi
         # if [[ -d ~/.fzf && "${__if_update}" == "N" ]]; then
@@ -696,7 +719,7 @@ install_apps()
 
     #     fi
 
-    # elif (( ${__app_lvl} >= 2 )); then
+    # elif (( __app_lvl >= 2 )); then
     #     if [[ ! -d ~/.fzf ]]; then
     #         git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install || true
     #     fi
@@ -704,7 +727,7 @@ install_apps()
 
 
     # Spacemacs
-    if (( ${__app_lvl} >= 4 )) && [[ -z "${update_option}" ]]; then
+    if (( __app_lvl >= 4 )) && [[ -z "${update_option}" ]]; then
 
         git clone --recursive https://github.com/syl20bnr/spacemacs "${HOME}/.emacs.d"
 
@@ -722,7 +745,7 @@ install_apps()
     fi
 
     # Emacs Linux - old
-    # if (( ${__app_lvl} >= 3 )); then
+    # if (( __app_lvl >= 3 )); then
     #     aptget ${update_option} emacs || true
     #     if hash emacs 2>/dev/null; then
     #         # evil-leader:
@@ -756,7 +779,7 @@ install_apps()
     #             fi
 
     # geeknote
-    (( ${__app_lvl} >= 3 )) &&
+    (( __app_lvl >= 3 )) &&
         if ! hash geeknote 2> /dev/null; then
             gitclone ${update_option} https://github.com/VitaliyRodnenko/geeknote.git ~/apps/geeknote || true
             ${__sudo} python setup.py install
@@ -764,7 +787,7 @@ install_apps()
         fi
 
     # PIP installs
-    if (( ${__app_lvl} >= 3 )); then
+    if (( __app_lvl >= 3 )); then
         #ipythons
         pipinstall -H ${update_option} ipython || true
         pipinstall -3H ${update_option} ipython || true
@@ -783,7 +806,7 @@ install_apps()
     fi
 
     # different for LINUX
-    if [[ ${__myos} == "LINUX" ]] && (( ${__app_lvl} >= 3 )); then
+    if [[ ${__myos} == "LINUX" ]] && (( __app_lvl >= 3 )); then
         aptget -ol ${update_option} sshfs
         aptget -ol ${update_option} vlc
         aptget -ol ${update_option} dos2unix
@@ -818,7 +841,7 @@ install_apps()
     fi
 
     # different for LINUX + CYGWIN
-    if (( ${__app_lvl} >= 3 )); then
+    if (( __app_lvl >= 3 )); then
         # for pass:
         aptget ${update_option} tree
         aptget ${update_option} pwgen
@@ -826,7 +849,7 @@ install_apps()
     fi
 
     # different for LINUX
-    if (( ${__app_lvl} >= 3 )) && [[ "${__myos}" == 'LINUX' ]]; then
+    if (( __app_lvl >= 3 )) && [[ "${__myos}" == 'LINUX' ]]; then
         # download installers
         [[ ! -d "${__dir_installers}" ]] && mkdir "${__dir_installers}"
 
@@ -871,29 +894,6 @@ install_apps()
 testing()
 {
     echo "=== TESTING START =================================================="
-    echo "install git test"
-
-        local cur_pip_verson="7.1.2"
-        local cur_pip_sha1="4645795f303c2a8a02d9957514af8a28fd8770c2"
-        local if_getpip_downloaded="0"
-        local installer="/tmp/get-pip.py"
-        local cur_python_cmd="python2"
-        local cur_pip_cmd="pip2"
-
-        cur_python_cmd="python3"
-        cur_pip_cmd="pip3"
-
-
-        local installer="/tmp/get-pip.py"
-
-                    # download
-                        geturl https://bootstrap.pypa.io/get-pip.py "${installer}" -sha1 "${cur_pip_sha1}" \
-                            && if_getpip_downloaded="1"
-
-                    # install
-                        ${__sudo} ${sudo_options} ${cur_python_cmd} "${installer}" \
-                            && loguj -s -t "${ltype}" "${cur_pip_cmd}" \
-                            || loguj -e -t "${ltype}" "Problem instalilng ${cur_pip_cmd}"
 
     echo "=== TESTING END ===================================================="
     return 0
@@ -904,11 +904,11 @@ testing()
 # --------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------
 
-create_link ${__dir_dotfiles} ~/.dotfiles
-create_link ${__dir_dotlocal} ~/.dotfiles.local || true
+create_link "${__dir_dotfiles}" ~/.dotfiles
+create_link "${__dir_dotlocal}" ~/.dotfiles.local || true
 
 [[ ${__if_testing} == "Y" ]] && testing
-if (( ${__app_lvl} > 0 )) || [[ "${__if_update}" == "Y" ]]; then
+if (( __app_lvl > 0 )) || [[ "${__if_update}" == "Y" ]]; then
     install_apps
 fi
 
