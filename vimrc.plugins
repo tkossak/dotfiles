@@ -24,6 +24,7 @@ Plug 'godlygeek/tabular'
 
 " For Python
 Plug 'klen/python-mode'
+" Plug 'davidhalter/jedi-vim'
 
 call plug#end()
 
@@ -32,6 +33,7 @@ call plug#end()
 let g:pymode_options = 1
 let g:pymode_python = 'python3'
 let g:pymode_lint_on_fly = 1
+
 
 " fugitive
 nnoremap <leader>gd :Gdiff<CR>
