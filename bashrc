@@ -43,6 +43,7 @@ source ~/.dotfiles/source/src_bash_myos
 
 export EDITOR=vim
 
+alias l='ls -lFh --color=auto'
 alias ll='ls -lFh --color=auto'
 alias lla='ls -lAFh --color=auto'
 alias ls='ls -F --color=auto'
@@ -209,7 +210,7 @@ case ${__myos} in
                 reg add "hkcu\software\wow6432node\microsoft\windows\currentversion\internet settings" /f /v proxyenable /t reg_dword /d 0
                 reg add "hkcu\software\microsoft\windows\currentversion\internet settings" /f /v proxyenable /t reg_dword /d 0
             }
-            alias updatedb='time updatedb --prunepaths="/tmp /var/spool /home/.ecryptfs /cygdrive/j /cygdrive/k /cygdrive/l /cygdrive/m /cygdrive/n /proc"'
+            alias updatedb='time updatedb --prunepaths="/tmp /var/spool /home/.ecryptfs /cygdrive/j /j /cygdrive/k /k /cygdrive/l /l /cygdrive/m /m /cygdrive/n /n /c /d /proc"'
             fixwin()
             {
                 proxyoff
