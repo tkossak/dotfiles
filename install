@@ -461,7 +461,7 @@ install_apps()
     fi
 
     # CYGWIN
-    if (( __app_lvl >= 1 )) && [[ ${__myos} == 'CYGWIN' ]]; then
+    if (( __app_lvl >= 1 )) && [[ ${__myos} == 'CYGWIN'  && -n "${__aptget_update_cmd}" ]]; then
         # aptget ${update_option} curl # earlier
         # aptget ${update_option} wget # earlier
         aptget ${update_option} -oc python-setuptools
