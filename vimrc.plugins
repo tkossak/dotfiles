@@ -37,7 +37,7 @@ let g:pymode_lint_on_fly = 1
 
 " fugitive
 nnoremap <leader>gd :Gdiff<CR>
-" nnoremap <leader>gc :Gcommit<CR>
+nnoremap <leader>gc :Gcommit<CR>
 nnoremap <leader>gs :Gstatus<CR>
 nnoremap <leader>gp :Gpush<CR>
 nnoremap <leader>gP :Gpull<CR>
