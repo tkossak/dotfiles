@@ -175,35 +175,55 @@ loguj()
 }
 
 
+
+
+
 # --------------------------------------------------------------------------------
+# __geturl_app
+if hash curl 2>/dev/null; then
+    __geturl_app="curl -fLo <<FILE>> <<URL>>"
+elif hash wget 2>/dev/null; then
+    __geturl_app="wget -O <<FILE>> <<URL>>"
+elif hash lynx 2>/dev/null; then
+    __geturl_app="lynx -dump <<URL>> > <<FILE>>"
+else
+    loguj -e -t "---" "curl/wget/lynx not present"
+fi
 
-
-
+# --------------------------------------------------------------------------------
 # APT-GET variables
 if hash apt-get 2>/dev/null; then
     __aptget_install_cmd="${__sudo} apt-get install -qyf <<APP>>"
     __aptget_update_cmd="${__sudo} apt-get install --only-upgrade <<APP>>"
-    # hash dpkg 2>/dev/null &&
-    # __aptget_check_cmd="dpkg -s <<APP>> &> /dev/null"
-    # __aptget_check_cmd='dpkg -s <<APP>>'
     __aptget_check_cmd='dpkg -s <<APP>> &>/dev/null'
-
 elif hash pact 2>/dev/null; then
     __aptget_install_cmd="pact install <<APP>>"
     __aptget_update_cmd="pact update <<APP>>"
     __aptget_check_cmd="pact show | grep '^<<APP>>$'"
+elif [[ ${__myos} == "CYGWIN" ]]; then
+
+    if ! hash apt-cyg 2>/dev/null; then
+        geturl "https://raw.githubusercontent.com/transcode-open/apt-cyg/master/apt-cyg" "/tmp/apt-cyg" "install /tmp/apt-cyg /bin" "rm /tmp/apt-cyg"
+    fi
+    if hash apt-cyg 2>/dev/null; then
+        __aptget_install_cmd="apt-cyg install <<APP>>"
+        __aptget_update_cmd=""
+        __aptget_check_cmd="apt-cyg list | grep -q '^<<APP>>$'"
+    fi
 else
     loguj -w -t "---" "No aptget command"
 fi
 
-# __geturl_app
-if hash curl 2>/dev/null; then
-    __geturl_app="curl -fLo"
-elif hash wget 2>/dev/null; then
-    __geturl_app="wget -O"
-else
-    loguj -e -t "---" "curl/wget not present"
-fi
+# apt-cyg
+
+
+# if hash curl 2>/dev/null; then
+#     __geturl_app="curl -fLo"
+# elif hash wget 2>/dev/null; then
+#     __geturl_app="wget -O"
+# else
+#     loguj -e -t "---" "curl/wget not present"
+# fi
 
 # --------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------
@@ -642,6 +662,7 @@ geturl()
     local if_moved_to_tmpfile=0
     local if_del=0
     local runlater=()
+    local l_geturl_app="${__geturl_app}"
 
     while [[ $# > 0 ]]; do
         case "$1" in
@@ -673,6 +694,8 @@ geturl()
                 ;;
         esac
     done
+    l_geturl_app="${__geturl_app//<<FILE>>/${file}}"
+    l_geturl_app="${l_geturl_app//<<URL>>/${url}}"
 
     if [[ ${if_del} = 1 ]]; then
         rm -rf "${file}"
@@ -680,7 +703,7 @@ geturl()
 
     tmpfile="$(mktemp)"
 
-    if [[ -z "${__geturl_app}" ]]; then
+    if [[ -z "${l_geturl_app}" ]]; then
         loguj -e -t "${ltype}" "No curl/wget app. (${url})"
         return 99
     fi
@@ -694,20 +717,18 @@ geturl()
     fi
 
     # download:
-    loguj -p -i -t "${ltype}" "Downloading ${url}"
-    echo "${__geturl_app} ${file} ${url}"
-    ${__geturl_app} ${file} ${url} \
-        ||
-        {
-            loguj -e -t "${ltype}" "Downloading: ${url}"
-            if [[ ${if_moved_to_tmpfile} = 1 ]]; then
-                mv -f ${tmpfile} ${file} \
-                    && loguj -p -i -t "${ltype}" "Old file restored: ${tmpfile}" \
-                    || loguj -e -t "${ltype}" "Restoring old file: ${tmpfile}"
+    loguj -p -i -t "${ltype}" "Downloading ${file}"
+    # echo "${l_geturl_app}"
+    if ! ${l_geturl_app}; then
+        loguj -e -t "${ltype}" "Downloading: ${file}"
+        if [[ ${if_moved_to_tmpfile} = 1 ]]; then
+            mv -f ${tmpfile} ${file} \
+                && loguj -p -i -t "${ltype}" "Old file restored: ${tmpfile}" \
+                || loguj -e -t "${ltype}" "Restoring old file: ${tmpfile}"
 
-            fi
-            return 1
-        }
+        fi
+        return 1
+    fi
 
     # check sum:
     if [[ -n ${sum_type} ]]; then

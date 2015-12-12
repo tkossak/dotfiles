@@ -124,6 +124,10 @@ echo "__if_update=${__if_update}"
 echo "__dir_gvim_root=${__dir_gvim_root}"
 echo "__dir_gvim_home=${__dir_gvim_home:-}"
 echo "__dir_gvimplug_path=${__dir_gvimplug_path:-}"
+echo "__aptget_install_cmd=${__aptget_install_cmd}"
+echo "__aptget_update_cmd=${__aptget_update_cmd}"
+echo "__aptget_check_cmd=${__aptget_check_cmd}"
+echo "__geturl_app=${__geturl_app}"
 
 # ================================================================================
 # Initial cmds:
@@ -437,14 +441,14 @@ install_apps()
     # wget
     if (( __app_lvl >= 1 )); then
         if aptget ${update_option} wget; then
-            __geturl_app="wget -O" || true
+            __geturl_app="wget -O <<FILE>> <<URL>>"
         fi
     fi
 
     # curl
     if (( __app_lvl >= 1 )); then
         if aptget ${update_option} curl; then
-            __geturl_app="curl -Lo" || true
+            __geturl_app="curl -fLo <<FILE>> <<URL>>"
         fi
     fi
 
@@ -461,7 +465,7 @@ install_apps()
     fi
 
     # CYGWIN
-    if (( __app_lvl >= 1 )) && [[ ${__myos} == 'CYGWIN'  && -n "${__aptget_update_cmd}" ]]; then
+    if (( __app_lvl >= 1 )) && [[ ${__myos} == 'CYGWIN' ]]; then
         # aptget ${update_option} curl # earlier
         # aptget ${update_option} wget # earlier
         aptget ${update_option} -oc python-setuptools
