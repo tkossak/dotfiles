@@ -15,9 +15,9 @@ color_prompt=yes;
     export TERM=screen-256color ||
     export TERM=xterm-256color
 
-[[ -r ~/.dotfiles/source/src_bash_colors ]] &&
-    source ~/.dotfiles/source/src_bash_colors ||
-    echo "No src_bash_colors files!"
+[[ -r ~/.dotfiles/source/src_bash_vars_colors ]] &&
+    source ~/.dotfiles/source/src_bash_vars_colors ||
+    echo "No src_bash_vars_colors files!"
 # eval `dircolors ~/.dir_colors`
 
 # set -o vi
@@ -39,7 +39,7 @@ export XONSH_SHOW_TRACEBACK=True
 
 [[ -r ~/.bashrc.local ]] &&
     source ~/.bashrc.local
-source ~/.dotfiles/source/src_bash_myos
+source ~/.dotfiles/source/src_bash_vars_myos
 
 export EDITOR=vim
 

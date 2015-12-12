@@ -1,24 +1,21 @@
 #!/usr/bin/env bash
 
+source "${__dir_dotfiles}/source/src_bash_vars"
 
-__my_user=$(echo -n "${USER}")
-__logi_errors=()
-__logi_info=()
-__aptget_check_cmd=""
-__aptget_install_cmd=""
-__aptget_update_cmd=""
 
-source "${__dir_dotfiles}/source/src_bash_myos"
-source ${__dir_dotfiles}/source/src_bash_colors
 
-hash cygpath 2>/dev/null \
-    && __dir_win_home="$(cygpath -au ${APPDATA:-})" || __dir_win_home=""
-
-if [[ "${__myos}" == "LINUX" ]] && hash sudo 2>/dev/null; then
-    __sudo="sudo"
-else
-    __sudo=""
-fi
+print_help()
+{
+    echo "CLI options:"
+    echo "  -l      :: break links"
+    echo "  -d      :: install dotfiles"
+    echo "  -b, -1  :: install dotfiles + basics 1"
+    echo "  -a, -2  :: install dotfiles + basics 1 + 2"
+    echo "  -A, -3  :: install dotfiles + basics 1 + 2 + 3 (new comp)"
+    echo "  -u      :: update existing apps"
+    echo "  -t      :: (DEBUG) run only TEST function"
+    return 0
+}
 
 # --------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------
@@ -174,56 +171,6 @@ loguj()
     return 0
 }
 
-
-
-
-
-# --------------------------------------------------------------------------------
-# __geturl_app
-if hash curl 2>/dev/null; then
-    __geturl_app="curl -fLo <<FILE>> <<URL>>"
-elif hash wget 2>/dev/null; then
-    __geturl_app="wget -O <<FILE>> <<URL>>"
-elif hash lynx 2>/dev/null; then
-    __geturl_app="lynx -dump <<URL>> > <<FILE>>"
-else
-    loguj -e -t "---" "curl/wget/lynx not present"
-fi
-
-# --------------------------------------------------------------------------------
-# APT-GET variables
-if hash apt-get 2>/dev/null; then
-    __aptget_install_cmd="${__sudo} apt-get install -qyf <<APP>>"
-    __aptget_update_cmd="${__sudo} apt-get install --only-upgrade <<APP>>"
-    __aptget_check_cmd='dpkg -s <<APP>> &>/dev/null'
-elif hash pact 2>/dev/null; then
-    __aptget_install_cmd="pact install <<APP>>"
-    __aptget_update_cmd="pact update <<APP>>"
-    __aptget_check_cmd="pact show | grep '^<<APP>>$'"
-elif [[ ${__myos} == "CYGWIN" ]]; then
-
-    if ! hash apt-cyg 2>/dev/null; then
-        geturl "https://raw.githubusercontent.com/transcode-open/apt-cyg/master/apt-cyg" "/tmp/apt-cyg" "install /tmp/apt-cyg /bin" "rm /tmp/apt-cyg"
-    fi
-    if hash apt-cyg 2>/dev/null; then
-        __aptget_install_cmd="apt-cyg install <<APP>>"
-        __aptget_update_cmd=""
-        __aptget_check_cmd="apt-cyg list | grep -q '^<<APP>>$'"
-    fi
-else
-    loguj -w -t "---" "No aptget command"
-fi
-
-# apt-cyg
-
-
-# if hash curl 2>/dev/null; then
-#     __geturl_app="curl -fLo"
-# elif hash wget 2>/dev/null; then
-#     __geturl_app="wget -O"
-# else
-#     loguj -e -t "---" "curl/wget not present"
-# fi
 
 # --------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------

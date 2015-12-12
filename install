@@ -5,10 +5,7 @@ set -o pipefail
 set -o nounset
 # set -o xtrace
 
-# MANUAL SET
-# gvim folder
-__dir_gvim_root="/cygdrive/d/Kossak/progs/gvim"
-
+# --------------------------------------------------------------------------------
 # magic variables for links
 __sfile="$(readlink -f "${BASH_SOURCE[0]}")"
 __dir_dotfiles="$(cd "$(dirname "${__sfile}")" && pwd)"
@@ -16,44 +13,13 @@ __dir_dotlocal="$(cd "$(dirname "${__dir_dotfiles}")" && pwd)/dotfiles.local"
 __dir_dotlocal="$(readlink -f "${__dir_dotlocal}")"
 __dir_installers="/tmp/installers"
 
-# --------------------------------------------------------------------------------
-# shellcheck source=source/src_bash_install
-source "${__dir_dotfiles}/source/src_bash_install"
-
-print_help()
-{
-    echo "CLI options:"
-    echo "  -l      :: break links"
-    echo "  -d      :: install dotfiles"
-    echo "  -b, -1  :: install dotfiles + basics 1"
-    echo "  -a, -2  :: install dotfiles + basics 1 + 2"
-    echo "  -A, -3  :: install dotfiles + basics 1 + 2 + 3 (new comp)"
-    echo "  -u      :: update existing apps"
-    echo "  -t      :: (DEBUG) run only TEST function"
-    return 0
-}
+source "${__dir_dotfiles}/source/src_bash_vars"
+source "${__dir_dotfiles}/source/src_bash_functions"
 
 if [[ $# = 0 ]]; then
     print_help
     exit 0
 fi
-
-ltype="---"
-__if_dotfiles="N"
-__app_lvl=0
-__if_break_links="N"
-__if_testing="N"
-__if_update="N"
-
-if [[ -d "${__dir_gvim_root}" ]]; then
-    __dir_gvimplug_path="${__dir_gvim_root}/autoload/plug.vim"
-    __dir_gvim_home="/cygdrive/k"
-else
-    __dir_gvim_root=""
-fi
-
-
-[[ $# = 0 ]] && __if_dotfiles="Y"
 
 while getopts ":hldb1a2A3tu" opt; do
     case "$opt" in
@@ -104,8 +70,7 @@ OPTIND=1
 
 # ================================================================================
 # print environment
-printf "%s=== ENVIRONMENT
-==================================================%s\n" "${Yellow}" "${Color_Off}"
+echo -en "${Yellow}=== ENVIRONMENT ==================================================${Color_Off}\n"
 echo "__dir_dotfiles=${__dir_dotfiles}"
 if [[ -d "${__dir_dotlocal}" ]]; then
     echo "__dir_dotlocal (exists) =${__dir_dotlocal}"
