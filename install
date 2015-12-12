@@ -169,81 +169,82 @@ install_dotfiles()
     loguj -ss -t "${ltype}" "DOTFILES"
 
     # TMUX
-    create_link "${__dir_dotfiles}/tmux.conf" ~/.tmux.conf || true
+    install_link "${__dir_dotfiles}/tmux.conf" ~/.tmux.conf || true
 
     # minttyrc
-    if [[ -e ${HOME}/.minttyrc ]]; then
-        create_link "${__dir_dotfiles}/minttyrc" ~/.minttyrc || true
+    if [[ "${__myos}" == "CYGWIN" ]]; then
+    # if [[ -e ${HOME}/.minttyrc ]]; then
+        install_link "${__dir_dotfiles}/minttyrc" ~/.minttyrc || true
     fi
 
     # Git
-    create_link "${__dir_dotfiles}/gitconfig" ~/.gitconfig || true
-    create_link "${__dir_dotlocal}/gitconfig.local" ~/.gitconfig.local || true
+    install_link "${__dir_dotfiles}/gitconfig" ~/.gitconfig || true
+    install_link "${__dir_dotlocal}/gitconfig.local" ~/.gitconfig.local || true
 
     # Bash:
-    create_link "${__dir_dotfiles}/bashrc" ~/.bashrc || true
-    create_link "${__dir_dotlocal}/bashrc.local" ~/.bashrc.local || true
+    install_link "${__dir_dotfiles}/bashrc" ~/.bashrc || true
+    install_link "${__dir_dotlocal}/bashrc.local" ~/.bashrc.local || true
 
     # Vim
-    create_link "${__dir_dotfiles}/vimrc" ~/.vimrc || true
-    # create_link "${__dir_dotlocal}/vimrc.local" ~/.vimrc.local || true
-    create_link "${__dir_dotfiles}/vimrc.plugins" ~/.vimrc.plugins || true
-    create_link "${__dir_dotfiles}/vimrc.functions" ~/.vimrc.functions || true
+    install_link "${__dir_dotfiles}/vimrc" ~/.vimrc || true
+    # install_link "${__dir_dotlocal}/vimrc.local" ~/.vimrc.local || true
+    install_link "${__dir_dotfiles}/vimrc.plugins" ~/.vimrc.plugins || true
+    install_link "${__dir_dotfiles}/vimrc.functions" ~/.vimrc.functions || true
 
     # gvim windows
     if [[ -d "${__dir_gvim_root}" ]]; then
-        create_link -c "${__dir_dotfiles}/vimrc" "${__dir_gvim_home}/_gvimrc" || true
-        create_link -c "${__dir_dotfiles}/vimrc.plugins" "${__dir_gvim_home}/.vimrc.plugins" || true
-        create_link -c "${__dir_dotfiles}/vimrc.functions" "${__dir_gvim_home}/.vimrc.functions" || true
+        install_link -c "${__dir_dotfiles}/vimrc" "${__dir_gvim_home}/_gvimrc" || true
+        install_link -c "${__dir_dotfiles}/vimrc.plugins" "${__dir_gvim_home}/.vimrc.plugins" || true
+        install_link -c "${__dir_dotfiles}/vimrc.functions" "${__dir_gvim_home}/.vimrc.functions" || true
 
     fi
     # gnome-terminal
     if [[ -d ~/.gconf/apps/gnome-terminal ]]; then
-        create_link "${__dir_dotfiles}/gnome-terminal" ~/.gconf/apps/gnome-terminal || true
+        install_link "${__dir_dotfiles}/gnome-terminal" ~/.gconf/apps/gnome-terminal || true
     fi
 
     # Spacemacs
     if hash emacs 2>/dev/null; then
-        create_link "${__dir_dotfiles}/spacemacs" "${HOME}/.spacemacs" || true
-        create_link "${__dir_dotlocal}/emacs.local" "${HOME}/.spacemacs.local" || true
+        install_link "${__dir_dotfiles}/spacemacs" "${HOME}/.spacemacs" || true
+        install_link "${__dir_dotlocal}/emacs.local" "${HOME}/.spacemacs.local" || true
 
         # Win
         if [[ -d "${__dir_win_home}" ]]; then
-            create_link -w "${__dir_dotfiles}/spacemacs" "${__dir_win_home}/.spacemacs" || true
+            install_link -w "${__dir_dotfiles}/spacemacs" "${__dir_win_home}/.spacemacs" || true
         fi
         if [[ -d "${__dir_win_home}/.emacs.d" ]]; then
-            create_link -w "${__dir_dotlocal}/emacs.local" "${__dir_win_home}/.spacemacs.local" || true
+            install_link -w "${__dir_dotlocal}/emacs.local" "${__dir_win_home}/.spacemacs.local" || true
         fi
     fi
 
     # Emacs Linux:
     # if hash emacs 2>/dev/null; then
-    #     create_link ${__dir_dotfiles}/emacs ~/.emacs || true
-    #     create_link ${__dir_dotlocal}/emacs.local ~/.emacs.d/mine/.emacs.local || true
+    #     install_link ${__dir_dotfiles}/emacs ~/.emacs || true
+    #     install_link ${__dir_dotlocal}/emacs.local ~/.emacs.d/mine/.emacs.local || true
     # fi
 
     # Emacs Win:
     # if [[ -f ${__dir_win_home} ]]; then
     #     loguj -p -i -t "${ltype}" "Linking windows emacs links in ${__dir_win_home}"
-    #     create_link -w ${__dir_dotfiles}/emacs ${__dir_win_home}/.emacs || true
-    #     create_link -w ${__dir_dotlocal}/emacs.local ${__dir_win_home}/.emacs.d/mine/.emacs.local || true
+    #     install_link -w ${__dir_dotfiles}/emacs ${__dir_win_home}/.emacs || true
+    #     install_link -w ${__dir_dotlocal}/emacs.local ${__dir_win_home}/.emacs.d/mine/.emacs.local || true
     #     # evil-leader:
-    #     create_link -w ~/.emacs.d/mine/evil-leader.el ${__dir_win_home}/.emacs.d/mine/evil-leader.el || true
+    #     install_link -w ~/.emacs.d/mine/evil-leader.el ${__dir_win_home}/.emacs.d/mine/evil-leader.el || true
     #     # key-chord:
-    #     create_link -w ~/.emacs.d/mine/key-chord.el ${__dir_win_home}/.emacs.d/mine/key-chord.el || true
+    #     install_link -w ~/.emacs.d/mine/key-chord.el ${__dir_win_home}/.emacs.d/mine/key-chord.el || true
     #     # evil:
-    #     create_link -w ~/.emacs.d/evil ${__dir_win_home}/.emacs.d/evil || true
+    #     install_link -w ~/.emacs.d/evil ${__dir_win_home}/.emacs.d/evil || true
     #     # org-mode:
-    #     create_link -w ~/.emacs.d/org-mode ${__dir_win_home}/.emacs.d/org-mode || true
+    #     install_link -w ~/.emacs.d/org-mode ${__dir_win_home}/.emacs.d/org-mode || true
     # fi
 
     # if [[ -d ${__dir_dotlocal} ]]; then
-    #     # create_link ${__dir_dotlocal} ~/.dotfiles.local || true
-    #     # create_link ${__dir_dotlocal}/bashrc.local ~/.bashrc.local || true
-    #     # create_link ${__dir_dotlocal}/vimrc.local ~/.vimrc.local || true
-    #     # create_link ${__dir_dotlocal}/gitconfig.local ~/.gitconfig.local || true
-    #     # create_link ${__dir_dotlocal}/emacs.local ~/.emacs.d/mine/.emacs.local || true
-    #     # [[ -d "${__dir_win_home}" ]] && create_link -w ${__dir_dotlocal}/emacs.local ${__dir_win_home}/.emacs.d/mine/.emacs.local || true
+    #     # install_link ${__dir_dotlocal} ~/.dotfiles.local || true
+    #     # install_link ${__dir_dotlocal}/bashrc.local ~/.bashrc.local || true
+    #     # install_link ${__dir_dotlocal}/vimrc.local ~/.vimrc.local || true
+    #     # install_link ${__dir_dotlocal}/gitconfig.local ~/.gitconfig.local || true
+    #     # install_link ${__dir_dotlocal}/emacs.local ~/.emacs.d/mine/.emacs.local || true
+    #     # [[ -d "${__dir_win_home}" ]] && install_link -w ${__dir_dotlocal}/emacs.local ${__dir_win_home}/.emacs.d/mine/.emacs.local || true
     # else
     #     loguj -i -t "${ltype}" "Emacs: no local dir."
     # fi
@@ -269,12 +270,12 @@ install_dotfiles()
             case ${__myos} in
                 CYGWIN)
                     if [[ ${__myhost} = W ]]; then
-                        # create_link ~/.dotfiles.local/rifle.conf.w.cygwin ~/.config/ranger/rifle.conf
+                        # install_link ~/.dotfiles.local/rifle.conf.w.cygwin ~/.config/ranger/rifle.conf
                         cat ~/.config/ranger/rifle.conf "${__dir_dotlocal}/rifle.conf.w.cygwin" > ~/.config/ranger/rifletmp.conf
                         mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
                         loguj -i -t "${ltype}" "CP: rifle.conf (C-W)"
                     elif [[ ${__myhost} = H ]]; then
-                        # create_link ~/.dotfiles.local/rifle.conf.h.cygwin ~/.config/ranger/rifle.conf
+                        # install_link ~/.dotfiles.local/rifle.conf.h.cygwin ~/.config/ranger/rifle.conf
                         cat ~/.config/ranger/rifle.conf "${__dir_dotlocal}/rifle.conf.h.cygwin" > ~/.config/ranger/rifletmp.conf
                         mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
                         loguj -i -t "${ltype}" "CP: rifle.conf (C-H)"
@@ -287,7 +288,7 @@ install_dotfiles()
                     ;;
                 LINUX)
                     if [[ ${__myhost} = H ]]; then
-                        # create_link ~/.dotfiles.local/rifle.conf.h.linux ~/.config/ranger/rifle.conf
+                        # install_link ~/.dotfiles.local/rifle.conf.h.linux ~/.config/ranger/rifle.conf
                         cat ~/.config/ranger/rifle.conf "${__dir_dotlocal}/rifle.conf.h.linux" > ~/.config/ranger/rifletmp.conf
                         mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
                         loguj -i -t "${ltype}" "CP: rifle.conf (L-H)"
@@ -320,37 +321,37 @@ install_dotfiles()
 
     # mplayer
     if hash mplayer 2>/dev/null || [[ -d ~/.mplayer ]]; then
-        create_link "${__dir_dotfiles}/mplayer_config" ~/.mplayer/config || true
-        create_link "${__dir_dotfiles}/mplayer_input.conf" ~/.mplayer/input.conf || true
+        install_link "${__dir_dotfiles}/mplayer_config" ~/.mplayer/config || true
+        install_link "${__dir_dotfiles}/mplayer_input.conf" ~/.mplayer/input.conf || true
     fi
 
     # weechat
     if ( hash weechat 2>/dev/null || [[ -d ~/.weechat ]] ) && [[ -d ${__dir_dotlocal} ]]; then
         if [[ -d ${__dir_dotlocal}/weechat ]]; then
-           create_link "${__dir_dotlocal}/weechat/guile" ~/.weechat/guile || true
-           create_link "${__dir_dotlocal}/weechat/javascript" ~/.weechat/javascript || true
-           create_link "${__dir_dotlocal}/weechat/lua" ~/.weechat/lua || true
-           create_link "${__dir_dotlocal}/weechat/perl" ~/.weechat/perl || true
-           create_link "${__dir_dotlocal}/weechat/python" ~/.weechat/python || true
-           create_link "${__dir_dotlocal}/weechat/ruby" ~/.weechat/ruby || true
-           create_link "${__dir_dotlocal}/weechat/script" ~/.weechat/script || true
-           create_link "${__dir_dotlocal}/weechat/tcl" ~/.weechat/tcl || true
-           create_link "${__dir_dotlocal}/weechat/xfer" ~/.weechat/xfer || true
-           create_link "${__dir_dotlocal}/weechat/alias.conf" ~/.weechat/alias.conf || true
-           create_link "${__dir_dotlocal}/weechat/aspell.conf" ~/.weechat/aspell.conf || true
-           create_link "${__dir_dotlocal}/weechat/buffers.conf" ~/.weechat/buffers.conf || true
-           create_link "${__dir_dotlocal}/weechat/charset.conf" ~/.weechat/charset.conf || true
-           create_link "${__dir_dotlocal}/weechat/exec.conf" ~/.weechat/exec.conf || true
-           create_link "${__dir_dotlocal}/weechat/irc.conf" ~/.weechat/irc.conf || true
-           create_link "${__dir_dotlocal}/weechat/iset.conf" ~/.weechat/iset.conf || true
-           create_link "${__dir_dotlocal}/weechat/logger.conf" ~/.weechat/logger.conf || true
-           create_link "${__dir_dotlocal}/weechat/plugins.conf" ~/.weechat/plugins.conf || true
-           create_link "${__dir_dotlocal}/weechat/relay.conf" ~/.weechat/relay.conf || true
-           create_link "${__dir_dotlocal}/weechat/script.conf" ~/.weechat/script.conf || true
-           create_link "${__dir_dotlocal}/weechat/sec.conf" ~/.weechat/sec.conf || true
-           create_link "${__dir_dotlocal}/weechat/trigger.conf" ~/.weechat/trigger.conf || true
-           create_link "${__dir_dotlocal}/weechat/weechat.conf" ~/.weechat/weechat.conf || true
-           create_link "${__dir_dotlocal}/weechat/xfer.conf" ~/.weechat/xfer.conf || true
+           install_link "${__dir_dotlocal}/weechat/guile" ~/.weechat/guile || true
+           install_link "${__dir_dotlocal}/weechat/javascript" ~/.weechat/javascript || true
+           install_link "${__dir_dotlocal}/weechat/lua" ~/.weechat/lua || true
+           install_link "${__dir_dotlocal}/weechat/perl" ~/.weechat/perl || true
+           install_link "${__dir_dotlocal}/weechat/python" ~/.weechat/python || true
+           install_link "${__dir_dotlocal}/weechat/ruby" ~/.weechat/ruby || true
+           install_link "${__dir_dotlocal}/weechat/script" ~/.weechat/script || true
+           install_link "${__dir_dotlocal}/weechat/tcl" ~/.weechat/tcl || true
+           install_link "${__dir_dotlocal}/weechat/xfer" ~/.weechat/xfer || true
+           install_link "${__dir_dotlocal}/weechat/alias.conf" ~/.weechat/alias.conf || true
+           install_link "${__dir_dotlocal}/weechat/aspell.conf" ~/.weechat/aspell.conf || true
+           install_link "${__dir_dotlocal}/weechat/buffers.conf" ~/.weechat/buffers.conf || true
+           install_link "${__dir_dotlocal}/weechat/charset.conf" ~/.weechat/charset.conf || true
+           install_link "${__dir_dotlocal}/weechat/exec.conf" ~/.weechat/exec.conf || true
+           install_link "${__dir_dotlocal}/weechat/irc.conf" ~/.weechat/irc.conf || true
+           install_link "${__dir_dotlocal}/weechat/iset.conf" ~/.weechat/iset.conf || true
+           install_link "${__dir_dotlocal}/weechat/logger.conf" ~/.weechat/logger.conf || true
+           install_link "${__dir_dotlocal}/weechat/plugins.conf" ~/.weechat/plugins.conf || true
+           install_link "${__dir_dotlocal}/weechat/relay.conf" ~/.weechat/relay.conf || true
+           install_link "${__dir_dotlocal}/weechat/script.conf" ~/.weechat/script.conf || true
+           install_link "${__dir_dotlocal}/weechat/sec.conf" ~/.weechat/sec.conf || true
+           install_link "${__dir_dotlocal}/weechat/trigger.conf" ~/.weechat/trigger.conf || true
+           install_link "${__dir_dotlocal}/weechat/weechat.conf" ~/.weechat/weechat.conf || true
+           install_link "${__dir_dotlocal}/weechat/xfer.conf" ~/.weechat/xfer.conf || true
 
         else
             loguj -i -t "${ltype}" "No weechat local dotfiles."
@@ -359,7 +360,7 @@ install_dotfiles()
 
     # vlc
     if [[ -f "${__dir_dotlocal}/vlcrc" ]]; then
-        create_link "${__dir_dotlocal}/vlcrc" "${HOME}/.config/vlc/vlcrc"
+        install_link "${__dir_dotlocal}/vlcrc" "${HOME}/.config/vlc/vlcrc"
     fi
 
     # vim +PluginInstall +PluginClean +qall
@@ -405,56 +406,56 @@ install_apps()
 
     # wget
     if (( __app_lvl >= 1 )); then
-        if aptget ${update_option} wget; then
+        if install_apt ${update_option} wget; then
             __geturl_app="wget -O <<FILE>> <<URL>>"
         fi
     fi
 
     # curl
     if (( __app_lvl >= 1 )); then
-        if aptget ${update_option} curl; then
+        if install_apt ${update_option} curl; then
             __geturl_app="curl -fLo <<FILE>> <<URL>>"
         fi
     fi
 
     # git
     if (( __app_lvl >= 1 )); then
-        aptget ${update_option} git || true
+        install_apt ${update_option} git || true
     fi
 
     if (( __app_lvl >= 2 )); then
-        aptget ${update_option} python
-        aptget ${update_option} python3
-        pipinstall -3H ${update_option} ipdb || true
-        pipinstall -H ${update_option} ipdb || true
+        install_apt ${update_option} python
+        install_apt ${update_option} python3
+        install_pip -3H ${update_option} ipdb || true
+        install_pip -H ${update_option} ipdb || true
     fi
 
     # CYGWIN
     if (( __app_lvl >= 1 )) && [[ ${__myos} == 'CYGWIN' ]]; then
-        # aptget ${update_option} curl # earlier
-        # aptget ${update_option} wget # earlier
-        aptget ${update_option} -oc python-setuptools
-        aptget ${update_option} -oc python3-setuptools
-        aptget ${update_option} -oc cygutils
-        aptget ${update_option} -oc cygutils-extra
-        aptget ${update_option} -oc ncurses
-        aptget ${update_option} -oc procps
-        aptget ${update_option} -oc bind-utils
-        aptget ${update_option} -oc binutils
-        # aptget ${update_option} -oc gnupg # use windows one from Kleopatra
-        aptget ${update_option} -oc gcc-g++
-        aptget ${update_option} -oc genisoimage
-        aptget ${update_option} -oc mkisofs
-        aptget ${update_option} -oc p7zip
-        aptget ${update_option} -oc rsnapshot
-        # aptget ${update_option} gnupg # use windows one from Kleopatra
+        # install_apt ${update_option} curl # earlier
+        # install_apt ${update_option} wget # earlier
+        install_apt ${update_option} -oc python-setuptools
+        install_apt ${update_option} -oc python3-setuptools
+        install_apt ${update_option} -oc cygutils
+        install_apt ${update_option} -oc cygutils-extra
+        install_apt ${update_option} -oc ncurses
+        install_apt ${update_option} -oc procps
+        install_apt ${update_option} -oc bind-utils
+        install_apt ${update_option} -oc binutils
+        # install_apt ${update_option} -oc gnupg # use windows one from Kleopatra
+        install_apt ${update_option} -oc gcc-g++
+        install_apt ${update_option} -oc genisoimage
+        install_apt ${update_option} -oc mkisofs
+        install_apt ${update_option} -oc p7zip
+        install_apt ${update_option} -oc rsnapshot
+        # install_apt ${update_option} gnupg # use windows one from Kleopatra
     fi
 
     # vim
     __vim_vimplug_url="https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
     __vim_vimplug_path="${HOME}/.vim/autoload/plug.vim"
     if (( __app_lvl >= 1 )); then
-        aptget ${update_option} vim || true
+        install_apt ${update_option} vim || true
 
         # del Vundle:
         if [[ -d ~/.vim/bundle/Vundle.vim ]]; then
@@ -463,7 +464,7 @@ install_apps()
         fi
         # install Plug:
         if [[ ! -e "${__vim_vimplug_path}" ]]; then
-            geturl "${__vim_vimplug_url}" "${__vim_vimplug_path}"
+            install_url "${__vim_vimplug_url}" "${__vim_vimplug_path}"
             # && loguj -s -t "${ltype}" "Vim plugin 'Plug' installed" \
             # || loguj -e -t "${ltype}" "Vim plugin 'Plug' NOT installed"
         fi
@@ -475,23 +476,23 @@ install_apps()
             if [[ -r "${__vim_vimplug_path}" ]]; then
                 cp "${__vim_vimplug_path}" "${__dir_gvimplug_path}"
             else
-                geturl "${__vim_vimplug_url}" "${__dir_gvimplug_path}"
+                install_url "${__vim_vimplug_url}" "${__dir_gvimplug_path}"
             fi
         fi
     fi
 
     # emacs
     if (( __app_lvl >= 1 )); then
-        aptget ${update_option} emacs || true
+        install_apt ${update_option} emacs || true
     fi
 
     # make
     if (( __app_lvl >= 1 )); then
-        aptget ${update_option} make || true
+        install_apt ${update_option} make || true
     fi
 
     # vim-vundle
-    # gitclone https://github.com/gmarik/Vundle.vim.git ~/.vim/bundle/Vundle.vim || true
+    # install_git https://github.com/gmarik/Vundle.vim.git ~/.vim/bundle/Vundle.vim || true
 
     # PIP2
     # changelog: https://pip.pypa.io/en/latest/news.html
@@ -536,7 +537,7 @@ install_apps()
 
                     # download
                     if [[ "${if_getpip_downloaded}" = "0" ]]; then
-                        geturl https://bootstrap.pypa.io/get-pip.py "${installer}" -sha1 "${cur_pip_sha1}" \
+                        install_url https://bootstrap.pypa.io/get-pip.py "${installer}" -sha1 "${cur_pip_sha1}" \
                             && if_getpip_downloaded="1"
                     fi
 
@@ -594,7 +595,7 @@ install_apps()
 
                     # download
                     if [[ "${if_getpip_downloaded}" = "0" ]]; then
-                        geturl https://bootstrap.pypa.io/get-pip.py "${installer}" -sha1 "${cur_pip_sha1}" \
+                        install_url https://bootstrap.pypa.io/get-pip.py "${installer}" -sha1 "${cur_pip_sha1}" \
                             && if_getpip_downloaded="1"
                     fi
 
@@ -616,18 +617,18 @@ install_apps()
 
     # Python modules
     # if (( __app_lvl >= 1 )); then
-    #     pipinstall -3H pyflakes livestreamer
+    #     install_pip -3H pyflakes livestreamer
     # fi
 
 
     # Ranger
     if (( __app_lvl >= 1 )); then
-        gitclone ${update_option} https://github.com/hut/ranger.git ~/apps/ranger "${__sudo} make install" "ranger --copy-config=all" || true
+        install_git ${update_option} https://github.com/hut/ranger.git ~/apps/ranger "${__sudo} make install" "ranger --copy-config=all" || true
     fi
 
     # TMUX
     if (( __app_lvl >= 1 )); then
-        aptget ${update_option} tmux || true
+        install_apt ${update_option} tmux || true
     fi
 
     # dtrx
@@ -635,25 +636,25 @@ install_apps()
     if (( __app_lvl >= 1 )); then
         if ! hash dtrx 2>/dev/null; then
             rm -rf /tmp/dtrx-7.1
-            geturl -d http://brettcsmith.org/2007/dtrx/dtrx-7.1.tar.gz /tmp/dtrx-7.1.tar.gz -sha1 05cfe705a04a8b84571b0a5647cd2648720791a4 "tar -xf dtrx-7.1.tar.gz" "cd dtrx-7.1" "${__sudo} python setup.py install --prefix=/usr/local" "rm -rf /tmp/dtrx-7.1" "rm -rf /tmp/dtrx-7.1.tar.gz" || true
+            install_url -d http://brettcsmith.org/2007/dtrx/dtrx-7.1.tar.gz /tmp/dtrx-7.1.tar.gz -sha1 05cfe705a04a8b84571b0a5647cd2648720791a4 "tar -xf dtrx-7.1.tar.gz" "cd dtrx-7.1" "${__sudo} python setup.py install --prefix=/usr/local" "rm -rf /tmp/dtrx-7.1" "rm -rf /tmp/dtrx-7.1.tar.gz" || true
         fi
     fi
 
     # fasd
     if (( __app_lvl >= 1 )); then
-        gitclone ${update_option} https://github.com/clvv/fasd.git ~/apps/fasd "${__sudo} make install" || true
+        install_git ${update_option} https://github.com/clvv/fasd.git ~/apps/fasd "${__sudo} make install" || true
     fi
 
     # commacd
     if (( __app_lvl >= 2 )); then
-        geturl ${update_option} https://raw.githubusercontent.com/shyiko/commacd/master/commacd.bash ~/.commacd.bash || true
+        install_url ${update_option} https://raw.githubusercontent.com/shyiko/commacd/master/commacd.bash ~/.commacd.bash || true
     fi
 
     # glances
     if (( __app_lvl >= 2 )); then
-        if aptget -ol ${update_option} glances; then
-            aptget ${update_option} lm-sensors || true
-            pipinstall -2H "${update_option}" PySensors || true
+        if install_apt -ol ${update_option} glances; then
+            install_apt ${update_option} lm-sensors || true
+            install_pip -2H "${update_option}" PySensors || true
         else
             true
         fi
@@ -661,21 +662,22 @@ install_apps()
 
     # fzf - asks questions
     if (( __app_lvl >= 2 )); then
-        gitclone -p 1 "${update_option}" https://github.com/junegunn/fzf.git ~/.fzf ~/.fzf/install || true
+        install_git -p 1 "${update_option}" https://github.com/junegunn/fzf.git ~/.fzf ~/.fzf/install || true
     fi
 
     if (( __app_lvl >= 2 )); then
-        pipinstall -2H "${update_option}" speedtest-cli || true
+        install_pip -2H ${update_option} speedtest-cli || true
         if ! hash youtube-dl 2>/dev/null; then
-            pipinstall -3H "${update_option}" youtube_dl youtube-dl
+            install_pip -3H ${update_option} youtube_dl || true
         fi
     fi
+
         # if [[ -d ~/.fzf && "${__if_update}" == "N" ]]; then
         # elif [[ -d ~/.fzf && "${__if_update}" == "Y" ]]; then
-        #     gitclone ${update_option} https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install || true
+        #     install_git ${update_option} https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install || true
         # elif
 
-        #     gitclone -p 1 https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install || true
+        #     install_git -p 1 https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install || true
         # elif [[ "${__if_update}" == "Y" ]]; then
         #     # update
         # fi
@@ -700,7 +702,6 @@ install_apps()
 
         git clone --recursive https://github.com/syl20bnr/spacemacs "${HOME}/.emacs.d"
 
-
         local file="${HOME}/.emacs"
         if [[ -e "${file}" ]]; then
             mv "${file}" "${file}.old"
@@ -715,14 +716,14 @@ install_apps()
 
     # Emacs Linux - old
     # if (( __app_lvl >= 3 )); then
-    #     aptget ${update_option} emacs || true
+    #     install_apt ${update_option} emacs || true
     #     if hash emacs 2>/dev/null; then
     #         # evil-leader:
-    #         geturl https://raw.githubusercontent.com/cofi/evil-leader/master/evil-leader.el ~/.emacs.d/mine/evil-leader.el -sha1 00c336e55307dbcb3f73f47b1d9a1d759404341d || true
+    #         install_url https://raw.githubusercontent.com/cofi/evil-leader/master/evil-leader.el ~/.emacs.d/mine/evil-leader.el -sha1 00c336e55307dbcb3f73f47b1d9a1d759404341d || true
     #         # key-chord:
-    #         geturl http://www.emacswiki.org/emacs/download/key-chord.el ~/.emacs.d/mine/key-chord.el -sha1 2da61bf970ca332c4de96c1977fc7e326df6c33a || true
+    #         install_url http://www.emacswiki.org/emacs/download/key-chord.el ~/.emacs.d/mine/key-chord.el -sha1 2da61bf970ca332c4de96c1977fc7e326df6c33a || true
     #         # evil:
-    #         gitclone ${update_option} https://gitorious.org/evil/evil.git ~/.emacs.d/evil ||
+    #         install_git ${update_option} https://gitorious.org/evil/evil.git ~/.emacs.d/evil ||
     #             {
     #                 loguj -i -t "${ltype}" "Manually downloading evil.git"
     #                 rm -rf ~/.emacs.d/evil
@@ -743,14 +744,14 @@ install_apps()
     #                         fi
     #                     }
     #                     # org-mode:
-    #                     gitclone git://orgmode.org/org-mode.git ~/.emacs.d/org-mode "git checkout -b stable origin/maint" "git pull" "make autoloads" || true
+    #                     install_git git://orgmode.org/org-mode.git ~/.emacs.d/org-mode "git checkout -b stable origin/maint" "git pull" "make autoloads" || true
     #                 fi
     #             fi
 
     # geeknote
     (( __app_lvl >= 3 )) &&
         if ! hash geeknote 2> /dev/null; then
-            gitclone ${update_option} https://github.com/VitaliyRodnenko/geeknote.git ~/apps/geeknote || true
+            install_git ${update_option} https://github.com/VitaliyRodnenko/geeknote.git ~/apps/geeknote || true
             ${__sudo} python setup.py install
             geeknote settings --editor vim
         fi
@@ -758,51 +759,51 @@ install_apps()
     # PIP installs
     if (( __app_lvl >= 3 )); then
         #ipythons
-        pipinstall -H ${update_option} ipython || true
-        pipinstall -3H ${update_option} ipython || true
+        install_pip -H ${update_option} ipython || true
+        install_pip -3H ${update_option} ipython || true
         # BeautifulSoup4
-        pipinstall -3H ${update_option} BeautifulSoup4 || true
+        install_pip -3H ${update_option} BeautifulSoup4 || true
         # flake8
-        pipinstall -3H ${update_option} flake8 || true
+        install_pip -3H ${update_option} flake8 || true
         # bashate
-        pipinstall -3H ${update_option} bashate || true
+        install_pip -3H ${update_option} bashate || true
         # httpie
-        pipinstall -H ${update_option} httpie || true
+        install_pip -H ${update_option} httpie || true
         # gitcheck
-        pipinstall -3H git+git://github.com/badele/gitcheck.git gitcheck
+        install_pip -3H git+git://github.com/badele/gitcheck.git gitcheck
         # livestreamer
-        pipinstall -3H ${update_option} livestreamer
+        install_pip -3H ${update_option} livestreamer
     fi
 
     # different for LINUX
     if [[ ${__myos} == "LINUX" ]] && (( __app_lvl >= 3 )); then
-        aptget -ol ${update_option} sshfs
-        aptget -ol ${update_option} vlc
-        aptget -ol ${update_option} dos2unix
-        aptget -ol ${update_option} mplayer
-        aptget -ol ${update_option} mediainfo
-        aptget -ol ${update_option} lame
-        aptget -ol ${update_option} krdc
-        aptget -ol ${update_option} vpnc
-        aptget -ol ${update_option} openvpn
-        aptget -ol ${update_option} tidy
-        aptget -ol ${update_option} iconv
-        aptget -ol ${update_option} steam
-        aptget -ol ${update_option} nethogs
-        aptget -ol ${update_option} iftop
-        aptget -ol ${update_option} nload
-        aptget -ol ${update_option} ppa-purge
-        aptget -ol ${update_option} apt-file
-        aptget -ol ${update_option} autokey-gtk
-        aptget -ol ${update_option} pandoc
+        install_apt -ol ${update_option} sshfs
+        install_apt -ol ${update_option} vlc
+        install_apt -ol ${update_option} dos2unix
+        install_apt -ol ${update_option} mplayer
+        install_apt -ol ${update_option} mediainfo
+        install_apt -ol ${update_option} lame
+        install_apt -ol ${update_option} krdc
+        install_apt -ol ${update_option} vpnc
+        install_apt -ol ${update_option} openvpn
+        install_apt -ol ${update_option} tidy
+        install_apt -ol ${update_option} iconv
+        install_apt -ol ${update_option} steam
+        install_apt -ol ${update_option} nethogs
+        install_apt -ol ${update_option} iftop
+        install_apt -ol ${update_option} nload
+        install_apt -ol ${update_option} ppa-purge
+        install_apt -ol ${update_option} apt-file
+        install_apt -ol ${update_option} autokey-gtk
+        install_apt -ol ${update_option} pandoc
         # pv - see progress through a pipeline
-        aptget -ol ${update_option} pv
-        aptget -ol ${update_option} traceroute
+        install_apt -ol ${update_option} pv
+        install_apt -ol ${update_option} traceroute
         apt-file update
         # roccat isku dirvers
-        aptget -ol ${update_option} cmake
-        aptget -ol ${update_option} libcaberra-dev
-        aptget -ol ${update_option} libnotify-dev
+        install_apt -ol ${update_option} cmake
+        install_apt -ol ${update_option} libcaberra-dev
+        install_apt -ol ${update_option} libnotify-dev
         # calibre:
         sudo -v && wget -nv -O-
         https://raw.githubusercontent.com/kovidgoyal/calibre/master/setup/linux-installer.py \
@@ -812,9 +813,9 @@ install_apps()
     # different for LINUX + CYGWIN
     if (( __app_lvl >= 3 )); then
         # for pass:
-        aptget ${update_option} tree
-        aptget ${update_option} pwgen
-        aptget ${update_option} xclip
+        install_apt ${update_option} tree
+        install_apt ${update_option} pwgen
+        install_apt ${update_option} xclip
     fi
 
     # different for LINUX
@@ -824,11 +825,11 @@ install_apps()
 
         # Teamviewer Full Version - Ubuntu/Debian
         local url="https://download.teamviewer.com/download/teamviewer_i386.deb"
-        geturl "${url}" "${__dir_installers}/${url##*/}"
+        install_url "${url}" "${__dir_installers}/${url##*/}"
 
         # ffmpeg - x64 linux static builds (NOT ubuntu/debian)
         local url="http://johnvansickle.com/ffmpeg/builds/ffmpeg-git-64bit-static.tar.xz"
-        geturl "${url}" "${__dir_installers}/${url##*/}"
+        install_url "${url}" "${__dir_installers}/${url##*/}"
 
         loguj -i -t "${ltype}" "INSTALLERS DOWNLOADED - run them manually"
         if hash xdg-open 2>/dev/null; then
@@ -864,7 +865,11 @@ testing()
 {
     echo "=== TESTING START =================================================="
 
-    gitclone https://github.com/hut/ranger.git ~/apps/ranger "${__sudo} make install" "ranger --copy-config=all" || true
+    local update_option=""
+    install_pip -2H "${update_option}" speedtest-cli || true
+
+    # install_pip -2H speedtest-cli || true
+    # install_git https://github.com/hut/ranger.git ~/apps/ranger "${__sudo} make install" "ranger --copy-config=all" || true
 
     echo "=== TESTING END ===================================================="
     return 0
@@ -875,8 +880,8 @@ testing()
 # --------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------
 
-create_link "${__dir_dotfiles}" ~/.dotfiles
-create_link "${__dir_dotlocal}" ~/.dotfiles.local || true
+install_link "${__dir_dotfiles}" ~/.dotfiles
+install_link "${__dir_dotlocal}" ~/.dotfiles.local || true
 
 [[ ${__if_testing} == "Y" ]] && testing
 if (( __app_lvl > 0 )) || [[ "${__if_update}" == "Y" ]]; then

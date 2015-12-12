@@ -50,7 +50,7 @@ elif hash pact 2>/dev/null; then
 elif [[ ${__myos} == "CYGWIN" ]]; then
 
     if ! hash apt-cyg 2>/dev/null; then
-        geturl "https://raw.githubusercontent.com/transcode-open/apt-cyg/master/apt-cyg" "/tmp/apt-cyg" "install /tmp/apt-cyg /bin" "rm /tmp/apt-cyg"
+        install_url "https://raw.githubusercontent.com/transcode-open/apt-cyg/master/apt-cyg" "/tmp/apt-cyg" "install /tmp/apt-cyg /bin" "rm /tmp/apt-cyg"
     fi
     if hash apt-cyg 2>/dev/null; then
         __aptget_install_cmd="apt-cyg install <<APP>>"
@@ -58,7 +58,7 @@ elif [[ ${__myos} == "CYGWIN" ]]; then
         __aptget_check_cmd="apt-cyg list | grep -q '^<<APP>>$'"
     fi
 else
-    loguj -w -t "---" "No aptget command"
+    loguj -w -t "---" "No install_apt command"
 fi
 
 

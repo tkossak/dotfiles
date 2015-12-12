@@ -438,6 +438,7 @@ echo -e "${IYellow}os:${Color_Off} $(uname -o), $(uname -m), $(getconf LONG_BIT)
 echo -e "${IYellow}kernel:${Color_Off} $(uname -s)"
 echo -e "${IYellow}node:${Color_Off} $(uname -n)"
 echo -e "${IYellow}uptime:${Color_Off} $(uptime)"
+echo
 
 # finishing touches
 unset __vTmp1 __vTmp2 __vTmp3

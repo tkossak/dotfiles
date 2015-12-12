@@ -237,14 +237,14 @@ checksum()
 # --------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------
-# create_link [OPTIONS] <SRC_FILE> <DST_LINK>
+# install_link [OPTIONS] <SRC_FILE> <DST_LINK>
 # OPTIONS:
 #    -w  :: create windows hard link (otherwise it's linux soft link)
 #    -c  :: cp instead of creating link
 #    -b  :: backup old file/dir (otherwise just remove it)
 # $1 = source file
 # $2 = destination = link path/link
-create_link()
+install_link()
 {
     local link_type="LINUX"
     local if_backup="N"
@@ -351,7 +351,7 @@ create_link()
 # --------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------
-# aptget [OPTIONS] <APP_INSTALL> <APP_RUN>
+# install_apt [OPTIONS] <APP_INSTALL> <APP_RUN>
 # OPTIONS:
 #   -ol :: only linux
 #   -oc :: only cygwin
@@ -361,7 +361,7 @@ create_link()
 #   -U  :: update or install if it's not installed
 # $1 = app name to install (passed to apt-get)
 # $2 = app name to check if it's installed already
-aptget()
+install_apt()
 {
     local app_install=""
     local app_run=""
@@ -434,13 +434,16 @@ aptget()
     fi
 
     # check if app is installed
-    if hash ${app_run} 2>/dev/null; then
-        if_app_installed="Y"
-    # elif [[ -n "${app_check}" ]] && ${app_check} &> /dev/null; then
+    if  hash ${app_run} 2>/dev/null; then
+        if [[ "$(which ${app_run})" =~ ^/cygdrive/.* ]]; then
+            if_app_installed="N"
+        else
+            if_app_installed="Y"
+        fi
+        # elif [[ -n "${app_check}" ]] && ${app_check} &> /dev/null; then
     elif [[ -n "${app_check}" ]] && eval "${app_check}" ; then
         if_app_installed="Y"
     fi
-
 
     # What to do
     if [[ "${if_app_installed}" = "Y" && "${update}" = "N" ]]; then
@@ -495,13 +498,13 @@ aptget()
 # --------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------
-# gitclone <OPTIONS> <GIT_URL> <GIT_FOLDER>
+# install_git <OPTIONS> <GIT_URL> <GIT_FOLDER>
 # -u  :: update only if folder exists
 # -p  :: --depth <NN>
 # $1  = git url to clone
 # $2  = git folder to clone to
 # $3- = script to run after cloning
-gitclone()
+install_git()
 {
     local ltype="GIT"
     local giturl=""
@@ -543,6 +546,9 @@ gitclone()
 
     if ! hash git 2>/dev/null; then
         loguj -e -t "${ltype}" "Git not installed! (${gitfolder})"
+        return 1
+    elif [[ "$(which git)" =~ ^/cygdrive/.* ]]; then
+        loguj -e -t "${ltype}" "Git (linux) not installed! (only windows one) (${gitfolder})"
         return 1
     fi
 
@@ -589,12 +595,12 @@ gitclone()
 # --------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------
-# geturl [OPTIONS] <URL> <FILE> [OPTIONS] [RUN_LATER_CMDS]
+# install_url [OPTIONS] <URL> <FILE> [OPTIONS] [RUN_LATER_CMDS]
 # OPTIONS:
 #     -u  :: download file even if it exists
 #     -d  :: delete the file bofore downloading and after succussful install
 #     -sha1 <SUM> :: sha1sum of the file to check. If it fails, file is not installed
-geturl()
+install_url()
 {
     local ltype="URL"
     local update=""
@@ -720,14 +726,14 @@ geturl()
 # --------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------
-# pipinstall [OPTIONS] <APP_INSTALL>
+# install_pip [OPTIONS] <APP_INSTALL>
 # OPTIONS:
 #   -2  :: pip2
 #   -3  :: pip3
 #   -u  :: update
 #   -H  :: sudo option
 # $1 = app name to install
-pipinstall()
+install_pip()
 {
     # set -x
     local ltype="PIP"
