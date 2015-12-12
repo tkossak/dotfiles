@@ -864,6 +864,8 @@ testing()
 {
     echo "=== TESTING START =================================================="
 
+    gitclone https://github.com/hut/ranger.git ~/apps/ranger "${__sudo} make install" "ranger --copy-config=all" || true
+
     echo "=== TESTING END ===================================================="
     return 0
 }

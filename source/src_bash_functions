@@ -639,6 +639,7 @@ geturl()
     done
     l_geturl_app="${__geturl_app//<<FILE>>/${file}}"
     l_geturl_app="${l_geturl_app//<<URL>>/${url}}"
+    echo "GET_URL: ${l_geturl_app}"
 
     if [[ ${if_del} = 1 ]]; then
         rm -rf "${file}"
@@ -662,7 +663,7 @@ geturl()
     # download:
     loguj -p -i -t "${ltype}" "Downloading ${file}"
     # echo "${l_geturl_app}"
-    if ! ${l_geturl_app}; then
+    if ! eval "${l_geturl_app}"; then
         loguj -e -t "${ltype}" "Downloading: ${file}"
         if [[ ${if_moved_to_tmpfile} = 1 ]]; then
             mv -f ${tmpfile} ${file} \
