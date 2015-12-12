@@ -1,9 +1,5 @@
 #!/usr/bin/env bash
 
-source "${__dir_dotfiles}/source/src_bash_vars"
-
-
-
 print_help()
 {
     echo "CLI options:"

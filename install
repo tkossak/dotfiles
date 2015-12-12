@@ -13,8 +13,8 @@ __dir_dotlocal="$(cd "$(dirname "${__dir_dotfiles}")" && pwd)/dotfiles.local"
 __dir_dotlocal="$(readlink -f "${__dir_dotlocal}")"
 __dir_installers="/tmp/installers"
 
-source "${__dir_dotfiles}/source/src_bash_vars"
 source "${__dir_dotfiles}/source/src_bash_functions"
+source "${__dir_dotfiles}/source/src_bash_vars"
 
 if [[ $# = 0 ]]; then
     print_help
