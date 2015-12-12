@@ -432,8 +432,9 @@ if [[ ! ${__myos} == CYGWIN* ]]; then
     [[ -n $__vTmp3 ]] && echo -e "${Color_Off}${__vTmp3}"
 fi
 
-echo -e "${IYellow}os:${Color_Off} $(uname -s), $(getconf LONG_BIT) bit"
-echo -e "${IYellow}host:${Color_Off} $(hostname)"
+echo -e "${IYellow}os:${Color_Off} $(uname -o), $(uname -m), $(getconf LONG_BIT) bit"
+echo -e "${IYellow}kernel:${Color_Off} $(uname -s)"
+echo -e "${IYellow}node:${Color_Off} $(uname -n)"
 echo -e "${IYellow}uptime:${Color_Off} $(uptime)"
 
 # finishing touches
