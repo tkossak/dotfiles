@@ -205,21 +205,25 @@ case ${__myos} in
         }
 
         if [[ ${__myhost} == "W" ]]; then
+            fixwinchar()
+            {
+                iconv -f 852 -t utf8
+            }
             proxyoff()
             {
-                reg add "hklm\software\wow6432node\microsoft\windows\currentversion\internet settings" /f /v proxyenable /t reg_dword /d 0
-                reg add "hklm\software\microsoft\windows\currentversion\internet settings" /f /v proxyenable /t reg_dword /d 0
-                reg add "hkcu\software\wow6432node\microsoft\windows\currentversion\internet settings" /f /v proxyenable /t reg_dword /d 0
-                reg add "hkcu\software\microsoft\windows\currentversion\internet settings" /f /v proxyenable /t reg_dword /d 0
+                reg add "hklm\software\wow6432node\microsoft\windows\currentversion\internet settings" /f /v proxyenable /t reg_dword /d 0 |& fixwinchar
+                reg add "hklm\software\microsoft\windows\currentversion\internet settings" /f /v proxyenable /t reg_dword /d 0 |& fixwinchar
+                reg add "hkcu\software\wow6432node\microsoft\windows\currentversion\internet settings" /f /v proxyenable /t reg_dword /d 0 |& fixwinchar
+                reg add "hkcu\software\microsoft\windows\currentversion\internet settings" /f /v proxyenable /t reg_dword /d 0 |& fixwinchar
             }
             alias updatedb='time updatedb --prunepaths="/tmp /var/spool /home/.ecryptfs /cygdrive/j /j /cygdrive/k /k /cygdrive/l /l /cygdrive/m /m /cygdrive/n /n /c /d /proc"'
             fixwin()
             {
                 proxyoff
-                net share C$ /delete
-                net share D$ /delete
-                net share IPC$ /delete
-                net share ADMIN$ /delete
+                net share C$ /delete |& fixwinchar
+                net share D$ /delete |& fixwinchar
+                net share IPC$ /delete |& fixwinchar
+                net share ADMIN$ /delete |& fixwinchar
             }
             if [[ -z "${TMUX}" ]]; then
                 fixwin
