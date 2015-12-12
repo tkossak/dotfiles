@@ -432,6 +432,10 @@ if [[ ! ${__myos} == CYGWIN* ]]; then
     [[ -n $__vTmp3 ]] && echo -e "${Color_Off}${__vTmp3}"
 fi
 
+echo -e "${IYellow}os:${Color_Off} $(uname -s), $(getconf LONG_BIT) bit"
+echo -e "${IYellow}host:${Color_Off} $(hostname)"
+echo -e "${IYellow}uptime:${Color_Off} $(uptime)"
+
 # finishing touches
 unset __vTmp1 __vTmp2 __vTmp3
 unset __myos __myhost
