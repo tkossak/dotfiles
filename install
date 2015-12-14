@@ -654,7 +654,7 @@ install_apps()
     if (( __app_lvl >= 2 )); then
         if install_apt -ol ${update_option} glances; then
             install_apt ${update_option} lm-sensors || true
-            install_pip -2H "${update_option}" PySensors || true
+            install_pip -2H ${update_option} PySensors || true
         else
             true
         fi
@@ -662,7 +662,7 @@ install_apps()
 
     # fzf - asks questions
     if (( __app_lvl >= 2 )); then
-        install_git -p 1 "${update_option}" https://github.com/junegunn/fzf.git ~/.fzf ~/.fzf/install || true
+        install_git -p 1 ${update_option} https://github.com/junegunn/fzf.git ~/.fzf ~/.fzf/install || true
     fi
 
     if (( __app_lvl >= 2 )); then
@@ -864,12 +864,6 @@ install_apps()
 testing()
 {
     echo "=== TESTING START =================================================="
-
-    local update_option=""
-    install_pip -2H "${update_option}" speedtest-cli || true
-
-    # install_pip -2H speedtest-cli || true
-    # install_git https://github.com/hut/ranger.git ~/apps/ranger "${__sudo} make install" "ranger --copy-config=all" || true
 
     echo "=== TESTING END ===================================================="
     return 0
