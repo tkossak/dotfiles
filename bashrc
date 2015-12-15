@@ -69,30 +69,52 @@ alias blkid='blkid -o list'
 alias vi='vim'
 alias vbox='sudo mount -t vboxsf vbox_shared /mnt/vs && cd /mnt/vs'
 alias vboxd='sudo mount -t vboxsf vbox_shared /mnt/vs && cd /mnt/vs/dotfiles'
-alias glances='glances -b'
-alias mplayer='mplayer -fs -softvol -softvol-max 300'
 
-alias dmp3='youtube-dl -cx --audio-format mp3 --restrict-filenames'
-alias dvid='youtube-dl -c --restrict-filenames'
-alias yt='youtube-dl'
-alias gn='geeknote'
+# sudos
 alias iftop='sudo iftop'
 alias nethogs='sudo nethogs'
 alias tcptrack='sudo tcptrack'
 alias atop='sudo atop'
+
+# apps
+alias glances='glances -b'
+alias mplayer='mplayer -fs -softvol -softvol-max 300'
+alias gn='geeknote'
+
+# internet
+alias dmp3='youtube-dl -cx --audio-format mp3 --restrict-filenames'
+alias dvid='youtube-dl -c --restrict-filenames'
+alias yt='youtube-dl'
+
+# tools
 alias extension_count="find . -type f | sed 's/.*\.//gI' | sort | uniq -c"
 alias clearm="for i in {1..50}; do echo; done"
+function countdown(){
+   date1=$((`date +%s` + $1));
+   while [ "$date1" -ge `date +%s` ]; do
+     echo -ne "$(date -u --date @$(($date1 - `date +%s`)) +%H:%M:%S)\r";
+     sleep 0.1
+   done
+}
+function stopwatch(){
+  date1=`date +%s`;
+   while true; do
+    echo -ne "$(date -u --date @$((`date +%s` - $date1)) +%H:%M:%S)\r";
+    sleep 0.1
+   done
+}
+
+# translate english => polish
+function t(){ wget -U "Mozilla/5.0" -qO - "http://translate.google.com/translate_a/t?client=t&text=$1&sl=${2:-en}&tl=${3:-pl}" | sed 's/\[\[\[\"//' | cut -d \" -f 1; }
 
 # locate movies
-lom(){ locate -i --regex "$1"'.*\.(avi|mkv|mp4|rmvb|flv|ts)'; }
-lomf(){
+function lom(){ locate -i --regex "$1"'.*\.(avi|mkv|mp4|rmvb|flv|ts)'; }
+function lomf(){
     find /mnt/win_d/filmy "/mnt/d750/filmy HD" -iregex '.*'"$1"'.*\.\(avi\|mkv\|mp4\|rmvb\|flv\|ts\)'
 }
-loml(){
+function loml(){
     find -L /mnt/win_d/filmy /mnt/win_e/filmy "/mnt/d750/filmy HD" -samefile "$1"
 }
-# translate english => polish
-t(){ wget -U "Mozilla/5.0" -qO - "http://translate.google.com/translate_a/t?client=t&text=$1&sl=${2:-en}&tl=${3:-pl}" | sed 's/\[\[\[\"//' | cut -d \" -f 1; }
 
 # TMUX
 alias tl='tmux list-sessions'
@@ -100,10 +122,6 @@ alias ta='tmux attach-session'
 alias tat='tmux attach-session -t'
 alias tn='tmux new-session'
 alias tns='tmux new-session -s'
-
-# say something
-say(){ mplayer -user-agent Mozilla "http://translate.google.com/translate_tts?tl=en&q=$(echo $* | sed 's#\ #\+#g')" > /dev/null 2>&1 ; }
-saypl(){ mplayer -user-agent Mozilla "http://translate.google.com/translate_tts?tl=pl&q=$(echo $* | sed 's#\ #\+#g')" > /dev/null 2>&1 ; }
 
 function ranger-cd
 {
