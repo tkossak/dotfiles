@@ -751,9 +751,7 @@ install_apps()
     # geeknote
     (( __app_lvl >= 3 )) &&
         if ! hash geeknote 2> /dev/null; then
-            install_git ${update_option} https://github.com/VitaliyRodnenko/geeknote.git ~/apps/geeknote || true
-            ${__sudo} python setup.py install
-            geeknote settings --editor vim
+            install_git ${update_option} https://github.com/VitaliyRodnenko/geeknote.git ~/apps/geeknote "${__sudo} python setup.py install" "geeknote settings --editor vim" || true
         fi
 
     # PIP installs
