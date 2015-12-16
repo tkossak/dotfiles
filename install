@@ -21,7 +21,7 @@ if [[ $# = 0 ]]; then
     exit 0
 fi
 
-while getopts ":hldb1a2A3tu" opt; do
+while getopts ":hldb1a2A3Z4tu" opt; do
     case "$opt" in
         h)
             print_help
@@ -46,6 +46,10 @@ while getopts ":hldb1a2A3tu" opt; do
             ;;
         A|3)
             __app_lvl=3
+            __if_dotfiles="Y"
+            ;;
+        Z|4)
+            __app_lvl=4
             __if_dotfiles="Y"
             ;;
         t)
@@ -404,99 +408,95 @@ install_apps()
     # update repos?
     update_repos
 
-    # wget
     if (( __app_lvl >= 1 )); then
+
+        # wget
         if install_apt ${update_option} wget; then
             __geturl_app="wget -O <<FILE>> <<URL>>"
         fi
-    fi
 
-    # curl
-    if (( __app_lvl >= 1 )); then
+        # curl
         if install_apt ${update_option} curl; then
             __geturl_app="curl -fLo <<FILE>> <<URL>>"
         fi
-    fi
 
-    # git
-    if (( __app_lvl >= 1 )); then
+        # git
         install_apt ${update_option} git || true
     fi
 
     if (( __app_lvl >= 2 )); then
+        # inne
         install_apt ${update_option} python
         install_apt ${update_option} python3
         install_pip -3H ${update_option} ipdb || true
         install_pip -H ${update_option} ipdb || true
+        if [[ ${__myos} == 'CYGWIN' ]]; then
+            install_apt ${update_option} -oc python-setuptools || true
+            install_apt ${update_option} -oc python3-setuptools || true
+        fi
     fi
 
-    # CYGWIN
-    if (( __app_lvl >= 1 )) && [[ ${__myos} == 'CYGWIN' ]]; then
-        # install_apt ${update_option} curl # earlier
-        # install_apt ${update_option} wget # earlier
-        install_apt ${update_option} -oc python-setuptools
-        install_apt ${update_option} -oc python3-setuptools
-        install_apt ${update_option} -oc cygutils
-        install_apt ${update_option} -oc cygutils-extra
-        install_apt ${update_option} -oc ncurses
-        install_apt ${update_option} -oc procps
-        install_apt ${update_option} -oc bind-utils
-        install_apt ${update_option} -oc binutils
-        # install_apt ${update_option} -oc gnupg # use windows one from Kleopatra
-        install_apt ${update_option} -oc gcc-g++
-        install_apt ${update_option} -oc genisoimage
-        install_apt ${update_option} -oc mkisofs
-        install_apt ${update_option} -oc p7zip
-        install_apt ${update_option} -oc rsnapshot
-        # install_apt ${update_option} gnupg # use windows one from Kleopatra
-    fi
-
-    # vim
-    __vim_vimplug_url="https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
-    __vim_vimplug_path="${HOME}/.vim/autoload/plug.vim"
     if (( __app_lvl >= 1 )); then
-        install_apt ${update_option} vim || true
 
-        # del Vundle:
-        if [[ -d ~/.vim/bundle/Vundle.vim ]]; then
-            loguj -i -t "${ltype}" "Old Vundle present - deleting whole ~/.vim"
-            rm -rf ~/.vim
+        # CYGWIN
+        if [[ ${__myos} == 'CYGWIN' ]]; then
+            install_apt ${update_option} -oc cygutils
+            install_apt ${update_option} -oc cygutils-extra
+            install_apt ${update_option} -oc ncurses
+            install_apt ${update_option} -oc procps
+            install_apt ${update_option} -oc bind-utils
+            install_apt ${update_option} -oc binutils
+            # install_apt ${update_option} -oc gnupg # use windows one from Kleopatra
+            install_apt ${update_option} -oc gcc-g++
+            install_apt ${update_option} -oc genisoimage
+            install_apt ${update_option} -oc mkisofs
+            install_apt ${update_option} -oc p7zip
+            install_apt ${update_option} -oc rsnapshot
+            # install_apt ${update_option} gnupg # use windows one from Kleopatra
         fi
-        # install Plug:
-        if [[ ! -e "${__vim_vimplug_path}" ]]; then
-            install_url "${__vim_vimplug_url}" "${__vim_vimplug_path}"
-            # && loguj -s -t "${ltype}" "Vim plugin 'Plug' installed" \
-            # || loguj -e -t "${ltype}" "Vim plugin 'Plug' NOT installed"
-        fi
-    fi
 
-    # gvim
-    if (( __app_lvl >= 1 )) && [[ -d "${__dir_gvim_root}" ]]; then
-        if [[ ! -e "${__dir_gvimplug_path}" ]]; then
-            if [[ -r "${__vim_vimplug_path}" ]]; then
-                cp "${__vim_vimplug_path}" "${__dir_gvimplug_path}"
-            else
-                install_url "${__vim_vimplug_url}" "${__dir_gvimplug_path}"
+
+        # vim
+        __vim_vimplug_url="https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
+        __vim_vimplug_path="${HOME}/.vim/autoload/plug.vim"
+        if (( __app_lvl >= 1 )); then
+            install_apt ${update_option} vim || true
+
+            # del Vundle:
+            if [[ -d ~/.vim/bundle/Vundle.vim ]]; then
+                loguj -i -t "${ltype}" "Old Vundle present - deleting whole ~/.vim"
+                rm -rf ~/.vim
+            fi
+            # install Plug:
+            if [[ ! -e "${__vim_vimplug_path}" ]]; then
+                install_url "${__vim_vimplug_url}" "${__vim_vimplug_path}"
+                # && loguj -s -t "${ltype}" "Vim plugin 'Plug' installed" \
+                    # || loguj -e -t "${ltype}" "Vim plugin 'Plug' NOT installed"
             fi
         fi
-    fi
 
-    # emacs
-    if (( __app_lvl >= 1 )); then
+        # gvim
+        if [[ -d "${__dir_gvim_root}" ]]; then
+            if [[ ! -e "${__dir_gvimplug_path}" ]]; then
+                if [[ -r "${__vim_vimplug_path}" ]]; then
+                    cp "${__vim_vimplug_path}" "${__dir_gvimplug_path}"
+                else
+                    install_url "${__vim_vimplug_url}" "${__dir_gvimplug_path}"
+                fi
+            fi
+        fi
+
+        # emacs
         install_apt ${update_option} emacs || true
-    fi
 
-    # make
-    if (( __app_lvl >= 1 )); then
+        # make
         install_apt ${update_option} make || true
-    fi
 
-    # vim-vundle
-    # install_git https://github.com/gmarik/Vundle.vim.git ~/.vim/bundle/Vundle.vim || true
+        # vim-vundle
+        # install_git https://github.com/gmarik/Vundle.vim.git ~/.vim/bundle/Vundle.vim || true
 
-    # PIP2
-    # changelog: https://pip.pypa.io/en/latest/news.html
-    if (( __app_lvl >= 1 )); then
+        # PIP2
+        # changelog: https://pip.pypa.io/en/latest/news.html
 
         # local cur_pip_verson="7.1.2"
         local cur_pip_sha1="4645795f303c2a8a02d9957514af8a28fd8770c2"
@@ -555,11 +555,9 @@ install_apps()
 
             fi
         fi
-    fi
 
-    # PIP3 -----------------------------------
-    if (( __app_lvl >= 1 )); then
 
+        # PIP3 -----------------------------------
         cur_python_cmd="python3"
         cur_pip_cmd="pip3"
 
@@ -613,89 +611,55 @@ install_apps()
 
             fi
         fi
-    fi
 
-    # Python modules
-    # if (( __app_lvl >= 1 )); then
-    #     install_pip -3H pyflakes livestreamer
-    # fi
+        # Python modules
+        # if (( __app_lvl >= 1 )); then
+        #     install_pip -3H pyflakes livestreamer
+        # fi
 
-
-    # Ranger
-    if (( __app_lvl >= 1 )); then
+        # Ranger
         install_git ${update_option} https://github.com/hut/ranger.git ~/apps/ranger "${__sudo} make install" "ranger --copy-config=all" || true
-    fi
 
-    # TMUX
-    if (( __app_lvl >= 1 )); then
+        # TMUX
         install_apt ${update_option} tmux || true
-    fi
 
-    # dtrx
-    # without updating
-    if (( __app_lvl >= 1 )); then
+        # dtrx
+        # without updating
         if ! hash dtrx 2>/dev/null; then
             rm -rf /tmp/dtrx-7.1
             install_url -d http://brettcsmith.org/2007/dtrx/dtrx-7.1.tar.gz /tmp/dtrx-7.1.tar.gz -sha1 05cfe705a04a8b84571b0a5647cd2648720791a4 "tar -xf dtrx-7.1.tar.gz" "cd dtrx-7.1" "${__sudo} python setup.py install --prefix=/usr/local" "rm -rf /tmp/dtrx-7.1" "rm -rf /tmp/dtrx-7.1.tar.gz" || true
         fi
-    fi
 
-    # fasd
-    if (( __app_lvl >= 1 )); then
+        # fasd
         install_git ${update_option} https://github.com/clvv/fasd.git ~/apps/fasd "${__sudo} make install" || true
-    fi
 
-    # commacd
-    if (( __app_lvl >= 2 )); then
+        # commacd
         install_url ${update_option} https://raw.githubusercontent.com/shyiko/commacd/master/commacd.bash ~/.commacd.bash || true
     fi
 
-    # glances
+
+
     if (( __app_lvl >= 2 )); then
+
+        # glances
         if install_apt -ol ${update_option} glances; then
             install_apt ${update_option} lm-sensors || true
             install_pip -2H ${update_option} PySensors || true
         else
             true
         fi
-    fi
 
-    # fzf - asks questions
-    if (( __app_lvl >= 2 )); then
+        # fzf - asks questions
         install_git -p 1 ${update_option} https://github.com/junegunn/fzf.git ~/.fzf ~/.fzf/install || true
-    fi
 
-    if (( __app_lvl >= 2 )); then
+        # speedtest-cli
         install_pip -2H ${update_option} speedtest-cli || true
+
+        # youtube_dl
         if ! hash youtube-dl 2>/dev/null; then
             install_pip -3H ${update_option} youtube_dl || true
         fi
     fi
-
-        # if [[ -d ~/.fzf && "${__if_update}" == "N" ]]; then
-        # elif [[ -d ~/.fzf && "${__if_update}" == "Y" ]]; then
-        #     install_git ${update_option} https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install || true
-        # elif
-
-        #     install_git -p 1 https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install || true
-        # elif [[ "${__if_update}" == "Y" ]]; then
-        #     # update
-        # fi
-
-    # if [[ "${__if_update}" == "Y" ]]; then
-    #     if [[ -d ~/.fzf ]]; then
-    #         cd ~/.fzf
-    #         git up
-    #     else
-
-    #     fi
-
-    # elif (( __app_lvl >= 2 )); then
-    #     if [[ ! -d ~/.fzf ]]; then
-    #         git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install || true
-    #     fi
-    # fi
-
 
     # Spacemacs
     if (( __app_lvl >= 4 )) && [[ -z "${update_option}" ]]; then
@@ -748,14 +712,14 @@ install_apps()
     #                 fi
     #             fi
 
-    # geeknote
-    (( __app_lvl >= 3 )) &&
+
+    if (( __app_lvl >= 3 )); then
+        # geeknote
         if ! hash geeknote 2> /dev/null; then
             install_git ${update_option} https://github.com/VitaliyRodnenko/geeknote.git ~/apps/geeknote "${__sudo} python setup.py install" "geeknote settings --editor vim" || true
         fi
 
-    # PIP installs
-    if (( __app_lvl >= 3 )); then
+        # PIP installs
         #ipythons
         install_pip -H ${update_option} ipython || true
         install_pip -3H ${update_option} ipython || true
@@ -771,53 +735,52 @@ install_apps()
         install_pip -3H git+git://github.com/badele/gitcheck.git gitcheck
         # livestreamer
         install_pip -3H ${update_option} livestreamer
-    fi
 
-    # different for LINUX
-    if [[ ${__myos} == "LINUX" ]] && (( __app_lvl >= 3 )); then
-        install_apt -ol ${update_option} sshfs
-        install_apt -ol ${update_option} vlc
-        install_apt -ol ${update_option} dos2unix
-        install_apt -ol ${update_option} mplayer
-        install_apt -ol ${update_option} mediainfo
-        install_apt -ol ${update_option} lame
-        install_apt -ol ${update_option} krdc
-        install_apt -ol ${update_option} vpnc
-        install_apt -ol ${update_option} openvpn
-        install_apt -ol ${update_option} tidy
-        install_apt -ol ${update_option} iconv
-        install_apt -ol ${update_option} steam
-        install_apt -ol ${update_option} nethogs
-        install_apt -ol ${update_option} iftop
-        install_apt -ol ${update_option} nload
-        install_apt -ol ${update_option} ppa-purge
-        install_apt -ol ${update_option} apt-file
-        install_apt -ol ${update_option} autokey-gtk
-        install_apt -ol ${update_option} pandoc
-        # pv - see progress through a pipeline
-        install_apt -ol ${update_option} pv
-        install_apt -ol ${update_option} traceroute
-        apt-file update
-        # roccat isku dirvers
-        install_apt -ol ${update_option} cmake
-        install_apt -ol ${update_option} libcaberra-dev
-        install_apt -ol ${update_option} libnotify-dev
-        # calibre:
-        sudo -v && wget -nv -O-
-        https://raw.githubusercontent.com/kovidgoyal/calibre/master/setup/linux-installer.py \
-            | sudo python -c "import sys; main=lambda:sys.stderr.write('Download failed\n'); exec(sys.stdin.read()); main()"
-    fi
+        if [[ ${__myos} == "LINUX" ]]; then
+            install_apt -ol ${update_option} sshfs
+            install_apt -ol ${update_option} vlc
+            install_apt -ol ${update_option} dos2unix
+            install_apt -ol ${update_option} mplayer
+            install_apt -ol ${update_option} mediainfo
+            install_apt -ol ${update_option} lame
+            install_apt -ol ${update_option} krdc
+            install_apt -ol ${update_option} vpnc
+            install_apt -ol ${update_option} openvpn
+            install_apt -ol ${update_option} tidy
+            install_apt -ol ${update_option} iconv
+            install_apt -ol ${update_option} steam
+            install_apt -ol ${update_option} nethogs
+            install_apt -ol ${update_option} iftop
+            install_apt -ol ${update_option} nload
+            install_apt -ol ${update_option} ppa-purge
+            install_apt -ol ${update_option} apt-file
+            install_apt -ol ${update_option} autokey-gtk
+            install_apt -ol ${update_option} pandoc
+            # pv - see progress through a pipeline
+            install_apt -ol ${update_option} pv
+            install_apt -ol ${update_option} traceroute
 
-    # different for LINUX + CYGWIN
-    if (( __app_lvl >= 3 )); then
+            # roccat isku dirvers
+            install_apt -ol ${update_option} cmake
+
+            # install_apt -ol ${update_option} libcaberra-dev
+            install_apt -ol ${update_option} libnotify-dev
+
+            # calibre:
+            sudo -v && wget -nv -O- https://raw.githubusercontent.com/kovidgoyal/calibre/master/setup/linux-installer.py | sudo python -c "import sys; main=lambda:sys.stderr.write('Download failed\n'); exec(sys.stdin.read()); main()"
+
+        fi
+
         # for pass:
         install_apt ${update_option} tree
         install_apt ${update_option} pwgen
         install_apt ${update_option} xclip
     fi
 
-    # different for LINUX
-    if (( __app_lvl >= 3 )) && [[ "${__myos}" == 'LINUX' ]]; then
+
+
+    if (( __app_lvl >= 4 )) && [[ "${__myos}" == 'LINUX' ]]; then
+        # different for LINUX
         # download installers
         [[ ! -d "${__dir_installers}" ]] && mkdir "${__dir_installers}"
 

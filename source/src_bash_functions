@@ -8,6 +8,7 @@ print_help()
     echo "  -b, -1  :: install dotfiles + basics 1"
     echo "  -a, -2  :: install dotfiles + basics 1 + 2"
     echo "  -A, -3  :: install dotfiles + basics 1 + 2 + 3 (new comp)"
+    echo "  -Z, -4  :: install dotfiles + basics 1 + 2 + 3 (new comp) + download installers"
     echo "  -u      :: update existing apps"
     echo "  -t      :: (DEBUG) run only TEST function"
     return 0
