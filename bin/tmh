@@ -46,8 +46,13 @@ tmux split-window -t ${session} -h -p 50 -c '~/Downloads/en'
 tmux send-keys -t ${session} 'gn show 2 | tee eng_$(date +"%y%m%d_%H%M%S") | checkeng' Enter
 
 # # tmp
-tmux new-window -t ${session} -n 'tmp' -c '~/Downloads'
-# tmux send-keys -t ${session} 'ranger-cd' Enter
+# tmux new-window -t ${session} -n 'tmp' -c '~/Downloads'
+# # tmux send-keys -t ${session} 'ranger-cd' Enter
+
+# py
+tmux new-window -t ${session} -n 'py' -c '/home/kossak/apps/learn_python'
+tmux send-keys -t ${session} 'ipython3'
+tmux split-window -t ${session} -v -p 50 -c '/home/kossak/apps/learn_python'
 
 # last
 tmux select-window -t ${session}:is
