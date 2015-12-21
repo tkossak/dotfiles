@@ -723,18 +723,13 @@ install_apps()
         #ipythons
         install_pip -H ${update_option} ipython || true
         install_pip -3H ${update_option} ipython || true
-        # BeautifulSoup4
         install_pip -3H ${update_option} BeautifulSoup4 || true
-        # flake8
         install_pip -3H ${update_option} flake8 || true
-        # bashate
         install_pip -3H ${update_option} bashate || true
-        # httpie
         install_pip -H ${update_option} httpie || true
-        # gitcheck
         install_pip -3H git+git://github.com/badele/gitcheck.git gitcheck
-        # livestreamer
         install_pip -3H ${update_option} livestreamer
+        install_pip -3H ${update_option} termdown
 
         if [[ ${__myos} == "LINUX" ]]; then
             install_apt -ol ${update_option} sshfs
@@ -768,15 +763,16 @@ install_apps()
 
             # calibre:
             sudo -v && wget -nv -O- https://raw.githubusercontent.com/kovidgoyal/calibre/master/setup/linux-installer.py | sudo python -c "import sys; main=lambda:sys.stderr.write('Download failed\n'); exec(sys.stdin.read()); main()"
-
         fi
+
+        install_pip -3H ${update_option} csvkit
+        install_apt ${update_option} sqlite3
 
         # for pass:
         install_apt ${update_option} tree
         install_apt ${update_option} pwgen
         install_apt ${update_option} xclip
     fi
-
 
 
     if (( __app_lvl >= 4 )) && [[ "${__myos}" == 'LINUX' ]]; then
