@@ -763,10 +763,17 @@ install_apps()
 
             # calibre:
             sudo -v && wget -nv -O- https://raw.githubusercontent.com/kovidgoyal/calibre/master/setup/linux-installer.py | sudo python -c "import sys; main=lambda:sys.stderr.write('Download failed\n'); exec(sys.stdin.read()); main()"
+
+            # for napi.sh / qnapi
+            install_apt ${update_option} p7zip-full # for cygwin there's another install with "-7zip"
+            # for qnapi:
+            install_apt ${update_option} qt5-default
+            install_apt ${update_option} libmediainfo-dev
         fi
 
         install_pip -3H ${update_option} csvkit
         install_apt ${update_option} sqlite3
+
 
         # for pass:
         install_apt ${update_option} tree
