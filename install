@@ -438,6 +438,8 @@ install_apps()
 
     if (( __app_lvl >= 1 )); then
 
+        install_apt ${update_option} dos2unix
+
         # CYGWIN
         if [[ ${__myos} == 'CYGWIN' ]]; then
             install_apt ${update_option} -oc cygutils
@@ -452,7 +454,10 @@ install_apps()
             install_apt ${update_option} -oc mkisofs
             install_apt ${update_option} -oc p7zip
             install_apt ${update_option} -oc rsnapshot
+            install_apt ${update_option} -oc nc
             # install_apt ${update_option} gnupg # use windows one from Kleopatra
+            # for attic:
+            install_apt ${update_option} -oc openssl-devel
         fi
 
 
@@ -734,7 +739,6 @@ install_apps()
         if [[ ${__myos} == "LINUX" ]]; then
             install_apt -ol ${update_option} sshfs
             install_apt -ol ${update_option} vlc
-            install_apt -ol ${update_option} dos2unix
             install_apt -ol ${update_option} mplayer
             install_apt -ol ${update_option} mediainfo
             install_apt -ol ${update_option} lame
