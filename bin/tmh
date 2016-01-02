@@ -24,9 +24,9 @@ tmux send-keys -t ${session} 'ranger-cd' Enter
 tmux split-window -t ${session} -h -p 50 -c '~/Downloads'
 tmux send-keys -t ${session} 'ranger-cd' Enter
 # tmux send-keys -t ${session} 'zf .torrent' Enter
-tmux split-window -t ${session} -v -p 50 -c '/mnt/win_d/filmy/_watch_first_0'
+tmux split-window -t ${session} -v -p 50 -c '/mnt/win_d/filmy/_watch_first_5'
 tmux send-keys -t ${session} 'ranger-cd' Enter
-tmux split-window -t ${session}:is.0 -v -p 50 -c '/mnt/win_d/filmy/_watch_first_0'
+tmux split-window -t ${session}:is.0 -v -p 50 -c '/mnt/win_d/filmy/_watch_first_5'
 tmux send-keys -t ${session} 'ranger-cd' Enter
 tmux select-pane -t 1
 

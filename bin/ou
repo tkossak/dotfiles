@@ -1,0 +1,10 @@
+#!/usr/bin/env python3
+
+# unquote link and open it in new tab
+
+import webbrowser
+import urllib.parse
+import sys
+
+webbrowser.open_new_tab(urllib.parse.unquote(sys.argv[1]))
+
