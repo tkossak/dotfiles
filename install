@@ -460,7 +460,6 @@ install_apps()
             install_apt ${update_option} -oc openssl-devel
         fi
 
-
         # vim
         __vim_vimplug_url="https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
         __vim_vimplug_path="${HOME}/.vim/autoload/plug.vim"
@@ -493,9 +492,6 @@ install_apps()
 
         # emacs
         install_apt ${update_option} emacs || true
-
-        # make
-        install_apt ${update_option} make || true
 
         # vim-vundle
         # install_git https://github.com/gmarik/Vundle.vim.git ~/.vim/bundle/Vundle.vim || true
@@ -625,9 +621,6 @@ install_apps()
         # Ranger
         install_git ${update_option} https://github.com/hut/ranger.git ~/apps/ranger "${__sudo} make install" "ranger --copy-config=all" || true
 
-        # TMUX
-        install_apt ${update_option} tmux || true
-
         # dtrx
         # without updating
         if ! hash dtrx 2>/dev/null; then
@@ -637,9 +630,12 @@ install_apps()
 
         # fasd
         install_git ${update_option} https://github.com/clvv/fasd.git ~/apps/fasd "${__sudo} make install" || true
-
         # commacd
         install_url ${update_option} https://raw.githubusercontent.com/shyiko/commacd/master/commacd.bash ~/.commacd.bash || true
+        # Rozne
+        install_apt ${update_option} make || true
+        install_apt ${update_option} tmux || true
+        install_pip -3H ${update_option} pyperclip || true
     fi
 
 

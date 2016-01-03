@@ -4,7 +4,26 @@
 
 import webbrowser
 import urllib.parse
-import sys
+import argparse
+import pyperclip
 
-webbrowser.open_new_tab(urllib.parse.unquote(sys.argv[1]))
+# parser = argparse.ArgumentParser('extract udemy coupon link, unescape and open in new tab')
+parser = argparse.ArgumentParser()
+# parser.add_argument('-u', '--udemy', help='the given link is direct link to udemy'
+#                                    , action='store_true')
+parser.add_argument('url', nargs='?')
+args = parser.parse_args()
 
+if args.url == None:
+    args.url = pyperclip.paste()
+
+
+s = urllib.parse.parse_qs(args.url)
+for i in s.values():
+    i = i[0]
+    if i.startswith('https://www.udemy'):
+        print('Starting url: {}'.format(i))
+        webbrowser.open_new_tab(i)
+        break
+else:
+    print('No url found.')
