@@ -140,7 +140,7 @@ nnoremap } }zz
 nnoremap { {zz
 
 " clear search highlight
-nnoremap <Leader>h :nohl<CR>
+nnoremap <Leader>sc :nohl<CR>
 
 " " quick save
 nnoremap <Leader>fs :update<CR>
