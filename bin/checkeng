@@ -20,17 +20,26 @@ set -o nounset
 [[ $# -ge 1 && -f "$1" ]] && input="$1" || input="-"
 
 cat $input |
-sed -r '
-s/[,.!?]/ /g;
-s/\s{2,}/ /g;
-s/^\s+//g;
-s/\s+$//g;
-s/^to\s+//g;
-s/\<a\s+//g;
-s/&apos;/'\''/gI;
-s/\<the\s+//g;
-/^$/d' | cut -d' ' -f1 | sort | uniq -c | sort
+sed -rn -e '/\\--/,$ p' -e '/\/--/,$ s/[,.!?]/ /g;
+# s/\s{2,}/ /g;
+# s/^\s+//g;
+# s/\s+$//g;
+# s/^to\s+//g;
+# s/\<a\s+//g;
+# s/&apos;/'\''/gI;
+# s/\<the\s+//g;
+# /^$/d' | cut -d' ' -f1 | sort | uniq -c | sort
 
+
+# sed -r '/\/--/,$ s/[,.!?]/ /g;
+# s/\s{2,}/ /g;
+# s/^\s+//g;
+# s/\s+$//g;
+# s/^to\s+//g;
+# s/\<a\s+//g;
+# s/&apos;/'\''/gI;
+# s/\<the\s+//g;
+# /^$/d' | cut -d' ' -f1 | sort | uniq -c | sort
 
 # sed -r -e '
 # s/[,.!?]/ /g;
