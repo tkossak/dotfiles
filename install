@@ -779,6 +779,7 @@ install_apps()
         install_apt ${update_option} tree
         install_apt ${update_option} pwgen
         install_apt ${update_option} xclip
+        install_apt ${update_option} xsel
     fi
 
 
