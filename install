@@ -430,10 +430,11 @@ install_apps()
         install_apt ${update_option} python3
         install_pip -3H ${update_option} ipdb || true
         install_pip -H ${update_option} ipdb || true
-        if [[ ${__myos} == 'CYGWIN' ]]; then
-            install_apt ${update_option} -oc python-setuptools || true
-            install_apt ${update_option} -oc python3-setuptools || true
-        fi
+        # moved later to pip
+        # if [[ ${__myos} == 'CYGWIN' ]]; then
+        #     install_apt ${update_option} -oc python-setuptools || true
+        #     install_apt ${update_option} -oc python3-setuptools || true
+        # fi
     fi
 
     if (( __app_lvl >= 1 )); then
@@ -547,7 +548,7 @@ install_apps()
                         if ${__sudo} ${sudo_options} ${cur_python_cmd} "${installer}"; then
                             loguj -s -t "${ltype}" "${cur_pip_cmd}"
                         else
-                            loguj -e -t "${ltype}" "Problem instalilng ${cur_pip_cmd}"
+                            loguj -e -t "${ltype}" "Problem instaling ${cur_pip_cmd}"
                         fi
                     else
                         loguj -e -t "${ltype}" "Problem downloading ${cur_pip_cmd}"
@@ -635,31 +636,31 @@ install_apps()
         # Rozne
         install_apt ${update_option} make || true
         install_apt ${update_option} tmux || true
-        install_pip -3H ${update_option} pyperclip || true
     fi
 
 
-
     if (( __app_lvl >= 2 )); then
+        # python packages
+        install_pip -3H ${update_option} ipdb || true
+        install_pip -H ${update_option} ipdb || true
+        install_pip -3H ${update_option} setuptools || true
+        install_pip -H ${update_option} setuptools || true
+        install_pip -3H ${update_option} pyperclip || true
+
+        # python apps
+        install_pip -H ${update_option} speedtest-cli || true
+        install_pip -3Hu youtube_dl || true
 
         # glances
         if install_apt -ol ${update_option} glances; then
             install_apt ${update_option} lm-sensors || true
-            install_pip -2H ${update_option} PySensors || true
+            install_pip -H ${update_option} PySensors || true
         else
             true
         fi
 
         # fzf - asks questions
         install_git -p 1 ${update_option} https://github.com/junegunn/fzf.git ~/.fzf ~/.fzf/install || true
-
-        # speedtest-cli
-        install_pip -2H ${update_option} speedtest-cli || true
-
-        # youtube_dl
-        if ! hash youtube-dl 2>/dev/null; then
-            install_pip -3H ${update_option} youtube_dl || true
-        fi
     fi
 
     # Spacemacs
