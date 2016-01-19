@@ -770,11 +770,12 @@ install_apps()
             # for qnapi:
             install_apt ${update_option} qt5-default
             install_apt ${update_option} libmediainfo-dev
+            install_apt ${update_optoin} weechat
+            install_apt ${update_optoin} weechat-scripts
         fi
 
         install_pip -3H ${update_option} csvkit
         install_apt ${update_option} sqlite3
-
 
         # for pass:
         install_apt ${update_option} tree
