@@ -734,44 +734,44 @@ install_apps()
         install_pip -3H ${update_option} termdown
 
         if [[ ${__myos} == "LINUX" ]]; then
-            install_apt -ol ${update_option} sshfs
-            install_apt -ol ${update_option} vlc
-            install_apt -ol ${update_option} mplayer
-            install_apt -ol ${update_option} mediainfo
-            install_apt -ol ${update_option} lame
-            install_apt -ol ${update_option} krdc
-            install_apt -ol ${update_option} vpnc
-            install_apt -ol ${update_option} openvpn
-            install_apt -ol ${update_option} tidy
-            install_apt -ol ${update_option} iconv
-            install_apt -ol ${update_option} steam
-            install_apt -ol ${update_option} nethogs
-            install_apt -ol ${update_option} iftop
-            install_apt -ol ${update_option} nload
-            install_apt -ol ${update_option} ppa-purge
-            install_apt -ol ${update_option} apt-file
-            install_apt -ol ${update_option} autokey-gtk
-            install_apt -ol ${update_option} pandoc
+            install_apt sshfs
+            install_apt vlc
+            install_apt mplayer
+            install_apt mediainfo
+            install_apt lame
+            install_apt krdc
+            install_apt vpnc
+            install_apt openvpn
+            install_apt tidy
+            install_apt iconv
+            install_apt steam
+            install_apt nethogs
+            install_apt iftop
+            install_apt nload
+            install_apt ppa-purge
+            install_apt apt-file
+            install_apt autokey-gtk
+            install_apt pandoc
             # pv - see progress through a pipeline
-            install_apt -ol ${update_option} pv
-            install_apt -ol ${update_option} traceroute
-
+            install_apt pv
+            install_apt traceroute
+            install_apt linux-headers-generic
             # roccat isku dirvers
-            install_apt -ol ${update_option} cmake
+            install_apt cmake
 
             # install_apt -ol ${update_option} libcaberra-dev
             install_apt -ol ${update_option} libnotify-dev
 
             # calibre:
-            sudo -v && wget -nv -O- https://raw.githubusercontent.com/kovidgoyal/calibre/master/setup/linux-installer.py | sudo python -c "import sys; main=lambda:sys.stderr.write('Download failed\n'); exec(sys.stdin.read()); main()"
+            # sudo -v && wget -nv -O- https://raw.githubusercontent.com/kovidgoyal/calibre/master/setup/linux-installer.py | sudo python -c "import sys; main=lambda:sys.stderr.write('Download failed\n'); exec(sys.stdin.read()); main()"
 
             # for napi.sh / qnapi
             install_apt ${update_option} p7zip-full # for cygwin there's another install with "-7zip"
             # for qnapi:
             install_apt ${update_option} qt5-default
             install_apt ${update_option} libmediainfo-dev
-            install_apt ${update_optoin} weechat
-            install_apt ${update_optoin} weechat-scripts
+            install_apt ${update_option} weechat
+            install_apt ${update_option} weechat-scripts
         fi
 
         install_pip -3H ${update_option} csvkit

@@ -1,0 +1,5 @@
+#!/bin/bash
+
+mv ~/.emacs.d ~/.emacs.d.old
+mv ~/.spacemacs ~/.spacemacs.old
+git clone --recursive https://github.com/syl20bnr/spacemacs ~/.emacs.d
