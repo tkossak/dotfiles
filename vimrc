@@ -220,8 +220,13 @@ set cursorline
 " ==================================================================
 " = GUI only
 " ==================================================================
-
-
+if has('gui_running')
+ set guioptions=egmrLt " default on windows is: egmrLtT
+ set langmenu=en_US
+ let $LANG = 'en_US'
+ source $VIMRUNTIME/delmenu.vim
+ source $VIMRUNTIME/menu.vim
+endif
 
 
 " ==================================================================
@@ -229,6 +234,41 @@ set cursorline
 " ==================================================================
 " if has('unix') && stridx(s:uname, 'CYGWIN') < 0
 " endif
+
+
+" ==================================================================
+" = CYGWIN only (no cygwin)
+" ==================================================================
+
+if stridx(s:uname, 'CYGWIN') >= 0
+    " execute "set <M-h>=\eh"
+    " execute "set <M-l>=\el"
+
+    if exists('$TMUX')
+        let &t_SI = "\<Esc>Ptmux;\<Esc>\e[5 q\<Esc>\\"
+        let &t_EI = "\<Esc>Ptmux;\<Esc>\e[2 q\<Esc>\\"
+        let &t_ti.= "\<Esc>Ptmux;\<Esc>\e[1 q\<Esc>\\"
+        let &t_te.= "\<Esc>Ptmux;\<Esc>\e[0 q\<Esc>\\"
+    else
+        let &t_SI = "\e[5 q"
+        let &t_EI = "\e[2 q"
+        let &t_ti.= "\e[1 q"
+        let &t_te.= "\e[0 q"
+    endif
+
+    " let &t_ti.="\e[1 q"
+    " let &t_SI.="\e[5 q"
+    " let &t_EI.="\e[1 q"
+    " let &t_te.="\e[0 q"
+endif
+
+
+" ==================================================================
+" WINDOWS ONLY
+" ==================================================================
+" if has('win32')
+" endif
+
 
 " ==================================================================
 " BEHAVIOR
@@ -257,37 +297,6 @@ set background=dark
 colorscheme jellybeans
 " colorscheme meta5
 
-" GUI only
-if has('gui_running')
- set guioptions=egmrLt " default on windows is: egmrLtT
- set langmenu=en_US
- let $LANG = 'en_US'
- source $VIMRUNTIME/delmenu.vim
- source $VIMRUNTIME/menu.vim
-endif
-
-" CYGWIN only
-if stridx(s:uname, 'CYGWIN') >= 0
-    " execute "set <M-h>=\eh"
-    " execute "set <M-l>=\el"
-
-    if exists('$TMUX')
-        let &t_SI = "\<Esc>Ptmux;\<Esc>\e[5 q\<Esc>\\"
-        let &t_EI = "\<Esc>Ptmux;\<Esc>\e[2 q\<Esc>\\"
-        let &t_ti.= "\<Esc>Ptmux;\<Esc>\e[1 q\<Esc>\\"
-        let &t_te.= "\<Esc>Ptmux;\<Esc>\e[0 q\<Esc>\\"
-    else
-        let &t_SI = "\e[5 q"
-        let &t_EI = "\e[2 q"
-        let &t_ti.= "\e[1 q"
-        let &t_te.= "\e[0 q"
-    endif
-
-    " let &t_ti.="\e[1 q"
-    " let &t_SI.="\e[5 q"
-    " let &t_EI.="\e[1 q"
-    " let &t_te.="\e[0 q"
-endif
 
 " ==================================================================
 " VIMRC.FUNCTIONS
