@@ -1,0 +1,7 @@
+#!/bin/bash
+
+if cd ~/.emacs.d; then
+    git pull --rebase
+    git submodule sync
+    git submodule update
+fi

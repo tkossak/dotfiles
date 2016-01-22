@@ -436,36 +436,21 @@ fi
 # -- bash start info
 # -----------------------------------------------------------------------
 # Today is:
-echo "------------------------------------------------------------------"
-echo -e "${IYellow}Today is: ${BWhite}$(date +'%F (%A) %T')"
+# echo "------------------------------------------------------------------"
+# echo -e "${IYellow}Today is: ${BWhite}$(date +'%F (%A) %T')"
 
-# # Uptime:
-# __vTmp3="$(uptime | sed -e 's:,[^,]\+user.*::I;s/.*up\s\+//')"
-# [[ -n $__vTmp3 ]] && echo -e " ${IYellow}UPTIME:${BWhite} ${__vTmp3}" || echo ""
-
-# # Tmux:
-# __vTmp3="$(tmux list-sessions 2>/dev/null)"
-# [[ -n $__vTmp3 ]] && echo -e "${IYellow}TMUX:${Color_Off} ${__vTmp3}"
-
-# # Is Internet on Fire:
-# if [[ "$__myhost" != "dziura" ]]; then
-# echo -e "${IYellow}IS INTERNET ON FIRE?${Color_Off}"
-# host -t txt istheinternetonfire.com | cut -f 2- -d '"' | sed 's/\. /\n/g;s/ http/\nhttp/g;s/\\;/;/g;s/" "//g;s/"$//g'
-# echo
+# # Last logins:
+# if [[ ! ${__myos} == CYGWIN* ]]; then
+#     echo -en "${IYellow}LAST logins:\n${Color_Off}"
+#     __vTmp3="$(last | uniq | head -13)"
+#     [[ -n $__vTmp3 ]] && echo -e "${Color_Off}${__vTmp3}"
 # fi
 
-# Last logins:
-if [[ ! ${__myos} == CYGWIN* ]]; then
-    echo -en "${IYellow}LAST logins:\n${Color_Off}"
-    __vTmp3="$(last | uniq | head -13)"
-    [[ -n $__vTmp3 ]] && echo -e "${Color_Off}${__vTmp3}"
-fi
-
-echo -e "${IYellow}os:${Color_Off} $(uname -o), $(uname -m), $(getconf LONG_BIT) bit"
-echo -e "${IYellow}kernel:${Color_Off} $(uname -s)"
-echo -e "${IYellow}node:${Color_Off} $(uname -n)"
-echo -e "${IYellow}uptime:${Color_Off} $(uptime)"
-echo
+# echo -e "${IYellow}os:${Color_Off} $(uname -o), $(uname -m), $(getconf LONG_BIT) bit"
+# echo -e "${IYellow}kernel:${Color_Off} $(uname -s)"
+# echo -e "${IYellow}node:${Color_Off} $(uname -n)"
+# echo -e "${IYellow}uptime:${Color_Off} $(uptime)"
+# echo
 
 # finishing touches
 unset __vTmp1 __vTmp2 __vTmp3
