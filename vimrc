@@ -146,18 +146,18 @@ nnoremap <Leader>sc :nohl<CR>
 nnoremap <Leader>fs :update<CR>
 
 " Quick quit command
-nnoremap <Leader>e :quit<CR>
-vnoremap <Leader>e :<BS><BS><BS><BS><BS>quit<CR>
-nnoremap <Leader>E :qa<CR>
-nnoremap <Leader>Q :qa!<CR>
+" nnoremap <Leader>e :quit<CR>
+" vnoremap <Leader>e :<BS><BS><BS><BS><BS>quit<CR>
+nnoremap <Leader>qq :qa<CR>
+nnoremap <Leader>qQ :qa!<CR>
 
 " easy buffers
 noremap <leader>bb :buffers<CR>
 noremap <leader>bn :bnext<CR>
 noremap <leader>bp :bprev<CR>
 noremap <leader>bl :blast<CR>
-noremap <leader>bc :bwipe<CR>
-noremap <leader>bC :bwipe!<CR>
+noremap <leader>bk :bwipe<CR>
+noremap <leader>bK :bwipe!<CR>
 
 " Window bindings
 nnoremap <leader>wj <c-w>j
@@ -175,8 +175,8 @@ nnoremap <C-h> <c-w>h
 
 " easy tabs
 nnoremap <leader>to :tabnew<CR>
-nnoremap <leader>tk :tabnext<CR>
-nnoremap <leader>tj :tabprevious<CR>
+nnoremap <leader>tn :tabnext<CR>
+nnoremap <leader>tp :tabprevious<CR>
 nnoremap <leader>tc :tabclose<CR>
 
 " map sort function to a key
