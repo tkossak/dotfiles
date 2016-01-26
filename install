@@ -411,61 +411,62 @@ install_apps()
     if (( __app_lvl >= 1 )); then
 
         # wget
-        if install_apt ${update_option} wget; then
+        if install_apt wget; then
             __geturl_app="wget -O <<FILE>> <<URL>>"
         fi
 
         # curl
-        if install_apt ${update_option} curl; then
+        if install_apt curl; then
             __geturl_app="curl -fLo <<FILE>> <<URL>>"
         fi
 
         # git
-        install_apt ${update_option} git || true
+        install_apt git || true
     fi
 
     if (( __app_lvl >= 2 )); then
         # inne
-        install_apt ${update_option} python
-        install_apt ${update_option} python3
-        install_pip -3H ${update_option} ipdb || true
-        install_pip -H ${update_option} ipdb || true
+        install_apt python
+        install_apt python3
+        # install_pip -3H ${update_option} ipdb || true
+        # install_pip -H ${update_option} ipdb || true
         # moved later to pip
         # if [[ ${__myos} == 'CYGWIN' ]]; then
-        #     install_apt ${update_option} -oc python-setuptools || true
-        #     install_apt ${update_option} -oc python3-setuptools || true
+        #     install_apt -oc python-setuptools || true
+        #     install_apt -oc python3-setuptools || true
         # fi
     fi
 
     if (( __app_lvl >= 1 )); then
 
-        install_apt ${update_option} dos2unix
+        install_apt dos2unix
 
         # CYGWIN
         if [[ ${__myos} == 'CYGWIN' ]]; then
-            install_apt ${update_option} -oc cygutils
-            install_apt ${update_option} -oc cygutils-extra
-            install_apt ${update_option} -oc ncurses
-            install_apt ${update_option} -oc procps
-            install_apt ${update_option} -oc bind-utils
-            install_apt ${update_option} -oc binutils
-            # install_apt ${update_option} -oc gnupg # use windows one from Kleopatra
-            install_apt ${update_option} -oc gcc-g++
-            install_apt ${update_option} -oc genisoimage
-            install_apt ${update_option} -oc mkisofs
-            install_apt ${update_option} -oc p7zip
-            install_apt ${update_option} -oc rsnapshot
-            install_apt ${update_option} -oc nc
-            # install_apt ${update_option} gnupg # use windows one from Kleopatra
+            install_apt -oc cygutils
+            install_apt -oc cygutils-extra
+            install_apt -oc ncurses
+            install_apt -oc procps
+            install_apt -oc bind-utils
+            install_apt -oc binutils
+            # install_apt -oc gnupg # use windows one from Kleopatra
+            install_apt -oc gcc-g++
+            install_apt -oc genisoimage
+            install_apt -oc mkisofs
+            install_apt -oc p7zip
+            install_apt -oc rsnapshot
+            install_apt -oc nc
+            # install_apt gnupg # use windows one from Kleopatra
             # for attic:
-            install_apt ${update_option} -oc openssl-devel
+            install_apt -oc openssl-devel
         fi
 
         # vim
         __vim_vimplug_url="https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
         __vim_vimplug_path="${HOME}/.vim/autoload/plug.vim"
         if (( __app_lvl >= 1 )); then
-            install_apt ${update_option} vim || true
+            install_apt vim || true
+            install_apt emacs || true
 
             # del Vundle:
             if [[ -d ~/.vim/bundle/Vundle.vim ]]; then
@@ -478,24 +479,19 @@ install_apps()
                 # && loguj -s -t "${ltype}" "Vim plugin 'Plug' installed" \
                     # || loguj -e -t "${ltype}" "Vim plugin 'Plug' NOT installed"
             fi
-        fi
 
-        # gvim
-        if [[ -d "${__dir_gvim_root}" ]]; then
-            if [[ ! -e "${__dir_gvimplug_path}" ]]; then
-                if [[ -r "${__vim_vimplug_path}" ]]; then
-                    cp "${__vim_vimplug_path}" "${__dir_gvimplug_path}"
-                else
-                    install_url "${__vim_vimplug_url}" "${__dir_gvimplug_path}"
+            # gvim
+            if [[ -d "${__dir_gvim_root}" ]]; then
+                if [[ ! -e "${__dir_gvimplug_path}" ]]; then
+                    if [[ -r "${__vim_vimplug_path}" ]]; then
+                        cp "${__vim_vimplug_path}" "${__dir_gvimplug_path}"
+                    else
+                        install_url "${__vim_vimplug_url}" "${__dir_gvimplug_path}"
+                    fi
                 fi
             fi
+
         fi
-
-        # emacs
-        install_apt ${update_option} emacs || true
-
-        # vim-vundle
-        # install_git https://github.com/gmarik/Vundle.vim.git ~/.vim/bundle/Vundle.vim || true
 
         # PIP2
         # changelog: https://pip.pypa.io/en/latest/news.html
@@ -614,13 +610,8 @@ install_apps()
             fi
         fi
 
-        # Python modules
-        # if (( __app_lvl >= 1 )); then
-        #     install_pip -3H pyflakes livestreamer
-        # fi
-
         # Ranger
-        install_git ${update_option} https://github.com/hut/ranger.git ~/apps/ranger "${__sudo} make install" "ranger --copy-config=all" || true
+        install_git https://github.com/hut/ranger.git ~/apps/ranger "${__sudo} make install" "ranger --copy-config=all" || true
 
         # dtrx
         # without updating
@@ -630,12 +621,12 @@ install_apps()
         fi
 
         # fasd
-        install_git ${update_option} https://github.com/clvv/fasd.git ~/apps/fasd "${__sudo} make install" || true
+        install_git https://github.com/clvv/fasd.git ~/apps/fasd "${__sudo} make install" || true
         # commacd
-        install_url ${update_option} https://raw.githubusercontent.com/shyiko/commacd/master/commacd.bash ~/.commacd.bash || true
+        install_url https://raw.githubusercontent.com/shyiko/commacd/master/commacd.bash ~/.commacd.bash || true
         # Rozne
-        install_apt ${update_option} make || true
-        install_apt ${update_option} tmux || true
+        install_apt make || true
+        install_apt tmux || true
     fi
 
 
@@ -649,18 +640,18 @@ install_apps()
 
         # python apps
         install_pip -H ${update_option} speedtest-cli || true
-        install_pip -3Hu youtube_dl || true
+        install_pip -3H ${update_option} youtube_dl || true
 
         # glances
-        if install_apt -ol ${update_option} glances; then
-            install_apt ${update_option} lm-sensors || true
+        if install_apt -ol glances; then
+            install_apt lm-sensors || true
             install_pip -H ${update_option} PySensors || true
         else
             true
         fi
 
         # fzf - asks questions
-        install_git -p 1 ${update_option} https://github.com/junegunn/fzf.git ~/.fzf ~/.fzf/install || true
+        install_git -p 1 https://github.com/junegunn/fzf.git ~/.fzf ~/.fzf/install || true
     fi
 
     # Spacemacs
@@ -682,14 +673,14 @@ install_apps()
 
     # Emacs Linux - old
     # if (( __app_lvl >= 3 )); then
-    #     install_apt ${update_option} emacs || true
+    #     install_apt emacs || true
     #     if hash emacs 2>/dev/null; then
     #         # evil-leader:
     #         install_url https://raw.githubusercontent.com/cofi/evil-leader/master/evil-leader.el ~/.emacs.d/mine/evil-leader.el -sha1 00c336e55307dbcb3f73f47b1d9a1d759404341d || true
     #         # key-chord:
     #         install_url http://www.emacswiki.org/emacs/download/key-chord.el ~/.emacs.d/mine/key-chord.el -sha1 2da61bf970ca332c4de96c1977fc7e326df6c33a || true
     #         # evil:
-    #         install_git ${update_option} https://gitorious.org/evil/evil.git ~/.emacs.d/evil ||
+    #         install_git https://gitorious.org/evil/evil.git ~/.emacs.d/evil ||
     #             {
     #                 loguj -i -t "${ltype}" "Manually downloading evil.git"
     #                 rm -rf ~/.emacs.d/evil
@@ -718,18 +709,18 @@ install_apps()
     if (( __app_lvl >= 3 )); then
         # geeknote
         if ! hash geeknote 2> /dev/null; then
-            install_git ${update_option} https://github.com/VitaliyRodnenko/geeknote.git ~/apps/geeknote "${__sudo} python setup.py install" "geeknote settings --editor vim" || true
+            install_git https://github.com/VitaliyRodnenko/geeknote.git ~/apps/geeknote "${__sudo} python setup.py install" "geeknote settings --editor vim" || true
         fi
 
         # PIP installs
         #ipythons
         install_pip -H ${update_option} ipython || true
         install_pip -3H ${update_option} ipython || true
-        install_pip -3H ${update_option} BeautifulSoup4 || true
+        install_pip -3H BeautifulSoup4 || true
         install_pip -3H ${update_option} flake8 || true
         install_pip -3H ${update_option} bashate || true
         install_pip -H ${update_option} httpie || true
-        install_pip -3H git+git://github.com/badele/gitcheck.git gitcheck
+        install_pip -3H ${update_option} git+git://github.com/badele/gitcheck.git gitcheck
         install_pip -3H ${update_option} livestreamer
         install_pip -3H ${update_option} termdown
 
@@ -759,29 +750,29 @@ install_apps()
             # roccat isku dirvers
             install_apt cmake
 
-            # install_apt -ol ${update_option} libcaberra-dev
-            install_apt -ol ${update_option} libnotify-dev
+            # install_apt -ol libcaberra-dev
+            install_apt -ol libnotify-dev
 
             # calibre:
             # sudo -v && wget -nv -O- https://raw.githubusercontent.com/kovidgoyal/calibre/master/setup/linux-installer.py | sudo python -c "import sys; main=lambda:sys.stderr.write('Download failed\n'); exec(sys.stdin.read()); main()"
 
             # for napi.sh / qnapi
-            install_apt ${update_option} p7zip-full # for cygwin there's another install with "-7zip"
+            install_apt p7zip-full # for cygwin there's another install with "-7zip"
             # for qnapi:
-            install_apt ${update_option} qt5-default
-            install_apt ${update_option} libmediainfo-dev
-            install_apt ${update_option} weechat
-            install_apt ${update_option} weechat-scripts
+            install_apt qt5-default
+            install_apt libmediainfo-dev
+            install_apt weechat
+            install_apt weechat-scripts
         fi
 
         install_pip -3H ${update_option} csvkit
-        install_apt ${update_option} sqlite3
+        install_apt sqlite3
 
         # for pass:
-        install_apt ${update_option} tree
-        install_apt ${update_option} pwgen
-        install_apt ${update_option} xclip
-        install_apt ${update_option} xsel
+        install_apt tree
+        install_apt pwgen
+        install_apt xclip
+        install_apt xsel
     fi
 
 
