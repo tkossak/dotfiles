@@ -168,6 +168,11 @@ nnoremap <leader>ws <c-w>s
 nnoremap <leader>wv <c-w>v
 nnoremap <leader>wm :call MaximizeToggle()<CR>" maximize
 nnoremap <leader>wc <c-w>c " close
+nnoremap <leader>wH <c-w>H
+nnoremap <leader>wJ <c-w>J
+nnoremap <leader>wK <c-w>K
+nnoremap <leader>wL <c-w>L
+
 nnoremap <C-j> <c-w>j
 nnoremap <C-k> <c-w>k
 nnoremap <C-l> <c-w>l

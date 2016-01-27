@@ -1,5 +1,5 @@
 #!/bin/bash
 
-mv ~/.emacs.d ~/.emacs.d.old
-mv ~/.spacemacs ~/.spacemacs.old
+[[ -d "$HOME/.emacs.d" ]] && mv "$HOME/.emacs.d" "$HOME/.emacs.d.old"
+[[ -d "$HOME/.spacemacs" ]] && mv "$HOME/.spacemacs" "$HOME/.spacemacs.old"
 git clone --recursive https://github.com/syl20bnr/spacemacs ~/.emacs.d
