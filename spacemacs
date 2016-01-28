@@ -205,6 +205,11 @@ layers configuration. You are free to put any user code."
 
   (if (file-readable-p "~/.spacemacs.local")
       (load-library "~/.spacemacs.local")
+
+  ;; ================================================================================
+  ;; EMACS-KEYS
+  (define-key global-map (kbd "<f2>") 'toggle-truncate-lines) ;; wyrownanie do regexpa
+
   )
 )
 
