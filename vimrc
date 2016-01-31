@@ -158,6 +158,7 @@ noremap <leader>bp :bprev<CR>
 noremap <leader>bl :blast<CR>
 noremap <leader>bk :bwipe<CR>
 noremap <leader>bK :bwipe!<CR>
+noremap <leader>bw :set modifiable! readonly!<CR>
 
 " Window bindings
 nnoremap <leader>wj <c-w>j
