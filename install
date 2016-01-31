@@ -269,6 +269,9 @@ install_dotfiles()
 
         # replace rifle.conf:
         sed -i 's/mime \^video,       has mplayer,  X, flag f = mplayer -- "$@"/mime ^video,       has mplayer,  X, flag f = mplayer -fs -softvol -softvol-max 300 -- "$@"/' ~/.config/ranger/rifle.conf
+        sed -i 's/# Define the editor for non-text files + pager as last action/\
+ext tar|gz|bzip2|xz|tgz|tbzip2|txz|zip|rar = vim -- "$@"\
+# Define the editor for non-text files + pager as last action' ~/.config/ranger/rifle.conf
 
         if [[ -d "${__dir_dotlocal}" ]]; then
             case ${__myos} in
@@ -776,7 +779,7 @@ install_apps()
     fi
 
 
-    if (( __app_lvl >= 4 )) && [[ "${__myos}" == 'LINUX' ]]; then
+    if (( __app_lvl >= 4 )) && [[ "${__myos}" == 'LINUX' ]] && [[ "${__if_update}" != 'Y' ]]; then
         # different for LINUX
         # download installers
         [[ ! -d "${__dir_installers}" ]] && mkdir "${__dir_installers}"
@@ -799,7 +802,7 @@ install_apps()
 
     if [[ "${__if_update}" == "Y" ]]; then
         if hash apt-get 2>/dev/null; then
-            ${__sudo} sudo apt-get update
+            # ${__sudo} sudo apt-get update
             ${__sudo} sudo apt-get -y upgrade
             ${__sudo} sudo apt-get -fy install
             ${__sudo} sudo apt-get -y autoremove
