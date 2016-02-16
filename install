@@ -766,6 +766,8 @@ install_apps()
             install_apt libmediainfo-dev
             install_apt weechat
             install_apt weechat-scripts
+            install_apt remmina
+            install_apt remmina-plugin-rdp
         fi
 
         install_pip -3H ${update_option} csvkit
