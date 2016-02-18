@@ -194,6 +194,9 @@ values."
   "Initialization function for user code.
 It is called immediately after `dotspacemacs/init'.  You are free to put any
 user code."
+
+  (modify-syntax-entry ?_ "w")
+  ;;(define-key evil-normal-state-map (kbd "t") 'forward-char)
   )
 
 (defun dotspacemacs/user-config ()
@@ -208,7 +211,7 @@ layers configuration. You are free to put any user code."
 
   ;; ================================================================================
   ;; EMACS-KEYS
-  (define-key global-map (kbd "<f2>") 'toggle-truncate-lines) ;; wyrownanie do regexpa
+  ;;(define-key global-map (kbd "<f2>") 'toggle-truncate-lines) ;; wyrownanie do regexpa
 
   )
 )
