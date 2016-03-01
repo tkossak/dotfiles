@@ -223,7 +223,7 @@ case ${__myos} in
         }
 
         if [[ ${__myhost} == "W" ]]; then
-            alias wp='/cygdrive/c/Users/tkossakowski/AppData/Local/Programs/Python/Python35-32/python.exe D:\\Kossak\\ahk\\ou'
+            alias wou='/cygdrive/c/Users/tkossakowski/AppData/Local/Programs/Python/Python35-32/python.exe D:\\Kossak\\ahk\\ou'
             fixwinchar()
             {
                 iconv -f 852 -t utf8
