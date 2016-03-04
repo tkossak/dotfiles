@@ -136,8 +136,8 @@ nnoremap <F9> :w<CR>:make<CR>
 inoremap <F9> <esc>:w<CR>:make<CR>
 
 " center screen after searching/moving:
-nnoremap } }zz
-nnoremap { {zz
+" nnoremap } }zz
+" nnoremap { {zz
 
 " clear search highlight
 nnoremap <Leader>sc :nohl<CR>
@@ -157,7 +157,7 @@ noremap <leader>bn :bnext<CR>
 noremap <leader>bp :bprev<CR>
 noremap <leader>bl :blast<CR>
 noremap <leader>bk :bwipe<CR>
-noremap <leader>bK :bwipe!<CR>
+noremap <leader>bd :bwipe!<CR>
 noremap <leader>bw :set modifiable! readonly!<CR>
 
 " Window bindings
@@ -196,8 +196,8 @@ vnoremap > >gv
 " Rozne keybinding
 nnoremap j gj
 nnoremap k gk
-noremap <F2> :set wrap!<CR>
-vnoremap <F2> :<BS><BS><BS><BS><BS>set wrap!<CR>gv
+noremap <leader>tl :set wrap!<CR>
+vnoremap <leader>tl :<BS><BS><BS><BS><BS>set wrap!<CR>gv
 nnoremap <leader>x <C-X>
 
 " insert mode bindings

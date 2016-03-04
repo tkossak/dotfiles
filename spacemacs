@@ -209,7 +209,7 @@ layers configuration. You are free to put any user code."
   (if (file-readable-p "~/.spacemacs.local")
       (load-library "~/.spacemacs.local")
 
-  (setq fill-column 72)
+  (set-fill-column 72)
   ;; ================================================================================
   ;; EMACS-KEYS
   ;;(define-key global-map (kbd "<f2>") 'toggle-truncate-lines) ;; wyrownanie do regexpa
@@ -224,7 +224,8 @@ layers configuration. You are free to put any user code."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(org-agenda-files nil))
+ '(org-agenda-files nil)
+ )
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
