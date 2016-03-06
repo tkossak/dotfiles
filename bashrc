@@ -326,6 +326,7 @@ case ${__myos} in
         # alias aptgo='sudo apt-get update && sudo apt-get -y upgrade && sudo apt-get -fy install && sudo apt-get -y autoremove && sudo apt-get -y autoclean && sudo apt-get -y clean'
         alias iotop='sudo iotop --only'
         alias fping='ping -c 5 -i.2'
+        alias dstat_='dstat -lcdpymsn'
         ;;
     *)
         echo 'other os?';;
