@@ -22,7 +22,7 @@ if [[ $# = 0 ]]; then
     exit 0
 fi
 
-while getopts ":hldb1a2A3Z4tu" opt; do
+while getopts ":hldb1a2A3Z4tuf" opt; do
     case "$opt" in
         h)
             print_help
@@ -55,6 +55,9 @@ while getopts ":hldb1a2A3Z4tu" opt; do
             ;;
         t)
             __if_testing="Y"
+            ;;
+        f)
+            __if_first_time="Y"
             ;;
 
         \?)
@@ -103,7 +106,7 @@ echo "__geturl_app=${__geturl_app}"
 # Initial cmds:
 loguj -p -i -t "${ltype}" "Initial cmds..."
 mkdir -p "${HOME}/apps"
-mkdir -p "${HOME}/.emacs.d/mine"
+# mkdir -p "${HOME}/.emacs.d/mine"
 mkdir -p "${HOME}/.vim/autoload"
 # mkdir -p ~/.emacs.d/evil
 if [[ -d "${__dir_dotlocal}" ]]; then
@@ -116,8 +119,8 @@ find "${__dir_dotfiles}" -maxdepth 1 -type f -exec chmod -x {} \;
 [[ -e "${__dir_dotfiles}/install" ]] && chmod u+x "${__dir_dotfiles}/install"
 [[ -e "${__dir_dotfiles}/i_git" ]] && chmod u+x "${__dir_dotfiles}/i_git"
 
-[[ -d ${__dir_win_home} ]] &&
-    mkdir -p "${__dir_win_home}/.emacs.d/mine"
+# [[ -d ${__dir_win_home} ]] &&
+#     mkdir -p "${__dir_win_home}/.emacs.d/mine"
 
 loguj -p -i -t "${ltype}" "Initial cmds... Done"
 
@@ -160,6 +163,456 @@ break_links()
         fi
     done
     loguj -se -t "${ltype}" "BREAKING LINKS"
+    return 0
+}
+
+
+# --------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------
+# install_apps_basic
+install_apps()
+{
+    local ltype="APP"
+    local update_option=""
+    local sudo_options=""
+    [[ "${__myos}" == "LINUX" ]] && sudo_options="-H"
+
+    if [[ "${__if_update}" == "Y" ]]; then
+        update_option="-u"
+    fi
+    if [[ "${__app_lvl}" == "0" ]]; then
+        __app_lvl=100
+    fi
+
+    # if [[ "${__if_update}" == "Y" && "${__app_lvl}" == "0" ]]; then
+    #     update_option="-u" # update only
+    # elif [[ "${__if_update}" == "Y" && "${__app_lvl}" != "0" ]]; then
+    #     update_option="-U" # update or install if not already installed
+    # fi
+
+    loguj -ss -t "${ltype}" "BASICS ${__app_lvl}"
+    loguj -i -t "${ltype}" "Update option: ${update_option}"
+    # update repos?
+    update_repos
+
+    if (( __app_lvl >= 1 )); then
+
+        # wget
+        if install_apt wget; then
+            __geturl_app="wget -O <<FILE>> <<URL>>"
+        fi
+
+        # curl
+        if install_apt curl; then
+            __geturl_app="curl -fLo <<FILE>> <<URL>>"
+        fi
+
+        # git
+        install_apt git || true
+    fi
+
+    if (( __app_lvl >= 2 )); then
+        # inne
+        install_apt python
+        install_apt python3
+        # install_pip -3H ${update_option} ipdb || true
+        # install_pip -H ${update_option} ipdb || true
+        # moved later to pip
+        # if [[ ${__myos} == 'CYGWIN' ]]; then
+        #     install_apt -oc python-setuptools || true
+        #     install_apt -oc python3-setuptools || true
+        # fi
+    fi
+
+    if (( __app_lvl >= 1 )); then
+
+        install_apt dos2unix || true
+
+        # CYGWIN
+        if [[ ${__myos} == 'CYGWIN' ]]; then
+            install_apt -oc cygutils
+            install_apt -oc cygutils-extra
+            install_apt -oc ncurses
+            install_apt -oc procps
+            install_apt -oc bind-utils
+            install_apt -oc binutils
+            # install_apt -oc gnupg # use windows one from Kleopatra
+            install_apt -oc gcc-g++
+            install_apt -oc genisoimage
+            install_apt -oc mkisofs
+            install_apt -oc p7zip
+            install_apt -oc rsnapshot
+            install_apt -oc nc
+            # install_apt gnupg # use windows one from Kleopatra
+            # for attic:
+            install_apt -oc openssl-devel
+        fi
+
+        # vim
+        __vim_vimplug_url="https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
+        __vim_vimplug_path="${HOME}/.vim/autoload/plug.vim"
+        if (( __app_lvl >= 1 )); then
+            install_apt vim || true
+            install_apt emacs || true
+
+            # del Vundle:
+            if [[ -d ~/.vim/bundle/Vundle.vim ]]; then
+                loguj -i -t "${ltype}" "Old Vundle present - deleting whole ~/.vim"
+                rm -rf ~/.vim
+            fi
+            # install Plug:
+            if [[ ! -e "${__vim_vimplug_path}" ]]; then
+                mkdir -p "$(dirname ${__vim_vimplug_path})"
+                install_url "${__vim_vimplug_url}" "${__vim_vimplug_path}"
+                # && loguj -s -t "${ltype}" "Vim plugin 'Plug' installed" \
+                    # || loguj -e -t "${ltype}" "Vim plugin 'Plug' NOT installed"
+            fi
+
+            # gvim
+            if [[ -d "${__dir_gvim_root}" ]]; then
+                if [[ ! -e "${__dir_gvimplug_path}" ]]; then
+                    if [[ -r "${__vim_vimplug_path}" ]]; then
+                        cp "${__vim_vimplug_path}" "${__dir_gvimplug_path}"
+                    else
+                        install_url "${__vim_vimplug_url}" "${__dir_gvimplug_path}"
+                    fi
+                fi
+            fi
+
+        fi
+
+        # PIP2
+        # changelog: https://pip.pypa.io/en/latest/news.html
+
+        # local cur_pip_verson="7.1.2"
+        local cur_pip_sha1="4645795f303c2a8a02d9957514af8a28fd8770c2"
+        local if_getpip_downloaded="0"
+        local installer="/tmp/get-pip.py"
+        local cur_python_cmd="python2"
+        local cur_pip_cmd="pip2"
+
+        if hash ${cur_python_cmd} 2>/dev/null; then
+
+            if hash ${cur_pip_cmd} 2>/dev/null; then
+                # 1. PIP=yes
+                if [[ "${__if_update}" == "Y" ]]; then
+                    # 1.1 action=update
+                    ${__sudo} ${sudo_options} ${cur_pip_cmd} install -U pip
+                    loguj -i -t "${ltype}" "UPDATED: ${cur_pip_cmd}"
+                else
+                    # 1.2 action=install
+                    loguj -i -t "${ltype}" "App installed, not updating: ${cur_pip_cmd}"
+                fi
+
+            else
+                # 2. PIP=no
+                if [[ "${__if_update}" == "Y" ]]; then
+                    # 2.1 action=update
+                    loguj -i -t "${ltype}" "App not installed: ${cur_pip_cmd}"
+                else
+                    # 2.2 action=install
+                    # check czy get-pip.py juz istnieje:
+                    if [[ -e "${installer}" ]]; then
+                        if checksum "${installer}" -sha1 "${cur_pip_sha1}"; then
+                            if_getpip_downloaded=1
+                        else
+                            rm -rf "${installer}"
+                            if_getpip_downloaded=0
+                        fi
+                    fi
+
+                    # download
+                    if [[ "${if_getpip_downloaded}" = "0" ]]; then
+                        install_url https://bootstrap.pypa.io/get-pip.py "${installer}" -sha1 "${cur_pip_sha1}" \
+                            && if_getpip_downloaded="1"
+                    fi
+
+                    # install
+                    if [[ "${if_getpip_downloaded}" = "1" ]]; then
+                        if ${__sudo} ${sudo_options} ${cur_python_cmd} "${installer}"; then
+                            loguj -s -t "${ltype}" "${cur_pip_cmd}"
+                        else
+                            loguj -e -t "${ltype}" "Problem instaling ${cur_pip_cmd}"
+                        fi
+                    else
+                        loguj -e -t "${ltype}" "Problem downloading ${cur_pip_cmd}"
+                    fi
+                fi
+
+            fi
+        fi
+
+
+        # PIP3 -----------------------------------
+        cur_python_cmd="python3"
+        cur_pip_cmd="pip3"
+
+        if hash ${cur_python_cmd} 2>/dev/null; then
+
+            if hash ${cur_pip_cmd} 2>/dev/null; then
+                # 1. PIP=yes
+                if [[ "${__if_update}" == "Y" ]]; then
+                    # 1.1 action=update
+                    ${__sudo} ${sudo_options} ${cur_pip_cmd} install -U pip
+                    loguj -i -t "${ltype}" "UPDATED: ${cur_pip_cmd}"
+                else
+                    # 1.2 action=install
+                    loguj -i -t "${ltype}" "App installed, not updating: ${cur_pip_cmd}"
+                fi
+
+            else
+                # 2. PIP=no
+                if [[ "${__if_update}" == "Y" ]]; then
+                    # 2.1 action=update
+                    loguj -i -t "${ltype}" "App not installed: ${cur_pip_cmd}"
+                else
+                    # 2.2 action=install
+                    # check czy get-pip.py juz istnieje:
+                    if [[ -e "${installer}" ]]; then
+                        if checksum "${installer}" -sha1 "${cur_pip_sha1}"; then
+                            if_getpip_downloaded=1
+                        else
+                            rm -rf "${installer}"
+                            if_getpip_downloaded=0
+                        fi
+                    fi
+
+                    # download
+                    if [[ "${if_getpip_downloaded}" = "0" ]]; then
+                        install_url https://bootstrap.pypa.io/get-pip.py "${installer}" -sha1 "${cur_pip_sha1}" \
+                            && if_getpip_downloaded="1"
+                    fi
+
+                    # install
+                    if [[ "${if_getpip_downloaded}" = "1" ]]; then
+                        if ${__sudo} ${sudo_options} ${cur_python_cmd} "${installer}"; then
+                            loguj -s -t "${ltype}" "${cur_pip_cmd}"
+                        else
+                            loguj -e -t "${ltype}" "Problem instalilng ${cur_pip_cmd}"
+                        fi
+                    else
+                        loguj -e -t "${ltype}" "Problem downloading ${cur_pip_cmd}"
+                    fi
+                fi
+
+            fi
+        fi
+
+        # Ranger
+        install_git https://github.com/hut/ranger.git ~/apps/ranger "${__sudo} make install" "ranger --copy-config=all" || true
+
+        # dtrx
+        # without updating
+        if ! hash dtrx 2>/dev/null; then
+            rm -rf /tmp/dtrx-7.1
+            install_url -d http://brettcsmith.org/2007/dtrx/dtrx-7.1.tar.gz /tmp/dtrx-7.1.tar.gz -sha1 05cfe705a04a8b84571b0a5647cd2648720791a4 "tar -xf dtrx-7.1.tar.gz" "cd dtrx-7.1" "${__sudo} python setup.py install --prefix=/usr/local" "rm -rf /tmp/dtrx-7.1" "rm -rf /tmp/dtrx-7.1.tar.gz" || true
+        fi
+
+        # fasd
+        install_git https://github.com/clvv/fasd.git ~/apps/fasd "${__sudo} make install" || true
+        # commacd
+        install_url https://raw.githubusercontent.com/shyiko/commacd/master/commacd.bash ~/.commacd.bash || true
+        # Rozne
+        install_apt make || true
+        install_apt tmux || true
+    fi
+
+
+    if (( __app_lvl >= 2 )); then
+        # python packages
+        install_pip -3H ${update_option} ipdb || true
+        install_pip -H ${update_option} ipdb || true
+        install_pip -3H ${update_option} setuptools || true
+        install_pip -H ${update_option} setuptools || true
+
+        # python apps
+        install_pip -H ${update_option} speedtest-cli || true
+        install_pip -3H ${update_option} youtube_dl || true
+
+        # glances
+        if install_apt -ol glances; then
+            install_apt lm-sensors || true
+            install_pip -H ${update_option} PySensors || true
+        else
+            true
+        fi
+
+        # fzf - asks questions
+        install_git -p 1 https://github.com/junegunn/fzf.git ~/.fzf ~/.fzf/install || true
+
+        if [[ ${__myos} != 'CYGWIN' ]]; then
+            install_pip -3H ${update_option} pyperclip || true
+        fi
+    fi
+
+    # Spacemacs
+    if (( __app_lvl >= 3 )) && [[ -z "${update_option}" ]]; then
+        if [[ -d "${HOME}/.emacs.d" && "${__if_first_time}" == "Y" ]]; then
+            rm -rf "${HOME}/.emacs.d.old"
+            mv "${HOME}/.emacs.d" "${HOME}/.emacs.d.old"
+        fi
+
+        git clone --recursive https://github.com/syl20bnr/spacemacs "${HOME}/.emacs.d" || true
+
+        local file="${HOME}/.emacs"
+        if [[ -e "${file}" ]]; then
+            mv "${file}" "${file}.old"
+        fi
+
+        local file="${HOME}/.emacs.local"
+        if [[ -e "${file}" ]]; then
+            mv "${file}" "${file}.old"
+        fi
+
+    fi
+
+    # Emacs Linux - old
+    # if (( __app_lvl >= 3 )); then
+    #     install_apt emacs || true
+    #     if hash emacs 2>/dev/null; then
+    #         # evil-leader:
+    #         install_url https://raw.githubusercontent.com/cofi/evil-leader/master/evil-leader.el ~/.emacs.d/mine/evil-leader.el -sha1 00c336e55307dbcb3f73f47b1d9a1d759404341d || true
+    #         # key-chord:
+    #         install_url http://www.emacswiki.org/emacs/download/key-chord.el ~/.emacs.d/mine/key-chord.el -sha1 2da61bf970ca332c4de96c1977fc7e326df6c33a || true
+    #         # evil:
+    #         install_git https://gitorious.org/evil/evil.git ~/.emacs.d/evil ||
+    #             {
+    #                 loguj -i -t "${ltype}" "Manually downloading evil.git"
+    #                 rm -rf ~/.emacs.d/evil
+    #                 rm -rf ~/.emacs.d/lyro-evil*
+    #                 cd ~/.emacs.d
+    #                 if [[ ! -f evil-default.zip ]]; then
+    #                     ${__geturl_app} evil-default.zip https://bitbucket.org/lyro/evil/get/default.zip &&
+    #                         {
+    #                             unzip evil-default.zip
+    #                             mv ~/.emacs.d/lyro-evil* evil
+    #                             rm ~/.emacs.d/evil-default.zip
+    #                             loguj -d -t "${ltype}" "evil"
+    #                             loguj -e -t "${ltype}" "Evil downloaded manually."
+    #                         } ||
+    #                             {
+    #                                 loguj -e -t "${ltype}" "Downloading evil.git (default.zip)"
+    #                             }
+    #                         fi
+    #                     }
+    #                     # org-mode:
+    #                     install_git git://orgmode.org/org-mode.git ~/.emacs.d/org-mode "git checkout -b stable origin/maint" "git pull" "make autoloads" || true
+    #                 fi
+    #             fi
+
+
+    if (( __app_lvl >= 3 )); then
+        # geeknote
+        if ! hash geeknote 2> /dev/null; then
+            install_git https://github.com/VitaliyRodnenko/geeknote.git ~/apps/geeknote "${__sudo} python setup.py install" "geeknote settings --editor vim" || true
+        fi
+
+        # PIP installs
+        #ipythons
+        install_pip -H ${update_option} ipython || true
+        install_pip -3H ${update_option} ipython || true
+        install_pip -3H BeautifulSoup4 || true
+        install_pip -3H ${update_option} flake8 || true
+        install_pip -3H ${update_option} bashate || true
+        install_pip -H ${update_option} httpie || true
+        install_pip -3H ${update_option} git+git://github.com/badele/gitcheck.git gitcheck
+        install_pip -3H ${update_option} livestreamer
+        install_pip -3H ${update_option} termdown
+
+        if [[ ${__myos} == "LINUX" ]]; then
+            if [[ "${__myhost}" == "H" ]]; then
+                # for qnapi:
+                install_apt qt5-default || true
+                install_apt libmediainfo-dev || true
+                # roccat isku dirvers
+                install_apt cmake || true
+            fi
+
+            install_apt sshfs || true
+            install_apt vlc || true
+            install_apt mplayer || true
+            install_apt mediainfo || true
+            install_apt lame || true
+            # install_apt krdc || true
+            install_apt vpnc || true
+            install_apt openvpn || true
+            install_apt tidy || true
+            install_apt iconv || true
+            install_apt steam || true
+            install_apt nethogs || true
+            install_apt iftop || true
+            install_apt nload || true
+            install_apt ppa-purge || true
+            install_apt apt-file || true
+            install_apt autokey-gtk || true
+            install_apt pandoc || true
+            # pv - see progress through a pipeline
+            install_apt pv || true
+            install_apt traceroute || true
+            install_apt linux-headers-generic || true
+
+            # install_apt -ol libcaberra-dev
+            install_apt -ol libnotify-dev || true
+
+            # calibre:
+            # sudo -v && wget -nv -O- https://raw.githubusercontent.com/kovidgoyal/calibre/master/setup/linux-installer.py | sudo python -c "import sys; main=lambda:sys.stderr.write('Download failed\n'); exec(sys.stdin.read()); main()"
+
+            # for napi.sh / qnapi
+            install_apt p7zip-full || true # for cygwin there's another install with "-7zip"
+
+            # inne
+            install_apt weechat || true
+            install_apt weechat-scripts || true
+            install_apt remmina || true
+            install_apt remmina-plugin-rdp || true
+        fi
+
+        install_pip -3H ${update_option} csvkit || true
+        install_apt sqlite3 || true
+
+        # for pass:
+        install_apt tree || true
+        install_apt pwgen || true
+        install_apt xclip || true
+        install_apt xsel || true
+    fi
+
+
+    if (( __app_lvl >= 4 )) && [[ "${__myos}" == 'LINUX' ]] && [[ "${__if_update}" != 'Y' ]]; then
+        # different for LINUX
+        # download installers
+        [[ ! -d "${__dir_installers}" ]] && mkdir "${__dir_installers}"
+
+        # Teamviewer Full Version - Ubuntu/Debian
+        local url="https://download.teamviewer.com/download/teamviewer_i386.deb"
+        install_url "${url}" "${__dir_installers}/${url##*/}"
+
+        # ffmpeg - x64 linux static builds (NOT ubuntu/debian)
+        local url="http://johnvansickle.com/ffmpeg/builds/ffmpeg-git-64bit-static.tar.xz"
+        install_url "${url}" "${__dir_installers}/${url##*/}"
+
+        loguj -i -t "${ltype}" "INSTALLERS DOWNLOADED - run them manually"
+        if hash xdg-open 2>/dev/null; then
+            xdg-open "${__dir_installers}"
+        elif hash cygstart 2>/dev/null; then
+            cygstart "${__dir_installers}"
+        fi
+    fi
+
+    if [[ "${__if_update}" == "Y" ]]; then
+        if hash apt-get 2>/dev/null; then
+            # ${__sudo} sudo apt-get update
+            ${__sudo} sudo apt-get -y upgrade
+            ${__sudo} sudo apt-get -fy install
+            # ${__sudo} sudo apt-get -y autoremove
+            ${__sudo} sudo apt-get -y autoclean
+            # ${__sudo} sudo apt-get -y clean
+        elif hash babun 2>/dev/null; then
+            babun update
+        fi
+    fi
+    loguj -se -t "${ltype}" "BASICS ${__app_lvl}"
     return 0
 }
 
@@ -215,10 +668,12 @@ install_dotfiles()
 
         # Win
         if [[ -d "${__dir_win_home}" ]]; then
-            install_link -w "${__dir_dotfiles}/spacemacs" "${__dir_win_home}/.spacemacs" || true
+            # install_link -w "${__dir_dotfiles}/spacemacs" "${__dir_win_home}/.spacemacs" || true
+            install_link -c "${__dir_dotfiles}/spacemacs" "${__dir_win_home}/.spacemacs" || true
         fi
         if [[ -d "${__dir_win_home}/.emacs.d" ]]; then
-            install_link -w "${__dir_dotlocal}/emacs.local" "${__dir_win_home}/.spacemacs.local" || true
+            # install_link -w "${__dir_dotlocal}/emacs.local" "${__dir_win_home}/.spacemacs.local" || true
+            install_link -c "${__dir_dotlocal}/emacs.local" "${__dir_win_home}/.spacemacs.local" || true
         fi
     fi
 
@@ -381,444 +836,6 @@ install_dotfiles()
     loguj -se -t "${ltype}" "DOTFILES"
     return 0
 }
-
-
-# --------------------------------------------------------------------------------
-# --------------------------------------------------------------------------------
-# --------------------------------------------------------------------------------
-# install_apps_basic
-install_apps()
-{
-    local ltype="APP"
-    local update_option=""
-    local sudo_options=""
-    [[ "${__myos}" == "LINUX" ]] && sudo_options="-H"
-
-    if [[ "${__if_update}" == "Y" ]]; then
-        update_option="-u"
-    fi
-    if [[ "${__app_lvl}" == "0" ]]; then
-        __app_lvl=100
-    fi
-
-    # if [[ "${__if_update}" == "Y" && "${__app_lvl}" == "0" ]]; then
-    #     update_option="-u" # update only
-    # elif [[ "${__if_update}" == "Y" && "${__app_lvl}" != "0" ]]; then
-    #     update_option="-U" # update or install if not already installed
-    # fi
-
-    loguj -ss -t "${ltype}" "BASICS ${__app_lvl}"
-    loguj -i -t "${ltype}" "Update option: ${update_option}"
-    # update repos?
-    update_repos
-
-    if (( __app_lvl >= 1 )); then
-
-        # wget
-        if install_apt wget; then
-            __geturl_app="wget -O <<FILE>> <<URL>>"
-        fi
-
-        # curl
-        if install_apt curl; then
-            __geturl_app="curl -fLo <<FILE>> <<URL>>"
-        fi
-
-        # git
-        install_apt git || true
-    fi
-
-    if (( __app_lvl >= 2 )); then
-        # inne
-        install_apt python
-        install_apt python3
-        # install_pip -3H ${update_option} ipdb || true
-        # install_pip -H ${update_option} ipdb || true
-        # moved later to pip
-        # if [[ ${__myos} == 'CYGWIN' ]]; then
-        #     install_apt -oc python-setuptools || true
-        #     install_apt -oc python3-setuptools || true
-        # fi
-    fi
-
-    if (( __app_lvl >= 1 )); then
-
-        install_apt dos2unix
-
-        # CYGWIN
-        if [[ ${__myos} == 'CYGWIN' ]]; then
-            install_apt -oc cygutils
-            install_apt -oc cygutils-extra
-            install_apt -oc ncurses
-            install_apt -oc procps
-            install_apt -oc bind-utils
-            install_apt -oc binutils
-            # install_apt -oc gnupg # use windows one from Kleopatra
-            install_apt -oc gcc-g++
-            install_apt -oc genisoimage
-            install_apt -oc mkisofs
-            install_apt -oc p7zip
-            install_apt -oc rsnapshot
-            install_apt -oc nc
-            # install_apt gnupg # use windows one from Kleopatra
-            # for attic:
-            install_apt -oc openssl-devel
-        fi
-
-        # vim
-        __vim_vimplug_url="https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
-        __vim_vimplug_path="${HOME}/.vim/autoload/plug.vim"
-        if (( __app_lvl >= 1 )); then
-            install_apt vim || true
-            install_apt emacs || true
-
-            # del Vundle:
-            if [[ -d ~/.vim/bundle/Vundle.vim ]]; then
-                loguj -i -t "${ltype}" "Old Vundle present - deleting whole ~/.vim"
-                rm -rf ~/.vim
-            fi
-            # install Plug:
-            if [[ ! -e "${__vim_vimplug_path}" ]]; then
-                install_url "${__vim_vimplug_url}" "${__vim_vimplug_path}"
-                # && loguj -s -t "${ltype}" "Vim plugin 'Plug' installed" \
-                    # || loguj -e -t "${ltype}" "Vim plugin 'Plug' NOT installed"
-            fi
-
-            # gvim
-            if [[ -d "${__dir_gvim_root}" ]]; then
-                if [[ ! -e "${__dir_gvimplug_path}" ]]; then
-                    if [[ -r "${__vim_vimplug_path}" ]]; then
-                        cp "${__vim_vimplug_path}" "${__dir_gvimplug_path}"
-                    else
-                        install_url "${__vim_vimplug_url}" "${__dir_gvimplug_path}"
-                    fi
-                fi
-            fi
-
-        fi
-
-        # PIP2
-        # changelog: https://pip.pypa.io/en/latest/news.html
-
-        # local cur_pip_verson="7.1.2"
-        local cur_pip_sha1="4645795f303c2a8a02d9957514af8a28fd8770c2"
-        local if_getpip_downloaded="0"
-        local installer="/tmp/get-pip.py"
-        local cur_python_cmd="python2"
-        local cur_pip_cmd="pip2"
-
-        if hash ${cur_python_cmd} 2>/dev/null; then
-
-            if hash ${cur_pip_cmd} 2>/dev/null; then
-                # 1. PIP=yes
-                if [[ "${__if_update}" == "Y" ]]; then
-                    # 1.1 action=update
-                    ${__sudo} ${sudo_options} ${cur_pip_cmd} install -U pip
-                    loguj -i -t "${ltype}" "UPDATED: ${cur_pip_cmd}"
-                else
-                    # 1.2 action=install
-                    loguj -i -t "${ltype}" "App installed, not updating: ${cur_pip_cmd}"
-                fi
-
-            else
-                # 2. PIP=no
-                if [[ "${__if_update}" == "Y" ]]; then
-                    # 2.1 action=update
-                    loguj -i -t "${ltype}" "App not installed: ${cur_pip_cmd}"
-                else
-                    # 2.2 action=install
-                    # check czy get-pip.py juz istnieje:
-                    if [[ -e "${installer}" ]]; then
-                        if checksum "${installer}" -sha1 "${cur_pip_sha1}"; then
-                            if_getpip_downloaded=1
-                        else
-                            rm -rf "${installer}"
-                            if_getpip_downloaded=0
-                        fi
-                    fi
-
-                    # download
-                    if [[ "${if_getpip_downloaded}" = "0" ]]; then
-                        install_url https://bootstrap.pypa.io/get-pip.py "${installer}" -sha1 "${cur_pip_sha1}" \
-                            && if_getpip_downloaded="1"
-                    fi
-
-                    # install
-                    if [[ "${if_getpip_downloaded}" = "1" ]]; then
-                        if ${__sudo} ${sudo_options} ${cur_python_cmd} "${installer}"; then
-                            loguj -s -t "${ltype}" "${cur_pip_cmd}"
-                        else
-                            loguj -e -t "${ltype}" "Problem instaling ${cur_pip_cmd}"
-                        fi
-                    else
-                        loguj -e -t "${ltype}" "Problem downloading ${cur_pip_cmd}"
-                    fi
-                fi
-
-            fi
-        fi
-
-
-        # PIP3 -----------------------------------
-        cur_python_cmd="python3"
-        cur_pip_cmd="pip3"
-
-        if hash ${cur_python_cmd} 2>/dev/null; then
-
-            if hash ${cur_pip_cmd} 2>/dev/null; then
-                # 1. PIP=yes
-                if [[ "${__if_update}" == "Y" ]]; then
-                    # 1.1 action=update
-                    ${__sudo} ${sudo_options} ${cur_pip_cmd} install -U pip
-                    loguj -i -t "${ltype}" "UPDATED: ${cur_pip_cmd}"
-                else
-                    # 1.2 action=install
-                    loguj -i -t "${ltype}" "App installed, not updating: ${cur_pip_cmd}"
-                fi
-
-            else
-                # 2. PIP=no
-                if [[ "${__if_update}" == "Y" ]]; then
-                    # 2.1 action=update
-                    loguj -i -t "${ltype}" "App not installed: ${cur_pip_cmd}"
-                else
-                    # 2.2 action=install
-                    # check czy get-pip.py juz istnieje:
-                    if [[ -e "${installer}" ]]; then
-                        if checksum "${installer}" -sha1 "${cur_pip_sha1}"; then
-                            if_getpip_downloaded=1
-                        else
-                            rm -rf "${installer}"
-                            if_getpip_downloaded=0
-                        fi
-                    fi
-
-                    # download
-                    if [[ "${if_getpip_downloaded}" = "0" ]]; then
-                        install_url https://bootstrap.pypa.io/get-pip.py "${installer}" -sha1 "${cur_pip_sha1}" \
-                            && if_getpip_downloaded="1"
-                    fi
-
-                    # install
-                    if [[ "${if_getpip_downloaded}" = "1" ]]; then
-                        if ${__sudo} ${sudo_options} ${cur_python_cmd} "${installer}"; then
-                            loguj -s -t "${ltype}" "${cur_pip_cmd}"
-                        else
-                            loguj -e -t "${ltype}" "Problem instalilng ${cur_pip_cmd}"
-                        fi
-                    else
-                        loguj -e -t "${ltype}" "Problem downloading ${cur_pip_cmd}"
-                    fi
-                fi
-
-            fi
-        fi
-
-        # Ranger
-        install_git https://github.com/hut/ranger.git ~/apps/ranger "${__sudo} make install" "ranger --copy-config=all" || true
-
-        # dtrx
-        # without updating
-        if ! hash dtrx 2>/dev/null; then
-            rm -rf /tmp/dtrx-7.1
-            install_url -d http://brettcsmith.org/2007/dtrx/dtrx-7.1.tar.gz /tmp/dtrx-7.1.tar.gz -sha1 05cfe705a04a8b84571b0a5647cd2648720791a4 "tar -xf dtrx-7.1.tar.gz" "cd dtrx-7.1" "${__sudo} python setup.py install --prefix=/usr/local" "rm -rf /tmp/dtrx-7.1" "rm -rf /tmp/dtrx-7.1.tar.gz" || true
-        fi
-
-        # fasd
-        install_git https://github.com/clvv/fasd.git ~/apps/fasd "${__sudo} make install" || true
-        # commacd
-        install_url https://raw.githubusercontent.com/shyiko/commacd/master/commacd.bash ~/.commacd.bash || true
-        # Rozne
-        install_apt make || true
-        install_apt tmux || true
-    fi
-
-
-    if (( __app_lvl >= 2 )); then
-        # python packages
-        install_pip -3H ${update_option} ipdb || true
-        install_pip -H ${update_option} ipdb || true
-        install_pip -3H ${update_option} setuptools || true
-        install_pip -H ${update_option} setuptools || true
-        install_pip -3H ${update_option} pyperclip || true
-
-        # python apps
-        install_pip -H ${update_option} speedtest-cli || true
-        install_pip -3H ${update_option} youtube_dl || true
-
-        # glances
-        if install_apt -ol glances; then
-            install_apt lm-sensors || true
-            install_pip -H ${update_option} PySensors || true
-        else
-            true
-        fi
-
-        # fzf - asks questions
-        install_git -p 1 https://github.com/junegunn/fzf.git ~/.fzf ~/.fzf/install || true
-    fi
-
-    # Spacemacs
-    if (( __app_lvl >= 4 )) && [[ -z "${update_option}" ]]; then
-
-        git clone --recursive https://github.com/syl20bnr/spacemacs "${HOME}/.emacs.d"
-
-        local file="${HOME}/.emacs"
-        if [[ -e "${file}" ]]; then
-            mv "${file}" "${file}.old"
-        fi
-
-        local file="${HOME}/.emacs.local"
-        if [[ -e "${file}" ]]; then
-            mv "${file}" "${file}.old"
-        fi
-
-    fi
-
-    # Emacs Linux - old
-    # if (( __app_lvl >= 3 )); then
-    #     install_apt emacs || true
-    #     if hash emacs 2>/dev/null; then
-    #         # evil-leader:
-    #         install_url https://raw.githubusercontent.com/cofi/evil-leader/master/evil-leader.el ~/.emacs.d/mine/evil-leader.el -sha1 00c336e55307dbcb3f73f47b1d9a1d759404341d || true
-    #         # key-chord:
-    #         install_url http://www.emacswiki.org/emacs/download/key-chord.el ~/.emacs.d/mine/key-chord.el -sha1 2da61bf970ca332c4de96c1977fc7e326df6c33a || true
-    #         # evil:
-    #         install_git https://gitorious.org/evil/evil.git ~/.emacs.d/evil ||
-    #             {
-    #                 loguj -i -t "${ltype}" "Manually downloading evil.git"
-    #                 rm -rf ~/.emacs.d/evil
-    #                 rm -rf ~/.emacs.d/lyro-evil*
-    #                 cd ~/.emacs.d
-    #                 if [[ ! -f evil-default.zip ]]; then
-    #                     ${__geturl_app} evil-default.zip https://bitbucket.org/lyro/evil/get/default.zip &&
-    #                         {
-    #                             unzip evil-default.zip
-    #                             mv ~/.emacs.d/lyro-evil* evil
-    #                             rm ~/.emacs.d/evil-default.zip
-    #                             loguj -d -t "${ltype}" "evil"
-    #                             loguj -e -t "${ltype}" "Evil downloaded manually."
-    #                         } ||
-    #                             {
-    #                                 loguj -e -t "${ltype}" "Downloading evil.git (default.zip)"
-    #                             }
-    #                         fi
-    #                     }
-    #                     # org-mode:
-    #                     install_git git://orgmode.org/org-mode.git ~/.emacs.d/org-mode "git checkout -b stable origin/maint" "git pull" "make autoloads" || true
-    #                 fi
-    #             fi
-
-
-    if (( __app_lvl >= 3 )); then
-        # geeknote
-        if ! hash geeknote 2> /dev/null; then
-            install_git https://github.com/VitaliyRodnenko/geeknote.git ~/apps/geeknote "${__sudo} python setup.py install" "geeknote settings --editor vim" || true
-        fi
-
-        # PIP installs
-        #ipythons
-        install_pip -H ${update_option} ipython || true
-        install_pip -3H ${update_option} ipython || true
-        install_pip -3H BeautifulSoup4 || true
-        install_pip -3H ${update_option} flake8 || true
-        install_pip -3H ${update_option} bashate || true
-        install_pip -H ${update_option} httpie || true
-        install_pip -3H ${update_option} git+git://github.com/badele/gitcheck.git gitcheck
-        install_pip -3H ${update_option} livestreamer
-        install_pip -3H ${update_option} termdown
-
-        if [[ ${__myos} == "LINUX" ]]; then
-            install_apt sshfs
-            install_apt vlc
-            install_apt mplayer
-            install_apt mediainfo
-            install_apt lame
-            install_apt krdc
-            install_apt vpnc
-            install_apt openvpn
-            install_apt tidy
-            install_apt iconv
-            install_apt steam
-            install_apt nethogs
-            install_apt iftop
-            install_apt nload
-            install_apt ppa-purge
-            install_apt apt-file
-            install_apt autokey-gtk
-            install_apt pandoc
-            # pv - see progress through a pipeline
-            install_apt pv
-            install_apt traceroute
-            install_apt linux-headers-generic
-            # roccat isku dirvers
-            install_apt cmake
-
-            # install_apt -ol libcaberra-dev
-            install_apt -ol libnotify-dev
-
-            # calibre:
-            # sudo -v && wget -nv -O- https://raw.githubusercontent.com/kovidgoyal/calibre/master/setup/linux-installer.py | sudo python -c "import sys; main=lambda:sys.stderr.write('Download failed\n'); exec(sys.stdin.read()); main()"
-
-            # for napi.sh / qnapi
-            install_apt p7zip-full # for cygwin there's another install with "-7zip"
-            # for qnapi:
-            install_apt qt5-default
-            install_apt libmediainfo-dev
-            install_apt weechat
-            install_apt weechat-scripts
-            install_apt remmina
-            install_apt remmina-plugin-rdp
-        fi
-
-        install_pip -3H ${update_option} csvkit
-        install_apt sqlite3
-
-        # for pass:
-        install_apt tree
-        install_apt pwgen
-        install_apt xclip
-        install_apt xsel
-    fi
-
-
-    if (( __app_lvl >= 4 )) && [[ "${__myos}" == 'LINUX' ]] && [[ "${__if_update}" != 'Y' ]]; then
-        # different for LINUX
-        # download installers
-        [[ ! -d "${__dir_installers}" ]] && mkdir "${__dir_installers}"
-
-        # Teamviewer Full Version - Ubuntu/Debian
-        local url="https://download.teamviewer.com/download/teamviewer_i386.deb"
-        install_url "${url}" "${__dir_installers}/${url##*/}"
-
-        # ffmpeg - x64 linux static builds (NOT ubuntu/debian)
-        local url="http://johnvansickle.com/ffmpeg/builds/ffmpeg-git-64bit-static.tar.xz"
-        install_url "${url}" "${__dir_installers}/${url##*/}"
-
-        loguj -i -t "${ltype}" "INSTALLERS DOWNLOADED - run them manually"
-        if hash xdg-open 2>/dev/null; then
-            xdg-open "${__dir_installers}"
-        elif hash cygstart 2>/dev/null; then
-            cygstart "${__dir_installers}"
-        fi
-    fi
-
-    if [[ "${__if_update}" == "Y" ]]; then
-        if hash apt-get 2>/dev/null; then
-            # ${__sudo} sudo apt-get update
-            ${__sudo} sudo apt-get -y upgrade
-            ${__sudo} sudo apt-get -fy install
-            ${__sudo} sudo apt-get -y autoremove
-            ${__sudo} sudo apt-get -y autoclean
-            ${__sudo} sudo apt-get -y clean
-        elif hash babun 2>/dev/null; then
-            babun update
-        fi
-    fi
-    loguj -se -t "${ltype}" "BASICS ${__app_lvl}"
-    return 0
-}
-
 
 
 # --------------------------------------------------------------------------------
