@@ -57,7 +57,7 @@ tmux send-keys -t ${session} 'ranger-cd' Enter
 tmux new-window -t ${session} -n 'backup'
 tmux send-keys -t ${session} 'cd /cygdrive/k/backup_rsync' Enter
 tmux send-keys -t ${session} 'll' Enter
-tmux send-keys -t ${session} '/cygdrive/d/Kossak/Linux/scripts/rozne/backup_comp.sh'
+tmux send-keys -t ${session} '/cygdrive/d/Kossak/Linux/scripts/rozne/backup_comp_small_daily.sh'
 
 tmux select-window -t ${session}:dotfiles
 if [[ -n "$TMUX" ]]; then

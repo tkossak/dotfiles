@@ -69,6 +69,7 @@ __app_lvl=0
 __if_break_links="N"
 __if_testing="N"
 __if_update="N"
+__if_first_time="N"
 
 if [[ -d "${__dir_gvim_root}" ]]; then
     __dir_gvimplug_path="${__dir_gvim_root}/autoload/plug.vim"
