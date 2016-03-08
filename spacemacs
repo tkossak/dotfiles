@@ -192,8 +192,8 @@ values."
 
 (defun dotspacemacs/user-init ()
   "Initialization function for user code.
-It is called immediately after `dotspacemacs/init'.  You are free to put any
-user code."
+   It is called immediately after `dotspacemacs/init'.  You are free to put any
+   user code."
 
   (modify-syntax-entry ?_ "w")
   ;;(define-key evil-normal-state-map (kbd "t") 'forward-char)
@@ -201,19 +201,15 @@ user code."
 
 (defun dotspacemacs/user-config ()
   "Configuration function for user code.
- This function is called at the very end of Spacemacs initialization after
-layers configuration. You are free to put any user code."
+   This function is called at the very end of Spacemacs initialization after
+   layers configuration. You are free to put any user code."
+
+  (setq-default fill-column 72)
 
   " do not put any ORG code before!"
 
   (if (file-readable-p "~/.spacemacs.local")
       (load-library "~/.spacemacs.local")
-
-  (set-fill-column 72)
-  ;; ================================================================================
-  ;; EMACS-KEYS
-  ;;(define-key global-map (kbd "<f2>") 'toggle-truncate-lines) ;; wyrownanie do regexpa
-
   )
 )
 
