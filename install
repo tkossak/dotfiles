@@ -826,6 +826,9 @@ install_dotfiles()
         install_link "${__dir_dotlocal}/vlcrc" "${HOME}/.config/vlc/vlcrc"
     fi
 
+    # different
+    install_link "${__dir_dotfiles}/vimperatorrc" ~/.vimperatorrc || true
+
     # vim +PluginInstall +PluginClean +qall
     # if [[ "${__if_update}" == "Y" ]]; then
     #     vim +PlugUpgrade +PlugInstall +PlugUpdate +PlugClean +qall
