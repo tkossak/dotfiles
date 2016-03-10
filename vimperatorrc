@@ -1,9 +1,13 @@
 "3.12.0 (created: 2016/02/28 22:07:56)
 
+highlight Hint font-size:14px;color:white;background-color:red;padding:2px;
 noremap u <C-u>
 noremap d <C-d>
 noremap J <C-p>
 noremap K <C-n>
+noremap x d
+noremap e <C-u>
+set hintchars=fjdkslaghrueiwovncm
 source! /home/kossak/.vimperatorrc.local
 
 " vim: set ft=vimperator:
