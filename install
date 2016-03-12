@@ -101,7 +101,7 @@ echo "__aptget_install_cmd=${__aptget_install_cmd}"
 echo "__aptget_update_cmd=${__aptget_update_cmd}"
 echo "__aptget_check_cmd=${__aptget_check_cmd}"
 echo "__geturl_app=${__geturl_app}"
-
+echo "=== END OF VARS ==========================================="
 # ================================================================================
 # Initial cmds:
 loguj -p -i -t "${ltype}" "Initial cmds..."
@@ -669,11 +669,11 @@ install_dotfiles()
         # Win
         if [[ -d "${__dir_win_home}" ]]; then
             # install_link -w "${__dir_dotfiles}/spacemacs" "${__dir_win_home}/.spacemacs" || true
-            install_link -c "${__dir_dotfiles}/spacemacs" "${__dir_win_home}/.spacemacs" || true
+            install_link -w "${__dir_dotfiles}/spacemacs" "${__dir_win_home}/.spacemacs" || true
         fi
         if [[ -d "${__dir_win_home}/.emacs.d" ]]; then
             # install_link -w "${__dir_dotlocal}/emacs.local" "${__dir_win_home}/.spacemacs.local" || true
-            install_link -c "${__dir_dotlocal}/emacs.local" "${__dir_win_home}/.spacemacs.local" || true
+            install_link -w "${__dir_dotlocal}/emacs.local" "${__dir_win_home}/.spacemacs.local" || true
         fi
     fi
 
@@ -828,6 +828,7 @@ install_dotfiles()
 
     # different
     install_link "${__dir_dotfiles}/vimperatorrc" ~/.vimperatorrc || true
+    [[ -d "${__dir_win_profile}" ]] && install_link -w "${__dir_dotfiles}/vimperatorrc" "${__dir_win_profile}/_vimperatorrc" || true
 
     # vim +PluginInstall +PluginClean +qall
     # if [[ "${__if_update}" == "Y" ]]; then
@@ -860,6 +861,7 @@ testing()
 
 install_link "${__dir_dotfiles}" ~/.dotfiles
 install_link "${__dir_dotlocal}" ~/.dotfiles.local || true
+echo "=== END OF INITIAL CMDS ==========================================="
 
 [[ ${__if_testing} == "Y" ]] && testing
 if (( __app_lvl > 0 )) || [[ "${__if_update}" == "Y" ]]; then
