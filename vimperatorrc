@@ -7,7 +7,7 @@ noremap J <C-p>
 noremap K <C-n>
 noremap x d
 noremap e <C-u>
-set hintchars=fjdkslaghrueiwovncm
+set hintchars=fjdkslaghrueiwovncmxp
 source! /home/kossak/.vimperatorrc.local
 
 " vim: set ft=vimperator:
