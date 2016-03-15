@@ -30,8 +30,11 @@ fi
 
 # --- Windows vars ---------------------------------------------------------------
 if hash cygpath 2>/dev/null; then
-    __dir_win_home="$(cygpath -au ${APPDATA:-})" || __dir_win_home=""
-    __dir_win_profile="$(cygpath -au ${USERPROFILE:-})" || __dir_win_profile=""
+    __dir_win_home="$(cygpath -au ${APPDATA:-})"
+    __dir_win_profile="$(cygpath -au ${USERPROFILE:-})"
+else
+    __dir_win_home=""
+    __dir_win_profile=""
 fi
 __dir_gvim_root="/cygdrive/d/Kossak/progs/gvim"
 if [[ -d "${__dir_gvim_root}" ]]; then
@@ -40,7 +43,6 @@ if [[ -d "${__dir_gvim_root}" ]]; then
 else
     __dir_gvim_root=""
 fi
-
 
 # --------------------------------------------------------------------------------
 # __geturl_app
