@@ -196,7 +196,10 @@ values."
    It is called immediately after `dotspacemacs/init'.  You are free to put any
    user code."
 
-  (modify-syntax-entry ?_ "w")
+  (with-eval-after-load 'evil
+    (defalias #'forward-evil-word #'forward-evil-symbol))
+
+  ;; (modify-syntax-entry ?_ "w")
   ;;(define-key evil-normal-state-map (kbd "t") 'forward-char)
   )
 
