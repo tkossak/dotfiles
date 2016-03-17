@@ -219,6 +219,7 @@ values."
   " Org variables ----------------------------------------------- "
   (setq org-deadline-warning-days 7)
   (setq org-clock-report-include-clocking-task t)
+  (setq org-agenda-restore-windows-after-quit t)
   ; clocks in hours format, not days
   (setq org-time-clocksum-format
       '(:hours "%d" :require-hours t :minutes ":%02d" :require-minutes t))
