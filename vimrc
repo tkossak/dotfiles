@@ -205,7 +205,7 @@ inoremap fd <esc>
 inoremap df <esc>
 
 " Write to file with sudo
-cmap w!! !sudo tee >/dev/null%
+cmap w!! w !sudo tee % > /dev/null
 " command W :execute ':silent w !sudo tee % > /dev/null' | :edit!
 
 " Allow undo for Insert Mode ^u
