@@ -197,7 +197,9 @@ install_apps()
     update_repos
 
     # bash completion for git:
-    install_url ${update_option} 'https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash' "${__dir_dotfiles}/source/git-completion.bash"
+    # install_url ${update_option} 'https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash' "${__dir_dotfiles}/source/git-completion.bash"
+    # git ps1 prompt for bash
+    install_url ${update_option} 'https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh' "${__dir_dotfiles}/source/git-prompt.sh"
 
     if (( __app_lvl >= 1 )); then
 
