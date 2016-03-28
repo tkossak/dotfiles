@@ -150,23 +150,32 @@ bind '"\C-o":"ranger-cd\C-m"'
 # export PS1="\[${Cyan}\]$( ((SHLVL>1)) && echo "${SHLVL}\[${IBlack}\]." )\[${IGreen}\]\u\[${IBlack}\]@\[${Purple}\]\h\[${Blue}\]{ \W }\[${Green}\]\$( git rev-parse --abbrev-ref HEAD 2> /dev/null || echo "" ) \[${BRed}\]» \[${Color_Off}\]"
 
 PS1=""
-# SHLVL
+# SHLVL:
 PS1+="\[${Cyan}\]$( ((SHLVL>1)) && echo "${SHLVL}\[${IBlack}\]." )"
-# user
+# user:
 PS1+="\[${IGreen}\]\u"
-if [[ "${__myhost}" != "W" && "${__myhost}" != "H" ]]; then
-    # @host
-    PS1+="\[${IBlack}\]@\[${Purple}\]\h"
+# host:
+PS1+="\[${IBlack}\]@\[${BBlack}\]${__myhost:-\h}"
+# if [[ "${__myhost}" != "W" && "${__myhost}" != "H" ]]; then
+#     # @host
+#     PS1+="\[${IBlack}\]@\[${Purple}\]\h"
+# fi
+# working dir
+PS1+="\[${Blue}\]{\W}"
+
+# # git
+if [[ -r "${HOME}/.dotfiles/source/git-completion.bash" ]]; then
+    source "${HOME}/.dotfiles/source/git-completion.bash"
+    PS1+="${Yellow}"'$(__git_ps1 " (%s)")'
+elif hash git 2>/dev/null; then
+    PS1+="\[${Green}\]\$( git rev-parse --abbrev-ref HEAD 2> /dev/null || echo -n "")"
 fi
 
-# working dir
-PS1+="\[${Blue}\]{ \W }"
-# git
-PS1+="\[${Green}\]\$( git rev-parse --abbrev-ref HEAD 2> /dev/null || echo "" )"
 # last char based on root or not:
 PS1+=" \[${BRed}\]$((($UID == 0)) && echo '#' || echo '»' )"
 #Turn colors off + add space
 PS1+="\[${Color_Off}\] "
+
 export PS1
 
 case ${__myos} in
