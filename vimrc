@@ -94,6 +94,9 @@ omap s :normal vs<CR>
 nnoremap <leader>dd :diffthis<CR>
 nnoremap <leader>do :diffoff<CR>
 nnoremap <leader>ds :DiffSaved<CR>
+nnoremap <leader>dl :diffget LO<CR>
+nnoremap <leader>db :diffget BA<CR>
+nnoremap <leader>dr :diffget RE<CR>
 
 " remove trailing whitespace
 nnoremap <Leader><BS> :let _s=@/<Bar>:%s/\s\+$//e<Bar>:let @/=_s<Bar>:nohl<CR>
