@@ -33,3 +33,4 @@
     rso = remote show origin
 	up = "!git remote update -p; git merge --ff-only @{u}"
     sr = "!git status -sb; git remote show origin"
+	lg2 = log --oneline --decorate
