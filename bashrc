@@ -155,7 +155,12 @@ PS1+="\[${Cyan}\]$( ((SHLVL>1)) && echo "${SHLVL}\[${IBlack}\]." )"
 # user:
 PS1+="\[${IGreen}\]\u"
 # host:
-PS1+="\[${IBlack}\]@\[${BBlack}\]${__myhost:-\h}"
+if [[ "${__myhost}" = "OTHER" ]]; then
+    unset __vTmp1
+else
+    __vTmp1="${__myhost}"
+fi
+PS1+="\[${IBlack}\]@\[${BBlack}\]${__vTmp1:-\h}"
 # if [[ "${__myhost}" != "W" && "${__myhost}" != "H" ]]; then
 #     # @host
 #     PS1+="\[${IBlack}\]@\[${Purple}\]\h"
