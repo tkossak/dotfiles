@@ -196,6 +196,9 @@ install_apps()
     # update repos?
     update_repos
 
+    # bash completion for git:
+    install_url ${update_option} 'https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash' "${__dir_dotfiles}/source/git-completion.bash"
+
     if (( __app_lvl >= 1 )); then
 
         # wget
@@ -433,7 +436,7 @@ install_apps()
         # glances
         if install_apt -ol glances; then
             install_apt lm-sensors || true
-            install_pip -H ${update_option} PySensors || true
+            # install_pip -H ${update_option} PySensors || true
         else
             true
         fi
@@ -849,6 +852,7 @@ install_dotfiles()
 testing()
 {
     echo "=== TESTING START =================================================="
+
 
     echo "=== TESTING END ===================================================="
     return 0
