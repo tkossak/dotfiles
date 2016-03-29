@@ -672,11 +672,9 @@ install_dotfiles()
         install_link "${__dir_dotlocal}/emacs.local" "${HOME}/.spacemacs.local" || true
 
         # Win
-        if [[ -d "${__dir_win_home}" ]]; then
+        if [[ -d "${__dir_win_home}/.emacs.d" ]]; then
             # install_link -w "${__dir_dotfiles}/spacemacs" "${__dir_win_home}/.spacemacs" || true
             install_link -w "${__dir_dotfiles}/spacemacs" "${__dir_win_home}/.spacemacs" || true
-        fi
-        if [[ -d "${__dir_win_home}/.emacs.d" ]]; then
             # install_link -w "${__dir_dotlocal}/emacs.local" "${__dir_win_home}/.spacemacs.local" || true
             install_link -w "${__dir_dotlocal}/emacs.local" "${__dir_win_home}/.spacemacs.local" || true
         fi
