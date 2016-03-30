@@ -142,9 +142,6 @@ inoremap <F9> <esc>:w<CR>:make<CR>
 " nnoremap } }zz
 " nnoremap { {zz
 
-" clear search highlight
-nnoremap <Leader>sc :nohl<CR>
-
 " " quick save
 nnoremap <Leader>fs :update<CR>
 
@@ -189,8 +186,12 @@ nnoremap <leader>tp :tabprevious<CR>
 nnoremap <leader>tc :tabclose<CR>
 
 " map sort function to a key
-noremap <Leader>s :sort<CR>
-noremap <Leader>S :sort u<CR>
+noremap <Leader>ss :sort<CR>
+noremap <Leader>sS :sort u<CR>
+" clear search highlight
+nnoremap <Leader>sc :nohl<CR>
+noremap <Leader>sb :set scrollbind!<CR>
+
 
 " visual selection does not disappear after using indent
 vnoremap < <gv
