@@ -451,7 +451,7 @@ install_apps()
         fi
     fi
 
-    # Spacemacs
+    # Spacemacs for linux
     if (( __app_lvl >= 3 )) && [[ -z "${update_option}" ]]; then
         if [[ -d "${HOME}/.emacs.d" && "${__if_first_time}" == "Y" ]]; then
             rm -rf "${HOME}/.emacs.d.old"
@@ -469,7 +469,26 @@ install_apps()
         if [[ -e "${file}" ]]; then
             mv "${file}" "${file}.old"
         fi
+    fi
 
+    # Spacemacs for Windows
+    if (( __app_lvl >= 3 )) && [[ -z "${update_option}" ]]; then
+        if [[ -d "${__dir_win_home}/.emacs.d" && "${__if_first_time}" == "Y" ]]; then
+            rm -rf "${__dir_win_home}/.emacs.d.old"
+            mv "${__dir_win_home}/.emacs.d" "${__dir_win_home}/.emacs.d.old"
+        fi
+
+        git clone --recursive https://github.com/syl20bnr/spacemacs "${__dir_win_home}/.emacs.d" || true
+
+        local file="${__dir_win_home}/.emacs"
+        if [[ -e "${file}" ]]; then
+            mv "${file}" "${file}.old"
+        fi
+
+        local file="${__dir_win_home}/.emacs.local"
+        if [[ -e "${file}" ]]; then
+            mv "${file}" "${file}.old"
+        fi
     fi
 
     # Emacs Linux - old

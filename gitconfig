@@ -35,3 +35,6 @@
     sr = "!git status -sb; git remote show origin"
 	lg2 = log --oneline --decorate
 	tags = tag --sort=v:refname --column=always
+[user]
+	name = Kossak
+	email = tkossak81@gmail.com
