@@ -92,6 +92,7 @@ omap s :normal vs<CR>
 
 " easy diff
 nnoremap <leader>dd :diffthis<CR>
+nnoremap <leader>du :diffupdate<CR>
 nnoremap <leader>do :diffoff<CR>
 nnoremap <leader>ds :DiffSaved<CR>
 nnoremap <leader>dl :diffget LO<CR>
