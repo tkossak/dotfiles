@@ -67,6 +67,7 @@ alias df='df -h'
 alias lsblk_='sudo lsblk -fm'
 alias blkid_='blkid -o list'
 alias vi='vim'
+alias ncal="ncal -M"
 alias vbox='sudo mount -t vboxsf vbox_shared /mnt/vs && cd /mnt/vs'
 alias vboxd='sudo mount -t vboxsf vbox_shared /mnt/vs && cd /mnt/vs/dotfiles'
 
