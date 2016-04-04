@@ -1,5 +1,5 @@
 let s:uname = system("uname -s")
-let s:hname = system("uname -n")
+" let s:hname = system("uname -n")
 
 set nocompatible " be iMproved, required
 let mapleader = " "

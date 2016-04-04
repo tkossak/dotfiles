@@ -24,6 +24,7 @@ Plug 'vim-airline/vim-airline-themes'
 Plug 'nathanaelkane/vim-indent-guides'
 " Plug 'christophermca/meta5'
 Plug 'godlygeek/tabular'
+Plug 'mrtazz/simplenote.vim'
 
 " For Python
 Plug 'klen/python-mode'
@@ -34,7 +35,7 @@ call plug#end()
 " ========================================================================
 " python-mode
 let g:pymode_options = 1
-let g:pymode_python = 'python3'
+let g:pymode_python = 'python'
 let g:pymode_lint_on_fly = 1
 
 
@@ -49,7 +50,6 @@ nnoremap <leader>gP :Gpull<CR>
 let g:indent_guides_auto_colors = 0
 autocmd VimEnter,Colorscheme * :hi IndentGuidesOdd  guibg=#444444 ctermbg=238
 autocmd VimEnter,Colorscheme * :hi IndentGuidesEven guibg=#606060 ctermbg=241
-
 
 " vim-airline
 let g:airline_powerline_fonts=1
@@ -91,3 +91,6 @@ vmap <C-v> <Plug>(expand_region_shrink)
 if filereadable("/cygdrive/d/Kossak/progs/zeal/zeal.exe")
     let g:zv_zeal_directory = "/cygdrive/d/Kossak/progs/zeal/zeal.exe"
 endif
+
+" SimpleNote
+nnoremap <leader>nl :Simplenote -l<CR>

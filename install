@@ -669,7 +669,7 @@ install_dotfiles()
 
     # Vim
     install_link "${__dir_dotfiles}/vimrc" ~/.vimrc || true
-    # install_link "${__dir_dotlocal}/vimrc.local" ~/.vimrc.local || true
+    install_link "${__dir_dotlocal}/vimrc.local" ~/.vimrc.local || true
     install_link "${__dir_dotfiles}/vimrc.plugins" ~/.vimrc.plugins || true
     install_link "${__dir_dotfiles}/vimrc.functions" ~/.vimrc.functions || true
 

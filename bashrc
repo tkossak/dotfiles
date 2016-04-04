@@ -441,7 +441,8 @@ if [[ -r ~/.fzf.bash ]]; then
     # }
 fi
 
-[[ -d ~/.dotfiles/bin ]] && export PATH=~/.dotfiles/bin:${PATH}
+[[ -d ~/.dotfiles/bin ]] && export PATH=${PATH}:~/.dotfiles/bin
+[[ -d ~/.dotfiles.local/bin ]] && export PATH=${PATH}:~/.dotfiles.local/bin
 # source ~/.bash-git-prompt/gitprompt.sh
 
 # -----------------------------------------------------------------------
