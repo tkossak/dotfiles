@@ -310,13 +310,8 @@ case ${__myos} in
             alias reboot='sudo reboot'
             alias apt-get='sudo apt-get'
             alias umount='sudo umount'
+            alias ri='gksu roccatiskuconfig &'
         fi
-
-        ri()
-        {
-            sudo ls
-            sudo nohup roccatiskuconfig &> /dev/null &
-        }
 
         capsoff()
         {
