@@ -105,6 +105,21 @@ function stopwatch(){
    done
 }
 
+# get all descendants of given PID (child processes - direct or indirect)
+# return only PIDS:
+function getcpid() {
+    cpids=`pgrep -P $1|xargs`
+    for cpid in $cpids;
+    do
+        echo "$cpid"
+        getcpid $cpid
+    done
+}
+# return ps -f:
+function getcpidf() {
+    ps -fp $(getcpid $1)
+}
+
 # translate english => polish
 function t(){ wget -U "Mozilla/5.0" -qO - "http://translate.google.com/translate_a/t?client=t&text=$1&sl=${2:-en}&tl=${3:-pl}" | sed 's/\[\[\[\"//' | cut -d \" -f 1; }
 
