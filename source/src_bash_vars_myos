@@ -26,3 +26,8 @@ __myhost="$(uname -n)"
                     __myhost="OTHER"
                     ;;
             esac
+
+#__myosdist
+# if [[ -r /etc/lsb-release ]] && grep -q 'DISTRIB_ID=LinuxMint' /etc/lsb-release; then
+#     __myosdist="MINT"
+# else  q

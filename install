@@ -215,44 +215,43 @@ install_apps()
 
         # git
         install_apt git || true
-    fi
 
-    if (( __app_lvl >= 2 )); then
-        # inne
-        install_apt python
-        install_apt python3
-        # install_pip -3H ${update_option} ipdb || true
-        # install_pip -H ${update_option} ipdb || true
-        # moved later to pip
-        # if [[ ${__myos} == 'CYGWIN' ]]; then
-        #     install_apt -oc python-setuptools || true
-        #     install_apt -oc python3-setuptools || true
-        # fi
-    fi
+        if (( __app_lvl >= 2 )); then
+            # inne
+            install_apt python
+            install_apt python3
+            # install_pip -3H ${update_option} ipdb || true
+            # install_pip -H ${update_option} ipdb || true
+            # moved later to pip
+            # if [[ ${__myos} == 'CYGWIN' ]]; then
+            #     install_apt -oc python-setuptools || true
+            #     install_apt -oc python3-setuptools || true
+            # fi
+        fi
 
-    if (( __app_lvl >= 1 )); then
 
         install_apt dos2unix || true
 
-        # CYGWIN
-        if [[ ${__myos} == 'CYGWIN' ]]; then
-            install_apt -oc cygutils
-            install_apt -oc cygutils-extra
-            install_apt -oc ncurses
-            install_apt -oc procps
-            install_apt -oc bind-utils
-            install_apt -oc binutils
-            # install_apt -oc gnupg # use windows one from Kleopatra
-            install_apt -oc gcc-g++
-            install_apt -oc genisoimage
-            install_apt -oc mkisofs
-            install_apt -oc p7zip
-            install_apt -oc rsnapshot
-            install_apt -oc nc
-            # install_apt gnupg # use windows one from Kleopatra
-            # for attic:
-            install_apt -oc openssl-devel
-        fi
+        # CYGWIN only:
+        install_apt -oc cygutils || true
+        install_apt -oc cygutils-extra || true
+        install_apt -oc ncurses || true
+        install_apt -oc procps || true
+        install_apt -oc bind-utils || true
+        install_apt -oc binutils || true
+        # install_apt -oc gnupg # use windows one from Kleopatra
+        install_apt -oc gcc-g++ || true
+        install_apt -oc genisoimage || true
+        install_apt -oc mkisofs || true
+        install_apt -oc p7zip || true
+        install_apt -oc rsnapshot || true
+        install_apt -oc nc || true
+        # install_apt gnupg # use windows one from Kleopatra
+        # for attic:
+        install_apt -oc openssl-devel || true
+
+        # LINUX only:
+        install_apt -ol gksu || true
 
         # vim
         __vim_vimplug_url="https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
@@ -844,7 +843,7 @@ install_dotfiles()
     fi
 
     # vlc
-    if [[ -f "${__dir_dotlocal}/vlcrc" ]]; then
+    if [[ -f "${__dir_dotlocal}/vlcrc" && -d "${HOME}/.config/vlc" ]]; then
         install_link "${__dir_dotlocal}/vlcrc" "${HOME}/.config/vlc/vlcrc"
     fi
 
@@ -871,6 +870,10 @@ install_dotfiles()
 testing()
 {
     echo "=== TESTING START =================================================="
+    # gnome-terminal
+    if [[ -d ~/.gconf/apps/gnome-terminal ]]; then
+        install_link "${__dir_dotfiles}/gnome-terminal" ~/.gconf/apps/gnome-terminal || true
+    fi
 
 
     echo "=== TESTING END ===================================================="
