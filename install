@@ -870,10 +870,6 @@ install_dotfiles()
 testing()
 {
     echo "=== TESTING START =================================================="
-    # gnome-terminal
-    if [[ -d ~/.gconf/apps/gnome-terminal ]]; then
-        install_link "${__dir_dotfiles}/gnome-terminal" ~/.gconf/apps/gnome-terminal || true
-    fi
 
 
     echo "=== TESTING END ===================================================="

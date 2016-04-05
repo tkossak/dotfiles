@@ -38,3 +38,9 @@
 [user]
 	name = Kossak
 	email = tkossak81@gmail.com
+[diff]
+	tool = p4merge
+[difftool "p4merge"]
+	path = /opt/p4merge/bin/p4merge
+[difftool]
+	prompt = false
