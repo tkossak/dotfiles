@@ -252,6 +252,10 @@ install_apps()
 
         # LINUX only:
         install_apt -ol gksu || true
+        if [[ ${__myosdist} == DEBIAN ]]; then
+            # install_apt firmware-linux || true
+            install_apt intel-microcode || true # only for Intel CPU
+        fi
 
         # vim
         __vim_vimplug_url="https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
