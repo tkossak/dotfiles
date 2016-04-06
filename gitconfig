@@ -40,9 +40,9 @@
 	email = tkossak81@gmail.com
 [diff]
 	tool = p4merge
-[difftool "p4merge"]
-	path = /home/kossak/apps/p4merge/bin/p4merge
 [difftool]
 	prompt = false
+[difftool "p4merge"]
+	path = /home/kossak/apps/p4merge/bin/p4merge
 [mergetool "p4merge"]
 	path = /home/kossak/apps/p4merge/bin/p4merge

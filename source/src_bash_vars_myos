@@ -27,7 +27,11 @@ __myhost="$(uname -n)"
                     ;;
             esac
 
-#__myosdist
-# if [[ -r /etc/lsb-release ]] && grep -q 'DISTRIB_ID=LinuxMint' /etc/lsb-release; then
-#     __myosdist="MINT"
-# else  q
+# __myosdist
+if [[ -r "/etc/lsb-release" ]] && grep -q 'DISTRIB_ID=LinuxMint' /etc/lsb-release; then
+     __myosdist="MINT"
+elif [[ -r "/etc/os-release" ]] && grep -q 'NAME="Debian GNU/Linux"' /etc/os-release; then
+    __myosdist="DEBIAN"
+else
+    __myosdist="OTHER"
+fi
