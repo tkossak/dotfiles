@@ -254,8 +254,13 @@ install_apps()
         # LINUX only:
         install_apt -ol gksu || true
         if [[ ${__myosdist} == DEBIAN ]]; then
-            # install_apt firmware-linux || true
+            install_apt firmware-linux || true
             install_apt intel-microcode || true # only for Intel CPU
+            # add-apt-repository:
+            install_apt software-properties-common || true
+            if [[ ${__myhost} == W ]]; then
+                install_apt smbclient || true
+            fi
         fi
 
         # vim
@@ -494,41 +499,6 @@ install_apps()
             mv "${file}" "${file}.old"
         fi
     fi
-
-    # Emacs Linux - old
-    # if (( __app_lvl >= 3 )); then
-    #     install_apt emacs || true
-    #     if hash emacs 2>/dev/null; then
-    #         # evil-leader:
-    #         install_url https://raw.githubusercontent.com/cofi/evil-leader/master/evil-leader.el ~/.emacs.d/mine/evil-leader.el -sha1 00c336e55307dbcb3f73f47b1d9a1d759404341d || true
-    #         # key-chord:
-    #         install_url http://www.emacswiki.org/emacs/download/key-chord.el ~/.emacs.d/mine/key-chord.el -sha1 2da61bf970ca332c4de96c1977fc7e326df6c33a || true
-    #         # evil:
-    #         install_git https://gitorious.org/evil/evil.git ~/.emacs.d/evil ||
-    #             {
-    #                 loguj -i -t "${ltype}" "Manually downloading evil.git"
-    #                 rm -rf ~/.emacs.d/evil
-    #                 rm -rf ~/.emacs.d/lyro-evil*
-    #                 cd ~/.emacs.d
-    #                 if [[ ! -f evil-default.zip ]]; then
-    #                     ${__geturl_app} evil-default.zip https://bitbucket.org/lyro/evil/get/default.zip &&
-    #                         {
-    #                             unzip evil-default.zip
-    #                             mv ~/.emacs.d/lyro-evil* evil
-    #                             rm ~/.emacs.d/evil-default.zip
-    #                             loguj -d -t "${ltype}" "evil"
-    #                             loguj -e -t "${ltype}" "Evil downloaded manually."
-    #                         } ||
-    #                             {
-    #                                 loguj -e -t "${ltype}" "Downloading evil.git (default.zip)"
-    #                             }
-    #                         fi
-    #                     }
-    #                     # org-mode:
-    #                     install_git git://orgmode.org/org-mode.git ~/.emacs.d/org-mode "git checkout -b stable origin/maint" "git pull" "make autoloads" || true
-    #                 fi
-    #             fi
-
 
     if (( __app_lvl >= 3 )); then
         # geeknote
