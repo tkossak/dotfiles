@@ -432,7 +432,7 @@ install_apt()
 
     if [[ -n "${not_right}" ]]; then
         loguj -i -t "${ltype}" "${not_right} (${app_run})"
-        return 0
+        return 1
     fi
 
     # check if app is installed

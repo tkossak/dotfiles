@@ -91,6 +91,7 @@ else
     echo "__dir_win_home (NOT exists) =${__dir_win_home}"
 fi
 echo "__myos=${__myos}"
+echo "__myosdist=${__myosdist}"
 echo "__myhost=${__myhost}"
 echo "__app_lvl=${__app_lvl}"
 echo "__if_update=${__if_update}"
