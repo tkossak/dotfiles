@@ -258,9 +258,11 @@ install_apps()
             install_apt intel-microcode || true # only for Intel CPU
             # add-apt-repository:
             install_apt software-properties-common || true
-            if [[ ${__myhost} == W ]]; then
-                install_apt smbclient || true
-            fi
+        fi
+        if [[ ${__myhost} == W ]]; then
+            install_apt smbclient || true
+            install_apt -oc openldap || true
+            install_apt -ol ldap-utils || true
         fi
 
         # vim
