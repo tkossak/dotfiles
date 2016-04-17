@@ -438,10 +438,13 @@ install_apps()
 
     if (( __app_lvl >= 2 )); then
         # python packages
-        install_pip -3H ${update_option} ipdb || true
+        install_pip -H ${update_option} ipython || true
+        install_pip -3H ${update_option} ipython || true
         install_pip -H ${update_option} ipdb || true
-        install_pip -3H ${update_option} setuptools || true
+        install_pip -3H ${update_option} ipdb || true
         install_pip -H ${update_option} setuptools || true
+        install_pip -3H ${update_option} setuptools || true
+        install_pip -3H ${update_option} virtualenv || true
 
         # python apps
         install_pip -H ${update_option} speedtest-cli || true
@@ -510,9 +513,6 @@ install_apps()
         fi
 
         # PIP installs
-        #ipythons
-        install_pip -H ${update_option} ipython || true
-        install_pip -3H ${update_option} ipython || true
         install_pip -3H BeautifulSoup4 || true
         install_pip -3H ${update_option} flake8 || true
         install_pip -3H ${update_option} bashate || true
