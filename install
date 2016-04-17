@@ -432,6 +432,7 @@ install_apps()
         # Rozne
         install_apt make || true
         install_apt tmux || true
+        install_apt -ol ttf-mscorefonts-installer || true
     fi
 
 
