@@ -90,6 +90,8 @@ alias yt='youtube-dl'
 # tools
 alias extension_count="find . -type f | sed 's/.*\.//gI' | sort | uniq -c"
 alias clearm="clear; for i in {1..50}; do echo; done"
+alias wttrd='curl wttr.in/dabrowa_gornicza'
+alias wttrk='curl wttr.in/katowice'
 function countdown(){
    date1=$((`date +%s` + $1));
    while [ "$date1" -ge `date +%s` ]; do
