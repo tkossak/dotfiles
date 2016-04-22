@@ -1,7 +1,6 @@
 # Allow local customizations in the .gitconfig_local file
 [include]
 	path = ~/.gitconfig.local
-
 [push]
 	default = matching
 [core]
@@ -12,13 +11,6 @@
 	ui = true
 [credential]
 	helper = cache --timeout=3600
-[merge]
-	tool = vimdiff
-[mergetool]
-	keeptemporaries = false
-	keepbackups = false
-	prompt = false
-	trustexitcode = false
 [alias]
 	last = log -1 --stat
 	cp = cherry-pick
@@ -35,14 +27,19 @@
     sr = "!git status -sb; git remote show origin"
 	lg2 = log --oneline --decorate
 	tags = tag --sort=v:refname --column=always
-[user]
-	name = Kossak
-	email = tkossak81@gmail.com
 [diff]
-	tool = vimdiff
+	tool = p4merge
 [difftool]
 	prompt = false
 [difftool "p4merge"]
 	path = /opt/p4merge/bin/p4merge
+[difftool "vimdiff"]
+	path = /usr/bin/vimdiff
+[merge]
+	tool = p4merge
+[mergetool]
+	prompt = false
 [mergetool "p4merge"]
 	path = /opt/p4merge/bin/p4merge
+[mergetool "vimdiff"]
+	path = /usr/bin/vimdiff
