@@ -552,6 +552,8 @@ install_apps()
             install_apt pv || true
             install_apt traceroute || true
             install_apt linux-headers-generic || true
+            # feh - (for ranger) image browser + wallpaper setter
+            install_apt feh || true
 
             # install_apt -ol libcaberra-dev
             install_apt -ol libnotify-dev || true
@@ -716,33 +718,36 @@ install_dotfiles()
         find ~/.config/ranger -type f -not -name 'bookmarks' -not -name 'history' -not -name 'tagged' -exec rm -rf {} \; || true
         ranger --copy-config=all
 
-        # set different options:
-        sed -i 's/^set column_ratios 1,3,4$/set column_ratios 1,5,3/;
-        s/^set show_hidden false$/set show_hidden true/;
-        s/^set preview_files true$/set preview_files false/
-        s/^set preview_files true$/set preview_files false/
-        s/^set preview_directories true$/set preview_directories false/' ~/.config/ranger/rc.conf
+        # set different options
+        local rcconf="${HOME}/.config/ranger/rc.conf"
+        local rifleconf="${HOME}/.config/ranger/rifle.conf"
+        sed -i 's/^set column_ratios 1,3,4$/set column_ratios 1,5,3/' "${rcconf}"
+        sed -i 's/^set show_hidden false$/set show_hidden true/;' "${rcconf}"
+        sed -i 's/^set preview_files true$/set preview_files false/' "${rcconf}"
+        sed -i 's/^set preview_files true$/set preview_files false/' "${rcconf}"
+        sed -i 's/^set preview_directories true$/set preview_directories false/' "${rcconf}"
 
         # add some options to mplayer:
-        sed -i 's/mime \^video,       has mplayer,  X, flag f = mplayer -- "$@"/mime ^video,       has mplayer,  X, flag f = mplayer -fs -softvol -softvol-max 300 -- "$@"/' ~/.config/ranger/rifle.conf
+        sed -i 's/mime \^video,       has mplayer,  X, flag f = mplayer -- "$@"/mime ^video,       has mplayer,  X, flag f = mplayer -fs -softvol -softvol-max 300 -- "$@"/' "${rifleconf}"
         # add vim to handle archive files:
-        sed -i 's/# Define the editor for non-text files + pager as last action/ext tar\|gz\|bzip2\|xz\|tgz\|tbzip2\|txz\|zip\|rar = vim -- "$@"\n# Define the editor for non-text files + pager as last action/' ~/.config/ranger/rifle.conf
+        sed -i 's/^# Define the editor for non-text files + pager as last action$/ext tar\|gz\|bzip2\|xz\|tgz\|tbzip2\|txz\|zip\|rar = vim -- "$@"\n# Define the editor for non-text files + pager as last action/' "${rifleconf}"
+        # add vim for sql files:
+        sed -i 's/^\!mime \^text, label editor, ext xml|json|csv|tex|py|pl|rb|js|sh|php = $EDITOR -- "$@"$/!mime \^text, label editor, ext xml|json|csv|tex|py|pl|rb|js|sh|php|sql = $EDITOR -- "$@"/' "${rifleconf}"
+        sed -i 's/^\!mime ^text, label pager,  ext xml|json|csv|tex|py|pl|rb|js|sh|php = "$PAGER" -- "$@"$/!mime ^text, label pager,  ext xml|json|csv|tex|py|pl|rb|js|sh|php|sql = "$PAGER" -- "$@"/' "${rifleconf}"
+
 
         if [[ -d "${__dir_dotlocal}" ]]; then
             case ${__myos} in
                 CYGWIN)
                     if [[ ${__myhost} = W ]]; then
-                        # install_link ~/.dotfiles.local/rifle.conf.w.cygwin ~/.config/ranger/rifle.conf
                         cat ~/.config/ranger/rifle.conf "${__dir_dotlocal}/rifle.conf.w.cygwin" > ~/.config/ranger/rifletmp.conf
                         mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
                         loguj -i -t "${ltype}" "CP: rifle.conf (C-W)"
                     elif [[ ${__myhost} = H ]]; then
-                        # install_link ~/.dotfiles.local/rifle.conf.h.cygwin ~/.config/ranger/rifle.conf
                         cat ~/.config/ranger/rifle.conf "${__dir_dotlocal}/rifle.conf.h.cygwin" > ~/.config/ranger/rifletmp.conf
                         mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
                         loguj -i -t "${ltype}" "CP: rifle.conf (C-H)"
                     else
-                        # loguj -i -t "${ltype}" "Ranger - cygwin - unknown host Copying default file."
                         cat ~/.config/ranger/rifle.conf "${__dir_dotfiles}/rifle.conf" > ~/.config/ranger/rifletmp.conf
                         mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
                         loguj -i -t "${ltype}" "CP: rifle.conf (C-OTHER)"
@@ -750,10 +755,13 @@ install_dotfiles()
                     ;;
                 LINUX)
                     if [[ ${__myhost} = H ]]; then
-                        # install_link ~/.dotfiles.local/rifle.conf.h.linux ~/.config/ranger/rifle.conf
                         cat ~/.config/ranger/rifle.conf "${__dir_dotlocal}/rifle.conf.h.linux" > ~/.config/ranger/rifletmp.conf
                         mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
                         loguj -i -t "${ltype}" "CP: rifle.conf (L-H)"
+                    elif [[ ${__myhost} = W ]]; then
+                        cat ~/.config/ranger/rifle.conf "${__dir_dotlocal}/rifle.conf.w.linux" > ~/.config/ranger/rifletmp.conf
+                        mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
+                        loguj -i -t "${ltype}" "CP: rifle.conf (L-W)"
                     else
                         loguj -i -t "${ltype}" "Ranger - linux - unknown host Copying default file."
                         cat ~/.config/ranger/rifle.conf "${__dir_dotfiles}/rifle.conf" > ~/.config/ranger/rifletmp.conf
@@ -782,9 +790,9 @@ install_dotfiles()
     fi
 
     # mplayer
-    if hash mplayer 2>/dev/null || [[ -d ~/.mplayer ]]; then
-        install_link "${__dir_dotfiles}/mplayer_config" ~/.mplayer/config || true
-        install_link "${__dir_dotfiles}/mplayer_input.conf" ~/.mplayer/input.conf || true
+    if hash mplayer 2>/dev/null && [[ -d "${HOME}/.mplayer" ]]; then
+        install_link "${__dir_dotfiles}/mplayer_config" "${HOME}/.mplayer/config" || true
+        install_link "${__dir_dotfiles}/mplayer_input.conf" "${HOME}/.mplayer/input.conf" || true
     fi
 
     # weechat

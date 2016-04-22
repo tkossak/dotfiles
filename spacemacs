@@ -196,10 +196,14 @@ values."
    It is called immediately after `dotspacemacs/init'.  You are free to put any
    user code."
 
-  (with-eval-after-load 'evil
-    (defalias #'forward-evil-word #'forward-evil-symbol))
+  ;; ;; Treat Emacs SYMBOL as a word:
+  ;; (with-eval-after-load 'evil
+  ;;   (defalias #'forward-evil-word #'forward-evil-symbol))
 
-  ;; (modify-syntax-entry ?_ "w")
+  ;; Treat _ as part of word:
+  (modify-syntax-entry ?_ "w")
+
+  ;; other:
   ;;(define-key evil-normal-state-map (kbd "t") 'forward-char)
   )
 
