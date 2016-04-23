@@ -1,4 +1,14 @@
 " ==================================================================
+" Simple note
+" ==================================================================
+command! Sn call Sn()
+function! Sn()
+  set shellcmdflag=-ic
+  let g:SimplenoteUsername = system("get_param simplenote_user")
+  let g:SimplenotePassword = system("get_param simplenote_pass")
+endfunction
+
+" ==================================================================
 " Maximize Toggle
 " ==================================================================
 function! MaximizeToggle()

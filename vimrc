@@ -7,15 +7,6 @@ let mapleader = " "
 
 
 " ==================================================================
-" VIMRC.PLUGINS
-" ==================================================================
-let $LOCALFILE=expand("~/.vimrc.plugins")
-if filereadable($LOCALFILE)
-    source $LOCALFILE
-endif
-
-
-" ==================================================================
 " VIMRC.LOCAL
 " ==================================================================
 let $LOCALFILE=expand("~/.vimrc.local")
@@ -23,6 +14,13 @@ if filereadable($LOCALFILE)
     source $LOCALFILE
 endif
 
+" ==================================================================
+" VIMRC.PLUGINS
+" ==================================================================
+let $LOCALFILE=expand("~/.vimrc.plugins")
+if filereadable($LOCALFILE)
+    source $LOCALFILE
+endif
 
 " ==================================================================
 " OPTIONS
@@ -73,6 +71,7 @@ set guifont=Source_Code_Pro::cDEFAULT
 " diff ignores whitespace
 set diffopt+=iwhite
 set diffexpr=""
+
 
 " Make a simple "search" text object.
 " Type ys to copy the search hit.
