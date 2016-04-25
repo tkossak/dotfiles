@@ -31,15 +31,7 @@
 	tool = p4merge
 [difftool]
 	prompt = false
-[difftool "p4merge"]
-	path = /opt/p4merge/bin/p4merge
-[difftool "vimdiff"]
-	path = /usr/bin/vimdiff
 [merge]
 	tool = p4merge
 [mergetool]
 	prompt = false
-[mergetool "p4merge"]
-	path = /opt/p4merge/bin/p4merge
-[mergetool "vimdiff"]
-	path = /usr/bin/vimdiff

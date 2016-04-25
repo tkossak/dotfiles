@@ -641,6 +641,40 @@ install_dotfiles()
     # Git
     install_link "${__dir_dotfiles}/gitconfig" ~/.gitconfig || true
     install_link "${__dir_dotlocal}/gitconfig.local" ~/.gitconfig.local || true
+    if hash vimdiff 2>/dev/null; then
+        git config --global diff.tool vimdiff
+        # git config --global difftool.vimdiff.path "/usr/bin/vimdiff"
+        git config --global difftool.prompt false
+
+        git config --global merge.tool vimdiff
+        # git config --global mergetool.vimdiff.path "/usr/bin/vimdiff"
+        git config --global mergetool.prompt false
+    fi
+    if hash p4merge 2>/dev/null; then
+        git config --global diff.tool p4merge
+        # git config --global difftool.p4merge.path "/opt/p4merge/bin/p4merge"
+        git config --global difftool.prompt false
+
+        git config --global merge.tool p4merge
+        # git config --global mergetool.p4merge.path "/opt/p4merge/bin/p4merge"
+        git config --global mergetool.prompt false
+    elif hash /opt/p4merge/bin/p4merge; then
+        git config --global diff.tool p4merge
+        git config --global difftool.p4merge.path "/opt/p4merge/bin/p4merge"
+        git config --global difftool.prompt false
+
+        git config --global merge.tool p4merge
+        git config --global mergetool.p4merge.path "/opt/p4merge/bin/p4merge"
+        git config --global mergetool.prompt false
+    elif hash "${HOME}/apps/p4merge/bin/p4merge"; then
+        git config --global diff.tool p4merge
+        git config --global difftool.p4merge.path "${HOME}/apps/p4merge/bin/p4merge"
+        git config --global difftool.prompt false
+
+        git config --global merge.tool p4merge
+        git config --global mergetool.p4merge.path "${HOME}/apps/p4merge/bin/p4merge"
+        git config --global mergetool.prompt false
+    fi
 
     # Bash:
     install_link "${__dir_dotfiles}/bashrc" ~/.bashrc || true
