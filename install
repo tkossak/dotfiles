@@ -639,7 +639,7 @@ install_dotfiles()
     fi
 
     # Git
-    install_link "${__dir_dotfiles}/gitconfig" ~/.gitconfig || true
+    install_link -c "${__dir_dotfiles}/gitconfig" ~/.gitconfig || true
     install_link "${__dir_dotlocal}/gitconfig.local" ~/.gitconfig.local || true
     if hash vimdiff 2>/dev/null; then
         git config --global diff.tool vimdiff
