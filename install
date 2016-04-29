@@ -639,7 +639,7 @@ install_dotfiles()
     fi
 
     # Git
-    install_link "${__dir_dotfiles}/gitconfig" ~/.gitconfig || true
+    install_link -c "${__dir_dotfiles}/gitconfig" ~/.gitconfig || true
     install_link "${__dir_dotlocal}/gitconfig.local" ~/.gitconfig.local || true
     if hash vimdiff 2>/dev/null; then
         git config --global diff.tool vimdiff
@@ -877,6 +877,18 @@ install_dotfiles()
     # else
     #     vim +PlugInstall +qall
     # fi
+
+    # symlinks
+    # steam:
+    local src
+    src="${HOME}/.steam/steam/userdata/43781451"
+    [[ -e "${src}" ]] && install_link "${src}" "${src}_Kossak"
+    src="${src}/241100"
+    [[ -e "${src}" ]] && install_link "${src}" "${src}_steam_controller_kossak"
+    src="${HOME}/.steam/steam/userdata/124708916"
+    [[ -e "${src}" ]] && install_link "${src}" "${src}_OngdaincePaul"
+    src="${src}/241100"
+    [[ -e "${src}" ]] && install_link "${src}" "${src}_steam_controller_OngdaincePaul"
 
     loguj -se -t "${ltype}" "DOTFILES"
     return 0
