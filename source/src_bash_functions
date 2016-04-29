@@ -244,6 +244,7 @@ checksum()
 #    -w  :: create windows hard link (otherwise it's linux soft link)
 #    -c  :: cp instead of creating link
 #    -b  :: backup old file/dir (otherwise just remove it)
+#    -s  :: use sudo while creating link
 # $1 = source file
 # $2 = destination = link path/link
 install_link()
@@ -253,6 +254,7 @@ install_link()
     local src_file=""
     local dst_link=""
     local ltype="LNK"
+    local sudo_if=
 
     while [[ $# > 0 ]]; do
         case $1 in
@@ -263,6 +265,9 @@ install_link()
                 shift
                 ;;
             -b) if_backup="Y"
+                shift
+                ;;
+            -s) sudo_if=${__sudo}
                 shift
                 ;;
             *) # SRC_FILE + DST_LINK
@@ -301,7 +306,7 @@ install_link()
 
     # remove dst if it's a link
     if [[ -L "${dst_link}" ]]; then
-        rm "${dst_link}"
+        ${sudo_if} rm "${dst_link}"
     fi
 
     # backup dst
@@ -310,10 +315,11 @@ install_link()
             local backup_file="${dst_link}.old"
             if [[ -e ${backup_file} ]]; then
                 loguj -p -i -t "${ltype}" "NOT doing backup, it already exists (${backup_file})"
-                rm -rf "${dst_link}"
+                ${sudo_if} rm "${dst_link}"
+                # ${sudo_if} rm -rf "${dst_link}"
             else
                 loguj -p -i -t "${ltype}" "Backup ${backup_file}"
-                mv "${dst_link}" "${backup_file}"
+                ${sudo_if} mv "${dst_link}" "${backup_file}"
             fi
         else
             rm -rf "${dst_link}"
@@ -332,11 +338,11 @@ install_link()
     elif [[ $link_type = "CP" ]]; then
         # loguj -p -i -t "${ltype}" "COPY ${dst_link} ---to--- ${src_file} ---... "
         loguj -i -t "${ltype}" "CP: $(basename ${dst_link} .sh)"
-        cp "${src_file}" "${dst_link}"
+        ${sudo_if} cp "${src_file}" "${dst_link}"
     elif [[ $link_type = "LINUX" ]]; then
         # loguj -p -i -t "${ltype}" "Linux ${dst_link} ---to--- ${src_file} ---... "
         loguj -l -t "${ltype}" "Lin: $(basename ${dst_link} .sh)"
-        ln -s "${src_file}" "${dst_link}"
+        ${sudo_if} ln -s "${src_file}" "${dst_link}"
     else
         loguj -e -t "${ltype}" "bledny link_type: ${link_type}"
         return 99
