@@ -627,6 +627,7 @@ install_apps()
 install_dotfiles()
 {
     local ltype="DOT"
+    local src
     loguj -ss -t "${ltype}" "DOTFILES"
 
     # TMUX
@@ -880,7 +881,6 @@ install_dotfiles()
 
     # symlinks
     # steam:
-    local src
     src="${HOME}/.steam/steam/userdata/43781451"
     [[ -e "${src}" ]] && install_link "${src}" "${src}_Kossak"
     src="${src}/241100"
@@ -889,6 +889,16 @@ install_dotfiles()
     [[ -e "${src}" ]] && install_link "${src}" "${src}_OngdaincePaul"
     src="${src}/241100"
     [[ -e "${src}" ]] && install_link "${src}" "${src}_steam_controller_OngdaincePaul"
+
+    # symlinks to apps
+    src="${HOME}/Kossak/Linux/scripts/ldap/ldapu.sh"
+    [[ -e "${src}" ]] && install_link -s "${src}" "/usr/local/bin/$(basename ${src%.sh})"
+    src="${HOME}/Kossak/Linux/scripts/ldap/ldapg.sh"
+    [[ -e "${src}" ]] && install_link -s "${src}" "/usr/local/bin/$(basename ${src%.sh})"
+    src="${HOME}/Kossak/Linux/scripts/ldap/ldapau.sh"
+    [[ -e "${src}" ]] && install_link -s "${src}" "/usr/local/bin/$(basename ${src%.sh})"
+    src="${HOME}/Kossak/Linux/scripts/ldap/ldapag.sh"
+    [[ -e "${src}" ]] && install_link -s "${src}" "/usr/local/bin/$(basename ${src%.sh})"
 
     loguj -se -t "${ltype}" "DOTFILES"
     return 0
