@@ -312,15 +312,9 @@ install_apps()
 
             if hash ${cur_pip_cmd} 2>/dev/null; then
                 # 1. PIP=yes
-                if [[ "${__if_update}" == "Y" ]]; then
-                    # 1.1 action=update
-                    ${__sudo} ${sudo_options} ${cur_pip_cmd} install -U pip
-                    loguj -i -t "${ltype}" "UPDATED: ${cur_pip_cmd}"
-                else
-                    # 1.2 action=install
-                    loguj -i -t "${ltype}" "App installed, not updating: ${cur_pip_cmd}"
-                fi
-
+                # if [[ "${__if_update}" == "Y" ]]; then
+                ${__sudo} ${sudo_options} ${cur_pip_cmd} install -U pip
+                loguj -i -t "${ltype}" "UPDATED: ${cur_pip_cmd}"
             else
                 # 2. PIP=no
                 if [[ "${__if_update}" == "Y" ]]; then
@@ -368,15 +362,9 @@ install_apps()
 
             if hash ${cur_pip_cmd} 2>/dev/null; then
                 # 1. PIP=yes
-                if [[ "${__if_update}" == "Y" ]]; then
-                    # 1.1 action=update
-                    ${__sudo} ${sudo_options} ${cur_pip_cmd} install -U pip
-                    loguj -i -t "${ltype}" "UPDATED: ${cur_pip_cmd}"
-                else
-                    # 1.2 action=install
-                    loguj -i -t "${ltype}" "App installed, not updating: ${cur_pip_cmd}"
-                fi
-
+                # if [[ "${__if_update}" == "Y" ]]; then
+                ${__sudo} ${sudo_options} ${cur_pip_cmd} install -U pip
+                loguj -i -t "${ltype}" "UPDATED: ${cur_pip_cmd}"
             else
                 # 2. PIP=no
                 if [[ "${__if_update}" == "Y" ]]; then
@@ -429,10 +417,30 @@ install_apps()
         install_git https://github.com/clvv/fasd.git ~/apps/fasd "${__sudo} make install" || true
         # commacd
         install_url https://raw.githubusercontent.com/shyiko/commacd/master/commacd.bash ~/.commacd.bash || true
+
         # Rozne
-        install_apt make || true
         install_apt tmux || true
         install_apt -ol ttf-mscorefonts-installer || true
+
+        # Different for dev:
+        install_apt make || true
+
+        # compiling man pages: for weechat, git, etc:
+        install_apt asciidoc || true
+        install_apt xsltproc || true
+        install_apt docbook-xml || true
+        install_apt docbook-xsl || true
+
+        # for weechat:
+        install_apt libgcrypt11-dev || true
+        install_apt libgnutls-dev || true
+        install_apt source-highlight || true
+        install_apt xsltproc || true
+        install_apt python-dev || true
+        install_apt libperl-dev || true
+        install_apt ruby-dev || true
+        install_apt liblua5.2-dev || true
+        install_apt libaspell-dev || true
     fi
 
 
@@ -516,7 +524,7 @@ install_apps()
         install_pip -3H BeautifulSoup4 || true
         install_pip -3H ${update_option} flake8 || true
         install_pip -3H ${update_option} bashate || true
-        install_pip -H ${update_option} httpie || true
+        # install_pip -H ${update_option} httpie || true
         install_pip -3H ${update_option} git+git://github.com/badele/gitcheck.git gitcheck
         install_pip -3H ${update_option} livestreamer
         install_pip -3H ${update_option} termdown
@@ -565,8 +573,8 @@ install_apps()
             install_apt p7zip-full || true # for cygwin there's another install with "-7zip"
 
             # inne
-            install_apt weechat || true
-            install_apt weechat-scripts || true
+            # install_apt weechat || true
+            # install_apt weechat-scripts || true
             install_apt remmina || true
             install_apt remmina-plugin-rdp || true
         fi

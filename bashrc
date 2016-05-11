@@ -189,7 +189,7 @@ PS1+="\[${Blue}\]{\W}"
 # # git
 if [[ -r "${HOME}/.dotfiles/source/git-prompt.sh" ]]; then
     source "${HOME}/.dotfiles/source/git-prompt.sh"
-    PS1+="${Yellow}"'$(__git_ps1 " (%s)")'
+    PS1+="\[${Yellow}\]"'$(__git_ps1 " (%s)")'
 elif hash git 2>/dev/null; then
     PS1+="\[${Green}\]\$( git rev-parse --abbrev-ref HEAD 2> /dev/null || echo -n "")"
 fi
