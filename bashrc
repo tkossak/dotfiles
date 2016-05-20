@@ -494,3 +494,8 @@ unset Color_Off Black Red Green Yellow Blue Purple Cyan White BBlack BRed BGreen
 # export PAGER=/usr/local/bin/vimpager
 # alias less=$PAGER
 # alias zless=$PAGER
+
+# Anaconda3 4.0.0
+if [[ -r /home/kossak/anaconda3/bin ]]; then
+    export PATH="/home/kossak/anaconda3/bin:$PATH"
+fi
