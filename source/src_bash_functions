@@ -779,6 +779,10 @@ install_pip()
     shift $((OPTIND-1))
     OPTIND=1
 
+    if [[ __if_python_conda = "Y" ]]; then
+        sudo_options=""
+    fi
+
     if (( $# >= 1 )); then
         appinstall="${1}"
     fi
@@ -793,7 +797,6 @@ install_pip()
         loguj -e -t "${ltype}" "PIP not installed (${pip})"
         return 1
     fi
-
 
     # check if app is installed
     if [[ -n "${appcheck}" ]] && hash "${appcheck}" 2>/dev/null; then
@@ -811,8 +814,8 @@ install_pip()
         return 0
     fi
 
-    # cmdinstall="${__sudo} ${sudo_options} ${pip} install ${update} ${appinstall}"
-    cmdinstall="${pip} install ${update} ${appinstall}"
+    cmdinstall="${__sudo} ${sudo_options} ${pip} install ${update} ${appinstall}"
+    # cmdinstall="${pip} install ${update} ${appinstall}"
     loguj -p -i -t "${ltype}" "installing ${appinstall}... ${cmdinstall}"
     ${cmdinstall} \
         &&

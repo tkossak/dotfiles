@@ -21,6 +21,10 @@ __if_break_links="N"
 __if_testing="N"
 __if_update="N"
 __if_first_time="N"
+__if_python_conda="N"
+if hash conda 2>/dev/null; then
+    __if_python_conda="Y"
+fi
 
 if [[ "${__myos}" == "LINUX" ]] && hash sudo 2>/dev/null; then
     __sudo="sudo"

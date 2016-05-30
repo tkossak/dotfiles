@@ -193,7 +193,8 @@ install_apps()
     # fi
 
     loguj -ss -t "${ltype}" "BASICS ${__app_lvl}"
-    loguj -i -t "${ltype}" "Update option: ${update_option}"
+    loguj -i -t "${ltype}" "local sudo_options=${update_option}"
+    loguj -i -t "${ltype}" "Update option=${update_option}"
     # update repos?
     update_repos
 
