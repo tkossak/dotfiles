@@ -356,7 +356,7 @@ install_apps()
 
         # PIP3 -----------------------------------
         cur_python_cmd="python3"
-        cur_pip_cmd="pip3"
+        cur_pip_cmd="$(which pip3)"
 
         if hash ${cur_python_cmd} 2>/dev/null; then
 
