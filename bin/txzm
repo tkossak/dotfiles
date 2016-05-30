@@ -19,7 +19,7 @@ elif (( $# == 1 )); then
 else
     # file_in=( "${@:1:$#-1}" )
     # file_out="${@: -1}"
-    file_in="${@:2}"
+    file_in=( "${@:2}" )
     file_out="$1"
 fi
 
@@ -29,7 +29,12 @@ if [[ -e $file_out ]]; then
 fi
 
 # compress
+set -x
 tar -cvf - "${file_in[@]}" | xz -e9zf - > "${file_out}"
+echo $?
+set +x
+exit 0
+
 if [[ "$?" != "0" ]]; then
     echo -n "ERROR compressing files. Removing archive..."
     rm "${file_out}"
