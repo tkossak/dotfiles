@@ -811,7 +811,8 @@ install_pip()
         return 0
     fi
 
-    cmdinstall="${__sudo} ${sudo_options} ${pip} install ${update} ${appinstall}"
+    # cmdinstall="${__sudo} ${sudo_options} ${pip} install ${update} ${appinstall}"
+    cmdinstall="${pip} install ${update} ${appinstall}"
     loguj -p -i -t "${ltype}" "installing ${appinstall}... ${cmdinstall}"
     ${cmdinstall} \
         &&
