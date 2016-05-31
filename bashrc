@@ -348,13 +348,16 @@ case ${__myos} in
             xmodmap -e 'keycode 91 = KP_Delete KP_Separator KP_Delete KP_Separator'
         }
 
-
         alias cs="xdg-open"
         alias aptgo='sudo apt-get update && sudo apt-get -y upgrade && apt-get -fy install && apt-get -y autoremove && apt-get -y autoclean'
         # alias aptgo='sudo apt-get update && sudo apt-get -y upgrade && sudo apt-get -y dist-upgrade && apt-get -fy install && apt-get -y autoremove && apt-get -y autoclean && apt-get -y clean'
         alias iotop='sudo iotop --only'
         alias fping='ping -c 5 -i.2'
         alias dstat_='dstat -lcdpymsn'
+
+        if [[ -r /etc/ssl/certs/ca-certificates.crt ]]; then
+            export CURL_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
+        fi
         ;;
     *)
         echo 'other os?';;
@@ -496,11 +499,11 @@ echo
 # fi
 
 # Linux Brew
-if [[ -r "$HOME/.linuxbrew" ]]; then
-    export PATH="$HOME/.linuxbrew/bin:$PATH"
-    export MANPATH="$HOME/.linuxbrew/share/man:$MANPATH"
-    export INFOPATH="$HOME/.linuxbrew/share/info:$INFOPATH"
-fi
+# if [[ -r "$HOME/.linuxbrew" ]]; then
+#     export PATH="$HOME/.linuxbrew/bin:$PATH"
+#     export MANPATH="$HOME/.linuxbrew/share/man:$MANPATH"
+#     export INFOPATH="$HOME/.linuxbrew/share/info:$INFOPATH"
+# fi
 
 # finishing touches
 unset __vTmp1 __vTmp2 __vTmp3

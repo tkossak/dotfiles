@@ -217,6 +217,8 @@ install_apps()
 
         # git
         install_apt git || true
+        # for curl:
+        install_apt ca-certificates || true
 
         if (( __app_lvl >= 2 )); then
             # inne
@@ -233,6 +235,8 @@ install_apps()
 
 
         install_apt dos2unix || true
+        install_apt python-pip || true
+        install_apt python3-pip || true
 
         # CYGWIN only:
         install_apt -oc cygutils || true
@@ -336,7 +340,7 @@ install_apps()
 
                     # download
                     if [[ "${if_getpip_downloaded}" = "0" ]]; then
-                        install_url https://bootstrap.pypa.io/get-pip.py "${installer}" -sha1 "${cur_pip_sha1}" \
+                        install_url https://bootstrap.pypa.io/get-pip.py "${installer}" \
                             && if_getpip_downloaded="1"
                     fi
 
@@ -351,7 +355,6 @@ install_apps()
                         loguj -e -t "${ltype}" "Problem downloading ${cur_pip_cmd}"
                     fi
                 fi
-
             fi
         fi
 
@@ -387,7 +390,7 @@ install_apps()
 
                     # download
                     if [[ "${if_getpip_downloaded}" = "0" ]]; then
-                        install_url https://bootstrap.pypa.io/get-pip.py "${installer}" -sha1 "${cur_pip_sha1}" \
+                        install_url https://bootstrap.pypa.io/get-pip.py "${installer}" \
                             && if_getpip_downloaded="1"
                     fi
 
@@ -407,7 +410,7 @@ install_apps()
         fi
 
         # Ranger
-        install_git https://github.com/hut/ranger.git ~/apps/ranger "${__sudo} make install" "ranger --copy-config=all" || true
+        install_git https://github.com/hut/ranger.git "$HOME/apps/ranger" "${__sudo} make install" "ranger --copy-config=all" || true
 
         # dtrx
         # without updating
@@ -475,6 +478,15 @@ install_apps()
         if [[ ${__myos} != 'CYGWIN' ]]; then
             install_pip -3H ${update_option} pyperclip || true
         fi
+
+        # brew:
+        # ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Linuxbrew/install/master/install)" || true
+        # if [[ ${__myhost} == 'W' ]]; then
+        #     "$HOME/.linuxbrew/bin/brew" analytics off
+        # fi
+        # for brew:
+        install_apt build-essential || true
+
     fi
 
     # Spacemacs for linux
