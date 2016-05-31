@@ -5,7 +5,7 @@
 # $2- - rest of arguments are files to compress
 # If there is only one argument, archive name is created automatically
 
-# set -o errexit
+set -o errexit
 set -o pipefail
 set -o nounset
 # set -o xtrace
@@ -29,11 +29,7 @@ if [[ -e $file_out ]]; then
 fi
 
 # compress
-set -x
 tar -cvf - "${file_in[@]}" | xz -e9zf - > "${file_out}"
-echo $?
-set +x
-exit 0
 
 if [[ "$?" != "0" ]]; then
     echo -n "ERROR compressing files. Removing archive..."
@@ -61,7 +57,7 @@ fi
 
 # remove src
 echo -n "Removing original files..."
-rm -rf "${file_in}"
+rm -rf "${file_in[@]}"
 if [[ "$?" = "0" ]]; then
     echo " Done."
 else

@@ -312,6 +312,7 @@ install_apps()
         if hash ${cur_python_cmd} 2>/dev/null; then
 
             if hash ${cur_pip_cmd} 2>/dev/null; then
+                cur_pip_cmd="$(which pip2)"
                 # 1. PIP=yes
                 # if [[ "${__if_update}" == "Y" ]]; then
                 ${__sudo} ${sudo_options} ${cur_pip_cmd} install -U pip
@@ -357,11 +358,12 @@ install_apps()
 
         # PIP3 -----------------------------------
         cur_python_cmd="python3"
-        cur_pip_cmd="$(which pip3)"
+        cur_pip_cmd="pip3"
 
         if hash ${cur_python_cmd} 2>/dev/null; then
 
             if hash ${cur_pip_cmd} 2>/dev/null; then
+                cur_pip_cmd="$(which pip3)"
                 # 1. PIP=yes
                 # if [[ "${__if_update}" == "Y" ]]; then
                 ${__sudo} ${sudo_options} ${cur_pip_cmd} install -U pip
@@ -555,7 +557,7 @@ install_apps()
             install_apt nload || true
             install_apt ppa-purge || true
             install_apt apt-file || true
-            install_apt autokey-gtk || true
+            # install_apt autokey-gtk || true
             install_apt pandoc || true
             # pv - see progress through a pipeline
             install_apt pv || true

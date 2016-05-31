@@ -37,9 +37,11 @@ export XONSH_SHOW_TRACEBACK=True
 
 # ----------------------------------------------------------------------
 
-[[ -r ~/.bashrc.local ]] &&
-    source ~/.bashrc.local
 source ~/.dotfiles/source/src_bash_vars_myos
+[[ -r "$HOME/.bashrc.local" ]] &&
+    source "$HOME/.bashrc.local"
+[[ -r "${HOME}/.local/bin" ]] &&
+    export PATH="$HOME/.local/bin:$PATH"
 
 export EDITOR=vim
 
@@ -256,7 +258,6 @@ case ${__myos} in
         }
 
         if [[ ${__myhost} == "W" ]]; then
-            alias wou='/cygdrive/c/Users/tkossakowski/AppData/Local/Programs/Python/Python35-32/python.exe D:\\Kossak\\ahk\\ou'
             fixwinchar()
             {
                 iconv -f 852 -t utf8
@@ -485,17 +486,24 @@ echo -e "${IYellow}uptime:${Color_Off} $(uptime)"
 echo
 }
 
-# finishing touches
-unset __vTmp1 __vTmp2 __vTmp3
-unset __myos __myhost
-
-unset Color_Off Black Red Green Yellow Blue Purple Cyan White BBlack BRed BGreen BYellow BBlue BPurple BCyan BWhite UBlack URed UGreen UYellow UBlue UPurple UCyan UWhite On_Black On_Red On_Green On_Yellow On_Blue On_Purple On_Cyan On_White IBlack IRed IGreen IYellow IBlue IPurple ICyan IWhite BIBlack BIRed BIGreen BIYellow BIBlue BIPurple BICyan BIWhite On_IBlack On_IRed On_IGreen On_IYellow On_IBlue On_IPurple On_ICyan On_IWhite
-
 # export PAGER=/usr/local/bin/vimpager
 # alias less=$PAGER
 # alias zless=$PAGER
 
 # Anaconda3 4.0.0
-if [[ -r /home/kossak/anaconda3/bin ]]; then
-    export PATH="/home/kossak/anaconda3/bin:$PATH"
+# if [[ -r /home/kossak/anaconda3/bin ]]; then
+#     export PATH="/home/kossak/anaconda3/bin:$PATH"
+# fi
+
+# Linux Brew
+if [[ -r "$HOME/.linuxbrew" ]]; then
+    export PATH="$HOME/.linuxbrew/bin:$PATH"
+    export MANPATH="$HOME/.linuxbrew/share/man:$MANPATH"
+    export INFOPATH="$HOME/.linuxbrew/share/info:$INFOPATH"
 fi
+
+# finishing touches
+unset __vTmp1 __vTmp2 __vTmp3
+unset __myos __myhost
+unset Color_Off Black Red Green Yellow Blue Purple Cyan White BBlack BRed BGreen BYellow BBlue BPurple BCyan BWhite UBlack URed UGreen UYellow UBlue UPurple UCyan UWhite On_Black On_Red On_Green On_Yellow On_Blue On_Purple On_Cyan On_White IBlack IRed IGreen IYellow IBlue IPurple ICyan IWhite BIBlack BIRed BIGreen BIYellow BIBlue BIPurple BICyan BIWhite On_IBlack On_IRed On_IGreen On_IYellow On_IBlue On_IPurple On_ICyan On_IWhite
+
