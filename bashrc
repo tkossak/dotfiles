@@ -499,11 +499,14 @@ echo
 # fi
 
 # Linux Brew
-# if [[ -r "$HOME/.linuxbrew" ]]; then
-#     export PATH="$HOME/.linuxbrew/bin:$PATH"
-#     export MANPATH="$HOME/.linuxbrew/share/man:$MANPATH"
-#     export INFOPATH="$HOME/.linuxbrew/share/info:$INFOPATH"
-# fi
+if [[ "$PATH" != *$HOME/.linuxbrew/bin:* && -r "$HOME/.linuxbrew" ]]; then
+    # echo no
+    # if [[ -r "$HOME/.linuxbrew" ]]; then
+    #export PATH="$PATH:$HOME/.linuxbrew/bin"
+    export PATH="$HOME/.linuxbrew/bin:$PATH"
+    export MANPATH="$HOME/.linuxbrew/share/man:$MANPATH"
+    export INFOPATH="$HOME/.linuxbrew/share/info:$INFOPATH"
+fi
 
 # finishing touches
 unset __vTmp1 __vTmp2 __vTmp3
