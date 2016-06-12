@@ -132,7 +132,7 @@ function t(){ wget -U "Mozilla/5.0" -qO - "http://translate.google.com/translate
 function lom(){ locate -i --regex "$1"'.*\.(avi|mkv|mp4|rmvb|flv|ts)'; }
 function lomf(){
     # find /mnt/win_d/filmy "/mnt/d750/filmy HD" -iregex '.*'"$1"'.*\.\(avi\|mkv\|mp4\|rmvb\|flv\|ts\)'
-    find /mnt/win_d/filmy /mnt/win_e/filmy -iregex '.*'"$1"'.*\.\(avi\|mkv\|mp4\|rmvb\|flv\|ts\)'
+    find /mnt/win_d/filmy -iregex '.*'"$1"'.*\.\(avi\|mkv\|mp4\|rmvb\|flv\|ts\)'
 }
 function loml(){
     find -L /mnt/win_d/filmy /mnt/win_e/filmy "/mnt/d750/filmy HD" -samefile "$1"
