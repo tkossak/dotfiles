@@ -139,9 +139,8 @@ break_links()
         ~/.weechat/guile ~/.weechat/javascript ~/.weechat/lua ~/.weechat/perl ~/.weechat/python ~/.weechat/ruby ~/.weechat/script ~/.weechat/tcl ~/.weechat/xfer ~/.weechat/alias.conf ~/.weechat/aspell.conf ~/.weechat/buffers.conf ~/.weechat/charset.conf ~/.weechat/exec.conf ~/.weechat/irc.conf ~/.weechat/iset.conf ~/.weechat/logger.conf ~/.weechat/plugins.conf ~/.weechat/relay.conf ~/.weechat/script.conf ~/.weechat/sec.conf ~/.weechat/trigger.conf ~/.weechat/weechat.conf ~/.weechat/xfer.conf \
         ~/.config/ranger/rc.conf ~/.config/ranger/rifle.conf ~/.mplayer/config ~/.mplayer/input.conf ~/.gconf/apps/gnome-terminal ~/.config/vlc/vlcrc \
         ~/.minttyrc \
-        ~/.spacemacs
-
-
+        ~/.spacemacs \
+        ~/.yaourtrc
     do
         if [[ -e "${link}" ]]; then
             src="$(readlink -f ${link})"
@@ -903,6 +902,9 @@ install_dotfiles()
     # fi
 
     [[ -r "${__dir_dotlocal}/install.links.local" ]] && source "${__dir_dotlocal}/install.links.local"
+    if hash yaourt 2>/dev/null; then
+        install_link "${__dir_dotfiles}/yaourtrc" "${HOME}/.yaourtrc" || true
+    fi
 
     loguj -se -t "${ltype}" "DOTFILES"
     return 0
