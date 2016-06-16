@@ -495,9 +495,9 @@ echo
 # alias zless=$PAGER
 
 # Anaconda3 4.0.0
-# if [[ -r /home/kossak/anaconda3/bin ]]; then
-#     export PATH="/home/kossak/anaconda3/bin:$PATH"
-# fi
+if [[ -r /home/kossak/anaconda3/bin ]]; then
+    export PATH="/home/kossak/anaconda3/bin:$PATH"
+fi
 
 # Linux Brew
 if [[ "$PATH" != *$HOME/.linuxbrew/bin:* && -r "$HOME/.linuxbrew" ]]; then
