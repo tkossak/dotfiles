@@ -355,6 +355,7 @@ case ${__myos} in
         alias iotop='sudo iotop --only'
         alias fping='ping -c 5 -i.2'
         alias dstat_='dstat -lcdpymsn'
+        alias steam_dl='env LD_PRELOAD='"'"'/usr/$LIB/libstdc++.so.6 /usr/$LIB/libgcc_s.so.1 /usr/$LIB/libxcb.so.1 /usr/$LIB/libgpg-error.so'"'"' steam'
 
         if [[ -r /etc/ssl/certs/ca-certificates.crt ]]; then
             export CURL_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
