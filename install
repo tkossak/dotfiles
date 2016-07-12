@@ -141,6 +141,7 @@ break_links()
         ~/.minttyrc \
         ~/.spacemacs \
         ~/.yaourtrc
+        ~/.config/nvim/UltiSnips
     do
         if [[ -e "${link}" ]]; then
             src="$(readlink -f ${link})"
@@ -708,6 +709,7 @@ install_dotfiles()
     install_link "${__dir_dotlocal}/vimrc.local" ~/.vimrc.local || true
     install_link "${__dir_dotfiles}/vimrc.plugins" ~/.vimrc.plugins || true
     install_link "${__dir_dotfiles}/vimrc.functions" ~/.vimrc.functions || true
+    install_link "${__dir_dotfiles}/UltiSnips" ~/.config/nvim/UltiSnips || true
 
     # gvim windows
     if [[ -d "${__dir_gvim_root}" ]]; then
