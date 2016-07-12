@@ -950,5 +950,7 @@ display_log_error
 # git st
 # git remote show origin
 
+loguj -se -t "===" "END OF SCRIPT"
+
 exit
 
