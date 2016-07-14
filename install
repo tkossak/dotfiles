@@ -140,7 +140,7 @@ break_links()
         ~/.config/ranger/rc.conf ~/.config/ranger/rifle.conf ~/.mplayer/config ~/.mplayer/input.conf ~/.gconf/apps/gnome-terminal ~/.config/vlc/vlcrc \
         ~/.minttyrc \
         ~/.spacemacs \
-        ~/.yaourtrc
+        ~/.yaourtrc \
         ~/.config/nvim/UltiSnips
     do
         if [[ -e "${link}" ]]; then
