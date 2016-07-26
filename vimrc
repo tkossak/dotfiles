@@ -66,7 +66,8 @@ set statusline=%t[%{strlen(&fenc)?&fenc:'none'},%{&ff}]%h%m%r%y%=%c,%l/%L\ %P
 
 set splitright
 set splitbelow
-set guifont=Source_Code_Pro::cDEFAULT
+" set guifont=Source_Code_Pro::cDEFAULT
+set guifont=Source\ Code\ Pro\ Medium\ 10
 
 " diff ignores whitespace
 set diffopt+=iwhite
