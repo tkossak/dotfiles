@@ -43,6 +43,32 @@ function! Sedify()
 endfunction
 
 " ==================================================================
+" Collify - remove polish chars and -_
+" ==================================================================
+command! Collify call Collify()
+function! Collify()
+    %s/ę/e/gie
+    %s/ó/o/gie
+    %s/ą/a/gie
+    %s/ś/s/gie
+    %s/ł/l/gie
+    %s/ż/z/gie
+    %s/ź/z/gie
+    %s/ć/c/gie
+    %s/ń/n/gie
+    %s/Ę/E/gie
+    %s/Ó/O/gie
+    %s/Ą/A/gie
+    %s/Ś/S/gie
+    %s/Ł/L/gie
+    %s/Ż/Z/gie
+    %s/Ź/Z/gie
+    %s/Ć/C/gie
+    %s/Ń/N/gie
+    %s/-/_/gie
+    %s/ /_/gie
+endfunction
+" ==================================================================
 " TidyJavaScript
 " ==================================================================
 " Simple re-format for minified Javascript
