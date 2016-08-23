@@ -22,10 +22,11 @@
 	unstage = reset HEAD --
 	dc = diff --cached
 	lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %Cblue<%an>%Creset' --abbrev-commit --date=relative --all
+	lgf = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %Cblue<%an>%Creset' --abbrev-commit --date=relative --all --name-status
+	lg2 = log --oneline --decorate
     rso = remote show origin
 	up = "!git remote update -p; git merge --ff-only @{u}"
     sr = "!git status -sb; git remote show origin"
-	lg2 = log --oneline --decorate
 	tags = tag --sort=v:refname --column=always
 [diff]
 	tool = p4merge
