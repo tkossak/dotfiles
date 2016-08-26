@@ -1,38 +1,39 @@
 # Allow local customizations in the .gitconfig_local file
 [include]
-	path = ~/.gitconfig.local
+    path = ~/.gitconfig.local
 [push]
-	default = matching
+    default = matching
 [core]
-	trustctime = false
-	editor = vim
-	filemode = false
+    trustctime = false
+    editor = vim
+    filemode = false
 [color]
-	ui = true
+    ui = true
 [credential]
-	helper = cache --timeout=3600
+    helper = cache --timeout=3600
 [alias]
-	last = log -1 --stat
-	cp = cherry-pick
-	co = checkout
-	cl = clone
-	ci = commit
-	st = status -sb
-	br = branch
-	unstage = reset HEAD --
-	dc = diff --cached
-	lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %Cblue<%an>%Creset' --abbrev-commit --date=relative --all
-	lgf = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %Cblue<%an>%Creset' --abbrev-commit --date=relative --all --name-status
-	lg2 = log --oneline --decorate
+    last = log -1 --stat
+    cp = cherry-pick
+    co = checkout
+    cl = clone
+    ci = commit
+    st = status -sb
+    br = branch
+    unstage = reset HEAD --
+    dc = diff --cached
+    lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %Cblue<%an>%Creset' --abbrev-commit --date=relative --all
+    lgf = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %Cblue<%an>%Creset' --abbrev-commit --date=relative --all --name-status
+    lg2 = log --oneline --decorate
+    sh = show --abbrev-commit --date=relative --name-status --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %Cblue<%an>%Creset'
     rso = remote show origin
-	up = "!git remote update -p; git merge --ff-only @{u}"
+    up = "!git remote update -p; git merge --ff-only @{u}"
     sr = "!git status -sb; git remote show origin"
-	tags = tag --sort=v:refname --column=always
+    tags = tag --sort=v:refname --column=always
 [diff]
-	tool = p4merge
+    tool = p4merge
 [difftool]
-	prompt = false
+    prompt = false
 [merge]
-	tool = p4merge
+    tool = p4merge
 [mergetool]
-	prompt = false
+    prompt = false
