@@ -1,5 +1,7 @@
 # If not running interactively, don't do anything
 # [[ "$-" != *i* ]] && exit
+[[ $- != *i* ]] && return
+
 # echo ".bashrc start"
 # [[ -z "$PS1" ]] && exit
 # echo "~/.bashrc starting"
@@ -44,6 +46,7 @@ source ~/.dotfiles/source/src_bash_vars_myos
     export PATH="$HOME/.local/bin:$PATH"
 
 export EDITOR=vim
+export GREP_OPTIONS='-i'
 
 alias l='ls -lFh --color=auto'
 alias ll='ls -lFh --color=auto'
