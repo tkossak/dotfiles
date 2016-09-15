@@ -91,7 +91,7 @@ alias gn='geeknote'
 # internet
 alias wanip='dig +short myip.opendns.com @resolver1.opendns.com'
 alias dmp3='youtube-dl -cx --audio-format mp3 --restrict-filenames'
-alias daac='youtube-dl -cx --audio-format aac --restrict-filenames'
+alias dm4a='youtube-dl -cx --audio-format m4a --restrict-filenames'
 alias dvid='youtube-dl -c --restrict-filenames'
 alias yt='youtube-dl'
 
