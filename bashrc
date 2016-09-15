@@ -46,7 +46,8 @@ source ~/.dotfiles/source/src_bash_vars_myos
     export PATH="$HOME/.local/bin:$PATH"
 
 export EDITOR=vim
-export GREP_OPTIONS='-i'
+# export GREP_OPTIONS='-i'
+alias grep='grep -i'
 
 alias l='ls -lFh --color=auto'
 alias ll='ls -lFh --color=auto'
