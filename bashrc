@@ -30,24 +30,31 @@ HISTCONTROL=ignoreboth
 # append to the history file, don't overwrite it
 shopt -s histappend
 
+# for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
 HISTSIZE=1000
 HISTFILESIZE=10000
+
 # check the window size after each command and, if necessary, update the values of LINES and COLUMNS.
 shopt -s checkwinsize
 
-export XONSH_SHOW_TRACEBACK=True
+# If set, the pattern "**" used in a pathname expansion context will
+# match all files and zero or more directories and subdirectories.
+#shopt -s globstar
+
+# make less more friendly for non-text input files, see lesspipe(1)
+[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
+
+# export XONSH_SHOW_TRACEBACK=True
 
 # ----------------------------------------------------------------------
+source $HOME/.dotfiles/source/src_bash_vars_myos
+source $HOME/.dotfiles/source/src_bash_basic_functions
 
-source ~/.dotfiles/source/src_bash_vars_myos
-[[ -r "$HOME/.bashrc.local" ]] &&
-    source "$HOME/.bashrc.local"
-[[ -r "${HOME}/.local/bin" ]] &&
-    export PATH="$HOME/.local/bin:$PATH"
+add_to_path "$HOME/.bashrc.local"
+add_to_path "$HOME/.local/bin"
 
 export EDITOR=vim
 # export GREP_OPTIONS='-i'
-alias grep='grep -i'
 
 alias l='ls -lFh --color=auto'
 alias ll='ls -lFh --color=auto'
@@ -77,6 +84,10 @@ alias ncal="ncal -M"
 alias vbox='sudo mount -t vboxsf vbox_shared /mnt/vs && cd /mnt/vs'
 alias vboxd='sudo mount -t vboxsf vbox_shared /mnt/vs && cd /mnt/vs/dotfiles'
 
+# Add an "alert" alias for long running commands.  Use like so:
+#   sleep 10; alert
+alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
+
 # sudos
 alias iftop='sudo iftop'
 alias nethogs='sudo nethogs'
@@ -100,6 +111,32 @@ alias extension_count="find . -type f | sed 's/.*\.//gI' | sort | uniq -c"
 alias clearm="clear; for i in {1..50}; do echo; done"
 alias wttrd='curl wttr.in/dabrowa_gornicza'
 alias wttrk='curl wttr.in/katowice'
+
+
+# Alias definitions.
+# You may want to put all your additions into a separate file like
+# ~/.bash_aliases, instead of adding them here directly.
+# See /usr/share/doc/bash-doc/examples in the bash-doc package.
+
+if [ -f ~/.bash_aliases ]; then
+    . ~/.bash_aliases
+fi
+
+# enable programmable completion features (you don't need to enable
+# this, if it's already enabled in /etc/bash.bashrc and /etc/profile
+# sources /etc/bash.bashrc).
+if ! shopt -oq posix; then
+  if [ -f /usr/share/bash-completion/bash_completion ]; then
+    . /usr/share/bash-completion/bash_completion
+  elif [ -f /etc/bash_completion ]; then
+    . /etc/bash_completion
+  fi
+fi
+
+if [ -x /usr/bin/mint-fortune ]; then
+     /usr/bin/mint-fortune
+fi
+
 function countdown(){
    date1=$((`date +%s` + $1));
    while [ "$date1" -ge `date +%s` ]; do
@@ -469,8 +506,10 @@ if [[ -r ~/.fzf.bash ]]; then
     # }
 fi
 
-[[ -d ~/.dotfiles/bin ]] && export PATH=${PATH}:~/.dotfiles/bin
-[[ -d ~/.dotfiles.local/bin ]] && export PATH=${PATH}:~/.dotfiles.local/bin
+add_to_path "$HOME/.local/bin"
+add_to_path "$HOME/.dotfiles/bin"
+add_to_path "$HOME/.dotfiles.local/bin"
+
 # source ~/.bash-git-prompt/gitprompt.sh
 
 function bashrc_info()
@@ -501,16 +540,11 @@ echo
 # alias zless=$PAGER
 
 # Anaconda3 4.0.0
-if [[ -r /home/kossak/anaconda3/bin ]]; then
-    export PATH="/home/kossak/anaconda3/bin:$PATH"
-fi
+add_to_path "/home/kossak/anaconda3/bin"
 
 # Linux Brew
-if [[ "$PATH" != *$HOME/.linuxbrew/bin:* && -r "$HOME/.linuxbrew" ]]; then
-    # echo no
-    # if [[ -r "$HOME/.linuxbrew" ]]; then
-    #export PATH="$PATH:$HOME/.linuxbrew/bin"
-    export PATH="$HOME/.linuxbrew/bin:$PATH"
+if [[ -r "$HOME/.linuxbrew" ]]; then
+    add_to_path "$HOME/.linuxbrew/bin"
     export MANPATH="$HOME/.linuxbrew/share/man:$MANPATH"
     export INFOPATH="$HOME/.linuxbrew/share/info:$INFOPATH"
 fi
