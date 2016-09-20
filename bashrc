@@ -50,7 +50,7 @@ shopt -s checkwinsize
 source $HOME/.dotfiles/source/src_bash_vars_myos
 source $HOME/.dotfiles/source/src_bash_basic_functions
 
-add_to_path "$HOME/.bashrc.local"
+source "$HOME/.bashrc.local"
 add_to_path "$HOME/.local/bin"
 
 export EDITOR=vim
