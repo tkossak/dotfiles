@@ -550,6 +550,17 @@ if [[ -r "$HOME/.linuxbrew" ]]; then
     export INFOPATH="$HOME/.linuxbrew/share/info:$INFOPATH"
 fi
 
+# gpg-agent
+# export SSH_AUTH_SOCK_LINK="/tmp/ssh-$USER/agent"
+# # if ! [ -r $(readlink -m $SSH_AUTH_SOCK_LINK) ] && [ -r $SSH_AUTH_SOCK ]; then
+# if [[ $SSH_AUTH_SOCK_LINK != $SSH_AUTH_SOCK ]] && [[ -r $SSH_AUTH_SOCK ]]; then
+# 	mkdir -p "$(dirname $SSH_AUTH_SOCK_LINK)" &&
+# 	chmod go= "$(dirname $SSH_AUTH_SOCK_LINK)" &&
+# 	ln -sfn $SSH_AUTH_SOCK $SSH_AUTH_SOCK_LINK &&
+#     export export SSH_AUTH_SOCK=$SSH_AUTH_SOCK_LINK &&
+#     unset SSH_AGENT_PID
+# fi
+
 # finishing touches
 unset __vTmp1 __vTmp2 __vTmp3
 unset __myos __myhost
