@@ -157,8 +157,8 @@ noremap <leader>bb :buffers<CR>
 noremap <leader>bn :bnext<CR>
 noremap <leader>bp :bprev<CR>
 noremap <leader>bl :blast<CR>
-noremap <leader>bk :bwipe<CR>
-noremap <leader>bd :bwipe!<CR>
+noremap <leader>bd :bwipe<CR>
+noremap <leader>bD :bwipe!<CR>
 noremap <leader>bw :set modifiable! readonly!<CR>
 
 " Window bindings
@@ -167,9 +167,11 @@ nnoremap <leader>wk <c-w>k
 nnoremap <leader>wh <c-w>h
 nnoremap <leader>wl <c-w>l
 nnoremap <leader>ws <c-w>s
+nnoremap <leader>w- <c-w>s
 nnoremap <leader>wv <c-w>v
+nnoremap <leader>w/ <c-w>v
 nnoremap <leader>wm :call MaximizeToggle()<CR>" maximize
-nnoremap <leader>wc <c-w>c " close
+nnoremap <leader>wd <c-w>c " delete window
 nnoremap <leader>wH <c-w>H
 nnoremap <leader>wJ <c-w>J
 nnoremap <leader>wK <c-w>K
