@@ -403,6 +403,19 @@ case ${__myos} in
         if [[ -r /etc/ssl/certs/ca-certificates.crt ]]; then
             export CURL_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
         fi
+
+        if [ -f ~/.agent.env ]; then
+            . ~/.agent.env > /dev/null
+            if ! kill -0 $SSH_AGENT_PID > /dev/null 2>&1; then
+                echo "Stale agent file found. Spawning new agent… "
+                eval `ssh-agent | tee ~/.agent.env`
+                # ssh-add
+            fi
+        else
+            echo "Starting ssh-agent"
+            eval `ssh-agent | tee ~/.agent.env`
+            # ssh-add
+        fi
         ;;
     *)
         echo 'other os?';;
