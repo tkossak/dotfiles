@@ -108,4 +108,4 @@ if filereadable("/cygdrive/d/Kossak/progs/zeal/zeal.exe")
 endif
 
 " SimpleNote
-nnoremap <leader>nl :Simplenote -l<CR>
+nnoremap <leader>nl :SimplenoteList<CR>
