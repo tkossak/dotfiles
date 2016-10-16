@@ -299,6 +299,19 @@ explicitly specified that a variable should be set before a package is loaded,
 you should place your code here."
 
   (setq org-startup-indented 't)
+
+  ; create zs/ze shortcuts:
+  (defun hscroll-cursor-left ()
+    (interactive "@")
+    (set-window-hscroll (selected-window) (current-column)))
+  (defun hscroll-cursor-right ()
+    (interactive "@")
+    (set-window-hscroll (selected-window) (- (current-column) (window-width) -1)))
+  (define-key evil-normal-state-map "zs" 'hscroll-cursor-left)
+  (define-key evil-normal-state-map "ze" 'hscroll-cursor-right)
+  (setq auto-hscroll-mode 't)
+  (setq hscroll-margin 0
+        hscroll-step 1)
   )
 
 ;; Do not write anything past this comment. This is where Emacs will

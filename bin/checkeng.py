@@ -47,6 +47,7 @@ with open('from_simplenote.txt', 'r') as fh:
         if line.startswith(r'\--'):
             continue
         for word in line.split():
+            word = word.lower()
             if word in omit_words:
                 continue
             else:
