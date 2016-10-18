@@ -1,6 +1,17 @@
-snippet pyh
+snippet #!
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+def main():
+	pass
+
+if __name__ == '__main__':
+    try:
+        main()
+    except:
+        from traceback import format_exc
+        send_me_mail(p_subject='[SCRIPT][EE] {}'.format(os.path.basename(sys.argv[0])),
+                     p_msg='Exception: {}'.format(format_exc()))
+        raise
 
 endsnippet

@@ -7,11 +7,20 @@ set -o nounset
 # set -o xtrace
 
 # Set magic variables for current file & dir
+# Full path to dir of the script (does not follow link to script):
 __dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Full path to dir of the original script (follows link to script):
 __dir="$(cd "$(dirname "$(readlink -f ${BASH_SOURCE[0]})")" && pwd)"
+
+# Full path to parent dir of the dir containing original script (follows link to script):
 __root="$(cd "$(dirname "${__dir}")" && pwd)" # <-- change this
+
+# Full path to filename of the original script (follows link to script):
 __file="${__dir}/$(basename "${BASH_SOURCE[0]}")"
-__base="$(basename ${__file} .sh)"
+
+# Only filename without extension:
+__base="$(basename "${__file}" .sh)"
 
 arg1="${1:-}"
 endsnippet
