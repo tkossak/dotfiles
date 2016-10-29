@@ -30,7 +30,8 @@ Plug 'SirVer/ultisnips'
 Plug 'honza/vim-snippets'
 
 " For Python
-Plug 'klen/python-mode'
+Plug 'Valloric/YouCompleteMe'
+" Plug 'klen/python-mode'
 " Plug 'davidhalter/jedi-vim'
 
 call plug#end()
@@ -49,10 +50,13 @@ endif
 " let g:UltiSnipsEditSplit="vertical"
 
 " python-mode
-let g:pymode_options = 1
-let g:pymode_python = 'python3'
-let g:pymode_lint_on_fly = 1
+" let g:pymode_options = 1
+" let g:pymode_python = 'python3'
+" let g:pymode_lint_on_fly = 1
 
+" YouCompleteMe
+" let g:ycm_autoclose_preview_window_after_completion=1
+map <leader>gg  :YcmCompleter GoToDefinitionElseDeclaration<CR>
 
 " fugitive
 nnoremap <leader>gd :Gdiff<CR>
@@ -88,15 +92,15 @@ map g# <Plug>(incsearch-nohl-g#)
 endif
 
 " syntastic
-set statusline+=%#warningmsg#
-set statusline+=%{SyntasticStatuslineFlag()}
-set statusline+=%*
+" set statusline+=%#warningmsg#
+" set statusline+=%{SyntasticStatuslineFlag()}
+" set statusline+=%*
 
-let g:syntastic_always_populate_loc_list = 1
-let g:syntastic_auto_loc_list = 1
-let g:syntastic_check_on_open = 1
-let g:syntastic_check_on_wq = 0
-let g:syntastic_python_python_exec = '/usr/bin/python3'
+" let g:syntastic_always_populate_loc_list = 1
+" let g:syntastic_auto_loc_list = 1
+" let g:syntastic_check_on_open = 1
+" let g:syntastic_check_on_wq = 0
+" let g:syntastic_python_python_exec = '/usr/bin/python3'
 
 " vim-expand-region :: expand/shrink selection
 vmap v <Plug>(expand_region_expand)

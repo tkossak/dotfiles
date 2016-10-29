@@ -81,8 +81,21 @@ set diffexpr=""
 " Type vs to visually select the hit. If you type another s you will extend the selection to the end of the next hit.
 vnoremap <silent> s //e<C-r>=&selection=='exclusive'?'+1':''<CR><CR>
     \:<C-u>call histdel('search',-1)<Bar>let @/=histget('search',-1)<CR>gv
-omap s :normal vs<CR>
+omap s :normal vs<CR
 
+au BufNewFile,BufRead *.py
+    \ set textwidth=79 |
+    \ set fileformat=unix
+    " \ set tabstop=4 |
+    " \ set softtabstop=4 |
+    " \ set shiftwidth=4 |
+    " \ set expandtab |
+    " \ set autoindent |
+
+au BufNewFile,BufRead *.js,*.html,*.css
+    \ set tabstop=2 |
+    \ set softtabstop=2 |
+    \ set shiftwidth=2
 
 " ==================================================================
 " KEYS
