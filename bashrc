@@ -98,6 +98,8 @@ alias atop='sudo atop'
 alias glances='glances -b'
 alias mplayer='mplayer -fs -softvol -softvol-max 300'
 alias gn='geeknote'
+alias aot='wmctrl -r :SELECT: -b add,above'
+alias aotr='wmctrl -r :SELECT: -b remove,above'
 
 # internet
 alias wanip='dig +short myip.opendns.com @resolver1.opendns.com'
