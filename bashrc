@@ -98,8 +98,6 @@ alias atop='sudo atop'
 alias glances='glances -b'
 alias mplayer='mplayer -fs -softvol -softvol-max 300'
 alias gn='geeknote'
-alias aot='wmctrl -r :SELECT: -b add,above'
-alias aotr='wmctrl -r :SELECT: -b remove,above'
 
 # internet
 alias wanip='dig +short myip.opendns.com @resolver1.opendns.com'
@@ -114,7 +112,6 @@ alias extension_count="find . -type f | sed 's/.*\.//gI' | sort | uniq -c"
 alias clearm="clear; for i in {1..50}; do echo; done"
 alias wttrd='curl wttr.in/dabrowa_gornicza'
 alias wttrk='curl wttr.in/katowice'
-
 
 # Alias definitions.
 # You may want to put all your additions into a separate file like
@@ -523,6 +520,10 @@ if [[ -r ~/.fzf.bash ]]; then
     # }
 fi
 
+# complete
+complete -W 'activate deactivate' source
+
+# paths
 add_to_path "$HOME/.local/bin"
 add_to_path "$HOME/.dotfiles/bin"
 add_to_path "$HOME/.dotfiles.local/bin"
@@ -531,25 +532,25 @@ add_to_path "$HOME/.dotfiles.local/bin"
 
 function bashrc_info()
 {
-# -----------------------------------------------------------------------
-# -- bash start info
-# -----------------------------------------------------------------------
-# Today is:
-echo "------------------------------------------------------------------"
-echo -e "${IYellow}Today is: ${BWhite}$(date +'%F (%A) %T')"
+    # -----------------------------------------------------------------------
+    # -- bash start info
+    # -----------------------------------------------------------------------
+    # Today is:
+    echo "------------------------------------------------------------------"
+    echo -e "${IYellow}Today is: ${BWhite}$(date +'%F (%A) %T')"
 
-# Last logins:
-if [[ ! ${__myos} == CYGWIN* ]]; then
-    echo -en "${IYellow}LAST logins:\n${Color_Off}"
-    __vTmp3="$(last | uniq | head -13)"
-    [[ -n $__vTmp3 ]] && echo -e "${Color_Off}${__vTmp3}"
-fi
+    # Last logins:
+    if [[ ! ${__myos} == CYGWIN* ]]; then
+        echo -en "${IYellow}LAST logins:\n${Color_Off}"
+        __vTmp3="$(last | uniq | head -13)"
+        [[ -n $__vTmp3 ]] && echo -e "${Color_Off}${__vTmp3}"
+    fi
 
-echo -e "${IYellow}os:${Color_Off} $(uname -o), $(uname -m), $(getconf LONG_BIT) bit"
-echo -e "${IYellow}kernel:${Color_Off} $(uname -s)"
-echo -e "${IYellow}node:${Color_Off} $(uname -n)"
-echo -e "${IYellow}uptime:${Color_Off} $(uptime)"
-echo
+    echo -e "${IYellow}os:${Color_Off} $(uname -o), $(uname -m), $(getconf LONG_BIT) bit"
+    echo -e "${IYellow}kernel:${Color_Off} $(uname -s)"
+    echo -e "${IYellow}node:${Color_Off} $(uname -n)"
+    echo -e "${IYellow}uptime:${Color_Off} $(uptime)"
+    echo
 }
 
 # export PAGER=/usr/local/bin/vimpager
