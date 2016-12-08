@@ -167,9 +167,6 @@ function getcpidf() {
     ps -fp $(getcpid $1)
 }
 
-# translate english => polish
-function t(){ wget -U "Mozilla/5.0" -qO - "http://translate.google.com/translate_a/t?client=t&text=$1&sl=${2:-en}&tl=${3:-pl}" | sed 's/\[\[\[\"//' | cut -d \" -f 1; }
-
 # locate movies
 function lom(){ locate -i --regex "$1"'.*\.(avi|mkv|mp4|rmvb|flv|ts)'; }
 function lomf(){
