@@ -101,10 +101,14 @@ alias gn='geeknote'
 
 # internet
 alias wanip='dig +short myip.opendns.com @resolver1.opendns.com'
-alias dmp3='youtube-dl -cx --audio-format mp3 --restrict-filenames'
-alias dm4a='youtube-dl -cx --audio-format m4a --restrict-filenames'
-alias dogg='youtube-dl -cx --audio-format vorbis --restrict-filenames'
-alias dvid='youtube-dl -c --restrict-filenames'
+alias dmp3='youtube-dl -cx --audio-format mp3'
+alias dmp3n='youtube-dl -cx --audio-format mp3 --restrict-filenames'
+alias dm4a='youtube-dl -cx --audio-format m4a'
+alias dm4an='youtube-dl -cx --audio-format m4a --restrict-filenames'
+alias dogg='youtube-dl -cx --audio-format vorbis'
+alias doggn='youtube-dl -cx --audio-format vorbis --restrict-filenames'
+alias dvid='youtube-dl -c'
+alias dvidn='youtube-dl -c --restrict-filenames'
 alias yt='youtube-dl'
 
 # tools
