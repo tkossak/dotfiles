@@ -1,9 +1,8 @@
 # If not running interactively, don't do anything
-# [[ "$-" != *i* ]] && exit
 [[ $- != *i* ]] && return
 
 # echo ".bashrc start"
-# [[ -z "$PS1" ]] && exit
+# [[ -z "$PS1" ]] && return
 # echo "~/.bashrc starting"
 # [[ -z ${USER_BASHRC} ]] && USER_BASHRC="1" || return
 
@@ -393,7 +392,15 @@ case ${__myos} in
         }
 
         alias cs="xdg-open"
-        alias aptgo='sudo apt-get update && sudo apt-get -y upgrade && apt-get -fy install && apt-get -y autoremove && apt-get -y autoclean'
+        if hash apt-get 2>/dev/null; then
+            alias aptgo='sudo apt-get update && sudo apt-get -y upgrade && apt-get -fy install && apt-get -y autoremove && apt-get -y autoclean'
+        elif hash yaourt 2>/dev/null; then
+            function aptgo(){
+                del_anaconda
+                yaourt -Syua
+                add_anaconda
+            }
+        fi
         # alias aptgo='sudo apt-get update && sudo apt-get -y upgrade && sudo apt-get -y dist-upgrade && apt-get -fy install && apt-get -y autoremove && apt-get -y autoclean && apt-get -y clean'
         alias iotop='sudo iotop --only'
         alias fping='ping -c 5 -i.2'
