@@ -300,6 +300,7 @@ explicitly specified that a variable should be set before a package is loaded,
 you should place your code here."
 
   (setq org-startup-indented 't)
+  (modify-syntax-entry ?_ "w")
 
   ; create zs/ze shortcuts:
   (defun hscroll-cursor-left ()
