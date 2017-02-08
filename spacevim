@@ -23,6 +23,7 @@ function! UserInit()
 
     " Install private plugins
     " Plug 'extr0py/oni'
+    Plug 'mrtazz/simplenote.vim'
 
 endfunction
 
@@ -34,5 +35,7 @@ function! UserConfig()
     " color desert
     inoremap fd <esc>
     inoremap df <esc>
+    " Simplenote
+    nnoremap <leader>nl :SimplenoteList<CR> 
 
 endfunction
