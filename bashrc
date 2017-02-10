@@ -430,22 +430,6 @@ case ${__myos} in
 
 esac
 # --- END CASE ---------------------------------------------------------
-# translate word in different dictionaries in the browser
-e()
-{
-    local word="$*"
-    word="${word// /+}"
-    cs "http://dict.pl/dict?word=${word}"
-    cs "http://ling.pl/slownik/angielsko-polski/${word}"
-    cs "http://en.bab.la/dictionary/english-polish/${word}"
-    cs "http://en.pons.com/translate?q=${word}&l=enpl&in=&lf=en"
-    cs "http://www.urbandictionary.com/define.php?term=${word}"
-    cs "http://www.thefreedictionary.com/${word}"
-    cs "http://www.merriam-webster.com/dictionary/${word}"
-    cs "https://www.wordnik.com/words/${word}"
-    cs "http://dictionary.cambridge.org/dictionary/english/${word}"
-    cs "http://dictionary.reference.com/browse/${word}?s=t"
-} > /dev/null
 
 # FASD -----------------------------------------------------------------
 if hash fasd 2>/dev/null; then
