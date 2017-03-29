@@ -1,0 +1,22 @@
+{
+ "env": {
+  "DYNAMIC_CWD_ELISION_CHAR": "\u2026",
+  "VI_MODE": true,
+  "XONSH_SHOW_TRACEBACK": true,
+  "PROMPT": "{env_name:{} }{BOLD_GREEN}{user}@{hostname}{BOLD_BLUE} {cwd}{branch_color}{curr_branch: {}}{NO_COLOR} {BOLD_BLUE}{ret_code_color}{ret_code}\n{prompt_end}{NO_COLOR} "
+ },
+ "foreign_shells": [
+  {
+   "login": false,
+   "shell": "bash"
+  }
+ ],
+ "xontribs": [
+  "apt_tabcomplete",
+  "autoxsh",
+  "prompt_ret_code",
+  "xonda",
+  "z",
+  "click_tabcomplete"
+ ]
+}
