@@ -397,7 +397,7 @@ case ${__myos} in
         elif hash yaourt 2>/dev/null; then
             function aptgo(){
                 del_anaconda
-                yaourt -Syua
+                yaourt -Syyua
                 add_anaconda
             }
         fi
