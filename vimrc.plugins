@@ -33,7 +33,8 @@ Plug 'honza/vim-snippets'
 Plug 'Valloric/YouCompleteMe'
 " Plug 'klen/python-mode'
 " Plug 'davidhalter/jedi-vim'
-Plug 'w0rp/ale'
+" ale - asynchronous Lint Engine - only for NeoVim
+" Plug 'w0rp/ale'
 Plug 'fisadev/vim-isort'
 Plug 'skywind3000/asyncrun.vim'
 
