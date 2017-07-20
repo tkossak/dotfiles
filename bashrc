@@ -374,23 +374,6 @@ case ${__myos} in
             alias ri='gksu roccatiskuconfig &'
         fi
 
-        capsoff()
-        {
-            #caps lock => escape
-            xmodmap -e 'clear Lock'
-            xmodmap -e 'keycode 66 = Escape'
-            #KP_Separator => period
-            xmodmap -e 'keycode 91 mod2 = KP_Delete period'
-        }
-
-        capson()
-        {
-            xmodmap -e 'keycode 66 = Caps_Lock'
-            xmodmap -e 'clear lock'
-            xmodmap -e 'add lock = Caps_Lock'
-            xmodmap -e 'keycode 91 = KP_Delete KP_Separator KP_Delete KP_Separator'
-        }
-
         alias cs="xdg-open"
         if hash apt-get 2>/dev/null; then
             alias aptgo='sudo apt-get update && sudo apt-get -y upgrade && apt-get -fy install && apt-get -y autoremove && apt-get -y autoclean'
