@@ -115,6 +115,7 @@ alias extension_count="find . -type f | sed 's/.*\.//gI' | sort | uniq -c"
 alias clearm="clear; for i in {1..50}; do echo; done"
 alias wttrd='curl wttr.in/dabrowa_gornicza'
 alias wttrk='curl wttr.in/katowice'
+alias gdb='gdb -q'
 
 # Alias definitions.
 # You may want to put all your additions into a separate file like
