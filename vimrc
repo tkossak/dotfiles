@@ -102,6 +102,11 @@ au BufNewFile,BufRead *.js,*.html,*.css
 " KEYS
 " ==================================================================
 
+nnoremap <C-j> <c-w>j
+nnoremap <C-k> <c-w>k
+nnoremap <C-l> <c-w>l
+nnoremap <C-h> <c-w>h
+
 " nnoremap <leader>gd :Gdiff<CR>
 
 " easy diff
@@ -190,11 +195,6 @@ nnoremap <leader>wH <c-w>H
 nnoremap <leader>wJ <c-w>J
 nnoremap <leader>wK <c-w>K
 nnoremap <leader>wL <c-w>L
-
-nnoremap <C-j> <c-w>j
-nnoremap <C-k> <c-w>k
-nnoremap <C-l> <c-w>l
-nnoremap <C-h> <c-w>h
 
 " easy tabs
 nnoremap <leader>to :tabnew<CR>
@@ -343,5 +343,3 @@ nnoremap <leader>rx :%!tidy -xml -i<CR>
 nnoremap <leader>rh :%!tidy -i<CR>
 " javascript
 nnoremap <leader>rj :UnMinify<CR>
-
-

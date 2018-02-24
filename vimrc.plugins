@@ -10,64 +10,92 @@ if !has('win32')
     Plug 'haya14busa/incsearch.vim'
 endif
 Plug 'kien/ctrlp.vim'
-Plug 'christoomey/vim-tmux-navigator'
+" Plug 'christoomey/vim-tmux-navigator'
 Plug 'junegunn/fzf'
 Plug 'terryma/vim-expand-region'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-repeat'
-Plug 'tpope/vim-fugitive'
+" Plug 'tpope/vim-fugitive'
 Plug 'bling/vim-airline'
-Plug 'EinfachToll/DidYouMean'
-Plug 'KabbAmine/zeavim.vim' " Zeal for vim: https://github.com/KabbAmine/zeavim.vim
+" Plug 'EinfachToll/DidYouMean'
+" Plug 'KabbAmine/zeavim.vim' " Zeal for vim: https://github.com/KabbAmine/zeavim.vim
 Plug 'nanotech/jellybeans.vim' " color scheme
 Plug 'vim-airline/vim-airline-themes'
-Plug 'nathanaelkane/vim-indent-guides'
+" Plug 'nathanaelkane/vim-indent-guides'
 " Plug 'christophermca/meta5'
 Plug 'godlygeek/tabular'
 Plug 'mrtazz/simplenote.vim'
 
 " Plug 'SirVer/ultisnips'
-Plug 'honza/vim-snippets'
+" Plug 'honza/vim-snippets'
 
 " For Python
-Plug 'Valloric/YouCompleteMe'
+" Plug 'Valloric/YouCompleteMe'
 " Plug 'klen/python-mode'
 " Plug 'davidhalter/jedi-vim'
 " ale - asynchronous Lint Engine - only for NeoVim
 " Plug 'w0rp/ale'
-Plug 'fisadev/vim-isort'
-Plug 'skywind3000/asyncrun.vim'
+" Plug 'fisadev/vim-isort'
+" Plug 'skywind3000/asyncrun.vim'
 
 call plug#end()
 
+" SimpleNote
+nnoremap <leader>nl :SimplenoteList<CR>
+
 " ========================================================================
+" vim-airline
+let g:airline_powerline_fonts=1
+let g:airline_left_sep=''
+let g:airline_right_sep=''
+let g:airline_theme='jellybeans'
+let g:airline_section_z=''
+
+" inc-search
+if !has('win32')
+let g:incsearch#auto_nohlsearch = 1
+map /  <Plug>(incsearch-forward)
+map ?  <Plug>(incsearch-backward)
+map g/ <Plug>(incsearch-stay)
+map n  <Plug>(incsearch-nohl-n)
+map N  <Plug>(incsearch-nohl-N)
+map *  <Plug>(incsearch-nohl-*)
+map #  <Plug>(incsearch-nohl-#)
+map g* <Plug>(incsearch-nohl-g*)
+map g# <Plug>(incsearch-nohl-g#)
+endif
+
+" vim-expand-region :: expand/shrink selection
+vmap v <Plug>(expand_region_expand)
+vmap <C-v> <Plug>(expand_region_shrink)
+
 " For Python
-autocmd FileType python nnoremap <LocalLeader>= :0,$!yapf<CR>
-autocmd FileType python nnoremap <LocalLeader>i :!isort %<CR><CR>
+" autocmd FileType python nnoremap <LocalLeader>= :0,$!yapf<CR>
+" autocmd FileType python nnoremap <LocalLeader>i :!isort %<CR><CR>
 
 " Quick run via <F5>
-nnoremap <F5> :call <SID>compile_and_run()<CR>
+" nnoremap <F5> :call <SID>compile_and_run()<CR>
 
-augroup SPACEVIM_ASYNCRUN
-    autocmd!
-    " Automatically open the quickfix window
-    autocmd User AsyncRunStart call asyncrun#quickfix_toggle(15, 1)
-augroup END
+" augroup SPACEVIM_ASYNCRUN
+"     autocmd!
+"     " Automatically open the quickfix window
+"     autocmd User AsyncRunStart call asyncrun#quickfix_toggle(15, 1)
+" augroup END
 
-function! s:compile_and_run()
-    exec 'w'
-    if &filetype == 'c'
-        exec "AsyncRun! gcc % -o %<; time ./%<"
-    elseif &filetype == 'cpp'
-       exec "AsyncRun! g++ -std=c++11 % -o %<; time ./%<"
-    elseif &filetype == 'java'
-       exec "AsyncRun! javac %; time java %<"
-    elseif &filetype == 'sh'
-       exec "AsyncRun! time bash %"
-    elseif &filetype == 'python'
-       exec "AsyncRun! time python %"
-    endif
-endfunction
+" function! s:compile_and_run()
+"     exec 'w'
+"     if &filetype == 'c'
+"         exec "AsyncRun! gcc % -o %<; time ./%<"
+"     elseif &filetype == 'cpp'
+"        exec "AsyncRun! g++ -std=c++11 % -o %<; time ./%<"
+"     elseif &filetype == 'java'
+"        exec "AsyncRun! javac %; time java %<"
+"     elseif &filetype == 'sh'
+"        exec "AsyncRun! time bash %"
+"     elseif &filetype == 'python'
+"        exec "AsyncRun! time python %"
+"     endif
+" endfunction
 
 " ultisnips
 " Trigger configuration. Do not use <tab> if you use https://github.com/Valloric/YouCompleteMe.
@@ -91,37 +119,16 @@ endfunction
 " map <leader>gg  :YcmCompleter GoToDefinitionElseDeclaration<CR>
 
 " fugitive
-nnoremap <leader>gd :Gdiff<CR>
-nnoremap <leader>gc :Gcommit<CR>
-nnoremap <leader>gs :Gstatus<CR>
-nnoremap <leader>gp :Gpush<CR>
-nnoremap <leader>gP :Gpull<CR>
+" nnoremap <leader>gd :Gdiff<CR>
+" nnoremap <leader>gc :Gcommit<CR>
+" nnoremap <leader>gs :Gstatus<CR>
+" nnoremap <leader>gp :Gpush<CR>
+" nnoremap <leader>gP :Gpull<CR>
 
 " vim-indent-guides
-let g:indent_guides_auto_colors = 0
-autocmd VimEnter,Colorscheme * :hi IndentGuidesOdd  guibg=#444444 ctermbg=238
-autocmd VimEnter,Colorscheme * :hi IndentGuidesEven guibg=#606060 ctermbg=241
-
-" vim-airline
-let g:airline_powerline_fonts=1
-let g:airline_left_sep=''
-let g:airline_right_sep=''
-let g:airline_theme='jellybeans'
-" let g:airline_section_z=''
-
-" inc-search
-if !has('win32')
-let g:incsearch#auto_nohlsearch = 1
-map /  <Plug>(incsearch-forward)
-map ?  <Plug>(incsearch-backward)
-map g/ <Plug>(incsearch-stay)
-map n  <Plug>(incsearch-nohl-n)
-map N  <Plug>(incsearch-nohl-N)
-map *  <Plug>(incsearch-nohl-*)
-map #  <Plug>(incsearch-nohl-#)
-map g* <Plug>(incsearch-nohl-g*)
-map g# <Plug>(incsearch-nohl-g#)
-endif
+" let g:indent_guides_auto_colors = 0
+" autocmd VimEnter,Colorscheme * :hi IndentGuidesOdd  guibg=#444444 ctermbg=238
+" autocmd VimEnter,Colorscheme * :hi IndentGuidesEven guibg=#606060 ctermbg=241
 
 " syntastic
 " set statusline+=%#warningmsg#
@@ -134,14 +141,8 @@ endif
 " let g:syntastic_check_on_wq = 0
 " let g:syntastic_python_python_exec = '/usr/bin/python3'
 
-" vim-expand-region :: expand/shrink selection
-vmap v <Plug>(expand_region_expand)
-vmap <C-v> <Plug>(expand_region_shrink)
-
 "zeavim
-if filereadable("/cygdrive/d/Kossak/progs/zeal/zeal.exe")
-    let g:zv_zeal_directory = "/cygdrive/d/Kossak/progs/zeal/zeal.exe"
-endif
+" if filereadable("/cygdrive/d/Kossak/progs/zeal/zeal.exe")
+"     let g:zv_zeal_directory = "/cygdrive/d/Kossak/progs/zeal/zeal.exe"
+" endif
 
-" SimpleNote
-nnoremap <leader>nl :SimplenoteList<CR>
