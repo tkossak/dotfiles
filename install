@@ -658,8 +658,29 @@ install_dotfiles()
 
     # minttyrc
     if [[ "${__myos}" == "CYGWIN" ]]; then
-    # if [[ -e ${HOME}/.minttyrc ]]; then
         install_link "${__dir_dotfiles}/minttyrc" ~/.minttyrc || true
+    fi
+
+    fish_functions_src_dirs=("${__dir_dotfiles}/fish_functions/*.fish" "${__dir_dotlocal}/fish_functions/*.fish")
+    fish_functions_dest_dir="$HOME/.config/fish/functions"
+    echo "!!!! $fish_functions_dest_dir"
+    ls $fish_functions_dest_dir
+    if [[ -d "$fish_functions_dest_dir" ]]; then
+        echo "Installing fish functions"
+        for file in ${__dir_dotfiles}/fish_functions/*.fish; do
+            echo "$file"
+            base=$(basename "$file")
+            echo $base
+            install_link "$file" "$fish_functions_dest_dir/$base" || true
+        done
+        for file in ${__dir_dotlocal}/fish_functions/*.fish; do
+            echo "$file"
+            base=$(basename "$file")
+            echo $base
+            install_link "$file" "$fish_functions_dest_dir/$base" || true
+        done
+    else
+        echo "$fish_functions_dest_dir does not exits"
     fi
 
     # Git
@@ -945,7 +966,7 @@ fi
 # [[ ${__if_dotfiles} == "Y" ]] && install_dotfiles
 [[ ${__if_break_links} == "Y" ]] && break_links
 
-display_log_info
+# display_log_info
 display_log_error
 
 # cd "${__dir_dotfiles}"
