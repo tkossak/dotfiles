@@ -661,26 +661,23 @@ install_dotfiles()
         install_link "${__dir_dotfiles}/minttyrc" ~/.minttyrc || true
     fi
 
+    # fish:
     fish_functions_src_dirs=("${__dir_dotfiles}/fish_functions/*.fish" "${__dir_dotlocal}/fish_functions/*.fish")
-    fish_functions_dest_dir="$HOME/.config/fish/functions"
-    echo "!!!! $fish_functions_dest_dir"
-    ls $fish_functions_dest_dir
-    if [[ -d "$fish_functions_dest_dir" ]]; then
-        echo "Installing fish functions"
+    fish_config_base="$HOME/.config/fish"
+    fish_functions_dest_dir="$fish_config_base/functions"
+    if [[ -d "$fish_config_base" ]]; then
+        if [[ ! -d "$fish_functions_dest_dir" ]]; then
+            mkdir "$fish_functions_dest_dir"
+        fi
         for file in ${__dir_dotfiles}/fish_functions/*.fish; do
-            echo "$file"
-            base=$(basename "$file")
-            echo $base
-            install_link "$file" "$fish_functions_dest_dir/$base" || true
+            install_link "$file" "$fish_functions_dest_dir/$(basename $file)" || true
         done
         for file in ${__dir_dotlocal}/fish_functions/*.fish; do
-            echo "$file"
-            base=$(basename "$file")
-            echo $base
-            install_link "$file" "$fish_functions_dest_dir/$base" || true
+            install_link "$file" "$fish_functions_dest_dir/$(basename $file)" || true
         done
+        install_link "${__dir_dotfiles}/dotfiles/config.fish" "$fish_config_base/config.fish"
     else
-        echo "$fish_functions_dest_dir does not exits"
+        echo "$fish_config_base does not exits"
     fi
 
     # Git
