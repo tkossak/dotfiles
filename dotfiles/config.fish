@@ -13,3 +13,9 @@ end
 if not __ssh_agent_is_started
     __ssh_agent_start
 end
+
+# pipenv completions
+# should be this, but it's slow:
+# eval (pipenv --completion)
+complete --command pipenv --arguments "(env _PIPENV_COMPLETE=complete-fish COMMANDLINE=(commandline -cp) pipenv)" -f
+
