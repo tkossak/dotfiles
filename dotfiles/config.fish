@@ -4,16 +4,17 @@ begin
         powerline-daemon -q
     end
     set -l dirs \
-        '/home/kossak/.pyenv/versions/3.6.5/lib/python3.6/site-packages/powerline/bindings/fish' \
-        '/home/kossak/anaconda3/lib/python3.6/site-packages/powerline/bindings/fish'
+        '/home/kossak/anaconda3/lib/python3.6/site-packages/powerline/bindings/fish' \
+        '/home/kossak/.pyenv/versions/anaconda3-5.1.0/lib/python3.6/site-packages/powerline/bindings/fish' \
+        '/home/kossak/.pyenv/versions/3.6.4/lib/python3.6/site-packages/powerline/bindings/fish' \
+        '/home/kossak/.pyenv/versions/3.6.5/lib/python3.6/site-packages/powerline/bindings/fish'
     for dir in $dirs
         if test -d "$dir"
             set fish_function_path $fish_function_path "$dir"
+            powerline-setup
             break
         end
     end
-    # set fish_function_path $fish_function_path "/home/kossak/.pyenv/versions/3.6.5/lib/python3.6/site-packages/powerline/bindings/fish"
-    powerline-setup
 end
 
 # ssh-agent
