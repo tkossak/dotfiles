@@ -33,7 +33,14 @@ complete --command pipenv --arguments "(env _PIPENV_COMPLETE=complete-fish COMMA
 
 # pyenv
 if test -d "$HOME/.pyenv"
-    set -x PATH "/home/kossak/.pyenv/bin" $PATH
+    set -l pyenv_root "$HOME/.pyenv"
+    if string match "$pyenv_root/bin" $PATH
+        set -x PATH (string match -v "$pyenv_root/bin" $PATH)
+        set -x PATH (string match -v "$pyenv_root/shims" $PATH)
+        set -x PATH (string match -v "$pyenv_root/plugins/pyenv-virtualenv/shims" $PATH)
+        # TODO: finish
+    end
+    set -x PATH "$HOME/.pyenv/bin" $PATH
     status --is-interactive; and . (pyenv init -|psub)
     status --is-interactive; and . (pyenv virtualenv-init -|psub)
 end
