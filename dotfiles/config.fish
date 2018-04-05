@@ -1,3 +1,9 @@
+# set JAVA_HOME path, if it is not set already
+set -l dir_java "/usr/lib/jvm/java-8-openjdk-amd64"
+if test -d "$dir_java"; and not set -q JAVA_HOME
+    set -x JAVA_HOME "$dir_java"
+end
+
 # setup powerline:
 begin
     if type -q powerline-daemon
