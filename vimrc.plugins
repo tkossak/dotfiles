@@ -37,11 +37,21 @@ Plug 'mrtazz/simplenote.vim'
 " Plug 'w0rp/ale'
 " Plug 'fisadev/vim-isort'
 " Plug 'skywind3000/asyncrun.vim'
+"
+Plug 'junegunn/vim-easy-align'
 
 call plug#end()
 
 " SimpleNote
 nnoremap <leader>nl :SimplenoteList<CR>
+
+" vim-easy-align
+" Start interactive EasyAlign in visual mode (e.g. vipga)
+xmap ga <Plug>(EasyAlign)
+" Start interactive EasyAlign for a motion/text object (e.g. gaip)
+nmap ga <Plug>(EasyAlign)
+let g:easy_align_left_margin=0
+let g:easy_align_right_margin=0
 
 " ========================================================================
 " vim-airline
