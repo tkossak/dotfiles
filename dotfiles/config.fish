@@ -35,18 +35,20 @@ end
 # pipenv completions
 # should be this, but it's slow:
 # eval (pipenv --completion)
-complete --command pipenv --arguments "(env _PIPENV_COMPLETE=complete-fish COMMANDLINE=(commandline -cp) pipenv)" -f
+# complete --command pipenv --arguments "(env _PIPENV_COMPLETE=complete-fish COMMANDLINE=(commandline -cp) pipenv)" -f
 
 # pyenv
-if test -d "$HOME/.pyenv"
-    set -l pyenv_root "$HOME/.pyenv"
+set -l pyenv_root "$HOME/.pyenv"
+if test -d "$pyenv_root"
+    # remove these PATHs if they already exist in $PATH
     if string match "$pyenv_root/bin" $PATH
         set -x PATH (string match -v "$pyenv_root/bin" $PATH)
         set -x PATH (string match -v "$pyenv_root/shims" $PATH)
         set -x PATH (string match -v "$pyenv_root/plugins/pyenv-virtualenv/shims" $PATH)
-        # TODO: finish
     end
-    set -x PATH "$HOME/.pyenv/bin" $PATH
+    # set $PATH:
+    set -x PATH "$pyenv_root/bin" $PATH
+    # auto complete:
     status --is-interactive; and . (pyenv init -|psub)
     status --is-interactive; and . (pyenv virtualenv-init -|psub)
 end
