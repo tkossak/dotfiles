@@ -2,7 +2,7 @@
 [include]
     path = ~/.gitconfig.local
 [push]
-    default = matching
+    default = simple
 [core]
     trustctime = false
     editor = vim
@@ -14,9 +14,6 @@
 [alias]
     last = log -1 --stat
     cp = cherry-pick
-    co = checkout
-    cl = clone
-    ci = commit
     st = status -sb
     br = branch
     unstage = reset HEAD --
