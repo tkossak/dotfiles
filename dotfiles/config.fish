@@ -10,9 +10,8 @@ begin
         powerline-daemon -q
     end
     set -l dirs \
+        '/home/kossak/.pyenv/versions/miniconda3-4.3.30/lib/python3.6/site-packages/powerline/bindings/fish' \
         '/home/kossak/anaconda3/lib/python3.6/site-packages/powerline/bindings/fish' \
-        '/home/kossak/.pyenv/versions/anaconda3-5.1.0/lib/python3.6/site-packages/powerline/bindings/fish' \
-        '/home/kossak/.pyenv/versions/3.6.4/lib/python3.6/site-packages/powerline/bindings/fish' \
         '/home/kossak/.pyenv/versions/3.6.5/lib/python3.6/site-packages/powerline/bindings/fish'
     for dir in $dirs
         if test -d "$dir"
@@ -41,7 +40,7 @@ end
 set -l pyenv_root "$HOME/.pyenv"
 if test -d "$pyenv_root"
     # remove these PATHs if they already exist in $PATH
-    if string match "$pyenv_root/bin" $PATH
+    if string match "$pyenv_root/bin" $PATH > /dev/null
         set -x PATH (string match -v "$pyenv_root/bin" $PATH)
         set -x PATH (string match -v "$pyenv_root/shims" $PATH)
         set -x PATH (string match -v "$pyenv_root/plugins/pyenv-virtualenv/shims" $PATH)
