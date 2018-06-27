@@ -27,10 +27,10 @@
     sr = "!git status -sb; git remote show origin"
     tags = tag --sort=v:refname --column=always
 [diff]
-    tool = p4merge
+	tool = p4merge
 [difftool]
-    prompt = false
+	prompt = false
 [merge]
-    tool = p4merge
+	tool = p4merge
 [mergetool]
-    prompt = false
+	prompt = false

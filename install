@@ -9,6 +9,7 @@ set -o nounset
 # magic variables for links
 __sfile="$(readlink -f "${BASH_SOURCE[0]}")"
 __dir_dotfiles="$(cd "$(dirname "${__sfile}")" && pwd)"
+__dir_dotfiles_new="$(cd "$(dirname "${__sfile}")"/dotfiles && pwd)"
 # __dir_dotlocal="$(cd "$(dirname "${__dir_dotfiles}")" && pwd)/dotfiles.local"
 # __dir_dotlocal="$(readlink -f "${__dir_dotlocal}")"
 __dir_dotlocal="$(readlink -f "$HOME/.dotfiles.local")"
@@ -107,9 +108,7 @@ echo "=== END OF VARS ==========================================="
 # Initial cmds:
 loguj -p -i -t "${ltype}" "Initial cmds..."
 mkdir -p "${HOME}/apps"
-# mkdir -p "${HOME}/.emacs.d/mine"
 mkdir -p "${HOME}/.vim/autoload"
-# mkdir -p ~/.emacs.d/evil
 if [[ -d "${__dir_dotlocal}" ]]; then
     find "${__dir_dotlocal}" -maxdepth 1 -type f -exec chmod -x {} \; || true
 fi
@@ -119,9 +118,6 @@ chmod -x "${__dir_dotfiles}/bin/create_bash.model"
 find "${__dir_dotfiles}" -maxdepth 1 -type f -exec chmod -x {} \;
 [[ -e "${__dir_dotfiles}/install" ]] && chmod u+x "${__dir_dotfiles}/install"
 [[ -e "${__dir_dotfiles}/i_git" ]] && chmod u+x "${__dir_dotfiles}/i_git"
-
-# [[ -d ${__dir_win_home} ]] &&
-#     mkdir -p "${__dir_win_home}/.emacs.d/mine"
 
 loguj -p -i -t "${ltype}" "Initial cmds... Done"
 
@@ -140,7 +136,6 @@ break_links()
         ~/.config/ranger/rc.conf ~/.config/ranger/rifle.conf ~/.mplayer/config ~/.mplayer/input.conf ~/.gconf/apps/gnome-terminal ~/.config/vlc/vlcrc \
         ~/.minttyrc \
         ~/.spacemacs \
-        ~/.yaourtrc \
         ~/.config/nvim/UltiSnips
     do
         if [[ -e "${link}" ]]; then
@@ -654,11 +649,11 @@ install_dotfiles()
     loguj -ss -t "${ltype}" "DOTFILES"
 
     # TMUX
-    install_link "${__dir_dotfiles}/tmux.conf" ~/.tmux.conf || true
+    install_link "${__dir_dotfiles_new}/tmux.conf" ~/.tmux.conf || true
 
     # minttyrc
     if [[ "${__myos}" == "CYGWIN" ]]; then
-        install_link "${__dir_dotfiles}/minttyrc" ~/.minttyrc || true
+        install_link "${__dir_dotfiles_new}/minttyrc" ~/.minttyrc || true
     fi
 
     # fish:
@@ -675,13 +670,13 @@ install_dotfiles()
         for file in ${__dir_dotlocal}/fish_functions/*.fish; do
             install_link "$file" "$fish_functions_dest_dir/$(basename $file)" || true
         done
-        install_link "${__dir_dotfiles}/dotfiles/config.fish" "$fish_config_base/config.fish"
+        install_link "${__dir_dotfiles_new}/config.fish" "$fish_config_base/config.fish"
     else
         echo "$fish_config_base does not exits"
     fi
 
     # Git
-    install_link "${__dir_dotfiles}/gitconfig" ~/.gitconfig || true
+    install_link "${__dir_dotfiles_new}/gitconfig" ~/.gitconfig || true
     install_link "${__dir_dotlocal}/gitconfig.local" ~/.gitconfig.local || true
     if hash vimdiff 2>/dev/null; then
         git config --global diff.tool vimdiff
@@ -719,14 +714,14 @@ install_dotfiles()
     fi
 
     # Bash:
-    install_link "${__dir_dotfiles}/bashrc" ~/.bashrc || true
+    install_link "${__dir_dotfiles_new}/bashrc" ~/.bashrc || true
     install_link "${__dir_dotlocal}/bashrc.local" ~/.bashrc.local || true
 
     # Vim
-    install_link "${__dir_dotfiles}/vimrc" ~/.vimrc || true
+    install_link "${__dir_dotfiles_new}/vimrc" ~/.vimrc || true
     install_link "${__dir_dotlocal}/vimrc.local" ~/.vimrc.local || true
-    install_link "${__dir_dotfiles}/vimrc.plugins" ~/.vimrc.plugins || true
-    install_link "${__dir_dotfiles}/vimrc.functions" ~/.vimrc.functions || true
+    install_link "${__dir_dotfiles_new}/vimrc.plugins" ~/.vimrc.plugins || true
+    install_link "${__dir_dotfiles_new}/vimrc.functions" ~/.vimrc.functions || true
     install_link "${__dir_dotlocal}/UltiSnips" ~/.vim/UltiSnips || true
 
     # gvim windows
@@ -743,13 +738,13 @@ install_dotfiles()
 
     # Spacemacs
     if hash emacs 2>/dev/null; then
-        install_link "${__dir_dotfiles}/spacemacs" "${HOME}/.spacemacs" || true
+        install_link "${__dir_dotfiles_new}/spacemacs" "${HOME}/.spacemacs" || true
         install_link "${__dir_dotlocal}/emacs.local" "${HOME}/.spacemacs.local" || true
 
         # Win
         if [[ -d "${__dir_win_home}/.emacs.d" ]]; then
             # install_link -w "${__dir_dotfiles}/spacemacs" "${__dir_win_home}/.spacemacs" || true
-            install_link -w "${__dir_dotfiles}/spacemacs" "${__dir_win_home}/.spacemacs" || true
+            install_link -w "${__dir_dotfiles_new}/spacemacs" "${__dir_win_home}/.spacemacs" || true
             # install_link -w "${__dir_dotlocal}/emacs.local" "${__dir_win_home}/.spacemacs.local" || true
             install_link -w "${__dir_dotlocal}/emacs.local" "${__dir_win_home}/.spacemacs.local" || true
         fi
@@ -825,7 +820,7 @@ install_dotfiles()
                         mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
                         loguj -i -t "${ltype}" "CP: rifle.conf (C-H)"
                     else
-                        cat ~/.config/ranger/rifle.conf "${__dir_dotfiles}/rifle.conf" > ~/.config/ranger/rifletmp.conf
+                        cat ~/.config/ranger/rifle.conf "${__dir_dotfiles_new}/rifle.conf" > ~/.config/ranger/rifletmp.conf
                         mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
                         loguj -i -t "${ltype}" "CP: rifle.conf (C-OTHER)"
                     fi
@@ -841,19 +836,19 @@ install_dotfiles()
                         loguj -i -t "${ltype}" "CP: rifle.conf (L-W)"
                     else
                         loguj -i -t "${ltype}" "Ranger - linux - unknown host Copying default file."
-                        cat ~/.config/ranger/rifle.conf "${__dir_dotfiles}/rifle.conf" > ~/.config/ranger/rifletmp.conf
+                        cat ~/.config/ranger/rifle.conf "${__dir_dotfiles_new}/rifle.conf" > ~/.config/ranger/rifletmp.conf
                         mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
                         loguj -i -t "${ltype}" "CP: rifle.conf (L-OTHER)"
                     fi
                     ;;
                 *)
-                    cat ~/.config/ranger/rifle.conf "${__dir_dotfiles}/rifle.conf" > ~/.config/ranger/rifletmp.conf
+                    cat ~/.config/ranger/rifle.conf "${__dir_dotfiles_new}/rifle.conf" > ~/.config/ranger/rifletmp.conf
                     mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
                     loguj -i -t "${ltype}" "CP: rifle.conf (OTHER-OTHER)"
                     ;;
             esac
         else
-            cat ~/.config/ranger/rifle.conf "${__dir_dotfiles}/rifle.conf" > ~/.config/ranger/rifletmp.conf
+            cat ~/.config/ranger/rifle.conf "${__dir_dotfiles_new}/rifle.conf" > ~/.config/ranger/rifletmp.conf
             mv ~/.config/ranger/rifletmp.conf ~/.config/ranger/rifle.conf
             # loguj -i -t "${ltype}" "Ranger - no local dotfiles. Copying default file."
             loguj -i -t "${ltype}" "CP: rifle.conf (default - no local dotfiles)"
@@ -868,8 +863,8 @@ install_dotfiles()
 
     # mplayer
     if hash mplayer 2>/dev/null && [[ -d "${HOME}/.mplayer" ]]; then
-        install_link "${__dir_dotfiles}/mplayer_config" "${HOME}/.mplayer/config" || true
-        install_link "${__dir_dotfiles}/mplayer_input.conf" "${HOME}/.mplayer/input.conf" || true
+        install_link "${__dir_dotfiles_new}/mplayer_config" "${HOME}/.mplayer/config" || true
+        install_link "${__dir_dotfiles_new}/mplayer_input.conf" "${HOME}/.mplayer/input.conf" || true
     fi
 
     # weechat
@@ -911,7 +906,7 @@ install_dotfiles()
     fi
 
     # different
-    install_link "${__dir_dotfiles}/vimperatorrc" ~/.vimperatorrc || true
+    install_link "${__dir_dotfiles_new}/vimperatorrc" ~/.vimperatorrc || true
     [[ -d "${__dir_win_profile}" ]] && install_link -w "${__dir_dotfiles}/vimperatorrc" "${__dir_win_profile}/_vimperatorrc" || true
 
     # vim +PluginInstall +PluginClean +qall
@@ -922,9 +917,6 @@ install_dotfiles()
     # fi
 
     [[ -r "${__dir_dotlocal}/install.links.local" ]] && source "${__dir_dotlocal}/install.links.local"
-    if hash yaourt 2>/dev/null; then
-        install_link "${__dir_dotfiles}/yaourtrc" "${HOME}/.yaourtrc" || true
-    fi
 
     loguj -se -t "${ltype}" "DOTFILES"
     return 0
