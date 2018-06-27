@@ -13,7 +13,6 @@ __dir_dotfiles_new="$(cd "$(dirname "${__sfile}")"/dotfiles && pwd)"
 # __dir_dotlocal="$(cd "$(dirname "${__dir_dotfiles}")" && pwd)/dotfiles.local"
 # __dir_dotlocal="$(readlink -f "${__dir_dotlocal}")"
 __dir_dotlocal="$(readlink -f "$HOME/.dotfiles.local")"
-__dir_installers="/tmp/installers"
 
 source "${__dir_dotfiles}/source/src_bash_functions"
 source "${__dir_dotfiles}/source/src_bash_vars"
@@ -23,14 +22,11 @@ if [[ $# = 0 ]]; then
     exit 0
 fi
 
-while getopts ":hldb1a2A3Z4tuf" opt; do
+while getopts ":hldt" opt; do
     case "$opt" in
         h)
             print_help
             exit 0
-            ;;
-        u)
-            __if_update="Y"
             ;;
         l)
             __if_break_links="Y"
@@ -38,29 +34,9 @@ while getopts ":hldb1a2A3Z4tuf" opt; do
         d)
             __if_dotfiles="Y"
             ;;
-        b|1)
-            __app_lvl=1
-            __if_dotfiles="Y"
-            ;;
-        a|2)
-            __app_lvl=2
-            __if_dotfiles="Y"
-            ;;
-        A|3)
-            __app_lvl=3
-            __if_dotfiles="Y"
-            ;;
-        Z|4)
-            __app_lvl=4
-            __if_dotfiles="Y"
-            ;;
         t)
             __if_testing="Y"
             ;;
-        f)
-            __if_first_time="Y"
-            ;;
-
         \?)
             loguj -e -t "${ltype}" "Unknown option: $1"
             print_help
@@ -94,15 +70,9 @@ fi
 echo "__myos=${__myos}"
 echo "__myosdist=${__myosdist}"
 echo "__myhost=${__myhost}"
-echo "__app_lvl=${__app_lvl}"
-echo "__if_update=${__if_update}"
 echo "__dir_gvim_root=${__dir_gvim_root}"
 echo "__dir_gvim_home=${__dir_gvim_home:-}"
 echo "__dir_gvimplug_path=${__dir_gvimplug_path:-}"
-echo "__aptget_install_cmd=${__aptget_install_cmd}"
-echo "__aptget_update_cmd=${__aptget_update_cmd}"
-echo "__aptget_check_cmd=${__aptget_check_cmd}"
-echo "__geturl_app=${__geturl_app}"
 echo "=== END OF VARS ==========================================="
 # ================================================================================
 # Initial cmds:
@@ -133,7 +103,7 @@ break_links()
     for link in ~/.bashrc ~/.bashrc.local ~/.tmux.conf ~/.gitconfig ~/.gitconfig.local \
         ~/.vimrc ~/.vimrc.local ~/.vimrc.plugins ~/.vimrc.functions \
         ~/.weechat/guile ~/.weechat/javascript ~/.weechat/lua ~/.weechat/perl ~/.weechat/python ~/.weechat/ruby ~/.weechat/script ~/.weechat/tcl ~/.weechat/xfer ~/.weechat/alias.conf ~/.weechat/aspell.conf ~/.weechat/buffers.conf ~/.weechat/charset.conf ~/.weechat/exec.conf ~/.weechat/irc.conf ~/.weechat/iset.conf ~/.weechat/logger.conf ~/.weechat/plugins.conf ~/.weechat/relay.conf ~/.weechat/script.conf ~/.weechat/sec.conf ~/.weechat/trigger.conf ~/.weechat/weechat.conf ~/.weechat/xfer.conf \
-        ~/.config/ranger/rc.conf ~/.config/ranger/rifle.conf ~/.mplayer/config ~/.mplayer/input.conf ~/.gconf/apps/gnome-terminal ~/.config/vlc/vlcrc \
+        ~/.config/ranger/rc.conf ~/.config/ranger/rifle.conf ~/.gconf/apps/gnome-terminal ~/.config/vlc/vlcrc \
         ~/.minttyrc \
         ~/.spacemacs \
         ~/.config/nvim/UltiSnips
@@ -161,482 +131,6 @@ break_links()
     loguj -se -t "${ltype}" "BREAKING LINKS"
     return 0
 }
-
-
-# --------------------------------------------------------------------------------
-# --------------------------------------------------------------------------------
-# --------------------------------------------------------------------------------
-# install_apps_basic
-install_apps()
-{
-    local ltype="APP"
-    local update_option=""
-    local sudo_options=""
-    [[ "${__myos}" == "LINUX" ]] && sudo_options="-H"
-
-    if [[ "${__if_update}" == "Y" ]]; then
-        update_option="-u"
-    fi
-    if [[ "${__app_lvl}" == "0" ]]; then
-        __app_lvl=100
-    fi
-
-    # if [[ "${__if_update}" == "Y" && "${__app_lvl}" == "0" ]]; then
-    #     update_option="-u" # update only
-    # elif [[ "${__if_update}" == "Y" && "${__app_lvl}" != "0" ]]; then
-    #     update_option="-U" # update or install if not already installed
-    # fi
-
-    loguj -ss -t "${ltype}" "BASICS ${__app_lvl}"
-    loguj -i -t "${ltype}" "local sudo_options=${update_option}"
-    loguj -i -t "${ltype}" "Update option=${update_option}"
-    # update repos?
-    update_repos
-
-    # bash completion for git:
-    # install_url ${update_option} 'https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash' "${__dir_dotfiles}/source/git-completion.bash"
-    # git ps1 prompt for bash
-    install_url ${update_option} 'https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh' "${__dir_dotfiles}/source/git-prompt.sh"
-
-    if (( __app_lvl >= 1 )); then
-
-        # wget
-        if install_apt wget; then
-            __geturl_app="wget -O <<FILE>> <<URL>>"
-        fi
-
-        # curl
-        if install_apt curl; then
-            __geturl_app="curl -fLo <<FILE>> <<URL>>"
-        fi
-
-        # git
-        install_apt git || true
-        # for curl:
-        install_apt ca-certificates || true
-
-        if (( __app_lvl >= 2 )); then
-            # inne
-            install_apt python
-            install_apt python3
-            # install_pip -3H ${update_option} ipdb || true
-            # install_pip -H ${update_option} ipdb || true
-            # moved later to pip
-            # if [[ ${__myos} == 'CYGWIN' ]]; then
-            #     install_apt -oc python-setuptools || true
-            #     install_apt -oc python3-setuptools || true
-            # fi
-        fi
-
-
-        install_apt dos2unix || true
-        install_apt python-pip || true
-        install_apt python3-pip || true
-
-        # CYGWIN only:
-        install_apt -oc cygutils || true
-        install_apt -oc cygutils-extra || true
-        install_apt -oc ncurses || true
-        install_apt -oc procps || true
-        install_apt -oc bind-utils || true
-        install_apt -oc binutils || true
-        # install_apt -oc gnupg # use windows one from Kleopatra
-        install_apt -oc gcc-g++ || true
-        install_apt -oc genisoimage || true
-        install_apt -oc mkisofs || true
-        install_apt -oc p7zip || true
-        install_apt -oc rsnapshot || true
-        install_apt -oc nc || true
-        # install_apt gnupg # use windows one from Kleopatra
-        # for attic:
-        install_apt -oc openssl-devel || true
-
-        # LINUX only:
-        install_apt -ol gksu || true
-        if [[ ${__myosdist} == DEBIAN ]]; then
-            install_apt firmware-linux || true
-            install_apt intel-microcode || true # only for Intel CPU
-            # add-apt-repository:
-            install_apt software-properties-common || true
-        fi
-        if [[ ${__myhost} == W ]]; then
-            install_apt smbclient || true
-            install_apt -oc openldap || true
-            install_apt -ol ldap-utils || true
-        fi
-
-        # vim
-        __vim_vimplug_url="https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
-        __vim_vimplug_path="${HOME}/.vim/autoload/plug.vim"
-        if (( __app_lvl >= 1 )); then
-            install_apt vim || true
-            install_apt emacs || true
-
-            # del Vundle:
-            if [[ -d ~/.vim/bundle/Vundle.vim ]]; then
-                loguj -i -t "${ltype}" "Old Vundle present - deleting whole ~/.vim"
-                rm -rf ~/.vim
-            fi
-            # install Plug:
-            if [[ ! -e "${__vim_vimplug_path}" ]]; then
-                mkdir -p "$(dirname ${__vim_vimplug_path})"
-                install_url "${__vim_vimplug_url}" "${__vim_vimplug_path}"
-                # && loguj -s -t "${ltype}" "Vim plugin 'Plug' installed" \
-                    # || loguj -e -t "${ltype}" "Vim plugin 'Plug' NOT installed"
-            fi
-
-            # gvim
-            if [[ -d "${__dir_gvim_root}" ]]; then
-                if [[ ! -e "${__dir_gvimplug_path}" ]]; then
-                    if [[ -r "${__vim_vimplug_path}" ]]; then
-                        cp "${__vim_vimplug_path}" "${__dir_gvimplug_path}"
-                    else
-                        install_url "${__vim_vimplug_url}" "${__dir_gvimplug_path}"
-                    fi
-                fi
-            fi
-
-        fi
-
-        # PIP2
-        # changelog: https://pip.pypa.io/en/latest/news.html
-
-        # local cur_pip_verson="7.1.2"
-        local cur_pip_sha1="4645795f303c2a8a02d9957514af8a28fd8770c2"
-        local if_getpip_downloaded="0"
-        local installer="/tmp/get-pip.py"
-        local cur_python_cmd="python2"
-        local cur_pip_cmd="pip2"
-
-        if hash ${cur_python_cmd} 2>/dev/null; then
-
-            if hash ${cur_pip_cmd} 2>/dev/null; then
-                cur_pip_cmd="$(which pip2)"
-                # 1. PIP=yes
-                # if [[ "${__if_update}" == "Y" ]]; then
-                ${__sudo} ${sudo_options} ${cur_pip_cmd} install -U pip
-                loguj -i -t "${ltype}" "UPDATED: ${cur_pip_cmd}"
-            else
-                # 2. PIP=no
-                if [[ "${__if_update}" == "Y" ]]; then
-                    # 2.1 action=update
-                    loguj -i -t "${ltype}" "App not installed: ${cur_pip_cmd}"
-                else
-                    # 2.2 action=install
-                    # check czy get-pip.py juz istnieje:
-                    if [[ -e "${installer}" ]]; then
-                        if checksum "${installer}" -sha1 "${cur_pip_sha1}"; then
-                            if_getpip_downloaded=1
-                        else
-                            rm -rf "${installer}"
-                            if_getpip_downloaded=0
-                        fi
-                    fi
-
-                    # download
-                    if [[ "${if_getpip_downloaded}" = "0" ]]; then
-                        install_url https://bootstrap.pypa.io/get-pip.py "${installer}" \
-                            && if_getpip_downloaded="1"
-                    fi
-
-                    # install
-                    if [[ "${if_getpip_downloaded}" = "1" ]]; then
-                        if ${__sudo} ${sudo_options} ${cur_python_cmd} "${installer}"; then
-                            loguj -s -t "${ltype}" "${cur_pip_cmd}"
-                        else
-                            loguj -e -t "${ltype}" "Problem instaling ${cur_pip_cmd}"
-                        fi
-                    else
-                        loguj -e -t "${ltype}" "Problem downloading ${cur_pip_cmd}"
-                    fi
-                fi
-            fi
-        fi
-
-
-        # PIP3 -----------------------------------
-        cur_python_cmd="python3"
-        cur_pip_cmd="pip3"
-
-        if hash ${cur_python_cmd} 2>/dev/null; then
-
-            if hash ${cur_pip_cmd} 2>/dev/null; then
-                cur_pip_cmd="$(which pip3)"
-                # 1. PIP=yes
-                # if [[ "${__if_update}" == "Y" ]]; then
-                ${__sudo} ${sudo_options} ${cur_pip_cmd} install -U pip
-                loguj -i -t "${ltype}" "UPDATED: ${cur_pip_cmd}"
-            else
-                # 2. PIP=no
-                if [[ "${__if_update}" == "Y" ]]; then
-                    # 2.1 action=update
-                    loguj -i -t "${ltype}" "App not installed: ${cur_pip_cmd}"
-                else
-                    # 2.2 action=install
-                    # check czy get-pip.py juz istnieje:
-                    if [[ -e "${installer}" ]]; then
-                        if checksum "${installer}" -sha1 "${cur_pip_sha1}"; then
-                            if_getpip_downloaded=1
-                        else
-                            rm -rf "${installer}"
-                            if_getpip_downloaded=0
-                        fi
-                    fi
-
-                    # download
-                    if [[ "${if_getpip_downloaded}" = "0" ]]; then
-                        install_url https://bootstrap.pypa.io/get-pip.py "${installer}" \
-                            && if_getpip_downloaded="1"
-                    fi
-
-                    # install
-                    if [[ "${if_getpip_downloaded}" = "1" ]]; then
-                        if ${__sudo} ${sudo_options} ${cur_python_cmd} "${installer}"; then
-                            loguj -s -t "${ltype}" "${cur_pip_cmd}"
-                        else
-                            loguj -e -t "${ltype}" "Problem instalilng ${cur_pip_cmd}"
-                        fi
-                    else
-                        loguj -e -t "${ltype}" "Problem downloading ${cur_pip_cmd}"
-                    fi
-                fi
-
-            fi
-        fi
-
-        # Ranger
-        install_git https://github.com/hut/ranger.git "$HOME/apps/ranger" "${__sudo} make install" "ranger --copy-config=all" || true
-
-        # dtrx
-        # without updating
-        if ! hash dtrx 2>/dev/null; then
-            rm -rf /tmp/dtrx-7.1
-            install_url -d http://brettcsmith.org/2007/dtrx/dtrx-7.1.tar.gz /tmp/dtrx-7.1.tar.gz -sha1 05cfe705a04a8b84571b0a5647cd2648720791a4 "tar -xf dtrx-7.1.tar.gz" "cd dtrx-7.1" "${__sudo} python setup.py install --prefix=/usr/local" "rm -rf /tmp/dtrx-7.1" "rm -rf /tmp/dtrx-7.1.tar.gz" || true
-        fi
-
-        # fasd
-        install_git https://github.com/clvv/fasd.git ~/apps/fasd "${__sudo} make install" || true
-        # commacd
-        install_url https://raw.githubusercontent.com/shyiko/commacd/master/commacd.bash ~/.commacd.bash || true
-
-        # Rozne
-        install_apt tmux || true
-        install_apt -ol ttf-mscorefonts-installer || true
-
-        # Different for dev:
-        install_apt make || true
-
-        # compiling man pages: for weechat, git, etc:
-        install_apt asciidoc || true
-        install_apt xsltproc || true
-        install_apt docbook-xml || true
-        install_apt docbook-xsl || true
-
-        # for weechat:
-        install_apt libgcrypt11-dev || true
-        install_apt libgnutls-dev || true
-        install_apt source-highlight || true
-        install_apt xsltproc || true
-        install_apt python-dev || true
-        install_apt libperl-dev || true
-        install_apt ruby-dev || true
-        install_apt liblua5.2-dev || true
-        install_apt libaspell-dev || true
-    fi
-
-
-    if (( __app_lvl >= 2 )); then
-        # python packages
-        install_pip -H ${update_option} ipython || true
-        install_pip -3H ${update_option} ipython || true
-        install_pip -H ${update_option} ipdb || true
-        install_pip -3H ${update_option} ipdb || true
-        install_pip -H ${update_option} setuptools || true
-        install_pip -3H ${update_option} setuptools || true
-        install_pip -3H ${update_option} virtualenv || true
-
-        # python apps
-        install_pip -H ${update_option} speedtest-cli || true
-        install_pip -3H ${update_option} youtube_dl || true
-
-        # glances
-        if install_apt -ol glances; then
-            install_apt lm-sensors || true
-            # install_pip -H ${update_option} PySensors || true
-        else
-            true
-        fi
-
-        # fzf - asks questions
-        install_git -p 1 https://github.com/junegunn/fzf.git ~/.fzf ~/.fzf/install || true
-
-        if [[ ${__myos} != 'CYGWIN' ]]; then
-            install_pip -3H ${update_option} pyperclip || true
-        fi
-
-        # brew:
-        # ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Linuxbrew/install/master/install)" || true
-        # if [[ ${__myhost} == 'W' ]]; then
-        #     "$HOME/.linuxbrew/bin/brew" analytics off
-        # fi
-        # for brew:
-        install_apt build-essential || true
-
-    fi
-
-    # Spacemacs for linux
-    if (( __app_lvl >= 3 )) && [[ -z "${update_option}" ]]; then
-        if [[ -d "${HOME}/.emacs.d" && "${__if_first_time}" == "Y" ]]; then
-            rm -rf "${HOME}/.emacs.d.old"
-            mv "${HOME}/.emacs.d" "${HOME}/.emacs.d.old"
-        fi
-
-        git clone --recursive https://github.com/syl20bnr/spacemacs "${HOME}/.emacs.d" || true
-
-        local file="${HOME}/.emacs"
-        if [[ -e "${file}" ]]; then
-            mv "${file}" "${file}.old"
-        fi
-
-        local file="${HOME}/.emacs.local"
-        if [[ -e "${file}" ]]; then
-            mv "${file}" "${file}.old"
-        fi
-    fi
-
-    # Spacemacs for Windows
-    if (( __app_lvl >= 3 )) && [[ -z "${update_option}" ]]; then
-        if [[ -d "${__dir_win_home}/.emacs.d" && "${__if_first_time}" == "Y" ]]; then
-            rm -rf "${__dir_win_home}/.emacs.d.old"
-            mv "${__dir_win_home}/.emacs.d" "${__dir_win_home}/.emacs.d.old"
-        fi
-
-        git clone --recursive https://github.com/syl20bnr/spacemacs "${__dir_win_home}/.emacs.d" || true
-
-        local file="${__dir_win_home}/.emacs"
-        if [[ -e "${file}" ]]; then
-            mv "${file}" "${file}.old"
-        fi
-
-        local file="${__dir_win_home}/.emacs.local"
-        if [[ -e "${file}" ]]; then
-            mv "${file}" "${file}.old"
-        fi
-    fi
-
-    if (( __app_lvl >= 3 )); then
-        # geeknote
-        if ! hash geeknote 2> /dev/null; then
-            install_git https://github.com/VitaliyRodnenko/geeknote.git ~/apps/geeknote "${__sudo} python setup.py install" "geeknote settings --editor vim" || true
-        fi
-
-        # PIP installs
-        install_pip -3H BeautifulSoup4 || true
-        install_pip -3H ${update_option} flake8 || true
-        install_pip -3H ${update_option} bashate || true
-        # install_pip -H ${update_option} httpie || true
-        install_pip -3H ${update_option} git+git://github.com/badele/gitcheck.git gitcheck
-        install_pip -3H ${update_option} livestreamer
-        install_pip -3H ${update_option} termdown
-
-        if [[ ${__myos} == "LINUX" ]]; then
-            if [[ "${__myhost}" == "H" ]]; then
-                # for qnapi:
-                install_apt qt5-default || true
-                install_apt libmediainfo-dev || true
-                # roccat isku dirvers
-                install_apt cmake || true
-            fi
-
-            install_apt sshfs || true
-            install_apt vlc || true
-            install_apt mplayer || true
-            install_apt mediainfo || true
-            install_apt lame || true
-            # install_apt krdc || true
-            install_apt vpnc || true
-            install_apt openvpn || true
-            install_apt tidy || true
-            install_apt iconv || true
-            install_apt steam || true
-            install_apt nethogs || true
-            install_apt iftop || true
-            install_apt nload || true
-            install_apt ppa-purge || true
-            install_apt apt-file || true
-            # install_apt autokey-gtk || true
-            install_apt pandoc || true
-            # pv - see progress through a pipeline
-            install_apt pv || true
-            install_apt traceroute || true
-            install_apt linux-headers-generic || true
-            # feh - (for ranger) image browser + wallpaper setter
-            install_apt feh || true
-
-            # install_apt -ol libcaberra-dev
-            install_apt -ol libnotify-dev || true
-
-            # calibre:
-            # sudo -v && wget -nv -O- https://raw.githubusercontent.com/kovidgoyal/calibre/master/setup/linux-installer.py | sudo python -c "import sys; main=lambda:sys.stderr.write('Download failed\n'); exec(sys.stdin.read()); main()"
-
-            # for napi.sh / qnapi
-            install_apt p7zip-full || true # for cygwin there's another install with "-7zip"
-
-            # inne
-            # install_apt weechat || true
-            # install_apt weechat-scripts || true
-            install_apt remmina || true
-            install_apt remmina-plugin-rdp || true
-        fi
-
-        install_pip -3H ${update_option} csvkit || true
-        install_apt sqlite3 || true
-
-        # for pass:
-        install_apt tree || true
-        install_apt pwgen || true
-        install_apt xclip || true
-        install_apt xsel || true
-    fi
-
-
-    if (( __app_lvl >= 4 )) && [[ "${__myos}" == 'LINUX' ]] && [[ "${__if_update}" != 'Y' ]]; then
-        # different for LINUX
-        # download installers
-        [[ ! -d "${__dir_installers}" ]] && mkdir "${__dir_installers}"
-
-        # Teamviewer Full Version - Ubuntu/Debian
-        local url="https://download.teamviewer.com/download/teamviewer_i386.deb"
-        install_url "${url}" "${__dir_installers}/${url##*/}"
-
-        # ffmpeg - x64 linux static builds (NOT ubuntu/debian)
-        local url="http://johnvansickle.com/ffmpeg/builds/ffmpeg-git-64bit-static.tar.xz"
-        install_url "${url}" "${__dir_installers}/${url##*/}"
-
-        loguj -i -t "${ltype}" "INSTALLERS DOWNLOADED - run them manually"
-        if hash xdg-open 2>/dev/null; then
-            xdg-open "${__dir_installers}"
-        elif hash cygstart 2>/dev/null; then
-            cygstart "${__dir_installers}"
-        fi
-    fi
-
-    if [[ "${__if_update}" == "Y" ]]; then
-        if hash apt-get 2>/dev/null; then
-            # ${__sudo} sudo apt-get update
-            ${__sudo} sudo apt-get -y upgrade
-            ${__sudo} sudo apt-get -fy install
-            # ${__sudo} sudo apt-get -y autoremove
-            ${__sudo} sudo apt-get -y autoclean
-            # ${__sudo} sudo apt-get -y clean
-        elif hash babun 2>/dev/null; then
-            babun update
-        fi
-    fi
-    loguj -se -t "${ltype}" "BASICS ${__app_lvl}"
-    return 0
-}
-
 
 # --------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------
@@ -799,8 +293,6 @@ install_dotfiles()
         sed -i 's/^set preview_files true$/set preview_files false/' "${rcconf}"
         sed -i 's/^set preview_directories true$/set preview_directories false/' "${rcconf}"
 
-        # add some options to mplayer:
-        sed -i 's/mime \^video,       has mplayer,  X, flag f = mplayer -- "$@"/mime ^video,       has mplayer,  X, flag f = mplayer -fs -softvol -softvol-max 300 -- "$@"/' "${rifleconf}"
         # add vim to handle archive files:
         sed -i 's/^# Define the editor for non-text files + pager as last action$/ext tar\|gz\|bzip2\|xz\|tgz\|tbzip2\|txz\|zip\|rar = vim -- "$@"\n# Define the editor for non-text files + pager as last action/' "${rifleconf}"
         # add vim for sql files:
@@ -861,12 +353,6 @@ install_dotfiles()
         loguj -i -t "${ltype}" "Ranger not found. Not creating links."
     fi
 
-    # mplayer
-    if hash mplayer 2>/dev/null && [[ -d "${HOME}/.mplayer" ]]; then
-        install_link "${__dir_dotfiles_new}/mplayer_config" "${HOME}/.mplayer/config" || true
-        install_link "${__dir_dotfiles_new}/mplayer_input.conf" "${HOME}/.mplayer/input.conf" || true
-    fi
-
     # weechat
     if ( hash weechat 2>/dev/null || [[ -d ~/.weechat ]] ) && [[ -d ${__dir_dotlocal} ]]; then
         if [[ -d ${__dir_dotlocal}/weechat ]]; then
@@ -909,13 +395,6 @@ install_dotfiles()
     install_link "${__dir_dotfiles_new}/vimperatorrc" ~/.vimperatorrc || true
     [[ -d "${__dir_win_profile}" ]] && install_link -w "${__dir_dotfiles}/vimperatorrc" "${__dir_win_profile}/_vimperatorrc" || true
 
-    # vim +PluginInstall +PluginClean +qall
-    # if [[ "${__if_update}" == "Y" ]]; then
-    #     vim +PlugUpgrade +PlugInstall +PlugUpdate +PlugClean +qall
-    # else
-    #     vim +PlugInstall +qall
-    # fi
-
     [[ -r "${__dir_dotlocal}/install.links.local" ]] && source "${__dir_dotlocal}/install.links.local"
 
     loguj -se -t "${ltype}" "DOTFILES"
@@ -946,13 +425,7 @@ install_link "${__dir_dotlocal}" ~/.dotfiles.local || true
 echo "=== END OF INITIAL CMDS ==========================================="
 
 [[ ${__if_testing} == "Y" ]] && testing
-if (( __app_lvl > 0 )) || [[ "${__if_update}" == "Y" ]]; then
-    install_apps
-fi
-
 [[ ${__if_dotfiles} == "Y" ]] && install_dotfiles
-
-# [[ ${__if_dotfiles} == "Y" ]] && install_dotfiles
 [[ ${__if_break_links} == "Y" ]] && break_links
 
 # display_log_info
