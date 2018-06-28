@@ -1,35 +1,24 @@
 call plug#begin('~/.vim/plugged')
 
-" Plug 'gmarik/Vundle.vim'
-" Plug 'altercation/vim-colors-solarized'
 " Plug 'scrooloose/nerdtree'
-" Plug 'scrooloose/syntastic'
 " Plug 'othree/eregex.vim'
 Plug 'gregsexton/MatchTag'  " match HTML tags
 if !has('win32')
     Plug 'haya14busa/incsearch.vim'
 endif
 Plug 'kien/ctrlp.vim'
-" Plug 'christoomey/vim-tmux-navigator'
-Plug 'junegunn/fzf'
-Plug 'terryma/vim-expand-region'
+" Plug 'terryma/vim-expand-region'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-repeat'
-" Plug 'tpope/vim-fugitive'
 Plug 'bling/vim-airline'
-" Plug 'EinfachToll/DidYouMean'
-" Plug 'KabbAmine/zeavim.vim' " Zeal for vim: https://github.com/KabbAmine/zeavim.vim
 Plug 'nanotech/jellybeans.vim' " color scheme
 Plug 'vim-airline/vim-airline-themes'
 " Plug 'nathanaelkane/vim-indent-guides'
-" Plug 'christophermca/meta5'
 Plug 'godlygeek/tabular'
 Plug 'mrtazz/simplenote.vim'
 
-" Plug 'SirVer/ultisnips'
-" Plug 'honza/vim-snippets'
-
 " For Python
+" Plug 'scrooloose/syntastic'
 " Plug 'Valloric/YouCompleteMe'
 " Plug 'klen/python-mode'
 " Plug 'davidhalter/jedi-vim'
