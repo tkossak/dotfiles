@@ -4,8 +4,8 @@
 command! Sn call Sn()
 function! Sn()
   set shellcmdflag=-ic
-  let g:SimplenoteUsername = system("get_param simplenote_user")
-  let g:SimplenotePassword = system("get_param simplenote_pass")
+  let g:SimplenoteUsername = system("pass show mine/simplenote | sed -n 2p | tr -d '\n'")
+  let g:SimplenotePassword = system("pass show mine/simplenote | sed -n 1p | tr -d '\n'")
 endfunction
 
 " ==================================================================
