@@ -173,6 +173,7 @@ loguj()
 #    -c  :: cp instead of creating link
 #    -b  :: backup old file/dir (otherwise just remove it)
 #    -s  :: use sudo while creating link
+#    -n  :: do not log error if source file does not exist
 # $1 = source file
 # $2 = destination = link path/link
 install_link()
@@ -198,6 +199,9 @@ install_link()
             -s) sudo_if=${__sudo}
                 shift
                 ;;
+            -n) no_error_if_no_src="Y"
+                shift
+                ;;
             *) # SRC_FILE + DST_LINK
                 if [[ -z "${src_file}" ]]; then
                     src_file="$1"
@@ -219,8 +223,12 @@ install_link()
     fi
     # check if src exists:
     if [[ ! -e "${src_file}" ]]; then
-        loguj -e -t "${ltype}" "Src file ${src_file} does not exists."
-        return 1
+        if [[ no_error_if_no_src = 'Y' ]]; then
+            loguj -e -t "${ltype}" "Src file ${src_file} does not exists."
+            return 1
+        else
+            loguj -t "${ltype}" "Src file ${src_file} does not exists."
+        fi
     fi
     src_file="$(readlink -f ${src_file})"
 
