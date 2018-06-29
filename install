@@ -171,7 +171,7 @@ install_dotfiles()
 
     # Git
     install_link "${__dir_dotfiles_new}/gitconfig" ~/.gitconfig || true
-    install_link "${__dir_dotlocal}/gitconfig.local" ~/.gitconfig.local || true
+    install_link -n "${__dir_dotlocal}/gitconfig.local" ~/.gitconfig.local || true
     if hash vimdiff 2>/dev/null; then
         git config --global diff.tool vimdiff
         # git config --global difftool.vimdiff.path "/usr/bin/vimdiff"
@@ -209,14 +209,14 @@ install_dotfiles()
 
     # Bash:
     install_link "${__dir_dotfiles_new}/bashrc" ~/.bashrc || true
-    install_link "${__dir_dotlocal}/bashrc.local" ~/.bashrc.local || true
+    install_link -n "${__dir_dotlocal}/bashrc.local" ~/.bashrc.local || true
 
     # Vim
     install_link "${__dir_dotfiles_new}/vimrc" ~/.vimrc || true
-    install_link "${__dir_dotlocal}/vimrc.local" ~/.vimrc.local || true
+    install_link -n "${__dir_dotlocal}/vimrc.local" ~/.vimrc.local || true
     install_link "${__dir_dotfiles_new}/vimrc.plugins" ~/.vimrc.plugins || true
     install_link "${__dir_dotfiles_new}/vimrc.functions" ~/.vimrc.functions || true
-    install_link "${__dir_dotlocal}/UltiSnips" ~/.vim/UltiSnips || true
+    install_link -n "${__dir_dotlocal}/UltiSnips" ~/.vim/UltiSnips || true
 
     # gvim windows
     if [[ -d "${__dir_gvim_root}" ]]; then
@@ -233,14 +233,14 @@ install_dotfiles()
     # Spacemacs
     if hash emacs 2>/dev/null; then
         install_link "${__dir_dotfiles_new}/spacemacs" "${HOME}/.spacemacs" || true
-        install_link "${__dir_dotlocal}/emacs.local" "${HOME}/.spacemacs.local" || true
+        install_link -n "${__dir_dotlocal}/emacs.local" "${HOME}/.spacemacs.local" || true
 
         # Win
         if [[ -d "${__dir_win_home}/.emacs.d" ]]; then
             # install_link -w "${__dir_dotfiles}/spacemacs" "${__dir_win_home}/.spacemacs" || true
             install_link -w "${__dir_dotfiles_new}/spacemacs" "${__dir_win_home}/.spacemacs" || true
             # install_link -w "${__dir_dotlocal}/emacs.local" "${__dir_win_home}/.spacemacs.local" || true
-            install_link -w "${__dir_dotlocal}/emacs.local" "${__dir_win_home}/.spacemacs.local" || true
+            install_link -n -w "${__dir_dotlocal}/emacs.local" "${__dir_win_home}/.spacemacs.local" || true
         fi
     fi
 
@@ -387,9 +387,9 @@ install_dotfiles()
     fi
 
     # vlc
-    if [[ -f "${__dir_dotlocal}/vlcrc" && -d "${HOME}/.config/vlc" ]]; then
-        install_link "${__dir_dotlocal}/vlcrc" "${HOME}/.config/vlc/vlcrc"
-    fi
+    # if [[ -f "${__dir_dotlocal}/vlcrc" && -d "${HOME}/.config/vlc" ]]; then
+    #     install_link "${__dir_dotlocal}/vlcrc" "${HOME}/.config/vlc/vlcrc"
+    # fi
 
     # different
     install_link "${__dir_dotfiles_new}/vimperatorrc" ~/.vimperatorrc || true
