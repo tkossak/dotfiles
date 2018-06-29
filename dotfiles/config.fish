@@ -11,7 +11,7 @@ begin
     end
     set -l dirs \
         '/home/kossak/.pyenv/versions/3.6.5/lib/python3.6/site-packages/powerline/bindings/fish' \
-        #'/home/kossak/anaconda3/lib/python3.6/site-packages/powerline/bindings/fish' \
+        '/home/kossak/anaconda3/lib/python3.6/site-packages/powerline/bindings/fish' \
         '/home/kossak/.pyenv/versions/miniconda3-4.3.30/lib/python3.6/site-packages/powerline/bindings/fish'
     for dir in $dirs
         if test -d "$dir"
