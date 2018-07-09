@@ -395,6 +395,21 @@ install_dotfiles()
     install_link "${__dir_dotfiles_new}/vimperatorrc" ~/.vimperatorrc || true
     [[ -d "${__dir_win_profile}" ]] && install_link -w "${__dir_dotfiles}/vimperatorrc" "${__dir_win_profile}/_vimperatorrc" || true
 
+
+    # links in $HOME/Kossak/links
+    links_dir="$HOME/Kossak/links"
+    mkdir -p "$links_dir"
+    # pipenv venv:
+    dir="$HOME/.local/share/virtualenvs"
+    [[ -d "$dir" ]] && install_link "$dir" "$links_dir/pipenv_venv"
+    # pipsi venv:
+    dir="$HOME/.local/venvs"
+    [[ -d "$dir" ]] && install_link "$dir" "$links_dir/pipsi_venv"
+    # poetry venv:
+    dir="$HOME/.cache/pypoetry/virtualenvs"
+    [[ -d "$dir" ]] && install_link "$dir" "$links_dir/poetry_venv"
+
+    # links from .local
     [[ -r "${__dir_dotlocal}/install.links.local" ]] && source "${__dir_dotlocal}/install.links.local"
 
     loguj -se -t "${ltype}" "DOTFILES"
