@@ -84,14 +84,14 @@ vnoremap <silent> s //e<C-r>=&selection=='exclusive'?'+1':''<CR><CR>
     \:<C-u>call histdel('search',-1)<Bar>let @/=histget('search',-1)<CR>gv
 omap s :normal vs<CR
 
-au BufNewFile,BufRead *.py
-    \ set textwidth=79 |
-    \ set fileformat=unix
-    " \ set tabstop=4 |
-    " \ set softtabstop=4 |
-    " \ set shiftwidth=4 |
-    " \ set expandtab |
-    " \ set autoindent |
+" au BufNewFile,BufRead *.py
+"     \ set textwidth=79 | " it automatically creates new line when you enter long text
+"     \ set fileformat=unix
+"     " \ set tabstop=4 |
+"     " \ set softtabstop=4 |
+"     " \ set shiftwidth=4 |
+"     " \ set expandtab |
+"     " \ set autoindent |
 
 au BufNewFile,BufRead *.js,*.html,*.css
     \ set tabstop=2 |
