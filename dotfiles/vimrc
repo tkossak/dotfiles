@@ -343,3 +343,4 @@ nnoremap <leader>rx :%!tidy -xml -i<CR>
 nnoremap <leader>rh :%!tidy -i<CR>
 " javascript
 nnoremap <leader>rj :UnMinify<CR>
+
