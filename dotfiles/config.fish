@@ -36,6 +36,11 @@ end
 # eval (pipenv --completion)
 # complete --command pipenv --arguments "(env _PIPENV_COMPLETE=complete-fish COMMANDLINE=(commandline -cp) pipenv)" -f
 
+# pyenv v2: - put it at the end (it modifies paths)
+# set -gx PYENV_ROOT '$HOME/.pyenv'
+# set -gx PATH '$PYENV_ROOT/bin:$PATH'
+# status --is-interactive; and source (pyenv init -|psub)
+
 # pyenv
 set -l pyenv_root "$HOME/.pyenv"
 if test -d "$pyenv_root"
@@ -52,3 +57,8 @@ if test -d "$pyenv_root"
     status --is-interactive; and . (pyenv virtualenv-init -|psub)
 end
 
+# asdf:
+set -l asdf_file "$HOME/.asdf/asdf.fish"
+if test -r "$asdf_file"
+    source "$asdf_file"
+end
