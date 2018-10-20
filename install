@@ -412,6 +412,10 @@ install_dotfiles()
     # poetry venv:
     dir="$HOME/.cache/pypoetry/virtualenvs"
     [[ -d "$dir" ]] && install_link "$dir" "$links_dir/poetry_venv"
+    # pipx venv
+    # poetry venv:
+    dir="$HOME/.local/pipx/venvs"
+    [[ -d "$dir" ]] && install_link "$dir" "$links_dir/pipx_venv"
 
     install_link "${__dir_dotfiles_new}/pandas_with_family.py" ~/.ipython/profile_default/startup/pandas_with_family.py || true
 
