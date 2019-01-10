@@ -14,20 +14,20 @@ if not __ssh_is_agent_started
 end
 
 # pyenv
-set -l pyenv_root "$HOME/.pyenv"
-if test -d "$pyenv_root"
-    # remove these PATHs if they already exist in $PATH
-    if string match "$pyenv_root/bin" $PATH > /dev/null
-        set -x PATH (string match -v "$pyenv_root/bin" $PATH)
-        set -x PATH (string match -v "$pyenv_root/shims" $PATH)
-        set -x PATH (string match -v "$pyenv_root/plugins/pyenv-virtualenv/shims" $PATH)
-    end
-    # set $PATH:
-    set -x PATH "$pyenv_root/bin" $PATH
-    # auto complete:
-    status --is-interactive; and . (pyenv init -|psub)
-    status --is-interactive; and . (pyenv virtualenv-init -|psub)
-end
+# set -l pyenv_root "$HOME/.pyenv"
+# if test -d "$pyenv_root"
+#     # remove these PATHs if they already exist in $PATH
+#     if string match "$pyenv_root/bin" $PATH > /dev/null
+#         set -x PATH (string match -v "$pyenv_root/bin" $PATH)
+#         set -x PATH (string match -v "$pyenv_root/shims" $PATH)
+#         set -x PATH (string match -v "$pyenv_root/plugins/pyenv-virtualenv/shims" $PATH)
+#     end
+#     # set $PATH:
+#     set -x PATH "$pyenv_root/bin" $PATH
+#     # auto complete:
+#     status --is-interactive; and . (pyenv init -|psub)
+#     status --is-interactive; and . (pyenv virtualenv-init -|psub)
+# end
 
 # powerline:
 begin
