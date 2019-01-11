@@ -152,6 +152,10 @@ install_dotfiles()
         install_link "${__dir_dotfiles_new}/minttyrc" ~/.minttyrc || true
     fi
 
+    # asdf: remove unwanted shims:
+    find ~/.asdf/shims -name 'powerline*' -delete
+    find ~/.asdf/shims -name 'xz' -delete
+
     # fish:
     fish_functions_src_dirs=("${__dir_dotfiles}/fish_functions/*.fish" "${__dir_dotlocal}/fish_functions/*.fish")
     fish_config_base="$HOME/.config/fish"
