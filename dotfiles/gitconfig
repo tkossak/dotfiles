@@ -26,6 +26,7 @@
     up = "!git remote update -p; git merge --ff-only @{u}"
     sr = "!git status -sb; git remote show origin"
     tags = tag --sort=v:refname --column=always
+    aliases = config --get-regexp alias
 [diff]
 	tool = p4merge
 [difftool]
