@@ -153,8 +153,10 @@ install_dotfiles()
     fi
 
     # asdf: remove unwanted shims:
-    find ~/.asdf/shims -name 'powerline*' -delete
-    find ~/.asdf/shims -name 'xz' -delete
+    if [[ -d "~/.asdf/shims" ]]; then
+        find ~/.asdf/shims -name 'powerline*' -delete
+        find ~/.asdf/shims -name 'xz' -delete
+    fi
 
     # fish:
     fish_functions_src_dirs=("${__dir_dotfiles}/fish_functions/*.fish" "${__dir_dotlocal}/fish_functions/*.fish")
