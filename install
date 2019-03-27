@@ -159,6 +159,7 @@ install_dotfiles()
         find ~/.asdf/shims -name 'sqlite3' -delete
         find ~/.asdf/shims -name 'xmllint' -delete
         find ~/.asdf/shims -name 'iconv' -delete
+        find ~/.asdf/shims -name 'envsubst' -delete
         find ~/.asdf/shims \( -name 'gettext' -or -name 'gettext.sh' \) -delete
     fi
 
