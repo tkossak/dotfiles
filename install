@@ -154,7 +154,7 @@ install_dotfiles()
 
     # asdf: remove unwanted shims:
     if [[ -d "$HOME/.asdf/shims" ]]; then
-        for app in 'powerline*' xz sqlite3 xmllint iconv envsubst clear gettext gettext.sh;
+        for app in 'powerline*' xz sqlite3 xmllint iconv envsubst clear gettext gettext.sh tput;
         do
             find ~/.asdf/shims -name "$app" -delete
         done
