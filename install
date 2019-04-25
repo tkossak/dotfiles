@@ -308,9 +308,12 @@ install_dotfiles()
         # add vim for sql files:
         sed -i 's/^\!mime \^text, label editor, ext xml|json|csv|tex|py|pl|rb|js|sh|php = $EDITOR -- "$@"$/!mime \^text, label editor, ext xml|json|csv|tex|py|pl|pls|rb|js|sh|php|sql = $EDITOR -- "$@"/' "${rifleconf}"
         sed -i 's/^\!mime ^text, label pager,  ext xml|json|csv|tex|py|pl|rb|js|sh|php = "$PAGER" -- "$@"$/!mime ^text, label pager,  ext xml|json|csv|tex|py|pl|pls|rb|js|sh|php|sql = "$PAGER" -- "$@"/' "${rifleconf}"
+        # add viewnior
+        if ! grep -q ' viewnior,' "${rifleconf}"; then
+            sed -i 's/mime ^image, has pqiv,      X, flag f = pqiv -- "$@"/mime ^image, has pqiv,      X, flag f = pqiv -- "$@"\nmime ^image, has viewnior,  X, flag f = viewnior -- "$@"/' "${rifleconf}"
+        fi
         # add options to feh
         sed -i 's/mime ^image, has feh,       X, flag f = feh -- "$@"/mime ^image, has feh,       X, flag f = feh -. --auto-rotate -- "$@"/' "${rifleconf}"
-
 
         if [[ -d "${__dir_dotlocal}" ]]; then
             case ${__myos} in
