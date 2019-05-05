@@ -35,6 +35,7 @@ begin
         powerline-daemon -q
     end
     set -l dirs \
+        '/home/kossak/.asdf/installs/python/3.6.8/lib/python3.6/site-packages/powerline/bindings/fish' \
         '/home/kossak/.asdf/installs/python/3.6.6/lib/python3.6/site-packages/powerline/bindings/fish' \
         '/home/kossak/.pyenv/versions/3.6.5/lib/python3.6/site-packages/powerline/bindings/fish' \
         '/home/kossak/anaconda3/lib/python3.6/site-packages/powerline/bindings/fish' \
