@@ -1,0 +1,298 @@
+# new TMUX >= 2.4
+
+# OPTIONS
+# if run as "tmux attach", create a session if one does not already exist
+# new-session -n $HOST
+unbind -a
+
+# change prefix key
+unbind-key C-b
+set -g prefix 'C-a'
+bind 'C-a' send-prefix
+set-option -g default-shell /usr/bin/fish
+
+# # dziura:
+# set -g prefix 'C-g'
+# bind 'C-g' send-prefix
+
+# # hashbang:
+# set -g prefix 'C-b'
+# bind 'C-b' send-prefix
+
+# Set the terminal type so colors get rendered correctly
+set -g default-terminal "screen-256color"
+
+# xterm keys (modifier for SHIFT/ALT/CTRL)
+setw -g xterm-keys on
+
+# default statusbar colors
+set-option -g status-style fg=colour130,bg=colour235 #yellow, base02
+
+# default window title colors
+set-window-option -g window-status-style fg=colour33,bg=default #base0,default
+
+# active window title colors
+set-window-option -g window-status-current-style fg=colour9,bg=default #orange,default
+
+# pane border
+set-option -g pane-border-style fg=colour235 #base02
+set-option -g pane-active-border-style fg=colour46 #base01
+
+# message text
+set-option -g message-style fg=colour11,bg=colour235 #yellow, base02
+
+# pane number display
+set-option -g display-panes-active-colour colour196 #orange
+set-option -g display-panes-colour colour20 #blue
+
+# Start pane numbering at 1
+set-option -g base-index 1
+
+
+# Lower escape timing from 500ms to 50ms for quicker response to scroll-buffer access.
+# set -sg escape-time 50
+
+#statusline setup
+set -g status on
+# set -g status-utf8 on
+set -g status-interval 30
+set -g status-right-length 70
+
+# uptime
+set -g status-right "#[fg=orange][#[fg=orange]↑ #(uptime | sed -r 's/.*up//' | sed 's/,.*//' | sed 's/^ *//')#[fg=orange]]"
+# #load average
+# set -ag status-right "#[fg=orange][#[fg=orange]#(uptime | sed 's/.*load average: //' | sed 's/,//g')#[fg=orange]]"
+#date/time
+set -ag status-right "#[fg=orange][#[fg=orange]%d-%m-%Y #[fg=orange]%H:%M#[fg=orange]]"
+
+# time waiting for ESC to mean ALT
+set -s escape-time 0
+# history setting
+set -g history-limit 1000000
+# time for displaying pane numbers with C-v q
+set -g display-panes-time 5000
+
+# vi-style controls in copy mode
+set -g status-keys vi
+setw -g mode-keys vi
+
+# Mouse mode - doesn't work with tmux 2.1?
+# set-window-option -g mode-mouse on
+# set-option -g mouse-select-pane on
+# set-option -g mouse-resize-pane on
+# set-option -g mouse-select-window on
+
+
+# ====================================================================
+# TMUX GENERAL
+# e: Reload tmux config
+bind e source-file ~/.tmux.conf \; display 'Config reloaded'
+
+# detach
+bind d detach-client
+
+# Bring back clear screen under tmux prefix
+bind C-l send-keys 'C-l'
+# Bring back kill line under tmux prefix
+bind C-k send-keys 'C-k'
+
+# Ctrl-0: Clock!
+bind -n C-0 clock-mode
+
+# TMUX command prompt
+bind \; command-promp
+
+# /: List keys
+bind / list-keys
+
+# CLIPBOARD:
+set-option -s set-clipboard off
+# Alt-c: Copy mode
+bind -n M-c copy-mode
+# Alt-v: Paste buffer
+bind -n M-v paste-buffer
+
+# copy mode like vim
+# bind -t vi-copy 'v' begin-selection
+bind-key -T copy-mode-vi 'v' send -X begin-selection
+
+# bind -t vi-copy 'y' copy-selection
+# bind-key -T copy-mode-vi y send -X copy-selection
+# bind-key -T copy-mode-vi y send -X copy-pipe 'xclip -sel clip'
+bind-key -T copy-mode-vi y send -X copy-selection-and-cancel\; run "tmux save -|xclip -sel clip >/dev/null 2>&1"
+
+
+# bind -t vi-copy y copy-pipe 'xclip -sel clip'
+# bind -t vi-copy y copy-pipe 'putclip'
+# if-shell "uname -s | grep -vq CYGWIN" "bind -t vi-copy y copy-pipe 'xclip -sel clip';"
+# if-shell "uname -s | grep -q CYGWIN" "bind -t vi-copy y copy-pipe 'putclip';"
+
+# bind -t vi-copy 'V' rectangle-toggle
+bind-key -T copy-mode-vi 'V' send -X rectangle-toggle
+
+# ===================================================
+# LAYOUTS
+# Bind [ and ] to some common used layout
+bind [ select-layout even-horizontal
+bind ] select-layout even-vertica
+
+# C-r: rotate panes
+bind C-r rotate-window
+# C-x: next layout
+bind C-x next-layout
+
+
+# ====================================================================
+# PANES
+# break pane
+bind o break-pane
+# last pane
+# look M-p shortcut
+# C-p :: don't use it! breaks moving in some apps with C-n/C-p
+
+# # Smart pane switching with awareness of vim splits
+# is_vim='echo "#{pane_current_command}" | grep -iqE "(^|\/)g?(view|n?vim?)(diff)?$"'
+# # bind -n M-p if-shell "$is_vim" "send-keys C-\\" "select-pane -l"
+#
+# bind -n C-h if-shell "$is_vim" "send-keys C-h" "select-pane -L"
+# bind -n C-j if-shell "$is_vim" "send-keys C-j" "select-pane -D"
+# bind -n C-k if-shell "$is_vim" "send-keys C-k" "select-pane -U"
+# bind -n C-l if-shell "$is_vim" "send-keys C-l" "select-pane -R"
+
+# # Smart pane switching with awareness of vim splits
+# is_vim="ps -o state= -o comm= -t '#{pane_tty}' \
+#     | grep -iqE '^[^TXZ ]+ +(\\S+\\/)?g?(view|n?vim?x?)(diff)?$'"
+#
+# bind-key -n C-h if-shell "$is_vim" "send-keys C-h"  "select-pane -L"
+# bind-key -n C-j if-shell "$is_vim" "send-keys C-j"  "select-pane -D"
+# bind-key -n C-k if-shell "$is_vim" "send-keys C-k"  "select-pane -U"
+# bind-key -n C-l if-shell "$is_vim" "send-keys C-l"  "select-pane -R"
+# bind-key -n C-\ if-shell "$is_vim" "send-keys C-\\" "select-pane -l"
+
+bind -n C-h select-pane -L
+bind -n C-j select-pane -D
+bind -n C-k select-pane -U
+bind -n C-l select-pane -R
+bind h select-pane -L
+bind j select-pane -D
+bind k select-pane -U
+bind l select-pane -R
+
+
+# Ctrl-Arrow: Resize panes
+bind -nr C-Up resize-pane -U
+bind -nr C-Down resize-pane -D
+bind -nr C-Left resize-pane -L
+bind -nr C-Right resize-pane -R
+
+# bind -r Up resize-pane -U
+# bind -r Down resize-pane -D
+# bind -r Left resize-pane -L
+# bind -r Right resize-pane -R
+
+# Alt-\: Split veritically
+bind -n M-/ split-window -h -c "#{pane_current_path}"
+bind v split-window -h -c "#{pane_current_path}"
+# Alt--: Split horizontally
+bind -n M-- split-window -v -c "#{pane_current_path}"
+bind s split-window -v -c "#{pane_current_path}"
+
+# Alt-0: Display panes
+bind -n M-0 display-panes
+bind 0 display-panes
+
+# ======================================================================================
+# WINDOWS
+# Moving windows:
+bind-key -n C-M-j swap-window -t -1
+bind-key -n C-M-k swap-window -t +1
+
+# Alt-h: Previous window
+bind -n M-j prev
+bind M-j send-keys 'M-j' # send M-j literally (to vim for example)
+bind p prev
+
+# Alt-l: Next window
+bind -n M-k next
+bind n next
+
+# maximize/restore pane
+bind -n M-= resize-pane -Z
+
+# Alt-n: New window/session
+# bind -n M-m new-window -c "#{pane_current_path}"
+bind -n M-m new-window
+bind m new-window
+# bind -n M-M new-window -c "#{pane_current_path}"
+# bind M new-window
+
+# Alt-m: Move window
+bind -n M-, command-prompt "move-window -t '%%'"
+bind , command-prompt "move-window -t '%%'"
+
+# Alt-r: Rename window/session
+bind -n M-r command-prompt -I "#W" "rename-window '%%'"
+bind r command-prompt -I "#W" "rename-window '%%'"
+bind -n M-R command-prompt -I "#S" "rename-session '%%'"
+bind R command-prompt -I "#S" "rename-session '%%'"
+
+# Alt-[1-9]: Switch to window - Conflicting with WeeChat
+bind 1 select-window -t :1
+bind 2 select-window -t :2
+bind 3 select-window -t :3
+bind 4 select-window -t :4
+bind 5 select-window -t :5
+bind 6 select-window -t :6
+bind 7 select-window -t :7
+bind 8 select-window -t :8
+bind 9 select-window -t :9
+# bind -n M-1 select-window -t :1
+# bind -n M-2 select-window -t :2
+# bind -n M-3 select-window -t :3
+# bind -n M-4 select-window -t :4
+# bind -n M-5 select-window -t :5
+# bind -n M-6 select-window -t :6
+# bind -n M-7 select-window -t :7
+# bind -n M-8 select-window -t :8
+# bind -n M-9 select-window -t :9
+# Alt-Space: Choose session and refresh the status line to reflect the new
+
+# Choose session/window
+bind -n M-s choose-session \; refresh-client -S
+bind -n M-w choose-window \; refresh-client -S
+
+# Choose last session/window
+# bind -n M-a switch-client -l \; refresh-client -S
+# bind -n M-q last-window
+bind a switch-client -l \; refresh-client -S
+bind q last-window
+#
+# Switch to next session
+bind -n M-J switch-client -n \; refresh-client -S
+bind J switch-client -n \; refresh-client -S
+# Switch to previous session
+bind -n M-K switch-client -p \; refresh-client -S
+bind K switch-client -p \; refresh-client -S
+
+# c: kill window - with confirmation
+bind c confirm-before -p "kill-pane #W? (y/n)" kill-pane
+bind C confirm-before -p "kill-SESSION #S? (y/n)" kill-session
+# Alt-w: Kill window - no confirmation!!!
+# bind -n M-w confirm-before -p "kill-window #W? (y/n)" kill-window
+# bind w confirm-before -p "kill-window #W? (y/n)" kill-window
+
+
+# --------------------------------------------------------------------
+# powerline
+# run-shell "powerline-daemon -q"
+# source "/usr/local/lib/python2.7/dist-packages/powerline/bindings/tmux/powerline.conf"
+
+
+# Have new windows and panes open in the current directory
+# bind '"' split-window -c "#{pane_current_path}"
+# bind % split-window -c "#{pane_current_path}" -h
+# bind b new-window -c "#{pane_current_path}"
+
+# -------------------------------------------------------------------
+
+# source ~/.tmux/tmux-colors-solarized/tmuxcolors-dark.conf
