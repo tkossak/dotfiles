@@ -145,7 +145,7 @@ install_dotfiles()
     loguj -ss -t "${ltype}" "DOTFILES"
 
     # TMUX
-    install_link "${__dir_dotfiles_new}/tmux.conf" ~/.tmux.conf || true
+    install_link "${__dir_dotfiles_new}/tmux.conf_2.9" ~/.tmux.conf || true
 
     # minttyrc
     if [[ "${__myos}" == "CYGWIN" ]]; then
