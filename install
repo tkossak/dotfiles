@@ -107,8 +107,7 @@ break_links()
         ~/.config/ranger/rc.conf ~/.config/ranger/rifle.conf ~/.gconf/apps/gnome-terminal ~/.config/vlc/vlcrc \
         ~/.minttyrc \
         ~/.spacemacs \
-        ~/.config/nvim/UltiSnips \
-        ~/.ipython/profile_default/startup/pandas_with_family.py
+        ~/.config/nvim/UltiSnips
     do
         if [[ -e "${link}" ]]; then
             src="$(readlink -f ${link})"
@@ -427,8 +426,6 @@ install_dotfiles()
     # poetry venv:
     dir="$HOME/.local/pipx/venvs"
     [[ -d "$dir" ]] && install_link "$dir" "$links_dir/pipx_venv"
-
-    install_link "${__dir_dotfiles_new}/pandas_with_family.py" ~/.ipython/profile_default/startup/pandas_with_family.py || true
 
     # links from .local
     [[ -r "${__dir_dotlocal}/install.links.local" ]] && source "${__dir_dotlocal}/install.links.local"
