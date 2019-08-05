@@ -413,19 +413,25 @@ install_dotfiles()
     # links in $HOME/Kossak/links
     links_dir="$HOME/Kossak/links"
     mkdir -p "$links_dir"
+    # poetry venv:
+    dir="$HOME/.cache/pypoetry/virtualenvs"
+    [[ -d "$dir" ]] && install_link "$dir" "$links_dir/poetry_venv"
+    # pipx venv:
+    dir="$HOME/.local/pipx/venvs"
+    [[ -d "$dir" ]] && install_link "$dir" "$links_dir/pipx_venv"
+    # steam common (main disk -SSD):
+    dir="$HOME/.local/share/Steam/steamapps/common"
+    [[ -d "$dir" ]] && install_link "$dir" "$links_dir/steam_common_main"
+    # steam common (second disk - HDD)
+    dir="/mnt/data_lin/steam_games/steamapps/common"
+    [[ -d "$dir" ]] && install_link "$dir" "$links_dir/steam_common_second"
+
     # pipenv venv:
     dir="$HOME/.local/share/virtualenvs"
     [[ -d "$dir" ]] && install_link "$dir" "$links_dir/pipenv_venv"
     # pipsi venv:
     dir="$HOME/.local/venvs"
     [[ -d "$dir" ]] && install_link "$dir" "$links_dir/pipsi_venv"
-    # poetry venv:
-    dir="$HOME/.cache/pypoetry/virtualenvs"
-    [[ -d "$dir" ]] && install_link "$dir" "$links_dir/poetry_venv"
-    # pipx venv
-    # poetry venv:
-    dir="$HOME/.local/pipx/venvs"
-    [[ -d "$dir" ]] && install_link "$dir" "$links_dir/pipx_venv"
 
     # links from .local
     [[ -r "${__dir_dotlocal}/install.links.local" ]] && source "${__dir_dotlocal}/install.links.local"
