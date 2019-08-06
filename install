@@ -302,14 +302,18 @@ install_dotfiles()
         sed -i 's/^set preview_directories true$/set preview_directories false/' "${rcconf}"
 
         local rifleconf="${HOME}/.config/ranger/rifle.conf"
-        # add vim to handle archive files:
-        sed -i 's/^# Define the editor for non-text files + pager as last action$/# TK: archives:\next tar\|gz\|bzip2\|xz\|tgz\|tbzip2\|txz\|zip\|rar = vim -- "$@"\n# Define the editor for non-text files + pager as last action/' "${rifleconf}"
-        # add vim for sql files:
+        local rifleconf_tmp="${HOME}/.config/ranger/rifle.conf.tmp"
+        # add vim line to handle archive files:
+        sed -i 's/^# Define the editor for non-text files + pager as last action$/# TK: archives:\next tar\|gz\|bzip2\|xz\|tgz\|tbzip2\|txz\|zip\|rar = vim -- "$@"\n&/' "${rifleconf}"
+        # Add sql extensions to $EDITOR:
         sed -i 's/^\!mime \^text, label editor, ext xml|json|csv|tex|py|pl|rb|js|sh|php = $EDITOR -- "$@"$/!mime \^text, label editor, ext xml|json|csv|tex|py|pl|pls|rb|js|sh|php|sql = $EDITOR -- "$@"/' "${rifleconf}"
         sed -i 's/^\!mime ^text, label pager,  ext xml|json|csv|tex|py|pl|rb|js|sh|php = "$PAGER" -- "$@"$/!mime ^text, label pager,  ext xml|json|csv|tex|py|pl|pls|rb|js|sh|php|sql = "$PAGER" -- "$@"/' "${rifleconf}"
-        # add viewnior
+        # add viewnior for images:
         if ! grep -q ' viewnior,' "${rifleconf}"; then
-            sed -i 's/mime ^image, has pqiv,      X, flag f = pqiv -- "$@"/mime ^image, has pqiv,      X, flag f = pqiv -- "$@"\nmime ^image, has viewnior,  X, flag f = viewnior -- "$@"/' "${rifleconf}"
+            tr '\n' '\r' < "${rifleconf}" > "${rifleconf_tmp}"
+            sed 's/# Image Viewing:\r#-------------------------------------------/&\rmime ^image, has viewnior,  X, flag f = viewnior -- "$@"/' "${rifleconf_tmp}" \
+                | tr '\r' '\n' > "${rifleconf}"
+            rm "${rifleconf_tmp}"
         fi
         # add options to feh
         sed -i 's/mime ^image, has feh,       X, flag f = feh -- "$@"/mime ^image, has feh,       X, flag f = feh -. --auto-rotate -- "$@"/' "${rifleconf}"
