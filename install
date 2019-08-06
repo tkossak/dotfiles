@@ -308,16 +308,10 @@ install_dotfiles()
         # Add sql extensions to $EDITOR:
         sed -i 's/^\!mime ^text, label editor, ext xml|json|csv|tex|py|pl|rb|js|sh|php = $EDITOR -- "$@"$/!mime \^text, label editor, ext xml|json|csv|tex|py|pl|pls|rb|js|sh|php|sql = $EDITOR -- "$@"/' "${rifleconf}"
         sed -i 's/^\!mime ^text, label pager,  ext xml|json|csv|tex|py|pl|rb|js|sh|php = "$PAGER" -- "$@"$/!mime ^text, label pager,  ext xml|json|csv|tex|py|pl|pls|rb|js|sh|php|sql = "$PAGER" -- "$@"/' "${rifleconf}"
-        # add viewnior for images:
-        if ! grep -q ' viewnior,' "${rifleconf}"; then
-            sed -i 's/^mime ^image\/svg, has inkscape, X, flag f = inkscape -- "$@"/mime ^image, has viewnior,  X, flag f = viewnior -- "$@"\n&/' "${rifleconf}"
-            # tr '\n' '\r' < "${rifleconf}" > "${rifleconf_tmp}"
-            # # sed 's/# Image Viewing:\r#-------------------------------------------/&\rmime ^image, has viewnior,  X, flag f = viewnior -- "$@"/' "${rifleconf_tmp}" \
-            # #     | tr '\r' '\n' > "${rifleconf}"
-            # sed 's/# Image Viewing:\r#-------------------------------------------/&\rmime ^image, has viewnior,  X, flag f = viewnior -- "$@"/' "${rifleconf_tmp}" \
-            #     | tr '\r' '\n' > "${rifleconf}"
-            # rm "${rifleconf_tmp}"
-        fi
+        # add viewnior line for images:
+        grep -q ' viewnior,' "${rifleconf}" || sed -i 's/^mime ^image\/svg, has inkscape, X, flag f = inkscape -- "$@"/mime ^image, has viewnior,  X, flag f = viewnior -- "$@"\n&/' "${rifleconf}"
+        # add xreader line for pdf:
+        grep -q ' xreader,' "${rifleconf}" || sed -i 's/^ext pdf, has qpdfview, X, flag f = qpdfview "$@"/&\next pdf, has xreader,  X, flag f = xreader -- "$@"/' "${rifleconf}"
         # add options to feh
         sed -i 's/mime ^image, has feh,       X, flag f = feh -- "$@"/mime ^image, has feh,       X, flag f = feh -. --auto-rotate -- "$@"/' "${rifleconf}"
 
