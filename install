@@ -101,7 +101,7 @@ break_links()
     local ltype="BRK"
     local src
     loguj -ss -t "${ltype}" "BREAKING LINKS"
-    for link in ~/.bashrc ~/.bashrc.local ~/.tmux.conf ~/.gitconfig ~/.gitconfig.local \
+    for link in ~/.tmux.conf ~/.gitconfig ~/.gitconfig.local \
         ~/.vimrc ~/.vimrc.local ~/.vimrc.plugins ~/.vimrc.functions \
         ~/.weechat/guile ~/.weechat/javascript ~/.weechat/lua ~/.weechat/perl ~/.weechat/python ~/.weechat/ruby ~/.weechat/script ~/.weechat/tcl ~/.weechat/xfer ~/.weechat/alias.conf ~/.weechat/aspell.conf ~/.weechat/buffers.conf ~/.weechat/charset.conf ~/.weechat/exec.conf ~/.weechat/irc.conf ~/.weechat/iset.conf ~/.weechat/logger.conf ~/.weechat/plugins.conf ~/.weechat/relay.conf ~/.weechat/script.conf ~/.weechat/sec.conf ~/.weechat/trigger.conf ~/.weechat/weechat.conf ~/.weechat/xfer.conf \
         ~/.config/ranger/rc.conf ~/.config/ranger/rifle.conf ~/.gconf/apps/gnome-terminal ~/.config/vlc/vlcrc \
@@ -217,8 +217,8 @@ install_dotfiles()
     fi
 
     # Bash:
-    install_link "${__dir_dotfiles_new}/bashrc" ~/.bashrc || true
-    install_link -n "${__dir_dotlocal}/bashrc.local" ~/.bashrc.local || true
+    # install_link "${__dir_dotfiles_new}/bashrc" ~/.bashrc || true
+    # install_link -n "${__dir_dotlocal}/bashrc.local" ~/.bashrc.local || true
 
     # Vim
     install_link "${__dir_dotfiles_new}/vimrc" ~/.vimrc || true
