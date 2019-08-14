@@ -71,16 +71,11 @@ alias .....='cd ../../../..'
 alias .4='cd ../../../../'
 alias .5='cd ../../../../..'
 alias pls='sudo $(history -p !!)'
-alias mkdir='mkdir -p'
-alias bc='bc -l'
 alias du='du -ch'
 alias df='df -h'
 alias lsblk_='sudo lsblk -fm'
 alias blkid_='blkid -o list'
 alias vi='vim'
-alias ncal="ncal -M"
-alias vbox='sudo mount -t vboxsf vbox_shared /mnt/vs && cd /mnt/vs'
-alias vboxd='sudo mount -t vboxsf vbox_shared /mnt/vs && cd /mnt/vs/dotfiles'
 
 # Alias definitions.
 # You may want to put all your additions into a separate file like
@@ -141,20 +136,7 @@ else
     __vTmp1="${__myhost}"
 fi
 PS1+="\[${IBlack}\]@\[${BBlack}\]${__vTmp1:-\h}"
-# if [[ "${__myhost}" != "W" && "${__myhost}" != "H" ]]; then
-#     # @host
-#     PS1+="\[${IBlack}\]@\[${Purple}\]\h"
-# fi
-# working dir
 PS1+="\[${Blue}\]{\W}"
-
-# # git
-# if [[ -r "${HOME}/.dotfiles/source/git-prompt.sh" ]]; then
-#     source "${HOME}/.dotfiles/source/git-prompt.sh"
-#     PS1+="\[${Yellow}\]"'$(__git_ps1 " (%s)")'
-# elif hash git 2>/dev/null; then
-#     PS1+="\[${Green}\]\$( git rev-parse --abbrev-ref HEAD 2> /dev/null || echo -n "")"
-# fi
 
 # last char based on root or not:
 PS1+=" \[${BRed}\]$((($UID == 0)) && echo '#' || echo '»' )"
@@ -173,22 +155,6 @@ fi
 if [[ -e "$HOME/.dotfiles.local/bin" ]]; then
     add_to_path "$HOME/.dotfiles.local/bin"
 fi
-
-# Anaconda3 4.0.0
-if [[ -e "/home/kossak/anaconda3/bin" ]]; then
-    add_to_path "/home/kossak/anaconda3/bin"
-fi
-
-# gpg-agent
-# export SSH_AUTH_SOCK_LINK="/tmp/ssh-$USER/agent"
-# # if ! [ -r $(readlink -m $SSH_AUTH_SOCK_LINK) ] && [ -r $SSH_AUTH_SOCK ]; then
-# if [[ $SSH_AUTH_SOCK_LINK != $SSH_AUTH_SOCK ]] && [[ -r $SSH_AUTH_SOCK ]]; then
-# 	mkdir -p "$(dirname $SSH_AUTH_SOCK_LINK)" &&
-# 	chmod go= "$(dirname $SSH_AUTH_SOCK_LINK)" &&
-# 	ln -sfn $SSH_AUTH_SOCK $SSH_AUTH_SOCK_LINK &&
-#     export export SSH_AUTH_SOCK=$SSH_AUTH_SOCK_LINK &&
-#     unset SSH_AGENT_PID
-# fi
 
 # finishing touches
 unset __vTmp1 __vTmp2 __vTmp3
