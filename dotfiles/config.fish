@@ -1,3 +1,5 @@
+set -gx EDITOR vim
+
 # set JAVA_HOME path, if it is not set already
 set -l dir_java "/usr/lib/jvm/java-8-openjdk-amd64"
 if not set -q JAVA_HOME; and test -d "$dir_java"

@@ -101,7 +101,7 @@ break_links()
     local ltype="BRK"
     local src
     loguj -ss -t "${ltype}" "BREAKING LINKS"
-    for link in ~/.bashrc ~/.bashrc.local ~/.tmux.conf ~/.gitconfig ~/.gitconfig.local \
+    for link in ~/.tmux.conf ~/.gitconfig ~/.gitconfig.local \
         ~/.vimrc ~/.vimrc.local ~/.vimrc.plugins ~/.vimrc.functions \
         ~/.weechat/guile ~/.weechat/javascript ~/.weechat/lua ~/.weechat/perl ~/.weechat/python ~/.weechat/ruby ~/.weechat/script ~/.weechat/tcl ~/.weechat/xfer ~/.weechat/alias.conf ~/.weechat/aspell.conf ~/.weechat/buffers.conf ~/.weechat/charset.conf ~/.weechat/exec.conf ~/.weechat/irc.conf ~/.weechat/iset.conf ~/.weechat/logger.conf ~/.weechat/plugins.conf ~/.weechat/relay.conf ~/.weechat/script.conf ~/.weechat/sec.conf ~/.weechat/trigger.conf ~/.weechat/weechat.conf ~/.weechat/xfer.conf \
         ~/.config/ranger/rc.conf ~/.config/ranger/rifle.conf ~/.gconf/apps/gnome-terminal ~/.config/vlc/vlcrc \
@@ -217,8 +217,8 @@ install_dotfiles()
     fi
 
     # Bash:
-    install_link "${__dir_dotfiles_new}/bashrc" ~/.bashrc || true
-    install_link -n "${__dir_dotlocal}/bashrc.local" ~/.bashrc.local || true
+    # install_link "${__dir_dotfiles_new}/bashrc" ~/.bashrc || true
+    # install_link -n "${__dir_dotlocal}/bashrc.local" ~/.bashrc.local || true
 
     # Vim
     install_link "${__dir_dotfiles_new}/vimrc" ~/.vimrc || true
@@ -420,12 +420,22 @@ install_dotfiles()
     # pipx venv:
     dir="$HOME/.local/pipx/venvs"
     [[ -d "$dir" ]] && install_link "$dir" "$links_dir/pipx_venv"
+
     # steam common (main disk -SSD):
-    dir="$HOME/.local/share/Steam/steamapps/common"
-    [[ -d "$dir" ]] && install_link "$dir" "$links_dir/steam_common_main"
-    # steam common (second disk - HDD)
-    dir="/mnt/data_lin/steam_games/steamapps/common"
-    [[ -d "$dir" ]] && install_link "$dir" "$links_dir/steam_common_second"
+    steam_first_disk="$HOME/.local/share/Steam"
+    steam_secon_disk="/mnt/data_lin/steam_games"
+
+    dir="steamapps/common"
+    [[ -d "$steam_first_disk/$dir" ]] && install_link "$steam_first_disk/$dir" "$links_dir/steam_common_main"
+    [[ -d "$steam_secon_disk/$dir" ]] && install_link "$steam_secon_disk/$dir" "$links_dir/steam_common_second"
+
+    dir="steamapps/compatdata"
+    [[ -d "$steam_first_disk/$dir" ]] && install_link "$steam_first_disk/$dir" "$links_dir/steam_compatdata_main"
+    [[ -d "$steam_secon_disk/$dir" ]] && install_link "$steam_secon_disk/$dir" "$links_dir/steam_compatdata_second"
+
+    dir="steamapps/compatdata/275850"
+    [[ -d "$steam_first_disk/$dir" ]] && install_link "$steam_first_disk/$dir" "$steam_first_disk/${dir}_No_Mans_Sky"
+    [[ -d "$steam_secon_disk/$dir" ]] && install_link "$steam_secon_disk/$dir" "$steam_secon_disk/${dir}_No_Mans_Sky"
 
     # pipenv venv:
     dir="$HOME/.local/share/virtualenvs"
