@@ -253,6 +253,12 @@ install_dotfiles()
         fi
     fi
 
+    # soffice if installed manually (for easy opening in ranger)
+    if ! hash soffice 2>/dev/null; then
+        soffice_file="/opt/libreoffice6.3/program/soffice"
+        install_link -n "$soffice_file" "$HOME/.local/bin/soffice"
+    fi
+
     # Emacs Linux:
     # if hash emacs 2>/dev/null; then
     #     install_link ${__dir_dotfiles}/emacs ~/.emacs || true
