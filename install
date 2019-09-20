@@ -300,7 +300,7 @@ install_dotfiles()
         sed -i 's/^set preview_files true$/set preview_files false/' "${rcconf}"
         sed -i 's/^set preview_directories true$/set preview_directories false/' "${rcconf}"
         sed -i 's/^set preview_images false$/set preview_images true/' "${rcconf}"
-        sed -i 's/^set save_tabs_on_exit false$/set save_tabs_on_exit true/' "${rcconf}"
+        # sed -i 's/^set save_tabs_on_exit false$/set save_tabs_on_exit true/' "${rcconf}"
 
         local rifleconf="${HOME}/.config/ranger/rifle.conf"
         local rifleconf_tmp="${HOME}/.config/ranger/rifle.conf.tmp"
