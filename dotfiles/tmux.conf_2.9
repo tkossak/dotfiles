@@ -1,15 +1,17 @@
 # new TMUX >= 2.4
 
 # OPTIONS
-# if run as "tmux attach", create a session if one does not already exist
-# new-session -n $HOST
+set -g default-shell /usr/bin/fish
+# remove SSH_ASKPASS, SSH_AUTH_SOCK, SSH_AGENT_PID, XAUTHORITY
+# only update these variables when you connect/attach:
+set -g update-environment 'DISPLAY KRB5CCNAME SSH_CONNECTION WINDOWID'
+
 unbind -a
 
 # change prefix key
 unbind-key C-b
 set -g prefix 'C-a'
 bind 'C-a' send-prefix
-set-option -g default-shell /usr/bin/fish
 
 # # dziura:
 # set -g prefix 'C-g'
