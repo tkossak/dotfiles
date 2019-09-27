@@ -478,7 +478,6 @@ testing()
 # --------------------------------------------------------------------------------
 
 install_link "${__dir_dotfiles}" ~/.dotfiles
-install_link "${__dir_dotlocal}" ~/.dotfiles.local || true
 echo "=== END OF INITIAL CMDS ==========================================="
 
 [[ ${__if_testing} == "Y" ]] && testing
