@@ -1,0 +1,11 @@
+option('fixed_cols', '', 'fixed width columns')
+
+@FixedWidthColumnsSheet.api
+def addFixedCols(sheet, coldesc):
+    'coldesc like "0-5 6-10 24-30"'
+    for n, desc in enumerate(coldesc.split(" ")):
+        i, j = desc.split("-")
+        sheet.addColumn(FixedWidthColumn(f'col{n}', int(i), int(j)))
+
+FixedWidthColumnsSheet.addCommand('', 'acf', 'addFixedCols(options.fixed_cols or input("columns (0-4 5-7 ..): "))')
+
