@@ -146,6 +146,11 @@ install_dotfiles()
     # TMUX
     install_link "${__dir_dotfiles_new}/tmux.conf_2.9" ~/.tmux.conf || true
 
+    # Joplin:
+    if [[ -d "$HOME/.config/joplin" ]]; then
+        install_link "${__dir_dotfiles_new}/joplin.keymap.json" ~/.config/joplin/keymap.json || true
+    fi
+
     # minttyrc
     if [[ "${__myos}" == "CYGWIN" ]]; then
         install_link "${__dir_dotfiles_new}/minttyrc" ~/.minttyrc || true
@@ -450,6 +455,8 @@ install_dotfiles()
     # pipsi venv:
     dir="$HOME/.local/venvs"
     [[ -d "$dir" ]] && install_link "$dir" "$links_dir/pipsi_venv"
+    # .visidatarc
+    install_link "${__dir_dotfiles_new}/visidatarc" ~/.visidatarc || true
 
     # links from .local
     [[ -r "${__dir_dotlocal}/install.links.local" ]] && source "${__dir_dotlocal}/install.links.local"
