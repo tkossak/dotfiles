@@ -11,7 +11,6 @@ end
 # if test -z "$SSH_ENV"
 #     set -xg SSH_ENV $HOME/.ssh/environment
 # end
-#
 # if not __ssh_is_agent_started
 #     __ssh_agent_start
 # end
@@ -22,6 +21,7 @@ begin
         powerline-daemon -q
     end
     set -l dirs \
+        '/home/kossak/.asdf/installs/python/3.8.6/lib/python3.8/site-packages/powerline/bindings/fish' \
         '/home/kossak/.asdf/installs/python/3.6.9/lib/python3.6/site-packages/powerline/bindings/fish' \
         '/home/kossak/.asdf/installs/python/3.6.8/lib/python3.6/site-packages/powerline/bindings/fish' \
         '/home/kossak/.asdf/installs/python/3.6.6/lib/python3.6/site-packages/powerline/bindings/fish'
