@@ -433,6 +433,13 @@ install_dotfiles()
     dir="$HOME/.local/pipx/venvs"
     [[ -d "$dir" ]] && install_link "$dir" "$links_dir/pipx_venv"
 
+    # Desktop shortcuts
+    mkdir -p "$links_dir/desktop_shortcuts"
+    dir="/usr/share/applications"
+    [[ -d "$dir" ]] && install_link "$dir" "$links_dir/desktop_shortcuts/usr_share_applications"
+    dir="$HOME/.local/share/applications"
+    [[ -d "$dir" ]] && install_link "$dir" "$links_dir/desktop_shortcuts/home_local_share_applications"
+
     # steam common (main disk -SSD):
     steam_first_disk="$HOME/.local/share/Steam"
     steam_secon_disk="/mnt/data_lin/steam_games"
