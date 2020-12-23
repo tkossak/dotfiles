@@ -15,7 +15,7 @@ __myhost="$(uname -n)"
                     ;;
                 Linux)
                     __myos="LINUX"
-                    if [[ ${__myhost} = AWA* || ${__myhost} = lwman ]]; then
+                    if [[ ${__myhost} = AWA* || ${__myhost} = lwman || ${__myhost} = wman2 ]]; then
                         __myhost="W"
                     elif [[ ${__myhost} = lman2 || ${__myhost} = lman ]]; then
                         __myhost="H"
