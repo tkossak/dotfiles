@@ -318,7 +318,7 @@ install_dotfiles()
         # add vim line to handle archive files:
         sed -i 's/^# Define the editor for non-text files + pager as last action$/# TK: archives:\next tar\|gz\|bzip2\|xz\|tgz\|tbzip2\|txz\|zip\|rar = vim -- "$@"\n&/' "${rifleconf}"
         # Add sql extensions to $EDITOR:
-        sed -i 's/^\!mime ^text, label editor, ext xml|json|csv|tex|py|pl|rb|js|sh|php = $EDITOR -- "$@"$/!mime \^text, label editor, ext xml|json|csv|tex|py|pl|pls|rb|js|sh|php|sql = $EDITOR -- "$@"/' "${rifleconf}"
+        sed -i 's/^\!mime ^text, label editor, ext xml|json|csv|tex|py|pl|rb|js|sh|php = ${VISUAL:-$EDITOR} -- "$@"$/!mime \^text, label editor, ext xml|json|csv|tex|py|pl|pls|rb|js|sh|php|sql = ${VISUAL:-$EDITOR} -- "$@"/' "${rifleconf}"
         sed -i 's/^\!mime ^text, label pager,  ext xml|json|csv|tex|py|pl|rb|js|sh|php = "$PAGER" -- "$@"$/!mime ^text, label pager,  ext xml|json|csv|tex|py|pl|pls|rb|js|sh|php|sql = "$PAGER" -- "$@"/' "${rifleconf}"
         # add viewnior line for images:
         grep -q ' viewnior,' "${rifleconf}" || sed -i 's/^mime ^image\/svg, has inkscape, X, flag f = inkscape -- "$@"/mime ^image, has viewnior,  X, flag f = viewnior -- "$@"\n&/' "${rifleconf}"
