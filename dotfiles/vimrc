@@ -222,8 +222,8 @@ vnoremap <leader>tl :<BS><BS><BS><BS><BS>set wrap!<CR>gv
 nnoremap <leader>x <C-X>
 
 " insert mode bindings
-inoremap fd <esc>
-inoremap df <esc>
+inoremap fj <esc>
+inoremap jf <esc>
 
 " Write to file with sudo
 cmap w!! w !sudo tee % > /dev/null
