@@ -60,12 +60,8 @@ set -g status on
 set -g status-interval 30
 set -g status-right-length 70
 
-# uptime
-set -g status-right "#[fg=orange][#[fg=orange]↑ #(uptime | sed -r 's/.*up//' | sed 's/,.*//' | sed 's/^ *//')#[fg=orange]]"
-# #load average
-# set -ag status-right "#[fg=orange][#[fg=orange]#(uptime | sed 's/.*load average: //' | sed 's/,//g')#[fg=orange]]"
-#date/time
-set -ag status-right "#[fg=orange][#[fg=orange]%d-%m-%Y #[fg=orange]%H:%M#[fg=orange]]"
+set -g status-right "#[fg=orange][%Y-%m-%d %H:%M]"
+set -ag status-right "#[fg=orange][#(hostname)]"
 
 # time waiting for ESC to mean ALT
 set -s escape-time 0
