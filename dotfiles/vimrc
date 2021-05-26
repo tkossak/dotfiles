@@ -80,9 +80,9 @@ set diffexpr=""
 " Type cs to change the hit.
 " Type gUs to convert the hit to uppercase.
 " Type vs to visually select the hit. If you type another s you will extend the selection to the end of the next hit.
-vnoremap <silent> s //e<C-r>=&selection=='exclusive'?'+1':''<CR><CR>
-    \:<C-u>call histdel('search',-1)<Bar>let @/=histget('search',-1)<CR>gv
-omap s :normal vs<CR
+" vnoremap <silent> s //e<C-r>=&selection=='exclusive'?'+1':''<CR><CR>
+"     \:<C-u>call histdel('search',-1)<Bar>let @/=histget('search',-1)<CR>gv
+" omap s :normal vs<CR
 
 " au BufNewFile,BufRead *.py
 "     \ set textwidth=79 | " it automatically creates new line when you enter long text

@@ -1,12 +1,12 @@
 " ==================================================================
 " Simple note
 " ==================================================================
-command! Sn call Sn()
-function! Sn()
-  set shellcmdflag=-ic
-  let g:SimplenoteUsername = system("pass show mine/simplenote | sed -n 2p | tr -d '\n'")
-  let g:SimplenotePassword = system("pass show mine/simplenote | sed -n 1p | tr -d '\n'")
-endfunction
+" command! Sn call Sn()
+" function! Sn()
+"   set shellcmdflag=-ic
+"   let g:SimplenoteUsername = system("pass show mine/simplenote | sed -n 2p | tr -d '\n'")
+"   let g:SimplenotePassword = system("pass show mine/simplenote | sed -n 1p | tr -d '\n'")
+" endfunction
 
 " ==================================================================
 " Maximize Toggle
@@ -30,17 +30,17 @@ endfunction
 " ==================================================================
 " Sedify - remove sed special chars, so the file can be used as search string in sed scripts
 " ==================================================================
-command! Sedify call Sedify()
-function! Sedify()
-    %s/\\/\\\\/gi
-    %s/\//\\\//gi
-    %s/\$/\\\$/gi
-    %s/\./\\\./gi
-    %s/\*/\\\*/gi
-    %s/\[/\\\[/gi
-    %s/\]/\\\]/gi
-    %s/\^/\\\^/gi
-endfunction
+"command! Sedify call Sedify()
+"function! Sedify()
+"    %s/\\/\\\\/gi
+"    %s/\//\\\//gi
+"    %s/\$/\\\$/gi
+"    %s/\./\\\./gi
+"    %s/\*/\\\*/gi
+"    %s/\[/\\\[/gi
+"    %s/\]/\\\]/gi
+"    %s/\^/\\\^/gi
+"endfunction
 
 " ==================================================================
 " Collify - remove polish chars and -_
@@ -111,21 +111,21 @@ endfunction
 " Delete '<whitespace><number>:<whitespace>' from start of each line.
 " Display result in a scratch buffer.
 
-function! s:Filter_lines(cmd, filter)
-  let save_more = &more
-  set nomore
-  redir => lines
-  silent execute a:cmd
-  redir END
-  let &more = save_more
-  new
-  setlocal buftype=nofile bufhidden=hide noswapfile
-  put =lines
-  g/^\s*$/d
-  %s/^\s*\d\+:\s*//e
-  if !empty(a:filter)
-    execute 'v/' . a:filter . '/d'
-  endif
-  0
-endfunction
-command! -nargs=? Scriptnames call s:Filter_lines('scriptnames', <q-args>)
+" function! s:Filter_lines(cmd, filter)
+"   let save_more = &more
+"   set nomore
+"   redir => lines
+"   silent execute a:cmd
+"   redir END
+"   let &more = save_more
+"   new
+"   setlocal buftype=nofile bufhidden=hide noswapfile
+"   put =lines
+"   g/^\s*$/d
+"   %s/^\s*\d\+:\s*//e
+"   if !empty(a:filter)
+"     execute 'v/' . a:filter . '/d'
+"   endif
+"   0
+" endfunction
+" command! -nargs=? Scriptnames call s:Filter_lines('scriptnames', <q-args>)
