@@ -465,6 +465,31 @@ install_dotfiles()
     # .visidatarc
     install_link "${__dir_dotfiles_new}/visidatarc" ~/.visidatarc || true
 
+    # systemd
+    dir="$HOME/.local/venvs"
+    dst_dir="$links_dir/systemd"
+    rm $dst_dir/*
+    mkdir -p $dst_dir
+    # [[ -d "$dir" ]] && install_link "$dir" "$links_dir/pipsi_venv"
+    for src in /etc/systemd/system.control \
+        /run/systemd/system.control \
+        /run/systemd/transient \
+        /run/systemd/generator.early \
+        /etc/systemd/system \
+        /run/systemd/system \
+        /run/systemd/generator \
+        /usr/local/lib/systemd/system \
+        /usr/lib/systemd/system \
+        /run/systemd/generator.late
+    do
+        dst_name=${src#/}
+        dst_name=${dst_name//\//_}
+        # $src exists has files in it:
+        if [[ -d "$src" ]] && [[ "$(ls -A $src )" ]]; then
+            install_link "$src" "$dst_dir/$dst_name"
+        fi
+    done
+
     # links from .local
     [[ -r "${__dir_dotlocal}/install.links.local" ]] && source "${__dir_dotlocal}/install.links.local"
 
