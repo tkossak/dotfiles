@@ -471,16 +471,21 @@ install_dotfiles()
     rm $dst_dir/*
     mkdir -p $dst_dir
     # [[ -d "$dir" ]] && install_link "$dir" "$links_dir/pipsi_venv"
-    for src in /etc/systemd/system.control \
+    for src in \
+        /etc/systemd/system \
+        /etc/systemd/system.control \
+        /etc/systemd/user \
+        /run/systemd/generator \
+        /run/systemd/generator.early \
+        /run/systemd/generator.late \
+        /run/systemd/system \
         /run/systemd/system.control \
         /run/systemd/transient \
-        /run/systemd/generator.early \
-        /etc/systemd/system \
-        /run/systemd/system \
-        /run/systemd/generator \
-        /usr/local/lib/systemd/system \
+        /run/systemd/user \
         /usr/lib/systemd/system \
-        /run/systemd/generator.late
+        /usr/lib/systemd/user \
+        /usr/local/lib/systemd/system \
+        /usr/local/lib/systemd/user
     do
         dst_name=${src#/}
         dst_name=${dst_name//\//_}
