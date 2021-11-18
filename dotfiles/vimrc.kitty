@@ -1,0 +1,8 @@
+" vimrc for using vim as kitty scrollback editor/pager
+
+source ~/.vimrc
+
+unmap <Leader>qq
+unmap <Leader>qQ
+
+nnoremap <Leader>q :qa!<CR>
