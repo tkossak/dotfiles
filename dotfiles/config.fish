@@ -1,4 +1,5 @@
 set -gx EDITOR vim
+set -gx BROWSER opera
 
 # set JAVA_HOME path, if it is not set already
 # set -l dir_java "/usr/lib/jvm/java-8-openjdk-amd64"
@@ -21,6 +22,7 @@ begin
         powerline-daemon -q
     end
     set -l dirs \
+        '/home/kossak/.asdf/installs/python/3.9.7/lib/python3.9/site-packages/powerline/bindings/fish' \
         '/home/kossak/.asdf/installs/python/3.8.6/lib/python3.8/site-packages/powerline/bindings/fish' \
         '/home/kossak/.asdf/installs/python/3.6.9/lib/python3.6/site-packages/powerline/bindings/fish' \
         '/home/kossak/.asdf/installs/python/3.6.8/lib/python3.6/site-packages/powerline/bindings/fish' \
