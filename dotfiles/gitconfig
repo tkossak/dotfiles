@@ -28,14 +28,20 @@
     tags = tag --sort=v:refname --column=always
     aliases = config --get-regexp alias
 [diff]
-	tool = p4merge
+	tool = vscode
 [difftool]
 	prompt = false
 [merge]
-	tool = p4merge
+	tool = vscode
 [mergetool]
 	prompt = false
+
+[difftool "vscode"]
+  cmd = code --wait --diff $LOCAL $REMOTE
+[mergetool "vscode"]
+  cmd = code --wait $MERGED
+
 [difftool "p4merge"]
-	path = /home/kossak/.local/bin/p4merge
+	path = /opt/p4merge/bin/p4merge
 [mergetool "p4merge"]
-	path = /home/kossak/.local/bin/p4merge
+	path = /opt/p4merge/bin/p4merge
