@@ -264,11 +264,14 @@ install_dotfiles()
     fi
 
     # Xonsh
-    install_link "${__dir_dotfiles_new}/xonshrc" "${HOME}/.xonshrc" || true
-    for f in ${__dir_dotlocal}/xonsh/*.xsh; do
-        bn="$(basename $f)"
-        install_link "$f" "/home/kossak/.config/xonsh/rc.d/$bn" || true
-    done
+    if hash xonsh 2>/dev/null; then
+        mkdir -p "${HOME}/.config/xonsh/rc.d"
+        install_link "${__dir_dotfiles_new}/xonshrc" "${HOME}/.xonshrc" || true
+        for f in ${__dir_dotlocal}/xonsh/*.xsh; do
+            bn="$(basename $f)"
+            install_link "$f" "${HOME}/.config/xonsh/rc.d/$bn" || true
+        done
+    fi
 
     # soffice if installed manually (for easy opening in ranger)
     # if hash soffice 2>/dev/null; then
