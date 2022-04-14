@@ -1,3 +1,6 @@
+if executable('bash')
+    set shell=bash
+endif
 let s:uname = system("uname -s")
 " let s:hname = system("uname -n")
 
