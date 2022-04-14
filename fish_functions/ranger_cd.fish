@@ -1,6 +1,6 @@
 # Defined in /tmp/fish.POpQCr/ranger_cd.fish @ line 2
 function ranger_cd
-	set -l tempfile '/tmp/chosendir'
+    set -l tempfile '/tmp/chosendir'
 
     __fish_disable_bracketed_paste
     ranger --choosedir $tempfile (pwd)

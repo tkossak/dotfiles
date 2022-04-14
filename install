@@ -263,6 +263,13 @@ install_dotfiles()
         fi
     fi
 
+    # Xonsh
+    install_link "${__dir_dotfiles_new}/xonshrc" "${HOME}/.xonshrc" || true
+    for f in ${__dir_dotlocal}/xonsh/*.xsh; do
+        bn="$(basename $f)"
+        install_link "$f" "/home/kossak/.config/xonsh/rc.d/$bn" || true
+    done
+
     # soffice if installed manually (for easy opening in ranger)
     # if hash soffice 2>/dev/null; then
     #     soffice_file="/opt/libreoffice6.3/program/soffice"

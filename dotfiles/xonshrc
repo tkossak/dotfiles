@@ -1,4 +1,85 @@
+# $SHELL_TYPE = 'readline'
+
 # XONSH WEBCONFIG START
-$PROMPT ='{env_name}{BOLD_GREEN}{user}@{hostname}{BOLD_BLUE} {cwd}{branch_color}{curr_branch: {}}{RESET} {BOLD_BLUE}\n{prompt_end}{RESET} '
-xontrib load z
+$PROMPT = '{env_name}{BOLD_GREEN}{user}@{hostname}{BOLD_BLUE} {cwd}{branch_color}{curr_branch: {}}{RESET} {BOLD_BLUE}{prompt_end}{RESET} '
+xontrib load abbrevs argcomplete broot coreutils fzf-widgets prompt_ret_code whole_word_jumping z
 # XONSH WEBCONFIG END
+
+# Aliases and abbrevs ##############################################################
+aliases['kittyt'] = 'kitty --config /home/kossak/.dotfiles/dotfiles/kitty_for_tmux.conf all>/dev/null &; disown 1'
+
+aliases['l'] = 'exa -l --git'
+aliases['df'] = 'df -h'
+abbrevs['ta'] = 'tmux attach-session'
+abbrevs['tl'] = 'tmux list-sessions'
+abbrevs['tn'] = 'tmux new-session'
+aliases['vim_tns'] = 'vim $ORACLE_HOME/network/admin/tnsnames.ora'
+abbrevs['pss'] = 'ps -ef | grep -i'
+aliases['free'] = 'free -m'
+# aliases['tarb'] = 'tar -cavf DIR_(date +'%Y%m%d_%H%M%S').tar.gz DIR'
+aliases['ntp'] = 'sudo ntpdate pl.pool.ntp.org'
+aliases['monitor_off'] = 'xset dpms force off'
+
+aliases['mtro'] = 'mtr -o "LRD N ABWV"'
+aliases['mtrg'] = 'mtr -o "LRD N ABWV" 8.8.8.8'  # google
+aliases['smbm'] = 'sudo mount -t cifs -o credentials=/mnt/params/smb_cred_ja,uid=kossak,gid=kossak,vers=2.0 //SERVER/DIR /mnt/smb1'
+aliases['smbl'] = 'smbclient -A /mnt/params/smb_cred_ja -L //'
+aliases['smbi'] = 'smbclient //192.168.1.1/folder -A path/to/AUTH_FILE'
+aliases['mountvb'] = 'sudo mount -t vboxsf -o uid=kossak,gid=kossak vbox_shared /mnt/vs'
+# aliases['reds'] = 'redshift -l 50.2648920:19.0237820 -t 3300:3300 &'
+aliases['rsyncc'] = 'rsync -vr --progress AAA BBB/'
+
+# KEYBINDINGS
+from prompt_toolkit.keys import Keys
+from prompt_toolkit.filters import Condition, EmacsInsertMode, ViInsertMode
+
+@events.on_ptk_create
+def custom_keybindings(bindings, **kw):
+
+    # @bindings.add(Keys.ControlW)
+    # def say_hi(event):
+        # event.current_buffer.insert_text('hi')
+
+    @bindings.add(Keys.ControlO)
+    def ranger_cd(event):
+        f = p'/tmp/rangerdir'
+        ranger --choosedir @(f) @(f.cwd())
+        if f.exists():
+            cd @(f.read_text())
+        event.cli.renderer.erase()
+
+# PATHs
+from pathlib import Path
+paths = [
+    p'~/.asdf/shims',
+    p'~/.asdf/bin',
+    p'~/.local/bin',
+    p'/snap/bin',
+    p'~/.dotfiles.local/bin',
+    p'~/.dotfiles/bin',
+    p'/home/linuxbrew/.linuxbrew/bin',
+    p'~/apps/google-cloud-sdk/bin',
+    p'/opt/google-cloud-sdk/bin',
+    p'~/.poetry/bin/',
+    p'/opt/cisco/anyconnect/bin',
+    p'/opt/oracle/instantclient_19_9',
+    p'~/apps/oracle_instantclient',
+]
+for p in reversed(paths):
+    if p in $PATH:
+        $PATH.remove(p)
+    if p.exists():
+        $PATH.insert(0, p)
+del Path
+
+# fzf
+$fzf_history_binding = "c-r"
+$fzf_ssh_binding = "c-s"
+$fzf_file_binding = "c-t"
+$fzf_dir_binding = "c-g"
+
+$fzf_find_command = "fd"
+$fzf_find_dirs_command = "fd -t d"
+
+# fix for vim throwing error when SHELL is set to xonsh:
+$SHELL = '/bin/bash'
