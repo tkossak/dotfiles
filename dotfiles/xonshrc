@@ -6,6 +6,8 @@ xontrib load abbrevs argcomplete broot coreutils fzf-widgets prompt_ret_code who
 # XONSH WEBCONFIG END
 
 # Aliases and abbrevs ##############################################################
+abbrevs['teams.'] = 'teams --disable-seccomp-filter-sandbox'
+
 aliases['kittyt'] = 'kitty --config /home/kossak/.dotfiles/dotfiles/kitty_for_tmux.conf all>/dev/null &; disown 1'
 
 aliases['l'] = 'exa -l --git'
