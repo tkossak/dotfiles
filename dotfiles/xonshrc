@@ -31,6 +31,40 @@ aliases['mountvb'] = 'sudo mount -t vboxsf -o uid=kossak,gid=kossak vbox_shared 
 # aliases['reds'] = 'redshift -l 50.2648920:19.0237820 -t 3300:3300 &'
 aliases['rsyncc'] = 'rsync -vr --progress AAA BBB/'
 
+abbrevs['envb'] = 'env | egrep -i "display|xauth|gpg|ssh|^op_session|^bw_session"'
+abbrevs['lsblkl'] = 'sudo lsblk -fo "name,size,type,fstype,label,mountpoint,uuid"'
+
+# media - TODO
+abbrevs['dmp3']  = "yt-dlp -cx --audio-format mp3 -o '%(title)s.%(ext)s' (xclip -o)"
+abbrevs['y']     = 'yt-dlp $(xclip -o -sel c)'
+abbrevs['dtel']  = 'yt-dlp -f "worstvideo[height>=480]+bestaudio[abr<=128]" -o ''%(title)s.%(ext)s'' (xclip -o)'
+abbrevs['dtel2'] = "yt-dlp -f bestvideo[ext=mp4][height=720]+bestaudio[ext=m4a][abr=128]/bestvideo[height<=720]+bestaudio[abr<=128] -o '%(title)s.%(ext)s' (xclip -o)"
+abbrevs['ffmpegct'] = 'ffmpeg -i -c:v libx264 -c:a aac -pix_fmt yuv420p'
+
+# vars for SSH - TODO
+
+# original vars - TODO
+
+# python
+abbrevs['asdfi']  = 'env PYTHON_CONFIGURE_OPTS="--enable-shared --enable-optimizations" asdf install python'
+abbrevs['asdfs']  = 'set -x ASDF_PYTHON_VERSION'
+abbrevs['asdfl']  = 'asdf list-all python'
+abbrevs['asdfu']  = 'asdf update'
+abbrevs['asdfup'] = 'asdf plugin-update python'
+abbrevs['poa']    = "poetry add"
+abbrevs['poav']   = "poetry add PKG=1.14.5"
+abbrevs['pipxul'] = 'pipx upgrade --index-url http://localhost:8080'
+abbrevs['pipxu']  = 'pipx upgrade'
+abbrevs['pipxup'] = 'pipx upgrade --index-url http://localhost:8080 --pip-args="--pre"'
+abbrevs['pipi']   = 'pip install --extra-index-url http://localhost:8080 -U'
+abbrevs['pipd']   = 'pip download --extra-index-url http://localhost:8080'
+abbrevs['ipdbb']  = 'export PYTHONBREAKPOINT=ipdb.set_trace'
+
+abbrevs['convertpng'] = 'mogrify -format jpg -quality 80 *.png'
+
+# różne - TODO + pozostałe
+
+
 # KEYBINDINGS
 from prompt_toolkit.keys import Keys
 from prompt_toolkit.filters import Condition, EmacsInsertMode, ViInsertMode
