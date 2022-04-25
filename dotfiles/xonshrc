@@ -116,6 +116,3 @@ $fzf_dir_binding = "c-g"
 
 $fzf_find_command = "fd"
 $fzf_find_dirs_command = "fd -t d"
-
-# fix for vim throwing error when SHELL is set to xonsh:
-$SHELL = '/bin/bash'
