@@ -102,12 +102,9 @@ paths = [
     p'/opt/oracle/instantclient_19_9',
     p'~/apps/oracle_instantclient',
 ]
-for p in reversed(paths):
-    if str(p) in $PATH:
-        $PATH.remove(str(p))
-    if p.exists():
-        $PATH.insert(0, str(p))
-del Path
+paths = [p for p in paths if p.exists()]
+$PATH = paths + [p for p in $PATH if Path(p) not in paths]
+del Path, paths
 
 # fzf
 $fzf_history_binding = "c-r"
