@@ -103,10 +103,10 @@ paths = [
     p'~/apps/oracle_instantclient',
 ]
 for p in reversed(paths):
-    if p in $PATH:
-        $PATH.remove(p)
+    if str(p) in $PATH:
+        $PATH.remove(str(p))
     if p.exists():
-        $PATH.insert(0, p)
+        $PATH.insert(0, str(p))
 del Path
 
 # fzf
