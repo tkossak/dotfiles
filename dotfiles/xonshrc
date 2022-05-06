@@ -63,8 +63,22 @@ abbrevs['pipi']   = 'pip install --extra-index-url http://localhost:8080 -U'
 
 abbrevs['convertpng'] = 'mogrify -format jpg -quality 80 *.png'
 
+abbrevs['envss'] = '''\
+$DISPLAY = ':51.0'
+$XAUTHORITY = '/home/kossak/.Xauthority'
+tmux setenv DISPLAY $DISPLAY
+tmux setenv XAUTHORITY $XAUTHORITY
+$SSH_AUTH_SOCK = '/run/user/1000/keyring/ssh'
+tmux setenv SSH_AUTH_SOCK $SSH_AUTH_SOCK '''
+
 # różne - TODO + pozostałe
 
+def _ranger_cd():
+    f = p'/tmp/rangerdir'
+    ranger --choosedir @(f) @(f.cwd())
+    if f.exists():
+        cd @(f.read_text())
+aliases['ranger_cd'] = _ranger_cd
 
 # KEYBINDINGS
 from prompt_toolkit.keys import Keys
@@ -78,15 +92,23 @@ def custom_keybindings(bindings, **kw):
         # event.current_buffer.insert_text('hi')
 
     @bindings.add(Keys.ControlO)
-    def ranger_cd(event):
-        f = p'/tmp/rangerdir'
-        ranger --choosedir @(f) @(f.cwd())
-        if f.exists():
-            cd @(f.read_text())
-        event.cli.renderer.erase()
+    def ranger_cd_key(event):
+        _ranger_cd()
+        # TODO: put cursor at the end of last prompt?
+        # event.cli.renderer.erase()
+
+# Update different paths:
+
+from pathlib import Path
+# LD_LIBRARY_PATH
+ld_paths = [
+    p'/usr/lib',
+]
+paths = [p for p in ld_paths if p.exists()]
+${...}['LD_LIBRARY_PATH'] = ${...}.get('LD_LIBRARY_PATH', [])
+$LD_LIBRARY_PATH = [p for p in $LD_LIBRARY_PATH if Path(p) not in paths] + paths
 
 # PATHs
-from pathlib import Path
 paths = [
     p'~/.asdf/shims',
     p'~/.asdf/bin',
@@ -104,7 +126,8 @@ paths = [
 ]
 paths = [p for p in paths if p.exists()]
 $PATH = paths + [p for p in $PATH if Path(p) not in paths]
-del Path, paths
+
+del paths
 
 # fzf
 $fzf_history_binding = "c-r"
@@ -114,3 +137,5 @@ $fzf_dir_binding = "c-g"
 
 $fzf_find_command = "fd"
 $fzf_find_dirs_command = "fd -t d"
+
+del Path
