@@ -100,13 +100,14 @@ def custom_keybindings(bindings, **kw):
 # Update different paths:
 
 from pathlib import Path
-# LD_LIBRARY_PATH
-ld_paths = [
-    p'/usr/lib',
-]
-paths = [p for p in ld_paths if p.exists()]
-${...}['LD_LIBRARY_PATH'] = ${...}.get('LD_LIBRARY_PATH', [])
-$LD_LIBRARY_PATH = [p for p in $LD_LIBRARY_PATH if Path(p) not in paths] + paths
+
+# # LD_LIBRARY_PATH
+# ld_paths = [
+#     p'/usr/lib',
+# ]
+# paths = [p for p in ld_paths if p.exists()]
+# ${...}['LD_LIBRARY_PATH'] = ${...}.get('LD_LIBRARY_PATH', [])
+# $LD_LIBRARY_PATH = [p for p in $LD_LIBRARY_PATH if Path(p) not in paths] + paths
 
 # PATHs
 paths = [
