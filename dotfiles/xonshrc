@@ -130,8 +130,8 @@ paths = [
     p'/opt/oracle/instantclient_19_9',
     p'~/apps/oracle_instantclient',
 ]
-paths = [p for p in paths if p.exists()]
-$PATH = paths + [p for p in $PATH if Path(p) not in paths]
+paths = [str(p) for p in paths if p.exists()]
+$PATH = paths + [p for p in $PATH if p not in paths]
 
 del paths
 
