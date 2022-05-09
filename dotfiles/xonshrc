@@ -1,5 +1,8 @@
 # $SHELL_TYPE = 'readline'
 
+# $XONSH_SHOW_TRACEBACK = True
+# $XONSH_TRACEBACK_LOGFILE = '/tmp/xonsh_traceback_logfile'
+
 # XONSH WEBCONFIG START
 $PROMPT = '{env_name}{BOLD_GREEN}{user}@{hostname}{BOLD_BLUE} {cwd}{branch_color}{curr_branch: {}}{RESET} {BOLD_BLUE}{prompt_end}{RESET} '
 xontrib load abbrevs argcomplete broot coreutils fzf-widgets prompt_ret_code whole_word_jumping z
