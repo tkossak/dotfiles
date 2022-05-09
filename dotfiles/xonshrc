@@ -5,6 +5,11 @@ $PROMPT = '{env_name}{BOLD_GREEN}{user}@{hostname}{BOLD_BLUE} {cwd}{branch_color
 xontrib load abbrevs argcomplete broot coreutils fzf-widgets prompt_ret_code whole_word_jumping z
 # XONSH WEBCONFIG END
 
+# $RIGHT_PROMPT = '{#A0FF4C}{localtime}'
+$RIGHT_PROMPT = '{BOLD_GREEN}{localtime}'
+# $BOTTOM_TOOLBAR = '{BOLD_#A0FF4C}{user}{NO_COLOR} on {BOLD_#D6A6FF}{cwd}'
+$MULTILINE_PROMPT = ''
+
 # Aliases and abbrevs ##############################################################
 abbrevs['teams.'] = 'teams --disable-seccomp-filter-sandbox'
 
