@@ -56,7 +56,7 @@ abbrevs['ffmpegct'] = 'ffmpeg -i -c:v libx264 -c:a aac -pix_fmt yuv420p'
 # python
 abbrevs['pypiserver'] = 'pypi-server run -p 8080 -i 127.0.0.1 ~/Kossak/pypi_packages'
 abbrevs['asdfi']  = 'env PYTHON_CONFIGURE_OPTS="--enable-shared --enable-optimizations" asdf install python'
-abbrevs['asdfs']  = 'set -x ASDF_PYTHON_VERSION'
+abbrevs['asdfs']  = "$ASDF_PYTHON_VERSION ="
 abbrevs['asdfl']  = 'asdf list-all python'
 abbrevs['asdfu']  = 'asdf update'
 abbrevs['asdfup'] = 'asdf plugin-update python'
