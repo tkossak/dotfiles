@@ -15,8 +15,9 @@ $MULTILINE_PROMPT = ''
 
 # Aliases and abbrevs ##############################################################
 abbrevs['teams.'] = 'teams --disable-seccomp-filter-sandbox'
+abbrevs['convertpng'] = 'mogrify -format jpg -quality 80 *.png'
 
-aliases['kittyt'] = 'kitty --config /home/kossak/.dotfiles/dotfiles/kitty_for_tmux.conf all>/dev/null &; disown 1'
+# aliases['kittyt'] = 'kitty --config /home/kossak/.dotfiles/dotfiles/kitty_for_tmux.conf all>/dev/null &; disown 1'
 
 aliases['l'] = 'exa -l --git'
 abbrevs['df'] = 'df -h'
@@ -68,8 +69,6 @@ abbrevs['pipxup'] = 'pipx upgrade --index-url http://localhost:8080 --pip-args="
 abbrevs['pipi']   = 'pip install --extra-index-url http://localhost:8080 -U'
 # abbrevs['pipd']   = 'pip download'
 # abbrevs['ipdbb']  = 'export PYTHONBREAKPOINT=ipdb.set_trace'
-
-abbrevs['convertpng'] = 'mogrify -format jpg -quality 80 *.png'
 
 abbrevs['envss'] = '''\
 $DISPLAY = ':51.0'
