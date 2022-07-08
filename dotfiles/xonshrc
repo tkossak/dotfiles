@@ -81,7 +81,7 @@ abbrevs['pipi']   = 'pip install --extra-index-url http://localhost:8080 -U'
 # abbrevs['ipdbb']  = 'export PYTHONBREAKPOINT=ipdb.set_trace'
 
 # gcp
-abbrevs['bqh', 'bq head --format csv tk_tmp.LOAD_ERRORS | vd -f csv']
+abbrevs['bqh'] = 'bq head --format csv tk_tmp.LOAD_ERRORS | vd -f csv'
 
 # różne
 # ranger
