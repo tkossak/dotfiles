@@ -91,6 +91,7 @@ def _ranger_cd():
     if f.exists():
         cd @(f.read_text())
 aliases['ranger_cd'] = _ranger_cd
+aliases['r'] = _ranger_cd
 
 # KEYBINDINGS
 from prompt_toolkit.keys import Keys
