@@ -168,6 +168,7 @@ install_dotfiles()
             find ~/.asdf/shims -name "$app" -delete
         done
     fi
+    [[ -d "$HOME/.config/broot" ]] && install_link "${__dir_dotfiles_new}/broot.conf.hjson" ~/.config/broot/conf.hjson || true 
 
     # fish:
     fish_functions_src_dirs=("${__dir_dotfiles}/fish_functions/*.fish" "${__dir_dotlocal}/fish_functions/*.fish")
