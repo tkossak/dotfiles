@@ -73,10 +73,14 @@ abbrevs['asdfu']  = 'asdf update'
 abbrevs['asdfup'] = 'asdf plugin-update python'
 abbrevs['poa']    = "poetry add"
 abbrevs['poav']   = "poetry add PKG=1.14.5"
+abbrevs['pipi']   = 'pip install -U'
+abbrevs['pipil']  = 'pip install --extra-index-url http://localhost:8080 -U'
+abbrevs['pipxi']  = 'pipx install'
+abbrevs['pipxil'] = 'pipx install --index-url http://localhost:8080'
+abbrevs['pipxu']  = 'pipx upgrade'
 abbrevs['pipxul'] = 'pipx upgrade --index-url http://localhost:8080'
 abbrevs['pipxu']  = 'pipx upgrade'
 abbrevs['pipxup'] = 'pipx upgrade --index-url http://localhost:8080 --pip-args="--pre"'
-abbrevs['pipi']   = 'pip install --extra-index-url http://localhost:8080 -U'
 # abbrevs['pipd']   = 'pip download'
 # abbrevs['ipdbb']  = 'export PYTHONBREAKPOINT=ipdb.set_trace'
 
