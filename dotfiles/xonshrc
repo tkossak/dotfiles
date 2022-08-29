@@ -54,7 +54,7 @@ abbrevs['ffmpegct'] = 'ffmpeg -i -c:v libx264 -c:a aac -pix_fmt yuv420p'
 
 # vars for SSH/TMUX
 abbrevs['envss'] = '''\
-$DISPLAY = ':51.0'
+$DISPLAY = ':50.0'
 $XAUTHORITY = '/home/kossak/.Xauthority'
 tmux setenv DISPLAY $DISPLAY
 tmux setenv XAUTHORITY $XAUTHORITY
