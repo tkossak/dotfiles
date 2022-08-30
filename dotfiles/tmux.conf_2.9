@@ -85,6 +85,9 @@ setw -g mode-keys vi
 
 # ====================================================================
 # TMUX GENERAL
+
+bind -n C-v command-prompt -kp key 'send %%%'
+
 # e: Reload tmux config
 bind e source-file ~/.tmux.conf \; display 'Config reloaded'
 
