@@ -92,6 +92,9 @@ abbrevs['gcloudc'] = "$CLOUDSDK_ACTIVE_CONFIG_NAME='"
 
 # różne
 # ranger
+abbrevs['borglf'] = 'borg list --format \'{name}{NL}\' . | fzf'
+abbrevs['borgllf'] = 'borg list f".::{$(borg list --format \'{name}{NL}\' . | fzf).strip()}" | less'
+abbrevs['borgmf'] = 'borg mount f".::{$(borg list --format \'{name}{NL}\' . | fzf).strip()}" /mnt/borg'
 
 def _ranger_cd():
     f = p'/tmp/rangerdir'
