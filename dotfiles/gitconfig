@@ -28,18 +28,20 @@
     tags = tag --sort=v:refname --column=always
     aliases = config --get-regexp alias
 [diff]
-	tool = vscode
-[difftool]
-	prompt = false
+	# tool = p4merge
+    tool = code
 [merge]
-	tool = vscode
+	# tool = p4merge
+    tool = code
 [mergetool]
 	prompt = false
+[difftool]
+	prompt = false
 
-[difftool "vscode"]
+[mergetool "code"]
+  cmd = code --wait --merge $REMOTE $LOCAL $BASE $MERGED
+[difftool "code"]
   cmd = code --wait --diff $LOCAL $REMOTE
-[mergetool "vscode"]
-  cmd = code --wait $MERGED
 
 [difftool "p4merge"]
 	path = /opt/p4merge/bin/p4merge
