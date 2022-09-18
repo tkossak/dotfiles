@@ -1,8 +1,8 @@
 options.min_memory_mb=100
 
-options.color_status = 'black'
-options.color_active_status = 'black on 110'
-options.color_keystrokes = 'black'
+options.color_status = 'black on 110'
+options.color_keystrokes = 'black on 110'
+# options.color_active_status = 'black on 110'
 
 # color_sidebar="red on 114 red"
 
