@@ -88,7 +88,9 @@ abbrevs['pipxup'] = 'pipx upgrade --index-url http://localhost:8080 --pip-args="
 
 # gcp
 abbrevs['bqh'] = 'bq head --format csv tk_tmp.LOAD_ERRORS | vd -f csv'
-abbrevs['gcloudc'] = "$CLOUDSDK_ACTIVE_CONFIG_NAME='"
+abbrevs['gc'] = "$CLOUDSDK_ACTIVE_CONFIG_NAME='"
+abbrevs['gcl'] = "gcloud config list"
+abbrevs['gca'] = "gcloud config configurations activate"
 
 # różne
 # ranger
