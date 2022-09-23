@@ -103,6 +103,9 @@ abbrevs['gms'] = "gcloud compute ssh"
 
 # różne
 # ranger
+abbrevs['passs'] = r"pass show $(find -L ~/.password-store -iname '*.gpg' | sed -e 's_^/home/kossak/.password-store/__' -e 's_.gpg$__' | fzf | tr -d '\n')"
+abbrevs['passc'] = r"pass -c $(find -L ~/.password-store -iname '*.gpg' | sed -e 's_^/home/kossak/.password-store/__' -e 's_.gpg$__' | fzf | tr -d '\n')"
+abbrevs['passe'] = r"pass edit $(find -L ~/.password-store -iname '*.gpg' | sed -e 's_^/home/kossak/.password-store/__' -e 's_.gpg$__' | fzf | tr -d '\n')"
 abbrevs['borglf'] = 'borg list --format \'{name}{NL}\' . | fzf'
 abbrevs['borgllf'] = 'borg list f".::{$(borg list --format \'{name}{NL}\' . | fzf).strip()}" | less'
 abbrevs['borgmf'] = 'borg mount f".::{$(borg list --format \'{name}{NL}\' . | fzf).strip()}" /mnt/borg'
