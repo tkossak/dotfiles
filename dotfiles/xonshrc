@@ -103,6 +103,7 @@ abbrevs['gms'] = "gcloud compute ssh"
 
 # różne
 # ranger
+aliases['bwu'] = r"$BW_SESSION = next(filter(lambda v: 'export BW_SESSION' in v, $(bw unlock).splitlines())).split('\"')[-2]"
 abbrevs['passs'] = r"pass show $(find -L ~/.password-store -iname '*.gpg' | sed -e 's_^/home/kossak/.password-store/__' -e 's_.gpg$__' | fzf | tr -d '\n')"
 abbrevs['passc'] = r"pass -c $(find -L ~/.password-store -iname '*.gpg' | sed -e 's_^/home/kossak/.password-store/__' -e 's_.gpg$__' | fzf | tr -d '\n')"
 abbrevs['passe'] = r"pass edit $(find -L ~/.password-store -iname '*.gpg' | sed -e 's_^/home/kossak/.password-store/__' -e 's_.gpg$__' | fzf | tr -d '\n')"
