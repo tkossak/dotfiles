@@ -98,6 +98,7 @@ abbrevs['gal'] = "gcloud auth list"
 abbrevs['gar'] = "gcloud auth revoke"
 abbrevs['gpl'] = "gcloud projects list"
 abbrevs['gmil'] = "gcloud compute instances list"
+abbrevs['gmil'] = "gcloud compute instances delete"
 abbrevs['gmdl'] = "gcloud compute disks list"
 abbrevs['gms'] = "gcloud compute ssh"
 
