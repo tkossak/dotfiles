@@ -5,7 +5,8 @@
 
 # XONSH WEBCONFIG START
 $PROMPT = '{env_name}{BOLD_GREEN}{user}@{hostname}{BOLD_BLUE} {cwd}{branch_color}{curr_branch: {}}{RESET} {BOLD_BLUE}{prompt_end}{RESET} '
-xontrib load abbrevs argcomplete broot coreutils fzf-widgets prompt_ret_code whole_word_jumping z vox # autovox avox_poetry
+# xontrib load abbrevs argcomplete broot coreutils fzf-widgets prompt_ret_code whole_word_jumping z vox # autovox avox_poetry
+xontrib load abbrevs argcomplete broot coreutils fzf-widgets whole_word_jumping z vox # autovox avox_poetry
 # XONSH WEBCONFIG END
 
 $EDITOR='vim'
@@ -104,6 +105,7 @@ abbrevs['gms'] = "gcloud compute ssh"
 
 # różne
 # ranger
+abbrevs['mountiso'] = 'sudo mount -o loop myisofile.iso /mnt/a'
 aliases['bwu'] = r"$BW_SESSION = next(filter(lambda v: 'export BW_SESSION' in v, $(bw unlock).splitlines())).split('\"')[-2]"
 abbrevs['passs'] = r"pass show $(find -L ~/.password-store -iname '*.gpg' | sed -e 's_^/home/kossak/.password-store/__' -e 's_.gpg$__' | fzf | tr -d '\n')"
 abbrevs['passc'] = r"pass -c $(find -L ~/.password-store -iname '*.gpg' | sed -e 's_^/home/kossak/.password-store/__' -e 's_.gpg$__' | fzf | tr -d '\n')"
