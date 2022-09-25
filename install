@@ -147,9 +147,9 @@ install_dotfiles()
     install_link "${__dir_dotfiles_new}/tmux.conf_2.9" ~/.tmux.conf || true
 
     # Joplin
-    if [[ -d "$HOME/.config/joplin" ]]; then
-        install_link "${__dir_dotfiles_new}/kitty.conf" /home/kossak/.config/kitty/kitty.conf || true
-    fi
+    # if [[ -d "$HOME/.config/joplin" ]]; then
+    #     install_link "${__dir_dotfiles_new}/kitty.conf" /home/kossak/.config/kitty/kitty.conf || true
+    # fi
 
     # kitty terminal
     if [[ -d "$HOME/.config/kitty" ]]; then
