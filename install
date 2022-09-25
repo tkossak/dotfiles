@@ -148,13 +148,13 @@ install_dotfiles()
 
     # Joplin
     # if [[ -d "$HOME/.config/joplin" ]]; then
-    #     install_link "${__dir_dotfiles_new}/kitty.conf" /home/kossak/.config/kitty/kitty.conf || true
+    #     install_link "${__dir_dotfiles_new}/joplin.keymap.json" ~/.config/joplin/keymap.json || true
     # fi
 
     # kitty terminal
-    if [[ -d "$HOME/.config/kitty" ]]; then
-        install_link "${__dir_dotfiles_new}/joplin.keymap.json" ~/.config/joplin/keymap.json || true
-    fi
+    # if [[ -d "$HOME/.config/kitty" ]]; then
+    #     install_link "${__dir_dotfiles_new}/kitty.conf" /home/kossak/.config/kitty/kitty.conf || true
+    # fi
 
     # minttyrc
     if [[ "${__myos}" == "CYGWIN" ]]; then
