@@ -80,7 +80,7 @@ tmux setenv SSH_AUTH_SOCK $SSH_AUTH_SOCK '''
 
 # python
 abbrevs['va'] = 'vox activate'
-abbrevs['vd'] = 'vox deactivate'
+abbrevs['vde'] = 'vox deactivate'
 abbrevs['pypiserver'] = 'pypi-server run -p 8080 -i 127.0.0.1 ~/Kossak/pypi_packages'
 abbrevs['voxap'] = 'vox activate /home/kossak/Kossak/links/poetry_venv/'
 abbrevs['voxa'] = 'vox activate'
