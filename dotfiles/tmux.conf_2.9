@@ -28,6 +28,9 @@ bind 'C-a' send-prefix
 set -g default-terminal "tmux-256color"
 set -ag terminal-overrides ",xterm-256color:RGB"
 
+# Focus events enabled for terminals that support them
+set -g focus-events on
+
 # xterm keys (modifier for SHIFT/ALT/CTRL)
 setw -g xterm-keys on
 
@@ -61,22 +64,26 @@ set-option -g base-index 1
 #statusline setup
 set -g status on
 # set -g status-utf8 on
-set -g status-interval 30
+# Refresh 'status-left' and 'status-right' more often, from every 15s to 5s
+set -g status-interval 10
 set -g status-right-length 70
 
 set -g status-right "#[fg=orange][%Y-%m-%d %H:%M]"
 set -ag status-right "#[fg=orange][#(hostname)]"
 
-# time waiting for ESC to mean ALT
+# time waiting for ESC to mean ALT - # Address vim mode switching delay (http://superuser.com/a/252717/65504)
 set -s escape-time 0
-# history setting
-set -g history-limit 1000000
+# scrollback buffer size (in lines)
+set -g history-limit 100000
 # time for displaying pane numbers with C-v q
 set -g display-panes-time 5000
+# Increase tmux messages display duration from 750ms to 4s
+set -g display-time 4000
 
-# vi-style controls in copy mode
-set -g status-keys vi
-setw -g mode-keys vi
+# Emacs key bindings in tmux command prompt (prefix + :) are better than
+# vi keys, even for vim users
+set -g status-keys emacs
+# setw -g mode-keys vi
 
 # Mouse mode - doesn't work with tmux 2.1?
 setw -g mouse on
@@ -85,7 +92,7 @@ setw -g mouse on
 # set-option -g mouse-select-window on
 
 
-# ====================================================================
+# ####################################################################
 # TMUX GENERAL
 
 bind -n C-v command-prompt -kp key 'send %%%'
@@ -136,7 +143,7 @@ bind -T copy-mode-vi y send -X copy-selection-and-cancel\; run "tmux save -|xcli
 # bind -t vi-copy 'V' rectangle-toggle
 bind -T copy-mode-vi 'V' send -X rectangle-toggle
 
-# ===================================================
+# ###################################################
 # LAYOUTS
 # Bind [ and ] to some common used layout
 bind [ select-layout even-horizontal
@@ -148,8 +155,12 @@ bind C-r rotate-window
 bind C-x next-layout
 
 
-# ====================================================================
+# ####################################################################
 # PANES
+
+# Super useful when using "grouped sessions" and multi-monitor setup
+setw -g aggressive-resize on
+
 # break pane
 bind o break-pane
 # last pane
@@ -207,7 +218,7 @@ bind s split-window -v -c "#{pane_current_path}"
 bind -n M-0 display-panes
 bind 0 display-panes
 
-# ======================================================================================
+# ######################################################################################
 # WINDOWS
 # Moving windows:
 bind -n C-M-j swap-window -t -1\; select-window -t -1
@@ -268,8 +279,8 @@ bind -n M-w choose-window \; refresh-client -S
 # Choose last session/window
 # bind -n M-a switch-client -l \; refresh-client -S
 # bind -n M-q last-window
-bind a switch-client -l \; refresh-client -S
-bind q last-window
+bind q switch-client -l \; refresh-client -S
+bind a last-window
 #
 # Switch to next session
 bind -n M-J switch-client -n \; refresh-client -S
@@ -286,7 +297,7 @@ bind C confirm-before -p "kill-SESSION #S? (y/n)" kill-session
 # bind w confirm-before -p "kill-window #W? (y/n)" kill-window
 
 
-# --------------------------------------------------------------------
+# ####################################################################
 # powerline
 # run-shell "powerline-daemon -q"
 # source "/usr/local/lib/python2.7/dist-packages/powerline/bindings/tmux/powerline.conf"
