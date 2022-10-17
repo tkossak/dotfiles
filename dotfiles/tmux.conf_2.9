@@ -24,7 +24,9 @@ bind 'C-a' send-prefix
 # bind 'C-b' send-prefix
 
 # Set the terminal type so colors get rendered correctly
-set -g default-terminal "screen-256color"
+# set -g default-terminal "screen-256color"
+set -g default-terminal "tmux-256color"
+set -ag terminal-overrides ",xterm-256color:RGB"
 
 # xterm keys (modifier for SHIFT/ALT/CTRL)
 setw -g xterm-keys on
@@ -77,7 +79,7 @@ set -g status-keys vi
 setw -g mode-keys vi
 
 # Mouse mode - doesn't work with tmux 2.1?
-# set-window-option -g mode-mouse on
+setw -g mouse on
 # set-option -g mouse-select-pane on
 # set-option -g mouse-resize-pane on
 # set-option -g mouse-select-window on
@@ -109,7 +111,8 @@ bind \; command-promp
 bind / list-keys
 
 # CLIPBOARD:
-set-option -s set-clipboard off
+# Enable osc52 clipboard
+set -s set-clipboard on
 # Alt-c: Copy mode
 bind -n M-c copy-mode
 # Alt-v: Paste buffer
