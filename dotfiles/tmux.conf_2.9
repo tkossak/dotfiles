@@ -129,19 +129,19 @@ bind -n M-v paste-buffer
 # bind -t vi-copy 'v' begin-selection
 bind -T copy-mode-vi 'v' send -X begin-selection
 
+# bind -t vi-copy 'V' rectangle-toggle
+bind -T copy-mode-vi 'V' send -X rectangle-toggle
+
 # bind -t vi-copy 'y' copy-selection
 # bind -T copy-mode-vi y send -X copy-selection
 # bind -T copy-mode-vi y send -X copy-pipe 'xclip -sel clip'
-bind -T copy-mode-vi y send -X copy-selection-and-cancel\; run "tmux save -|xclip -sel clip >/dev/null 2>&1"
-
+# bind -T copy-mode-vi y send -X copy-selection-and-cancel\; run "tmux save -|xclip -sel clip >/dev/null 2>&1"
 
 # bind -t vi-copy y copy-pipe 'xclip -sel clip'
 # bind -t vi-copy y copy-pipe 'putclip'
 # if-shell "uname -s | grep -vq CYGWIN" "bind -t vi-copy y copy-pipe 'xclip -sel clip';"
 # if-shell "uname -s | grep -q CYGWIN" "bind -t vi-copy y copy-pipe 'putclip';"
 
-# bind -t vi-copy 'V' rectangle-toggle
-bind -T copy-mode-vi 'V' send -X rectangle-toggle
 
 # ###################################################
 # LAYOUTS
@@ -316,8 +316,11 @@ bind C confirm-before -p "kill-SESSION #S? (y/n)" kill-session
 # PLUGINS
 
 set -g @plugin 'tmux-plugins/tpm'
-
 set -g @plugin 'tmux-plugins/tmux-resurrect'
+set -g @plugin 'laktak/extrakto'
+set -g @plugin 'tmux-plugins/tmux-yank'
+# set -g @yank_selection_mouse 'clipboard' # or 'primary' or 'secondary', default for mouse is primary
+
 set -g @resurrect-processes '\
         "~ranger->r" \
 '
