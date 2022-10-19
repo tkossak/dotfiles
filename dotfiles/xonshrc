@@ -43,7 +43,7 @@ abbrevs['mountvb'] = 'sudo mount -t vboxsf -o uid=kossak,gid=kossak vbox_shared 
 # aliases['reds'] = 'redshift -l 50.2648920:19.0237820 -t 3300:3300 &'
 abbrevs['rsyncc'] = 'rsync -vr --progress AAA BBB/'
 
-abbrevs['envb'] = 'env | egrep -i "display|xauth|gpg|ssh|^op_session|^bw_session"'
+abbrevs['envb'] = 'env | grep -Ei "display|xauth|gpg|ssh|^op_session|^bw_session"'
 abbrevs['lsblkl'] = 'sudo lsblk -fo "name,size,type,fstype,label,mountpoint,uuid"'
 
 # media
