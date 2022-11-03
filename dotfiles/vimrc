@@ -39,6 +39,7 @@ set incsearch " incremental search (show matches as you type)
 set ignorecase " ignore case when searching
 set smartcase " ignore case when all pattern is lowercase, CASE-SENSITIVE otherwise
 
+set paste
 set backspace=2 " backspace works on \n characters
 set mouse=a " use mouse in all modes
 set relativenumber
