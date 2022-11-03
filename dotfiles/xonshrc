@@ -1,19 +1,20 @@
-# $SHELL_TYPE = 'readline'
+# XONSH WEBCONFIG START
+$PROMPT = '{env_name}{BOLD_GREEN}{user}@{hostname}{BOLD_BLUE} {cwd}{branch_color}{curr_branch: {}}{RESET} {RED}{last_return_code_if_nonzero:[{BOLD_INTENSE_RED}{}{RED}] }{RESET}{BOLD_BLUE}{prompt_end}{RESET} '
+# XONSH WEBCONFIG END
+# $PROMPT = '{env_name}{BOLD_GREEN}{user}@{hostname}{BOLD_BLUE} {cwd}{branch_color}{curr_branch: {}}{RESET} {BOLD_BLUE}{prompt_end}{RESET} '
 
+# $SHELL_TYPE = 'readline'
 # $XONSH_SHOW_TRACEBACK = True
 # $XONSH_TRACEBACK_LOGFILE = '/tmp/xonsh_traceback_logfile'
+
+# xontrib load abbrevs argcomplete broot coreutils fzf-widgets prompt_ret_code whole_word_jumping z vox # autovox avox_poetry
+xontrib load abbrevs argcomplete broot coreutils fzf-widgets whole_word_jumping vox # autovox avox_poetry
 
 # so poetry doesn't throw error: Failed to unlock the collection!
 # while running eg:
 #   poetry install
 #   poetry add click
 $PYTHON_KEYRING_BACKEND = "keyring.backends.fail.Keyring"
-
-# XONSH WEBCONFIG START
-$PROMPT = '{env_name}{BOLD_GREEN}{user}@{hostname}{BOLD_BLUE} {cwd}{branch_color}{curr_branch: {}}{RESET} {BOLD_BLUE}{prompt_end}{RESET} '
-# xontrib load abbrevs argcomplete broot coreutils fzf-widgets prompt_ret_code whole_word_jumping z vox # autovox avox_poetry
-xontrib load abbrevs argcomplete broot coreutils fzf-widgets whole_word_jumping vox # autovox avox_poetry
-# XONSH WEBCONFIG END
 
 $EDITOR='vim'
 $BROWSER='firefox'
@@ -23,6 +24,7 @@ $RIGHT_PROMPT = '{BOLD_GREEN}{localtime}'
 $MULTILINE_PROMPT = ''
 
 # Aliases and abbrevs ##############################################################
+abbrevs['yay'] = 'asdf_disable; yay'
 abbrevs['teams.'] = 'teams --disable-seccomp-filter-sandbox'
 abbrevs['convertpng'] = 'mogrify -format jpg -quality 80 *.png'
 
@@ -146,25 +148,24 @@ def _ranger_cd():
 aliases['ranger_cd'] = _ranger_cd
 aliases['r'] = _ranger_cd
 
-# KEYBINDINGS
-from prompt_toolkit.keys import Keys
-from prompt_toolkit.filters import Condition, EmacsInsertMode, ViInsertMode
-
-@events.on_ptk_create
-def custom_keybindings(bindings, **kw):
-
-    # @bindings.add(Keys.ControlW)
-    # def say_hi(event):
-        # event.current_buffer.insert_text('hi')
-
-    @bindings.add(Keys.ControlO)
-    def ranger_cd_key(event):
-        _ranger_cd()
-        # TODO: put cursor at the end of last prompt?
-        # event.cli.renderer.erase()
+# # KEYBINDINGS
+# from prompt_toolkit.keys import Keys
+# from prompt_toolkit.filters import Condition, EmacsInsertMode, ViInsertMode
+#
+# @events.on_ptk_create
+# def custom_keybindings(bindings, **kw):
+#
+#     # @bindings.add(Keys.ControlW)
+#     # def say_hi(event):
+#         # event.current_buffer.insert_text('hi')
+#
+#     @bindings.add(Keys.ControlO)
+#     def ranger_cd_key(event):
+#         _ranger_cd()
+#         # TODO: put cursor at the end of last prompt?
+#         # event.cli.renderer.erase()
 
 # Update different paths:
-
 # from pathlib import Path
 
 # # LD_LIBRARY_PATH
@@ -204,6 +205,4 @@ $fzf_dir_binding = "c-g"
 
 $fzf_find_command = "fd"
 $fzf_find_dirs_command = "fd -t d"
-
-# del Path
 
