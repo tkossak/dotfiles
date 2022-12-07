@@ -63,6 +63,13 @@ abbrevs['dtel2'] = "yt-dlp -f 'bestvideo[ext=mp4][height=720]+bestaudio[ext=m4a]
 abbrevs['ffmpegct'] = 'ffmpeg -i -c:v libx264 -c:a aac -pix_fmt yuv420p'
 abbrevs['goc'] = 'go-chromecast --first'
 
+# różne
+abbrevs['sd'] = 'sudo docker'
+abbrevs['di'] = 'docker images'
+abbrevs['dp'] = 'docker ps'
+abbrevs['dr'] = 'docker container run -it --rm <NAME> /bin/bash'
+abbrevs['dre'] = 'docker container run -it --rm --entrypoint /bin/bash <>'
+
 # vars for SSH/TMUX
 abbrevs['envss'] = '''\
 $DISPLAY = ':50.0'
