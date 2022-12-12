@@ -1,0 +1,1118 @@
+{
+    "pipx_spec_version": "0.1",
+    "venvs": {
+        "backup-kossak": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/kossak/.local/pipx/venvs/backup-kossak/bin/backup_kossak",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {
+                        "invoke": [
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/backup-kossak/bin/inv",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/backup-kossak/bin/invoke",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "kossakhome": [
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/backup-kossak/bin/alt_wm_toggle",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/backup-kossak/bin/mount_all_veracrypt",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/backup-kossak/bin/mount_docs",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/backup-kossak/bin/mount_dropbox_all",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/backup-kossak/bin/mount_dropbox_home",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/backup-kossak/bin/mount_dropbox_shared",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/backup-kossak/bin/mount_encfs_all",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/backup-kossak/bin/mount_encfs_home",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/backup-kossak/bin/mount_encfs_shared",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/backup-kossak/bin/mount_ishell",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/backup-kossak/bin/mount_params",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/backup-kossak/bin/rsteam",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/backup-kossak/bin/sshadd",
+                                "__type__": "Path"
+                            }
+                        ]
+                    },
+                    "apps": [
+                        "backup_kossak"
+                    ],
+                    "apps_of_dependencies": [
+                        "inv",
+                        "invoke",
+                        "alt_wm_toggle",
+                        "mount_all_veracrypt",
+                        "mount_docs",
+                        "mount_dropbox_all",
+                        "mount_dropbox_home",
+                        "mount_dropbox_shared",
+                        "mount_encfs_all",
+                        "mount_encfs_home",
+                        "mount_encfs_shared",
+                        "mount_ishell",
+                        "mount_params",
+                        "rsteam",
+                        "sshadd"
+                    ],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "package": "backup-kossak",
+                    "package_or_url": "backup-kossak",
+                    "package_version": "0.1.9",
+                    "pip_args": [
+                        "--index-url",
+                        "http://localhost:8080"
+                    ],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.2",
+                "python_version": "Python 3.9.9",
+                "venv_args": []
+            }
+        },
+        "borgbackup": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/kossak/.local/pipx/venvs/borgbackup/bin/borg",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/kossak/.local/pipx/venvs/borgbackup/bin/borgfs",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {},
+                    "apps": [
+                        "borg",
+                        "borgfs"
+                    ],
+                    "apps_of_dependencies": [],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "package": "borgbackup",
+                    "package_or_url": "borgbackup[fuse]",
+                    "package_version": "1.1.17",
+                    "pip_args": [],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.2",
+                "python_version": "Python 3.10.1",
+                "venv_args": []
+            }
+        },
+        "glances": {
+            "metadata": {
+                "injected_packages": {
+                    "hddtemp": {
+                        "app_paths": [],
+                        "app_paths_of_dependencies": {},
+                        "apps": [],
+                        "apps_of_dependencies": [],
+                        "include_apps": false,
+                        "include_dependencies": false,
+                        "package": "hddtemp",
+                        "package_or_url": "hddtemp",
+                        "package_version": "0.1.0",
+                        "pip_args": [],
+                        "suffix": ""
+                    },
+                    "netifaces": {
+                        "app_paths": [],
+                        "app_paths_of_dependencies": {},
+                        "apps": [],
+                        "apps_of_dependencies": [],
+                        "include_apps": false,
+                        "include_dependencies": false,
+                        "package": "netifaces",
+                        "package_or_url": "netifaces",
+                        "package_version": "0.11.0",
+                        "pip_args": [],
+                        "suffix": ""
+                    },
+                    "nvidia-ml-py3": {
+                        "app_paths": [],
+                        "app_paths_of_dependencies": {},
+                        "apps": [],
+                        "apps_of_dependencies": [],
+                        "include_apps": false,
+                        "include_dependencies": false,
+                        "package": "nvidia-ml-py3",
+                        "package_or_url": "nvidia-ml-py3",
+                        "package_version": "7.352.0",
+                        "pip_args": [],
+                        "suffix": ""
+                    },
+                    "py-cpuinfo": {
+                        "app_paths": [
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/glances/bin/cpuinfo",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "app_paths_of_dependencies": {},
+                        "apps": [
+                            "cpuinfo"
+                        ],
+                        "apps_of_dependencies": [],
+                        "include_apps": false,
+                        "include_dependencies": false,
+                        "package": "py-cpuinfo",
+                        "package_or_url": "py-cpuinfo",
+                        "package_version": "8.0.0",
+                        "pip_args": [],
+                        "suffix": ""
+                    }
+                },
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/kossak/.local/pipx/venvs/glances/bin/glances",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {
+                        "future": [
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/glances/bin/futurize",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/glances/bin/pasteurize",
+                                "__type__": "Path"
+                            }
+                        ]
+                    },
+                    "apps": [
+                        "glances"
+                    ],
+                    "apps_of_dependencies": [
+                        "futurize",
+                        "pasteurize"
+                    ],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "package": "glances",
+                    "package_or_url": "glances",
+                    "package_version": "3.2.4.2",
+                    "pip_args": [],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.2",
+                "python_version": "Python 3.9.9",
+                "venv_args": []
+            }
+        },
+        "kossak-cli-tools": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/kossak/.local/pipx/venvs/kossak-cli-tools/bin/capslock_as_escape",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/kossak/.local/pipx/venvs/kossak-cli-tools/bin/capslock_restore",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/kossak/.local/pipx/venvs/kossak-cli-tools/bin/checkeng",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/kossak/.local/pipx/venvs/kossak-cli-tools/bin/countaudio",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/kossak/.local/pipx/venvs/kossak-cli-tools/bin/countextensions",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/kossak/.local/pipx/venvs/kossak-cli-tools/bin/countfiles",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/kossak/.local/pipx/venvs/kossak-cli-tools/bin/e",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/kossak/.local/pipx/venvs/kossak-cli-tools/bin/fix_double_new_lines",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/kossak/.local/pipx/venvs/kossak-cli-tools/bin/ou",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/kossak/.local/pipx/venvs/kossak-cli-tools/bin/replacepolishletters",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/kossak/.local/pipx/venvs/kossak-cli-tools/bin/txz",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/kossak/.local/pipx/venvs/kossak-cli-tools/bin/ytrss",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {
+                        "pytaglib": [
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/kossak-cli-tools/bin/pyprinttags",
+                                "__type__": "Path"
+                            }
+                        ]
+                    },
+                    "apps": [
+                        "capslock_as_escape",
+                        "capslock_restore",
+                        "checkeng",
+                        "countaudio",
+                        "countextensions",
+                        "countfiles",
+                        "e",
+                        "fix_double_new_lines",
+                        "ou",
+                        "replacepolishletters",
+                        "txz",
+                        "ytrss"
+                    ],
+                    "apps_of_dependencies": [
+                        "pyprinttags"
+                    ],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "package": "kossak-cli-tools",
+                    "package_or_url": "kossak-cli-tools",
+                    "package_version": "0.5.5",
+                    "pip_args": [
+                        "--index-url",
+                        "http://localhost:8080"
+                    ],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.2",
+                "python_version": "Python 3.9.9",
+                "venv_args": []
+            }
+        },
+        "kossak-search": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/kossak/.local/pipx/venvs/kossak-search/bin/s",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {
+                        "charset-normalizer": [
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/kossak-search/bin/normalizer",
+                                "__type__": "Path"
+                            }
+                        ]
+                    },
+                    "apps": [
+                        "s"
+                    ],
+                    "apps_of_dependencies": [
+                        "normalizer"
+                    ],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "package": "kossak-search",
+                    "package_or_url": "kossak-search",
+                    "package_version": "0.1.6",
+                    "pip_args": [
+                        "--index-url",
+                        "http://localhost:8080"
+                    ],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.2",
+                "python_version": "Python 3.9.9",
+                "venv_args": []
+            }
+        },
+        "kossakhome": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/kossak/.local/pipx/venvs/kossakhome/bin/alt_wm_toggle",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/kossak/.local/pipx/venvs/kossakhome/bin/mount_all_veracrypt",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/kossak/.local/pipx/venvs/kossakhome/bin/mount_docs",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/kossak/.local/pipx/venvs/kossakhome/bin/mount_dropbox_all",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/kossak/.local/pipx/venvs/kossakhome/bin/mount_dropbox_home",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/kossak/.local/pipx/venvs/kossakhome/bin/mount_dropbox_shared",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/kossak/.local/pipx/venvs/kossakhome/bin/mount_encfs_all",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/kossak/.local/pipx/venvs/kossakhome/bin/mount_encfs_shared",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/kossak/.local/pipx/venvs/kossakhome/bin/mount_home",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/kossak/.local/pipx/venvs/kossakhome/bin/mount_ishell",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/kossak/.local/pipx/venvs/kossakhome/bin/mount_params",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/kossak/.local/pipx/venvs/kossakhome/bin/rsteam",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/kossak/.local/pipx/venvs/kossakhome/bin/sshadd",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {
+                        "invoke": [
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/kossakhome/bin/inv",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/kossakhome/bin/invoke",
+                                "__type__": "Path"
+                            }
+                        ]
+                    },
+                    "apps": [
+                        "alt_wm_toggle",
+                        "mount_all_veracrypt",
+                        "mount_docs",
+                        "mount_dropbox_all",
+                        "mount_dropbox_home",
+                        "mount_dropbox_shared",
+                        "mount_encfs_all",
+                        "mount_encfs_shared",
+                        "mount_home",
+                        "mount_ishell",
+                        "mount_params",
+                        "rsteam",
+                        "sshadd"
+                    ],
+                    "apps_of_dependencies": [
+                        "inv",
+                        "invoke"
+                    ],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "package": "kossakhome",
+                    "package_or_url": "kossakhome",
+                    "package_version": "0.4.0",
+                    "pip_args": [
+                        "--index-url",
+                        "http://localhost:8080"
+                    ],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.2",
+                "python_version": "Python 3.10.5",
+                "venv_args": []
+            }
+        },
+        "poetry": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/kossak/.local/pipx/venvs/poetry/bin/poetry",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {
+                        "cachecontrol": [
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/poetry/bin/doesitcache",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "charset-normalizer": [
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/poetry/bin/normalizer",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "dulwich": [
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/poetry/bin/dul-receive-pack",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/poetry/bin/dul-upload-pack",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/poetry/bin/dulwich",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "jsonschema": [
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/poetry/bin/jsonschema",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "keyring": [
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/poetry/bin/keyring",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "pkginfo": [
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/poetry/bin/pkginfo",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "virtualenv": [
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/poetry/bin/virtualenv",
+                                "__type__": "Path"
+                            }
+                        ]
+                    },
+                    "apps": [
+                        "poetry"
+                    ],
+                    "apps_of_dependencies": [
+                        "doesitcache",
+                        "normalizer",
+                        "dul-receive-pack",
+                        "dul-upload-pack",
+                        "dulwich",
+                        "jsonschema",
+                        "keyring",
+                        "pkginfo",
+                        "virtualenv"
+                    ],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "package": "poetry",
+                    "package_or_url": "poetry",
+                    "package_version": "1.2.2",
+                    "pip_args": [],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.2",
+                "python_version": "Python 3.10.6",
+                "venv_args": []
+            }
+        },
+        "ps-mem": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/kossak/.local/pipx/venvs/ps-mem/bin/ps_mem",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {},
+                    "apps": [
+                        "ps_mem"
+                    ],
+                    "apps_of_dependencies": [],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "package": "ps-mem",
+                    "package_or_url": "ps-mem",
+                    "package_version": "3.12",
+                    "pip_args": [],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.2",
+                "python_version": "Python 3.10.2",
+                "venv_args": []
+            }
+        },
+        "pypiserver": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/kossak/.local/pipx/venvs/pypiserver/bin/pypi-server",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {},
+                    "apps": [
+                        "pypi-server"
+                    ],
+                    "apps_of_dependencies": [],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "package": "pypiserver",
+                    "package_or_url": "pypiserver",
+                    "package_version": "1.5.0",
+                    "pip_args": [],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.2",
+                "python_version": "Python 3.10.1",
+                "venv_args": []
+            }
+        },
+        "ranger-fm": {
+            "metadata": {
+                "injected_packages": {
+                    "chardet": {
+                        "app_paths": [
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/ranger-fm/bin/chardetect",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "app_paths_of_dependencies": {},
+                        "apps": [
+                            "chardetect"
+                        ],
+                        "apps_of_dependencies": [],
+                        "include_apps": false,
+                        "include_dependencies": false,
+                        "package": "chardet",
+                        "package_or_url": "chardet",
+                        "package_version": "4.0.0",
+                        "pip_args": [],
+                        "suffix": ""
+                    }
+                },
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/kossak/.local/pipx/venvs/ranger-fm/bin/ranger",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/kossak/.local/pipx/venvs/ranger-fm/bin/rifle",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {},
+                    "apps": [
+                        "ranger",
+                        "rifle"
+                    ],
+                    "apps_of_dependencies": [],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "package": "ranger-fm",
+                    "package_or_url": "ranger-fm",
+                    "package_version": "1.9.3",
+                    "pip_args": [],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.2",
+                "python_version": "Python 3.10.1",
+                "venv_args": []
+            }
+        },
+        "telegram-convert-movie": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/kossak/.local/pipx/venvs/telegram-convert-movie/bin/tcm",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {},
+                    "apps": [
+                        "tcm"
+                    ],
+                    "apps_of_dependencies": [],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "package": "telegram-convert-movie",
+                    "package_or_url": "telegram-convert-movie",
+                    "package_version": "0.2.9",
+                    "pip_args": [
+                        "--index-url",
+                        "http://localhost:8080"
+                    ],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.2",
+                "python_version": "Python 3.9.9",
+                "venv_args": []
+            }
+        },
+        "visidata": {
+            "metadata": {
+                "injected_packages": {
+                    "odfpy": {
+                        "app_paths": [
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/visidata/bin/csv2ods",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/visidata/bin/mailodf",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/visidata/bin/odf2mht",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/visidata/bin/odf2xhtml",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/visidata/bin/odf2xml",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/visidata/bin/odfimgimport",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/visidata/bin/odflint",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/visidata/bin/odfmeta",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/visidata/bin/odfoutline",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/visidata/bin/odfuserfield",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/visidata/bin/xml2odf",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "app_paths_of_dependencies": {},
+                        "apps": [
+                            "csv2ods",
+                            "mailodf",
+                            "odf2mht",
+                            "odf2xhtml",
+                            "odf2xml",
+                            "odfimgimport",
+                            "odflint",
+                            "odfmeta",
+                            "odfoutline",
+                            "odfuserfield",
+                            "xml2odf"
+                        ],
+                        "apps_of_dependencies": [],
+                        "include_apps": false,
+                        "include_dependencies": false,
+                        "package": "odfpy",
+                        "package_or_url": "odfpy",
+                        "package_version": "1.4.1",
+                        "pip_args": [],
+                        "suffix": ""
+                    }
+                },
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/kossak/.local/pipx/venvs/visidata/bin/vd",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/kossak/.local/pipx/venvs/visidata/bin/visidata",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {},
+                    "apps": [
+                        "vd",
+                        "visidata"
+                    ],
+                    "apps_of_dependencies": [],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "package": "visidata",
+                    "package_or_url": "visidata",
+                    "package_version": "2.10.2",
+                    "pip_args": [],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.2",
+                "python_version": "Python 3.10.5",
+                "venv_args": []
+            }
+        },
+        "xonsh": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/kossak/.local/pipx/venvs/xonsh/bin/xonsh",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/kossak/.local/pipx/venvs/xonsh/bin/xonsh-cat",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/kossak/.local/pipx/venvs/xonsh/bin/xonsh-uname",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/kossak/.local/pipx/venvs/xonsh/bin/xonsh-uptime",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {
+                        "distro": [
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/xonsh/bin/distro",
+                                "__type__": "Path"
+                            }
+                        ]
+                    },
+                    "apps": [
+                        "xonsh",
+                        "xonsh-cat",
+                        "xonsh-uname",
+                        "xonsh-uptime"
+                    ],
+                    "apps_of_dependencies": [
+                        "distro"
+                    ],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "package": "xonsh",
+                    "package_or_url": "xonsh[full]==0.13.0",
+                    "package_version": "0.13.0",
+                    "pip_args": [],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.2",
+                "python_version": "Python 3.10.6",
+                "venv_args": []
+            }
+        },
+        "xonsh@n": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/kossak/.local/pipx/venvs/xonsh@n/bin/xonsh",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/kossak/.local/pipx/venvs/xonsh@n/bin/xonsh-cat",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/kossak/.local/pipx/venvs/xonsh@n/bin/xonsh-uname",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/kossak/.local/pipx/venvs/xonsh@n/bin/xonsh-uptime",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {
+                        "distro": [
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/xonsh@n/bin/distro",
+                                "__type__": "Path"
+                            }
+                        ]
+                    },
+                    "apps": [
+                        "xonsh",
+                        "xonsh-cat",
+                        "xonsh-uname",
+                        "xonsh-uptime"
+                    ],
+                    "apps_of_dependencies": [
+                        "distro"
+                    ],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "package": "xonsh",
+                    "package_or_url": "xonsh[full]",
+                    "package_version": "0.13.3",
+                    "pip_args": [],
+                    "suffix": "@n"
+                },
+                "pipx_metadata_version": "0.2",
+                "python_version": "Python 3.9.13",
+                "venv_args": []
+            }
+        },
+        "xxh-xxh": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/kossak/.local/pipx/venvs/xxh-xxh/bin/xxh",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/kossak/.local/pipx/venvs/xxh-xxh/bin/xxh.bash",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/kossak/.local/pipx/venvs/xxh-xxh/bin/xxh.xsh",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/kossak/.local/pipx/venvs/xxh-xxh/bin/xxh.zsh",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {},
+                    "apps": [
+                        "xxh",
+                        "xxh.bash",
+                        "xxh.xsh",
+                        "xxh.zsh"
+                    ],
+                    "apps_of_dependencies": [],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "package": "xxh-xxh",
+                    "package_or_url": "xxh-xxh",
+                    "package_version": "0.8.12",
+                    "pip_args": [],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.2",
+                "python_version": "Python 3.10.7",
+                "venv_args": []
+            }
+        },
+        "yewtube": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/kossak/.local/pipx/venvs/yewtube/bin/yt",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {
+                        "charset-normalizer": [
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/yewtube/bin/normalizer",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "httpx": [
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/yewtube/bin/httpx",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "mutagen": [
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/yewtube/bin/mid3cp",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/yewtube/bin/mid3iconv",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/yewtube/bin/mid3v2",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/yewtube/bin/moggsplit",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/yewtube/bin/mutagen-inspect",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/yewtube/bin/mutagen-pony",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "yt-dlp": [
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/yewtube/bin/yt-dlp",
+                                "__type__": "Path"
+                            }
+                        ]
+                    },
+                    "apps": [
+                        "yt"
+                    ],
+                    "apps_of_dependencies": [
+                        "normalizer",
+                        "httpx",
+                        "yt-dlp",
+                        "mid3cp",
+                        "mid3iconv",
+                        "mid3v2",
+                        "moggsplit",
+                        "mutagen-inspect",
+                        "mutagen-pony"
+                    ],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "package": "yewtube",
+                    "package_or_url": "git+https://github.com/iamtalhaasghar/yewtube.git",
+                    "package_version": "2.8.4",
+                    "pip_args": [],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.2",
+                "python_version": "Python 3.10.4",
+                "venv_args": []
+            }
+        },
+        "yt-dlp": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/kossak/.local/pipx/venvs/yt-dlp/bin/yt-dlp",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {
+                        "mutagen": [
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/yt-dlp/bin/mid3cp",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/yt-dlp/bin/mid3iconv",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/yt-dlp/bin/mid3v2",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/yt-dlp/bin/moggsplit",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/yt-dlp/bin/mutagen-inspect",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/kossak/.local/pipx/venvs/yt-dlp/bin/mutagen-pony",
+                                "__type__": "Path"
+                            }
+                        ]
+                    },
+                    "apps": [
+                        "yt-dlp"
+                    ],
+                    "apps_of_dependencies": [
+                        "mid3cp",
+                        "mid3iconv",
+                        "mid3v2",
+                        "moggsplit",
+                        "mutagen-inspect",
+                        "mutagen-pony"
+                    ],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "package": "yt-dlp",
+                    "package_or_url": "yt-dlp",
+                    "package_version": "2022.11.11",
+                    "pip_args": [],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.2",
+                "python_version": "Python 3.9.9",
+                "venv_args": []
+            }
+        }
+    }
+}
