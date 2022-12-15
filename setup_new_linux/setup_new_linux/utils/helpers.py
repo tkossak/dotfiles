@@ -14,31 +14,31 @@ def check_if_cmd_present(cmd: str) -> bool:
     """
     if cmd:
         r = shutil.which(cmd)
-        return True if r else False
+        # return True if r else False
+        return r
     return False
 
 
-def run_cmd(cmd: Union[str, list]):
+def run_cmd(cmd: Union[str, list], *args, **kwargs):
     """
-    :param cmd: if str: run s shell
+    :param cmd: if str: run in shell
     """
 
-    if cmd:
-        if isinstance(cmd, str):
-            p = run(
-                cmd,
-                shell=True
-            )
-        else:
-            p = run(cmd)
-
-        return p
-    else:
+    if not cmd:
         raise Exception('Empty cmd to run')
+
+    if isinstance(cmd, str) and 'shell' not in kwargs:
+        kwargs['shell'] = True
+        kwargs['universal_newlines'] = True
+
+    p = run(cmd, *args, **kwargs, )
+    if 'check' not in kwargs:
+        p.check_returncode()
+    return p
 
 def do_regexp_replaces(
     text: str,
-    replaces: List[str, re.Pattern]
+    replaces: List[Union[str, re.Pattern]]
 ) -> str:
     for o, n in replaces:
         prev_text = text

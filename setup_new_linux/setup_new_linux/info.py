@@ -65,7 +65,11 @@ dotfiles_dir = get_dotfiles_path()
 dotfiles_local_dir = get_dotfiles_local_path()
 distro: str = get_distro()
 systemd: bool = check_if_using_systemd()
+
+# pouplated by other modules
 errors: list = []
+verify: list = []
+
 
 
 

@@ -41,8 +41,8 @@ def install_packages():
         try:
             pkg.install_if_not_installed()
         except Exception as e:
-            msg = f'Pkg {pkg.name} install error, type: {type(e).__name__}, e: {e}, traceback:\n{traceback.format_exc()}'
-            log.error(msg)
+            msg = f'Package {pkg.name} install error, type: {type(e).__name__}, e: {e}'
+            log.error(f'{msg}, traceback: {traceback.format_exc()}')
             info.errors.append(msg)
 
 
@@ -50,18 +50,16 @@ def install_dotfiles():
     if not info.dotfiles_dir:
         log.error('Not installing dotfiles, because no dotfiles dir found')
     for d in dotfiles.dotfiles:
-        name = str(d)
         try:
             if isinstance(d, Dotfile):
-                name = d.src.name
                 d.install()
             elif callable(d):
                 d()
             else:
                 raise Exception(f'Wrong type of dotfile: {type(d)}')
         except Exception as e:
-            msg = f'Dotfile {name} install error, type: {type(e).__name__}, e: {e}, traceback:\n{traceback.format_exc()}'
-            log.error(msg)
+            msg = f'Dotfile {d.name} install error, type: {type(e).__name__}, e: {e}'
+            log.error(f'{msg}, traceback: {traceback.format_exc()}')
             info.errors.append(msg)
 
     # remove unwanted shims from asdf:
@@ -91,13 +89,17 @@ def main():
         install_dotfiles()
 
     if info.errors:
-        print('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
-        log.info('ALL ERRORS: ')
+        print('\n━━━━ ALL ERRORS: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
         for e in info.errors:
             log.error(e)
         log.info(f'Errors: {len(info.errors)}')
     else:
         log.info('NO ERRORS FOUND')
+
+    if info.verify:
+        print('\n━━━━ VERIFY MANUALLY: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
+        for e in info.verify:
+            log.info(e)
 
     log.info('Main END')
 

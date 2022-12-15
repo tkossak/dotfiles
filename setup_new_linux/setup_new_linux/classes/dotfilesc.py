@@ -10,8 +10,9 @@ class Dotfile:
 
     def __init__(
         self,
-        src: Union[str, Path],
-        dst: Union[str, Path],
+        src: Union[str, Path] = None,
+        dst: Union[str, Path] = None,
+        name: str = '',
         mode: str = 'link',  # 'copy'
         f_backup_first: bool = True,
         f_raise_if_src_doesnt_exist: bool = True,
@@ -19,11 +20,14 @@ class Dotfile:
         """Dotfile to link or copy
         :param src: source file
         :param dst: destination file
+        :param name: nice name, only for __repr__
         :param mode: link or copy file
         :param f_backup_first: if dst already exists, back it up first
+        :param f_raise_if_src_doesnt_exist:
         """
-        self.src = Path(src)
-        self.dst = Path(dst)
+        self.src = Path(src) if src else None
+        self.dst = Path(dst) if dst else None
+        self.name = name or self.src.name
         if mode not in ('link', 'copy'):
             raise Exception(f'Wrong mode: {mode}')
         self.mode = mode
@@ -67,3 +71,6 @@ class Dotfile:
         else:  # copy mode
             shutil.copy(self.src, self.dst)
             log.info(f'dotfile copied: {self.src.name} ==to== {self.dst}')
+
+    def __repr__(self):
+        return f'<{self.__class__.__name__}: {self.name}>'

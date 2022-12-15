@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 import json
 from typing import Union
 from setup_new_linux.utils import setup
+import shlex
 
 from setup_new_linux.utils.setup import log
 from setup_new_linux.utils.helpers import check_if_cmd_present
@@ -32,10 +33,18 @@ class OsPkgManagerGenerator(PkgManagerABC):
         cmd: str,
         install_options: Union[str, list],
         is_installed_options: Union[str, list],
+        is_installed_template: str = None,
     ):
         self.pkg_manager = cmd
         self.install_options = [install_options] if isinstance(install_options, str) else install_options
-        self.is_installed_options = [is_installed_options] if isinstance(is_installed_options, str) else is_installed_options
+
+        if is_installed_template:
+            self.is_installed_template = is_installed_template
+        elif is_installed_options:
+            is_installed_options = is_installed_options if isinstance(is_installed_options, str) else ' '.join(is_installed_options)
+            self.is_installed_template = f'{self.pkg_manager} {is_installed_options} {{pkg}}'
+        else:
+            raise Exception('provide either is_installed_options or is_installed_template')
 
     def install(self,
         pkg: str
@@ -72,9 +81,11 @@ class OsPkgManagerGenerator(PkgManagerABC):
 
     def is_pkg_installed(self, pkg: str) -> bool:
         p = run(
-            [self.pkg_manager] + self.is_installed_options + [pkg],
-            stdout=subprocess.PIPE,
-            universal_newlines=True,
+            # [self.pkg_manager] + self.is_installed_options + [pkg],
+            shlex.split(self.is_installed_template),
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            # universal_newlines=True,
         )
         if p.returncode == 0:
             return True
@@ -122,6 +133,7 @@ yay = OsPkgManagerGenerator(
     cmd='yay',
     install_options=['-S'] + ([] if setup.args.ask else ['--noconfirm']),
     is_installed_options='-Q',
+    # is_installed_template="-Qs '^{pkg}$'"
 )
 
 pacman = OsPkgManagerGenerator(
