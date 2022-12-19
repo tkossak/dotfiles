@@ -8,7 +8,7 @@ $PROMPT = '{env_name}{BOLD_GREEN}{user}@{hostname}{BOLD_BLUE} {cwd}{branch_color
 # $XONSH_TRACEBACK_LOGFILE = '/tmp/xonsh_traceback_logfile'
 
 # xontrib load abbrevs argcomplete broot coreutils fzf-widgets prompt_ret_code whole_word_jumping z vox # autovox avox_poetry
-xontrib load abbrevs argcomplete broot coreutils fzf-widgets whole_word_jumping vox # autovox avox_poetry
+xontrib load abbrevs argcomplete broot coreutils fzf-widgets vox # whole_word_jumping autovox avox_poetry
 
 # so poetry doesn't throw error: Failed to unlock the collection!
 # while running eg:
@@ -69,6 +69,7 @@ abbrevs['di'] = 'docker images'
 abbrevs['dp'] = 'docker ps'
 abbrevs['dr'] = 'docker container run -it --rm <NAME> /bin/bash'
 abbrevs['dre'] = 'docker container run -it --rm --entrypoint /bin/bash <>'
+abbrevs['de'] = 'docker exec -it <NAME> bash'
 
 # vars for SSH/TMUX
 abbrevs['envss'] = '''\
@@ -150,7 +151,8 @@ abbrevs['borgmf'] = 'borg mount f".::{$(borg list --format \'{name}{NL}\' . | fz
 
 def _ranger_cd():
     f = p'/tmp/rangerdir'
-    ranger --choosedir @(f) @(f.cwd())
+    # ranger --choosedir @(f) @(f.cwd())
+    ranger --choosedir @(f)
     if f.exists():
         cd @(f.read_text())
 aliases['ranger_cd'] = _ranger_cd
