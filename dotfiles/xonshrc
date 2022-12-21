@@ -24,130 +24,135 @@ $RIGHT_PROMPT = '{BOLD_GREEN}{localtime}'
 $MULTILINE_PROMPT = ''
 
 # Aliases and abbrevs ##############################################################
-abbrevs['yay'] = 'asdf_disable; yay'
-abbrevs['teams.'] = 'teams --disable-seccomp-filter-sandbox'
-abbrevs['convertpng'] = 'mogrify -format jpg -quality 80 *.png'
+def ga(text):
+    """Get abbrev that gets expanded only on the begining of line
+    (Not counting spaces)
+    """
+    return lambda buffer, word: text if buffer.text.strip() == word else word
+
+abbrevs['yay'] = ga('asdf_disable; yay')
+# abbrevs['teams.'] = 'teams --disable-seccomp-filter-sandbox'
+abbrevs['convertpng'] = ga('mogrify -format jpg -quality 80 *.png')
 
 # aliases['kittyt'] = 'kitty --config /home/kossak/.dotfiles/dotfiles/kitty_for_tmux.conf all>/dev/null &; disown 1'
 
 aliases['l'] = 'exa -l --git'
-abbrevs['df'] = 'df -h'
-abbrevs['ta'] = 'tmux attach-session'
-abbrevs['tl'] = 'tmux list-sessions'
-abbrevs['tn'] = 'tmux new-session'
-abbrevs['rg'] = 'rg -i'
+abbrevs['df'] = ga('df -h')
+abbrevs['ta'] = ga('tmux attach-session')
+abbrevs['tl'] = ga('tmux list-sessions')
+abbrevs['tn'] = ga('tmux new-session')
+abbrevs['rg'] = ga('rg -i')
 aliases['vim_tns'] = 'vim $ORACLE_HOME/network/admin/tnsnames.ora'
-abbrevs['pss'] = 'ps -ef | grep -i'
-abbrevs['free'] = 'free -m'
+abbrevs['pss'] = ga('ps -ef | grep -i')
+abbrevs['free'] = ga('free -m')
 # aliases['tarb'] = 'tar -cavf DIR_(date +'%Y%m%d_%H%M%S').tar.gz DIR'
-abbrevs['ntp'] = 'sudo ntpdate pl.pool.ntp.org'
+abbrevs['ntp'] = ga('sudo ntpdate pl.pool.ntp.org')
 aliases['monitor_off'] = 'xset dpms force off'
 
-abbrevs['mtro'] = 'mtr -o "LRD N ABWV"'
-abbrevs['mtrg'] = 'mtr -o "LRD N ABWV" 8.8.8.8'  # google
-abbrevs['smbm'] = 'sudo mount -t cifs -o credentials=/mnt/params/smb_cred_ja,uid=kossak,gid=kossak,vers=2.0 //SERVER/DIR /mnt/smb1'
-abbrevs['smbl'] = 'smbclient -A /mnt/params/smb_cred_ja -L //'
-abbrevs['smbi'] = 'smbclient //192.168.1.1/folder -A /mnt/params/smb_cred_ja'
-abbrevs['mountvb'] = 'sudo mount -t vboxsf -o uid=kossak,gid=kossak vbox_shared /mnt/vs'
+abbrevs['mtro'] = ga('mtr -o "LRD N ABWV"')
+abbrevs['mtrg'] = ga('mtr -o "LRD N ABWV" 8.8.8.8')  # google
+abbrevs['smbm'] = ga('sudo mount -t cifs -o credentials=/mnt/params/smb_cred_ja,uid=kossak,gid=kossak,vers=2.0 //SERVER/DIR /mnt/smb1')
+abbrevs['smbl'] = ga('smbclient -A /mnt/params/smb_cred_ja -L //')
+abbrevs['smbi'] = ga('smbclient //192.168.1.1/folder -A /mnt/params/smb_cred_ja')
+abbrevs['mountvb'] = ga('sudo mount -t vboxsf -o uid=kossak,gid=kossak vbox_shared /mnt/vs')
 # aliases['reds'] = 'redshift -l 50.2648920:19.0237820 -t 3300:3300 &'
-abbrevs['rsyncc'] = 'rsync -vr --progress AAA BBB/'
+abbrevs['rsyncc'] = ga('rsync -vr --progress AAA BBB/')
 
-abbrevs['envb'] = 'env | grep -Ei "display|xauth|gpg|^ssh|^op_session|^bw_session|^cloudsdk_active"'
-abbrevs['lsblkl'] = 'sudo lsblk -fo "name,size,type,fstype,label,mountpoint,uuid"'
+abbrevs['envb'] = ga('env | grep -Ei "display|xauth|gpg|^ssh|^op_session|^bw_session|^cloudsdk_active"')
+abbrevs['lsblkl'] = ga('sudo lsblk -fo "name,size,type,fstype,label,mountpoint,uuid"')
 
 # media
-abbrevs['dmp3']  = "yt-dlp -cx --audio-format mp3 -o '%(title)s.%(ext)s' (xclip -o)"
-abbrevs['y']     = 'yt-dlp $(xclip -o -sel c)'
-abbrevs['dtel']  = 'yt-dlp -f "worstvideo[height>=480]+bestaudio[abr<=128]" -o ''%(title)s.%(ext)s'' (xclip -o)'
-abbrevs['dtel2'] = "yt-dlp -f 'bestvideo[ext=mp4][height=720]+bestaudio[ext=m4a][abr=128]/bestvideo[height<=720]+bestaudio[abr<=128]' -o '%(title)s.%(ext)s' $(xclip -o)"
-abbrevs['ffmpegct'] = 'ffmpeg -i -c:v libx264 -c:a aac -pix_fmt yuv420p'
-abbrevs['goc'] = 'go-chromecast --first'
+abbrevs['dmp3']  = ga("yt-dlp -cx --audio-format mp3 -o '%(title)s.%(ext)s' (xclip -o)")
+abbrevs['y']     = ga('yt-dlp $(xclip -o -sel c)')
+abbrevs['dtel']  = ga('yt-dlp -f "worstvideo[height>=480]+bestaudio[abr<=128]" -o ''%(title)s.%(ext)s'' (xclip -o)')
+abbrevs['dtel2'] = ga("yt-dlp -f 'bestvideo[ext=mp4][height=720]+bestaudio[ext=m4a][abr=128]/bestvideo[height<=720]+bestaudio[abr<=128]' -o '%(title)s.%(ext)s' $(xclip -o)")
+abbrevs['ffmpegct'] = ga('ffmpeg -i -c:v libx264 -c:a aac -pix_fmt yuv420p')
+abbrevs['goc'] = ga('go-chromecast --first')
 
 # różne
-abbrevs['sd'] = 'sudo docker'
-abbrevs['di'] = 'docker images'
-abbrevs['dp'] = 'docker ps'
-abbrevs['dr'] = 'docker container run -it --rm <NAME> /bin/bash'
-abbrevs['dre'] = 'docker container run -it --rm --entrypoint /bin/bash <>'
-abbrevs['de'] = 'docker exec -it <NAME> bash'
+abbrevs['sd'] = ga('sudo docker')
+abbrevs['di'] = ga('docker images')
+abbrevs['dp'] = ga('docker ps')
+abbrevs['dr'] = ga('docker container run -it --rm <NAME> /bin/bash')
+abbrevs['dre'] = ga('docker container run -it --rm --entrypoint /bin/bash <>')
+abbrevs['de'] = ga('docker exec -it <NAME> bash')
 
 # vars for SSH/TMUX
-abbrevs['envss'] = '''\
+abbrevs['envss'] = ga('''\
 $DISPLAY = ':50.0'
 $XAUTHORITY = '/home/kossak/.Xauthority'
 tmux setenv DISPLAY $DISPLAY
 tmux setenv XAUTHORITY $XAUTHORITY
 $SSH_AUTH_SOCK = '/run/user/1000/keyring/ssh'
-tmux setenv SSH_AUTH_SOCK $SSH_AUTH_SOCK'''
+tmux setenv SSH_AUTH_SOCK $SSH_AUTH_SOCK''')
 
-abbrevs['envss50'] = '''\
+abbrevs['envss50'] = ga('''\
 $DISPLAY = ':50.0'
 $XAUTHORITY = '/home/kossak/.Xauthority'
 tmux setenv DISPLAY $DISPLAY
 tmux setenv XAUTHORITY $XAUTHORITY
 $SSH_AUTH_SOCK = '/run/user/1000/keyring/ssh'
-tmux setenv SSH_AUTH_SOCK $SSH_AUTH_SOCK'''
+tmux setenv SSH_AUTH_SOCK $SSH_AUTH_SOCK''')
 
-abbrevs['envss51'] = '''\
+abbrevs['envss51'] = ga('''\
 $DISPLAY = ':51.0'
 $XAUTHORITY = '/home/kossak/.Xauthority'
 tmux setenv DISPLAY $DISPLAY
 tmux setenv XAUTHORITY $XAUTHORITY
 $SSH_AUTH_SOCK = '/run/user/1000/keyring/ssh'
-tmux setenv SSH_AUTH_SOCK $SSH_AUTH_SOCK'''
+tmux setenv SSH_AUTH_SOCK $SSH_AUTH_SOCK''')
 
 # python
-abbrevs['va'] = 'vox activate'
-abbrevs['vde'] = 'vox deactivate'
-abbrevs['pypiserver'] = 'pypi-server run -p 8080 -i 127.0.0.1 --hash-algo=sha256 ~/Kossak/pypi_packages'
-abbrevs['voxap'] = 'vox activate /home/kossak/Kossak/links/poetry_venv/'
-abbrevs['voxa'] = 'vox activate'
-abbrevs['voxd'] = 'vox deactivate'
-abbrevs['voxn'] = 'vox new -p /home/kossak/.asdf/installs/python/'
+abbrevs['va'] = ga('vox activate')
+abbrevs['vde'] = ga('vox deactivate')
+abbrevs['pypiserver'] = ga('pypi-server run -p 8080 -i 127.0.0.1 --hash-algo=sha256 ~/Kossak/pypi_packages')
+abbrevs['voxap'] = ga('vox activate /home/kossak/Kossak/links/poetry_venv/')
+abbrevs['voxa'] = ga('vox activate')
+abbrevs['voxd'] = ga('vox deactivate')
+abbrevs['voxn'] = ga('vox new -p /home/kossak/.asdf/installs/python/')
 
-abbrevs['asdfi']  = 'env PYTHON_CONFIGURE_OPTS="--enable-shared --enable-optimizations" asdf install python'
-abbrevs['asdfs']  = "$ASDF_PYTHON_VERSION ="
-abbrevs['asdfl']  = 'asdf list-all python'
-abbrevs['asdfu']  = 'asdf update'
-abbrevs['asdfup'] = 'asdf plugin-update python'
-abbrevs['poa']    = "poetry add"
-abbrevs['poav']   = "poetry add PKG=1.14.5"
-abbrevs['pipi']   = 'pip install -U'
-abbrevs['pipil']  = 'pip install --extra-index-url http://localhost:8080 -U'
-abbrevs['pipxi']  = 'pipx install'
-abbrevs['pipxil'] = 'pipx install --index-url http://localhost:8080'
-abbrevs['pipxu']  = 'pipx upgrade'
-abbrevs['pipxul'] = 'pipx upgrade --index-url http://localhost:8080'
-abbrevs['pipxu']  = 'pipx upgrade'
-abbrevs['pipxup'] = 'pipx upgrade --index-url http://localhost:8080 --pip-args="--pre"'
-# abbrevs['pipd']   = 'pip download'
-# abbrevs['ipdbb']  = 'export PYTHONBREAKPOINT=ipdb.set_trace'
+abbrevs['asdfi']  = ga('env PYTHON_CONFIGURE_OPTS="--enable-shared --enable-optimizations" asdf install python')
+abbrevs['asdfs']  = ga("$ASDF_PYTHON_VERSION =")
+abbrevs['asdfl']  = ga('asdf list-all python')
+abbrevs['asdfu']  = ga('asdf update')
+abbrevs['asdfup'] = ga('asdf plugin-update python')
+abbrevs['poa']    = ga("poetry add")
+abbrevs['poav']   = ga("poetry add PKG=1.14.5")
+abbrevs['pipi']   = ga('pip install -U')
+abbrevs['pipil']  = ga('pip install --extra-index-url http://localhost:8080 -U')
+abbrevs['pipxi']  = ga('pipx install')
+abbrevs['pipxil'] = ga('pipx install --index-url http://localhost:8080')
+abbrevs['pipxu']  = ga('pipx upgrade')
+abbrevs['pipxul'] = ga('pipx upgrade --index-url http://localhost:8080')
+abbrevs['pipxu']  = ga('pipx upgrade')
+abbrevs['pipxup'] = ga('pipx upgrade --index-url http://localhost:8080 --pip-args="--pre"')
+# abbrevs['pipd']   = ga('pip download')
+# abbrevs['ipdbb']  = ga('export PYTHONBREAKPOINT=ipdb.set_trace')
 
 # gcp
-abbrevs['bqh'] = 'bq head --format csv tk_tmp.LOAD_ERRORS | vd -f csv'
-abbrevs['gc'] = "$CLOUDSDK_ACTIVE_CONFIG_NAME='"
-abbrevs['gcl'] = "gcloud config list"
-abbrevs['gcca'] = "gcloud config configurations activate"
-abbrevs['gccl'] = "gcloud config configurations list"
-abbrevs['gal'] = "gcloud auth list"
-abbrevs['gar'] = "gcloud auth revoke"
-abbrevs['gpl'] = "gcloud projects list"
-abbrevs['gmil'] = "gcloud compute instances list"
-abbrevs['gmid'] = "gcloud compute instances delete"
-abbrevs['gmdl'] = "gcloud compute disks list"
-abbrevs['gms'] = "gcloud compute ssh"
+abbrevs['bqh'] = ga('bq head --format csv tk_tmp.LOAD_ERRORS | vd -f csv')
+abbrevs['gc'] = ga("$CLOUDSDK_ACTIVE_CONFIG_NAME='")
+abbrevs['gcl'] = ga("gcloud config list")
+abbrevs['gcca'] = ga("gcloud config configurations activate")
+abbrevs['gccl'] = ga("gcloud config configurations list")
+abbrevs['gal'] = ga("gcloud auth list")
+abbrevs['gar'] = ga("gcloud auth revoke")
+abbrevs['gpl'] = ga("gcloud projects list")
+abbrevs['gmil'] = ga("gcloud compute instances list")
+abbrevs['gmid'] = ga("gcloud compute instances delete")
+abbrevs['gmdl'] = ga("gcloud compute disks list")
+abbrevs['gms'] = ga("gcloud compute ssh")
 
 # różne
-# ranger
-abbrevs['mountiso'] = 'sudo mount -o loop myisofile.iso /mnt/a'
-abbrevs['bwu'] = "$BW_SESSION=$(bw unlock --raw)"
-abbrevs['bws'] = "bw status"
-abbrevs['passs'] = r"pass show $(find -L ~/.password-store -iname '*.gpg' | sed -e 's_^/home/kossak/.password-store/__' -e 's_.gpg$__' | fzf | tr -d '\n')"
-abbrevs['passc'] = r"pass -c $(find -L ~/.password-store -iname '*.gpg' | sed -e 's_^/home/kossak/.password-store/__' -e 's_.gpg$__' | fzf | tr -d '\n')"
-abbrevs['passe'] = r"pass edit $(find -L ~/.password-store -iname '*.gpg' | sed -e 's_^/home/kossak/.password-store/__' -e 's_.gpg$__' | fzf | tr -d '\n')"
-abbrevs['borglf'] = 'borg list --format \'{name}{NL}\' . | fzf'
-abbrevs['borgllf'] = 'borg list f".::{$(borg list --format \'{name}{NL}\' . | fzf).strip()}" | less'
-abbrevs['borgmf'] = 'borg mount f".::{$(borg list --format \'{name}{NL}\' . | fzf).strip()}" /mnt/borg'
+abbrevs['mountiso'] = ga('sudo mount -o loop myisofile.iso /mnt/a')
+abbrevs['bwu'] = ga("$BW_SESSION=$(bw unlock --raw)")
+abbrevs['bws'] = ga("bw status")
+abbrevs['passs'] = ga(r"pass show $(find -L ~/.password-store -iname '*.gpg' | sed -e 's_^/home/kossak/.password-store/__' -e 's_.gpg$__' | fzf | tr -d '\n')")
+abbrevs['passc'] = ga(r"pass -c $(find -L ~/.password-store -iname '*.gpg' | sed -e 's_^/home/kossak/.password-store/__' -e 's_.gpg$__' | fzf | tr -d '\n')")
+abbrevs['passe'] = ga(r"pass edit $(find -L ~/.password-store -iname '*.gpg' | sed -e 's_^/home/kossak/.password-store/__' -e 's_.gpg$__' | fzf | tr -d '\n')")
+abbrevs['borglf'] = ga('borg list --format \'{name}{NL}\' . | fzf')
+abbrevs['borgllf'] = ga('borg list f".::{$(borg list --format \'{name}{NL}\' . | fzf).strip()}" | less')
+abbrevs['borgmf'] = ga('borg mount f".::{$(borg list --format \'{name}{NL}\' . | fzf).strip()}" /mnt/borg')
 
 def _ranger_cd():
     f = p'/tmp/rangerdir'
@@ -215,4 +220,3 @@ $fzf_dir_binding = "c-g"
 
 $fzf_find_command = "fd"
 $fzf_find_dirs_command = "fd -t d"
-
