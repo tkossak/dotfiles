@@ -1,0 +1,18 @@
+# add $1 to PATH and export
+function add_to_path() {
+    if [[ -d "$1" && ! "$PATH" =~ (^|:)"$1"($|:) ]]; then
+        export PATH="$1:$PATH"
+    fi
+}
+
+# remove $1 from PATH and export
+function del_from_path() {
+    local p=$1
+    local ps=$(echo $p | sed 's_/_\\/_g')
+    # echo "p = $p"
+    if [[ "$PATH" =~ (^|:)"$p"($|:) ]]; then
+        export PATH=$(echo $PATH | sed -e "s/:$ps:/::/g" -e "s/^$ps://g" -e "s/:$ps$//g")
+    fi
+}
+
+add_to_path "$HOME/.local/bin"
