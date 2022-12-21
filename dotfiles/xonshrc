@@ -66,16 +66,17 @@ abbrevs['dmp3']  = ga("yt-dlp -cx --audio-format mp3 -o '%(title)s.%(ext)s' (xcl
 abbrevs['y']     = ga('yt-dlp $(xclip -o -sel c)')
 abbrevs['dtel']  = ga('yt-dlp -f "worstvideo[height>=480]+bestaudio[abr<=128]" -o ''%(title)s.%(ext)s'' (xclip -o)')
 abbrevs['dtel2'] = ga("yt-dlp -f 'bestvideo[ext=mp4][height=720]+bestaudio[ext=m4a][abr=128]/bestvideo[height<=720]+bestaudio[abr<=128]' -o '%(title)s.%(ext)s' $(xclip -o)")
-abbrevs['ffmpegct'] = ga('ffmpeg -i -c:v libx264 -c:a aac -pix_fmt yuv420p')
+abbrevs['ffmpegct'] = ga('ffmpeg -i <edit> -c:v libx264 -c:a aac -pix_fmt yuv420p')
 abbrevs['goc'] = ga('go-chromecast --first')
 
 # różne
 abbrevs['sd'] = ga('sudo docker')
 abbrevs['di'] = ga('docker images')
 abbrevs['dp'] = ga('docker ps')
-abbrevs['dr'] = ga('docker container run -it --rm <NAME> /bin/bash')
+abbrevs['dr'] = ga('docker container run -it --rm <edit> /bin/bash')
 abbrevs['dre'] = ga('docker container run -it --rm --entrypoint /bin/bash <>')
-abbrevs['de'] = ga('docker exec -it <NAME> bash')
+abbrevs['de'] = ga('docker exec -it <edit> bash')
+abbrevs['dc'] = ga('docker commit')
 
 # vars for SSH/TMUX
 abbrevs['envss'] = ga('''\
@@ -111,7 +112,8 @@ abbrevs['voxa'] = ga('vox activate')
 abbrevs['voxd'] = ga('vox deactivate')
 abbrevs['voxn'] = ga('vox new -p /home/kossak/.asdf/installs/python/')
 
-abbrevs['asdfi']  = ga('env PYTHON_CONFIGURE_OPTS="--enable-shared --enable-optimizations" asdf install python')
+# abbrevs['asdfi']  = ga('env PYTHON_CONFIGURE_OPTS="--enable-shared --enable-optimizations" asdf install python')
+abbrevs['asdfi']  = ga('asdf install python')
 abbrevs['asdfs']  = ga("$ASDF_PYTHON_VERSION =")
 abbrevs['asdfl']  = ga('asdf list-all python')
 abbrevs['asdfu']  = ga('asdf update')
@@ -144,15 +146,15 @@ abbrevs['gmdl'] = ga("gcloud compute disks list")
 abbrevs['gms'] = ga("gcloud compute ssh")
 
 # różne
-abbrevs['mountiso'] = ga('sudo mount -o loop myisofile.iso /mnt/a')
+abbrevs['mountiso'] = ga('sudo mount -o loop <file><edit> /mnt/a')
 abbrevs['bwu'] = ga("$BW_SESSION=$(bw unlock --raw)")
 abbrevs['bws'] = ga("bw status")
 abbrevs['passs'] = ga(r"pass show $(find -L ~/.password-store -iname '*.gpg' | sed -e 's_^/home/kossak/.password-store/__' -e 's_.gpg$__' | fzf | tr -d '\n')")
 abbrevs['passc'] = ga(r"pass -c $(find -L ~/.password-store -iname '*.gpg' | sed -e 's_^/home/kossak/.password-store/__' -e 's_.gpg$__' | fzf | tr -d '\n')")
 abbrevs['passe'] = ga(r"pass edit $(find -L ~/.password-store -iname '*.gpg' | sed -e 's_^/home/kossak/.password-store/__' -e 's_.gpg$__' | fzf | tr -d '\n')")
-abbrevs['borglf'] = ga('borg list --format \'{name}{NL}\' . | fzf')
-abbrevs['borgllf'] = ga('borg list f".::{$(borg list --format \'{name}{NL}\' . | fzf).strip()}" | less')
-abbrevs['borgmf'] = ga('borg mount f".::{$(borg list --format \'{name}{NL}\' . | fzf).strip()}" /mnt/borg')
+abbrevs['borglf'] = ga("borg list --format '{name}{NL}<edit>' . | fzf")
+abbrevs['borgllf'] = ga('borg list f".::{$(borg list --format \'{name}{NL}<edit>\' . | fzf).strip()}" | less')
+abbrevs['borgmf'] = ga('borg mount f".::{$(borg list --format \'{name}{NL}<edit>\' . | fzf).strip()}" /mnt/borg')
 
 def _ranger_cd():
     f = p'/tmp/rangerdir'
