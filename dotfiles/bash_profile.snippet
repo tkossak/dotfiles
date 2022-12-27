@@ -15,4 +15,9 @@ function del_from_path() {
     fi
 }
 
+add_to_path "$HOME/.poetry/bin"
 add_to_path "$HOME/.local/bin"
+add_to_path "$HOME/.asdf/bin"
+add_to_path "$HOME/.asdf/shims"
+
+export RANGER_LOAD_DEFAULT_RC=False

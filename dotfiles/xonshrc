@@ -77,6 +77,9 @@ abbrevs['dr'] = ga('docker container run -it --rm <edit> /bin/bash')
 abbrevs['dre'] = ga('docker container run -it --rm --entrypoint /bin/bash <>')
 abbrevs['de'] = ga('docker exec -it <edit> bash')
 abbrevs['dc'] = ga('docker commit')
+# exec/commit in the only running container:
+abbrevs['dee'] = ga("docker exec -it @$(docker ps --format '{{.ID}}') bash")
+abbrevs['dcc'] = ga("docker commit @$(docker ps --format '{{.ID}}')")
 
 # vars for SSH/TMUX
 abbrevs['envss'] = ga('''\
@@ -114,7 +117,7 @@ abbrevs['voxn'] = ga('vox new -p /home/kossak/.asdf/installs/python/')
 
 # abbrevs['asdfi']  = ga('env PYTHON_CONFIGURE_OPTS="--enable-shared --enable-optimizations" asdf install python')
 abbrevs['asdfi']  = ga('asdf install python')
-abbrevs['asdfs']  = ga("$ASDF_PYTHON_VERSION =")
+abbrevs['asdfs']  = ga('$ASDF_PYTHON_VERSION =')
 abbrevs['asdfl']  = ga('asdf list-all python')
 abbrevs['asdfu']  = ga('asdf update')
 abbrevs['asdfup'] = ga('asdf plugin-update python')
@@ -158,7 +161,6 @@ abbrevs['borgmf'] = ga('borg mount f".::{$(borg list --format \'{name}{NL}<edit>
 
 def _ranger_cd():
     f = p'/tmp/rangerdir'
-    # ranger --choosedir @(f) @(f.cwd())
     ranger --choosedir @(f)
     if f.exists():
         cd @(f.read_text())
