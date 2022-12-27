@@ -31,8 +31,6 @@ class Package():
         install_cmd: Union[str, Iterable] = None,
         pkg_manager: PkgManagerABC = None,
         pkg_name: Union[str, List[str]] = None,
-        pkg_names_to_check_if_installed: Union[str, Iterable[str]] = None,
-        pkg_names_to_install: Union[str, Iterable[str]] = None,
         cmd_name: str = None,
         file_locations: Iterable[Union[str, Path]] = None,
         check_install_by: Cib = Cib.cmd,
@@ -51,11 +49,6 @@ class Package():
             names, it will try to install them in sequence until the first,
             that succeeds
 
-        :param pkg_names_to_install: install first package that succeeds, skip
-            the rest
-        :param pkg_names_to_check_if_installed: if at least one package from
-            this list is installed, the package is considered to be installed
-
 
         :param cmd_name: Cmd name, that can be found in $PATH
 
@@ -63,26 +56,13 @@ class Package():
             check if package is installed
         """
 
-        assert isinstance(pkg_name, (str, Iterable, None.__class__))
-
-        self.name = name
+        assert isinstance(pkg_name, (str, list, None.__class__))
 
         if not pkg_name:
             pkg_names = [name]
         elif isinstance(pkg_name, str):
             pkg_names = [pkg_name]
         self.pkg_name = pkg_names[0]
-
-        if pkg_names_to_install:
-            self.pkg_names_to_install = [pkg_names_to_install] if isinstance(pkg_names_to_install, str) else pkg_names_to_install
-        else:
-            self.pkg_names_to_install = pkg_names
-
-        if pkg_names_to_check_if_installed:
-            self.pkg_names_to_check_if_installed = [pkg_names_to_check_if_installed] if isinstance(pkg_names_to_check_if_installed, str) else pkg_names_to_check_if_installed
-        else:
-            self.pkg_names_to_check_if_installed = pkg_names
-
 
         self.install_for_current_distro = True
         if distros:
@@ -93,17 +73,17 @@ class Package():
             else:
                 self.install_for_current_distro = False
 
-            assert isinstance(pkg_names, (str, Iterable, None.__class__))
+            assert isinstance(pkg_names, (str, list, None.__class__))
 
             if isinstance(pkg_names, (str, None.__class__)):
                 pkg_names = [pkg_names]
 
-            self.pkg_names_to_install = pkg_names
-            self.pkg_names_to_check_if_installed = pkg_names
-
         if not pkg_names[0]:
             self.install_for_current_distro = False
 
+        self.pkg_names_to_install = pkg_names
+
+        self.name = name
         self.groups = groups if isinstance(groups, C.Groups) else C.Groups.cli | C.Groups.home | C.Groups.work
         self.install_cmd = install_cmd
         self.pkg_manager = pkg_manager if pkg_manager else package_managers.os_pkg
@@ -119,37 +99,31 @@ class Package():
             self.install_for_current_groups = False
 
 
-    # @property
-    # def is_pkg_installed(self) -> bool:
-    #     """check if self.pkg_name is installed
-    #     """
-    #     return self.pkg_manager.is_pkg_installed(self.pkg_name)
+    @property
+    def is_pkg_installed(self) -> bool:
+        """check if self.pkg_name is installed
+        """
+        return self.pkg_manager.is_pkg_installed(self.pkg_name)
 
     @property
-    def is_pkg_installed(self) -> bool:  # is_any_pkg_installed(self) -> bool:
-        """check if at least one package from self.pkg_names_to_check_if_installed is installed
+    def is_any_pkg_installed(self) -> bool:
+        """check if at least one package from self.pkg_name_alternatives is installed
         """
-        return any(self.pkg_manager.is_pkg_installed(p) for p in self.pkg_names_to_check_if_installed)
+        return any(self.pkg_manager.is_pkg_installed(p) for p in self.pkg_names_to_install)
 
     @property
     def is_cmd_available(self) -> Union[str, bool]:
         return check_if_cmd_present(self.cmd_name)
 
-    def install(self):
-        """Install first package from the list, that succeeds. Skip the rest.
-        """
+    def install(self, pkg_name=None):
+        if not pkg_name:
+            pkg_name = self.pkg_name
+
         if self.install_cmd:
             log.info(f'Install: {self.name}')
             run_cmd(self.install_cmd)
         else:
-            for p in self.pkg_names_to_install:
-                try:
-                    self.pkg_manager.install(p)
-                    break
-                except Exception as e:
-                    pass
-            else:
-                raise e
+            self.pkg_manager.install(pkg_name)
 
     def install_if_not_installed(self) -> int:
         """
@@ -176,7 +150,15 @@ class Package():
                 or self.check_install_by == Cib.cmd       and not self.is_cmd_available
                 or self.check_install_by == Cib.pkg       and not self.is_pkg_installed
             ):
-                self.install()
+                for p in self.pkg_names_to_install:
+                    try:
+                        # self.pkg_name = p
+                        self.install(p)
+                        break
+                    except Exception as e:
+                        pass
+                else:
+                    raise e
                 self.configure()
                 return 0
             else:
@@ -217,29 +199,33 @@ class PipxPackage(Package):
 
     def __init__(self,
         name,
+        pkg_name_to_install: Union[str, List[str]] = None,
         inject: Union[str, List[str]] = None,
         python: Union[str, Path] = None,
         **kwargs,
     ):
+        """
+        :param name: Will also be used as pkg_name (to check if package is installed)
+                     and for `pkg_name_to_install` if it is empty.
+        :param pkg_name_to_install: Package name to install. If you pass list of package
+            names, it will try to install them in sequence until the first,
+            that succeeds
+        """
         kwargs['name'] = name
         kwargs['pkg_manager'] = package_managers.pipx
         kwargs['check_install_by'] = Cib.pkg
         kwargs['install_cmd'] = None
         super().__init__(**kwargs)
 
+        if pkg_name_to_install:
+            self.pkg_names_to_install = pkg_name_to_install if isinstance(pkg_name_to_install, list) else  [pkg_name_to_install]
         self.python = python
         self.inject = [p.strip() for p in (inject.split(' ') if isinstance(inject, str) else inject or ()) if p.strip()]
 
-    def install(self):
-        for p in self.pkg_names_to_install:
-            try:
-                self.pkg_manager.install(p, self.python)
-                # self.pkg_manager.install(p)
-                break
-            except Exception as e:
-                pass
-        else:
-            raise e
+    def install(self, pkg_name: str = None):
+        if not pkg_name:
+            pkg_name = self.pkg_name
 
+        self.pkg_manager.install(pkg_name, self.python)
         if self.inject:
             self.pkg_manager.inject(self.pkg_name, self.inject)

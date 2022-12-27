@@ -1,15 +1,17 @@
 import subprocess
-from subprocess import run
+# from subprocess import run
 from abc import ABC, abstractmethod
 import json
-from typing import Union
+from typing import Union, List
 from setup_new_linux.utils import setup
 import shlex
+from pathlib import Path
 
 from setup_new_linux.utils.setup import log
-from setup_new_linux.utils.helpers import check_if_cmd_present
+from setup_new_linux.utils.helpers import check_if_cmd_present, run_cmd
+from setup_new_linux.utils import constants
 
-pkg = None
+os_pkg = None
 pipx = None
 
 class PkgManagerABC(ABC):
@@ -33,18 +35,26 @@ class OsPkgManagerGenerator(PkgManagerABC):
         cmd: str,
         install_options: Union[str, list],
         is_installed_options: Union[str, list],
-        is_installed_template: str = None,
+        is_installed_template: Union[str, list] = None,
+        sudo_install: bool = False,
     ):
+        """
+        :param sudo_install: if True: run installations with sudo
+        """
         self.pkg_manager = cmd
-        self.install_options = [install_options] if isinstance(install_options, str) else install_options
+        self.pkg_manager_name = cmd.split('/')[-1]
+
+        self.install_options = shlex.split(install_options) if isinstance(install_options, str) else install_options
+        self.pkg_manager_run_install = (['sudo'] if sudo_install else []) + [self.pkg_manager] + self.install_options
 
         if is_installed_template:
-            self.is_installed_template = is_installed_template
+            self.is_installed_template = shlex.split(is_installed_template) if isinstance(is_installed_template, str) else is_installed_template
         elif is_installed_options:
-            is_installed_options = is_installed_options if isinstance(is_installed_options, str) else ' '.join(is_installed_options)
-            self.is_installed_template = f'{self.pkg_manager} {is_installed_options} {{pkg}}'
+            is_installed_options = shlex.split(is_installed_options) if isinstance(is_installed_options, str) else is_installed_options
+            self.is_installed_template = [self.pkg_manager] + is_installed_options  + [os_pkg]
         else:
             raise Exception('provide either is_installed_options or is_installed_template')
+
 
     def install(self,
         pkg: str
@@ -52,13 +62,10 @@ class OsPkgManagerGenerator(PkgManagerABC):
         """Install without checking if pkg is installed
         """
         if not pkg:
-            raise Exception(f'{self.pkg_manager} empty pkg provided!')
+            raise Exception(f'{self.pkg_manager_name}: empty pkg provided!')
 
-        log.info(f'{self.pkg_manager} install: {pkg}')
-        run(
-            [self.pkg_manager] + self.install_options + [pkg],
-            check=True
-        )
+        log.info(f'{self.pkg_manager_name} install: {pkg}')
+        run_cmd(self.pkg_manager_run_install + [pkg])
 
     def install_if_not_installed(self,
         pkg: str
@@ -68,21 +75,25 @@ class OsPkgManagerGenerator(PkgManagerABC):
                   1 - pkg was already installed
         """
         if not pkg:
-            raise Exception(f'{self.pkg_manager} empty pkg provided!')
+            raise Exception(f'{self.pkg_manager_name}: empty pkg provided!')
 
         if not self.is_pkg_installed(pkg):
-            log.info(f'{self.pkg_manager} install: {pkg}')
+            log.info(f'{self.pkg_manager_name} install: {pkg}')
             self.install(pkg)
-            # run([self.pkg_manager,self.install_options, pkg])
+            # run_cmd([self.pkg_manager,self.install_options, pkg])
             return 0
         else:
-            log.debug(f'{self.pkg_manager} already installed: {pkg}')
+            log.debug(f'{self.pkg_manager_name} already installed: {pkg}')
             return 1
 
     def is_pkg_installed(self, pkg: str) -> bool:
-        p = run(
+        """
+        :returns: True - if pkg is installed
+                  False - if pkg is NOT installed
+        """
+        p = run_cmd(
             # [self.pkg_manager] + self.is_installed_options + [pkg],
-            shlex.split(self.is_installed_template),
+            self.is_installed_template,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
             # universal_newlines=True,
@@ -95,38 +106,80 @@ class OsPkgManagerGenerator(PkgManagerABC):
 
 class Pipx(PkgManagerABC):
 
-    def __init__(self):
-        pass
-
-    def install(self, pkg: str) -> None:
-        """Install without checking if pkg is installed
+    def __init__(self,
+        python: Union[str, Path] = constants.PYTHON_BINARY_MAIN_PATH
+    ):
         """
-        log.info(f'Pipx pkg install: {pkg}')
-        run(['pipx', 'install', pkg], check=True)
+        :param python: Install pkgs using this python (path to binary) by default
+        """
+        pkg_manager = Path.home() / '.local/bin/pipx'
+        self.pkg_manager_cmd = str(pkg_manager)
+        self.pkg_manager_name = pkg_manager.name
+        self.python = str(python)
 
-    def install_if_not_installed(self, pkg: str) -> None:
+    def install(self,
+        pkg: str,
+        python: Union[str, Path] = None,
+    ) -> None:
+        """Install without checking if pkg is installed
+        :param pkg: Pkg to install
+        :param python: Path to python interpreter used to install this package
+        """
+        if not pkg:
+            raise Exception(f'{self.pkg_manager_name}: empty pkg provided!')
+        python = str(python) if python else self.python
+
+        log.info(f'{self.pkg_manager_name} install: {pkg}')
+        run_cmd([self.pkg_manager_cmd, 'install', '--python', python, pkg])
+
+    def install_if_not_installed(self,
+        pkg: str,
+        python: Union[str, Path] = None,
+    ) -> int:
         """Install only if pkg is not already installed
         """
-
-        # TODO: add return int (0 - installed just now, 1 - already installed)
         if not pkg:
-            raise Exception('pipx empty pkg provided!')
+            raise Exception(f'{self.pkg_manager_name}: empty pkg provided!')
+        python = str(python) if python else self.python
 
         if not self.is_pkg_installed():
-            self.install(pkg)
+            log.info(f'{self.pkg_manager_name} install: {pkg}')
+            self.install(pkg, python)
+            return 0
         else:
-            log.debug(f'Pipx pkg already installed: {pkg}')
+            log.debug(f'{self.pkg_manager_name} already installed: {pkg}')
+            return 1
 
     def is_pkg_installed(self, pkg: str) -> bool:
-        p = run(
-            ['pipx', 'list', '--json'],
+        """
+        :returns: True - if pkg is installed
+                  False - if pkg is NOT installed
+        """
+        p = run_cmd(
+            [self.pkg_manager_cmd, 'list', '--short'],
             stdout=subprocess.PIPE,
             universal_newlines=True,
         )
-        j = json.loads(p.stdout)
-        if pkg in j['venvs'].keys():
+        if f'\n{pkg} ' in f'\n{p.stdout}':
             return True
         return False
+
+    def inject(self,
+        pkg: str,
+        inject: Union[str, List[str]] = None,
+    ):
+        """
+        :param inject: string (space separated) or list of packages to inject into `pkg`
+        """
+        if not pkg:
+            raise Exception(f'{self.pkg_manager_name} inject: empty pkg provided!')
+        if not inject:
+            raise Exception(f'{self.pkg_manager_name} inject: empty inject list provided!')
+
+        inject = [p.strip() for p in (inject.split(',') if isinstance(inject, str) else inject)]
+        run_cmd([self.pkg_manager_cmd, 'inject', pkg] +  inject)
+
+pipx = Pipx()
 
 
 yay = OsPkgManagerGenerator(
@@ -136,12 +189,15 @@ yay = OsPkgManagerGenerator(
     # is_installed_template="-Qs '^{pkg}$'"
 )
 
+
 pacman = OsPkgManagerGenerator(
     cmd='pacman',
     install_options=['-S'] + ([] if setup.args.ask else ['--noconfirm']),
-    is_installed_options='-Q'
+    is_installed_options='-Q',
+    sudo_install=True,
 )
 
+# TODO: apt, dnf, zypper
 
 def get_os_pkg_manager():
     if check_if_cmd_present('yay'):
@@ -152,5 +208,5 @@ def get_os_pkg_manager():
         raise Exception('Package manager not known')
 
 
-pkg = get_os_pkg_manager()
+os_pkg = get_os_pkg_manager()
 pipx = Pipx()

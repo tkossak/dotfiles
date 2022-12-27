@@ -2,6 +2,7 @@ import platform
 import subprocess
 from subprocess import run
 from pathlib import Path
+from typing import Tuple, Optional
 
 from setup_new_linux.utils.setup import log
 from setup_new_linux.utils.constants import Distro
@@ -10,9 +11,10 @@ from setup_new_linux.utils.constants import Distro
 def get_distro() -> str:
     current_distro = platform.release().lower()
     if 'manjaro' in current_distro:
-        return Distro.MANJARO
+        return Distro.manjaro
     else:
-        raise Exception(f'Unknown distro: {current_distro}')
+        return Distro.unknown
+        # raise Exception(f'Unknown distro: {current_distro}')
 
 
 def check_if_using_systemd() -> bool:
@@ -24,7 +26,11 @@ def check_if_using_systemd() -> bool:
     )
     return True if 'systemd' in p.stdout else False
 
-def get_dotfiles_path():
+def get_dotfiles_path() -> Optional[Path]:
+    """Find dotfiles folder and return its path
+    :returns: Path to dotfile folder
+    :rtype: Optional[Path]
+    """
     p = Path(__file__)
     while True:
         p = p.parent
@@ -37,16 +43,24 @@ def get_dotfiles_path():
     p = Path.home / '.dotfiles/dotfiles'
     if p.is_dir():
         return p
-    log.error("Can't find dotfiles folder")
+    tmp = "Can't find dotfiles folder"
+    log.error(tmp)
+    errors.append(tmp)
     return None
 
-def get_dotfiles_local_path():
+def get_dotfiles_local_path() -> Tuple[bool, Path]:
+    """Find local dotfiles folder and return its existence and path
+    :returns: 1'st element: True if returned Path exists
+              2'nd element: Path to local dotfiles (existing or not)
+    :rtype: Tuple[bool, Path]
+    """
+    global errors
     p = Path(__file__)
     while True:
         p = p.parent
-        dotfiles = p / 'dotfiles'
-        if dotfiles.is_dir():
-            return dotfiles
+        dotfile = p / 'dotfiles.local'
+        if dotfile.is_dir():
+            return True, dotfile
         if p == p.parent:
             break
 
@@ -56,21 +70,21 @@ def get_dotfiles_local_path():
         Path.home() / 'apps/dotfiles.local',
     ):
         if p.is_dir():
-            return p
-    log.error("Can't find dotfiles folder")
-    return None
+            return True, p
+    tmp = "Can't find local dotfiles folder"
+    log.error(tmp)
+    errors.append(tmp)
+    # return None
+    return False, Path('/tmp/NO_LOCAL_DOTFILES')
 
-
-dotfiles_dir = get_dotfiles_path()
-dotfiles_local_dir = get_dotfiles_local_path()
-distro: str = get_distro()
-systemd: bool = check_if_using_systemd()
 
 # pouplated by other modules
 errors: list = []
 verify: list = []
 
-
-
-
+# info variables:
+dotfiles_dir = get_dotfiles_path()
+dotfiles_local_exists, dotfiles_local_dir = get_dotfiles_local_path()
+distro: str = get_distro()
+systemd: bool = check_if_using_systemd()
 

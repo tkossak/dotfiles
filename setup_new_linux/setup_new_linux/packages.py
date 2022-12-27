@@ -3,47 +3,78 @@ import shlex
 import subprocess
 import re
 from packaging.version import Version
+import os
 
-from setup_new_linux.classes.packagesc import OsPackage
-from setup_new_linux.utils.constants import Distro, CheckInstallationBy as Cib, Groups
+from setup_new_linux.classes.packagesc import Package, OsPackage, GuiOsPackage, PipxPackage
+from setup_new_linux.classes.servicesc import SystemDService
+from setup_new_linux.classes import package_managers as PM
+from setup_new_linux import dotfiles
+
+from setup_new_linux.utils import constants as C
+from setup_new_linux.utils.constants import CheckInstallationBy as Cib
 from setup_new_linux.utils.helpers import run_cmd, check_if_cmd_present
 from setup_new_linux.utils.setup import log
 from setup_new_linux import info
 
-yay = OsPackage('yay')
+
+class YayOsPackage(OsPackage):
+
+    def __init__(self):
+        super().__init__(
+            'yay',
+            distros={
+                'default': None,
+                C.Distro.manjaro: 'yay',
+            },
+        )
+
+    def configure(self) -> None:
+        PM.os_pkg = PM.get_os_pkg_manager()
+        for pkg in Packages:
+            if pkg == PM.pacman:
+                pkg.pkg_manager = PM.os_pkg
+
+yay = YayOsPackage()
+
+
+sshd = OsPackage(
+    'sshd',
+    pkg_name='openssh',
+)
 
 base_devel = OsPackage(
     'base-devel',
     cmd_name='gcc',
     distros={
         'default': None,
-        Distro.MANJARO: 'base-devel',
+        C.Distro.manjaro: 'base-devel',
     },
 )
 
-class VimOsPackage(OsPackage):
-    def configure(self):
-        vimplug_path = Path.home() / '.vim/autoload/plug.vim'
-        if not vimplug_path.exists():
-            run_cmd(['curl', '-fLo', str(vimplug_path), '--create-dirs', 'https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'])
-            log.info('REMEMBER vim: run vim and :PlugInstall')
-            # TODO: run automatic :PlugInstall after you download your dotfiles!
 
-vim = VimOsPackage(
+# class VimOsPackage(OsPackage):
+#
+#     def __init__(self):
+#         super().__init__(
+#             'vim',
+#             distros={
+#                 C.Distro.manjaro: 'gvim',
+#             },
+#             groups=C.Groups.cli | C.Groups.home | C.Groups.work | C.Groups.server,
+#         )
+# vim = VimOsPackage()
+vim = OsPackage(
     'vim',
     distros={
-        Distro.MANJARO: 'gvim',
+        C.Distro.manjaro: 'gvim',
     },
+    groups=C.Groups.cli | C.Groups.home | C.Groups.work | C.Groups.server,
 )
 
-# TODO:
-# ranger = ...
 
 # TODO: change to manual install (download binary)
-telegram = OsPackage(
+telegram = GuiOsPackage(
     'telegram-desktop',
-    # groups=Groups.gui | Groups.home | Groups.work,
-    groups=Groups(0),  # temporarily disable installing
     check_install_by=Cib.any,
     cmd_name='Telegram',
     file_locations={
@@ -51,27 +82,23 @@ telegram = OsPackage(
     },
 )
 
-google_chrome = OsPackage(
+google_chrome = GuiOsPackage(
     'google-chrome',
-    groups=Groups.gui | Groups.home | Groups.work,
     check_install_by=Cib.pkg,
     cmd_name='chrome'
 )
 
-class AsdfOsPackage(OsPackage):
+class AsdfPackage(Package):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.asdf_dir = Path.home() / '.asdf'
-        self.asdf_binary_path = self.asdf_dir / 'bin/asdf'
-        self.install_latest_python_branch = '3.10'
-        self.py_versions = {}
+        self._py_versions = None
 
     def install(self):
-        run_cmd(shlex.split(f'git clone https://github.com/asdf-vm/asdf.git {self.asdf_dir}'))
+        run_cmd(shlex.split(f'git clone https://github.com/asdf-vm/asdf.git {C.ASDF_DIR}'))
         p = run_cmd(
             'git tag --list --sort v:refname',
-            cwd=self.asdf_dir,
+            cwd=C.ASDF_DIR,
             stdout=subprocess.PIPE,
         )
 
@@ -89,54 +116,67 @@ class AsdfOsPackage(OsPackage):
         log.info(msg)
         run_cmd(
             ['git', 'checkout', newest_tag],
-            cwd=self.asdf_dir,
+            cwd=C.ASDF_DIR,
         )
 
         run_cmd(
-            [self.asdf_binary_path, 'plugin-add', 'python'],
+            [C.ASDF_BINARY_PATH, 'plugin-add', 'python'],
         )
 
-        self.download_latest_python_versions()
         all_latest_versions = ' - '.join(v.public for v in sorted(self.py_versions.values(), reverse=True))
         msg = f'Asdf python latest versions: {all_latest_versions}'
         log.info(msg)
         info.verify.append(msg)
-        info.verify.append(f'asdf install python {self.py_versions[self.install_latest_python_branch]}')
+        # info.verify.append(f'asdf install python {self.py_versions[self.install_latest_python_branch]}')
+        self.install_main_python()
+        info.verify.append(f'asdf installed python: {C.MAIN_PYTHON_VERSION}')
 
+    @property
+    def py_versions(self):
+        if not self._py_versions:
+            # Update self._py_versions
+            # Get only latest version for each minor version
+            p = run_cmd(
+                f'{C.ASDF_BINARY_PATH} list-all python',
+                stdout=subprocess.PIPE,
+            )
+            py_versions = {}  # {'3.11': <Version 3.11.1>}
+            for py in re.finditer(r'^(\d+)\.(\d+)\.(\d+)$', p.stdout, re.MULTILINE):
+                v = Version(py.group())
+                if v <= Version('3.6.6'):
+                    continue
+                branch = '.'.join(str(e) for e in v.release[:2])
 
-    def download_latest_python_versions(self) -> None:
-        """Update self.py_versions and info.verify
-        Get only latest version for each minor version
-        """
-        if self.py_versions:
-            return
+                if v > py_versions.setdefault(branch, v):
+                    py_versions[branch] = v
 
-        p = run_cmd(
-            f'{self.asdf_binary_path} list-all python',
-            stdout=subprocess.PIPE,
+            self._py_versions = py_versions
+        return self._py_versions
+
+    def install_main_python(self) -> None:
+        self.install_python_version(C.MAIN_PYTHON_VERSION)
+        run_cmd(
+            [C.ASDF_BINARY_PATH, 'global', 'python', C.MAIN_PYTHON_VERSION],
+            cwd=str(Path.home()),
+
         )
-        py_versions = {}  # {'3.11': <Version 3.11.1>}
-        for py in re.finditer(r'^(\d+)\.(\d+)\.(\d+)$', p.stdout, re.MULTILINE):
-            v = Version(py.group())
-            if v <= Version('3.6.6'):
-                continue
-            branch = '.'.join(str(e) for e in v.release[:2])
 
-            if v > py_versions.setdefault(branch, v):
-                py_versions[branch] = v
+    def install_python_version(self, version) -> None:
+        # TODO: maybe run it in background and check when it ends?
 
-        self.py_versions = py_versions
+        python_binary_path = Path(C.PYTHON_BINARY_PATH_TEMPLATE.format(version=version))
+        if python_binary_path.exists():
+            log.debug(f'Asdf python already installed: {version}')
+            return
+        log.info(f'Asdf install python: {version}')
+        run_cmd(
+            [C.ASDF_BINARY_PATH, 'install', 'python', version]
+        )
+        run_cmd(
+            [python_binary_path, '-m', 'pip', 'install', '-U', 'pip', 'pdir2'],
+        )
 
-    def install_python_version(self):
-        if not self.py_versions:
-            self.download_latest_python_versions()
-
-        # TODO: finish
-        # maybe do it in background?
-        print('TODO install python: ', self.py_versions[self.install_latest_python_branch])
-
-
-asdf = AsdfOsPackage(
+asdf = AsdfPackage(
     'asdf',
     check_install_by=Cib.files_any,
     file_locations=(
@@ -145,19 +185,98 @@ asdf = AsdfOsPackage(
 )
 
 
-Packages = [
-    base_devel,
-    'curl', 'wget', 'git',
-    vim,
-    'tmux', 'pass', 'fd', OsPackage('ripgrep', cmd_name='rg'),
-    'exa', 'xsel', 'xclip',
-    'gocryptfs', 'mtr', 'cmake', 'dos2unix', 'ethtool',
-    asdf,
-    'mpv',
-    OsPackage('seahorse', groups=Groups.gui | Groups.home | Groups.work),
-    OsPackage('gnu-netcat', cmd_name='netcat'),
-    OsPackage('bind-tools', cmd_name='dig'),
+pipx = Package(
+    'pipx',
+    check_install_by=Cib.files_any,
+    file_locations=(
+        Path.home() / '.local/bin/pipx',
+    ),
+    install_cmd=[C.PYTHON_BINARY_MAIN_PATH, '-m', 'pip', 'install', '-U', '--user', 'pipx'],
+)
 
-    telegram,
-    google_chrome,
+
+xonsh = PipxPackage(
+    'xonsh',
+    pkg_names_to_install='xonsh[full]',
+    inject='tabulate pdir2 pendulum xontrib-fzf-widgets xontrib-argcomplete xontrib-broot',
+)
+
+class EmacsOsPackage(OsPackage):
+    def configure(self):
+        # git clone https://github.com/syl20bnr/spacemacs ~/.emacs.d
+        # TODO: put ready .emacs.d/ on pendrive
+        run_cmd(['git', 'clone', 'https://github.com/syl20bnr/spacemacs', str(Path.home() / '.emacs.d')])
+        info.verify.append('Run emacs to finish installing spacemacs')
+
+emacs = EmacsOsPackage('emacs')
+pamac = OsPackage(
+    'pamac',
+    distros={
+        'default': None,
+        C.Distro.manjaro: 'pamac-cli',
+    }
+)
+
+# class RangerPipxPackage(PipxPackage):
+#     def configure(self):
+#         dotfiles.ranger.install()
+# ranger = RangerPipxPackage('ranger-fm')
+ranger = PipxPackage(
+    'ranger-fm',
+    configure_func=dotfiles.ranger.install,
+    )
+
+
+class PoetryPipxPackage(PipxPackage):
+    def configure(self):
+        run_cmd([str(Path.home() / '.local/bin/poetry'), 'config', 'virtualenvs.prefer-active-python', 'true'])
+        run_cmd([str(Path.home() / '.local/bin/poetry'), 'self', 'add', 'poetry-plugin-up'])
+
+poetry = PoetryPipxPackage('poetry')
+
+
+
+Packages = [
+    ranger
+#     base_devel, 'cmake',
+#     yay,
+#     pamac,
+#     OsPackage('curl', groups=C.Groups.cli | C.Groups.home | C.Groups.work | C.Groups.server),
+#     OsPackage('wget', groups=C.Groups.cli | C.Groups.home | C.Groups.work | C.Groups.server),
+#     OsPackage('git', groups=C.Groups.cli | C.Groups.home | C.Groups.work | C.Groups.server),
+#     vim,
+#     sshd,
+#     emacs,
+#     'tmux', 'pass', 'fd', OsPackage('ripgrep', cmd_name='rg'),
+#     'exa', 'xsel', 'xclip',
+#     'gocryptfs', 'mtr', 'dos2unix', 'ethtool', 'ncdu',
+#     asdf, pipx, xonsh, ranger, poetry,
+#     # needed fo vscode xonsh e poetryn:
+#     PipxPackage('glances', inject='py-cpuinfo netifaces hddtemp python-dateutil'),
+#     PipxPackage('python-lsp-server', pkg_names_to_install='python-lsp-server[all]'),
+#     PipxPackage('pypiserver'),
+#     PipxPackage(
+#         'borgbackup',
+#         pkg_names_to_install=[
+#             'borgbackup[pyfuse3]',
+#             'borgbackup[llfuse]',
+#         ]
+#     ),
+#     PipxPackage('ps-mem'),
+#     PipxPackage('yt-dlp'),
+#     PipxPackage('visidata'),
+#     PipxPackage('magic-wormhole'),
+#     # TODO: copy pypi_packages to pendrive
+#     # TODO: pipxil kossak_cli_tools
+#     # TODO: pipxil  kossakhome
+#
+#     OsPackage('gnu-netcat', cmd_name='netcat'),
+#     OsPackage('bind-tools', cmd_name='dig'),
+#
+#     # GUI:
+#     GuiOsPackage('mpv'),
+#     GuiOsPackage('seahorse'),
+#     GuiOsPackage('visual-studio-code-bin', cmd_name='code'),
+#     # telegram,
+#     google_chrome,
 ]

@@ -15,7 +15,7 @@ def setup_args():
     p.add_argument('--install-packages', '-p', action='store_true', help='Install packages')
     p.add_argument('--install-dotfiles', '-d', action='store_true', help='Install dotfiles')
     # if pkg should be installed: all args groups must match the package groups
-    p.add_argument('--groups',           '-g',  help=f'which groups to install ({", ".join(Groups._member_names_)}) - they all must match!')
+    p.add_argument('--groups',           '-g', help=f'which groups to install ({", ".join(Groups._member_names_)}) - they all must match!')
     p.add_argument('--verbose',          '-v', action='store_true', help='Set DEBUG lvl of logging')
     p.add_argument('--ask',              '-k', action='store_true', help='display yes/no confirmations for pkg managers')
     p.add_argument('--all',              '-a', action='store_true', help='Do all steps')
