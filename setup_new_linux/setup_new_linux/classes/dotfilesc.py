@@ -3,8 +3,12 @@ from typing import Union
 import time
 import shutil
 
-from setup_new_linux.utils.setup import log
-from setup_new_linux.utils import helpers as H
+from setup_new_linux import info
+from setup_new_linux.utils.setup import log, args
+from setup_new_linux.utils import (
+    helpers as H,
+    constants as C,
+)
 
 
 class Dotfile:
@@ -18,6 +22,8 @@ class Dotfile:
         f_backup_first: bool = True,
         f_raise_if_src_doesnt_exist: bool = True,
         remove_dst_if_it_exists: bool = True,
+        dont_add_errors_to_info_if_no_locals: bool = False,
+        groups: C.Groups = None,
     ):
         """Dotfile to link or copy
         :param src: source file
@@ -26,6 +32,13 @@ class Dotfile:
         :param mode: link or copy file
         :param f_backup_first: if dst already exists, back it up first
         :param f_raise_if_src_doesnt_exist:
+
+        :param dont_add_errors_to_info_if_no_locals: for external functions:
+            if install error occurs, do not add it to info.errors list if
+            local dotfiles folder doesn't exist
+
+        :param groups: at least one group from cli must match one of the
+            dotfile group for dotfile be installed. Default: all groups.
         """
         self.remove_dst_if_it_exists = remove_dst_if_it_exists
         self.src = Path(src) if src else None
@@ -36,7 +49,10 @@ class Dotfile:
         self.mode = mode
         self.f_backup_first = f_backup_first
         self.f_raise_if_src_doesnt_exist = f_raise_if_src_doesnt_exist
+        self.dont_add_errors_to_info_if_no_locals = dont_add_errors_to_info_if_no_locals
         self.installed = False
+        self.groups = groups if isinstance(groups, C.Groups) else C.GROUPS_ALL
+        self.install_for_current_groups = bool(args.groups & self.groups)
 
     def _install(self):
         if self.mode == 'link':
@@ -49,6 +65,11 @@ class Dotfile:
     def install(self):
         if self.installed:
             log.debug(f'dotfile already installed: {self.src.name}')
+            return
+
+        if not self.install_for_current_groups:
+            groups_names = ', '.join(v.name for v in C.Groups if v in args.groups)
+            log.debug(f"Dotfile {self.name} not installing, it doesn't match any group: {groups_names}")
             return
 
         # check src existence
@@ -67,9 +88,11 @@ class Dotfile:
         if self.remove_dst_if_it_exists and self.dst.exists():
             if self.f_backup_first and not self.dst.is_symlink():
                 log.info(f'Dotfile backing up: {self.dst}')
-                self.dst.rename(f'{self.dst}.old_{time.strftime("%Y%m%d_%H%M%S")}')
+                new_file_name = f'{self.dst}.old_{time.strftime("%Y%m%d_%H%M%S")}'
+                self.dst.rename(new_file_name)
+                info.verify.append(f'Remove old dotfile: {new_file_name}')
 
-            if self.dst.is_dir():
+            if self.dst.is_dir() and not self.dst.is_symlink():
                 shutil.rmtree(self.dst)
             else:
                 self.dst.unlink()
@@ -85,11 +108,16 @@ class LocalDotfile(Dotfile):
     """Dotfile that is not logged to info.errors
     """
 
+    def __init__(self, **kwargs):
+        kwargs['dont_add_errors_to_info_if_no_locals'] = True
+        super().__init__(**kwargs)
+
 
 class ReplaceSnippetDotfile(Dotfile):
     def __init__(self,
         start_line: str = None,
         end_line: str = None,
+        tag: str = None,
         sudo: bool = False,
         **kwargs,
     ):
@@ -98,11 +126,13 @@ class ReplaceSnippetDotfile(Dotfile):
         :param dst: insert (or replace) snippet in into file
         :param start_line: snippet begins with this string
         :param end_line: snippet ends with this string
+        :param tag: name used in `start_line` and `end_line`
         """
         kwargs['remove_dst_if_it_exists'] = False
         super().__init__(**kwargs)
         self.start_line = start_line
         self.end_line = end_line
+        self.tag = tag
         self.sudo = sudo
         self.installed = False
 
@@ -117,6 +147,7 @@ class ReplaceSnippetDotfile(Dotfile):
             file=self.dst,
             start_line=self.start_line,
             end_line=self.end_line,
+            tag=self.tag,
             sudo=self.sudo,
         ):
             log.info(f'Snippet installed in {self.dst}')

@@ -62,6 +62,7 @@ def insert_or_replace_snippet(
     file: Union[str, Path],
     start_line: str = None,
     end_line: str = None,
+    tag: str = None,
     sudo: bool = False,
 ) -> bool:
     """Insert (or replace if exists) custom snippet into any file
@@ -70,18 +71,21 @@ def insert_or_replace_snippet(
     `end_line`. Replace this fragment with `snippet`.
     If start and end lines are not found - append snippet at the end.
 
+    :param tag: name used in `start_line` and `end_line`
     :param sudo: if True: write to file using sudo
 
     :returns: True if snippet was inserted, False if not (because eg: it's
               already included)
 
     """
+    if not tag:
+        tag = 'KOSSAK'
 
     file_content = file.read_text().strip()
     if not start_line:
-        start_line = '##### KOSSAK Start #####################'
+        start_line = f'##### START {tag} ###################################'
     if not end_line:
-        end_line   = '##### KOSSAK End #######################'
+        end_line   = f'##### END {tag} #####################################'
     my_snippet = '\n'.join([
         f'{start_line}\n',
         snippet,

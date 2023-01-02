@@ -3,11 +3,10 @@ from pathlib import Path
 from typing import Optional, Iterable, Union, Callable, Set, List
 
 from setup_new_linux import info
-from setup_new_linux.utils.setup import args
+from setup_new_linux.utils.setup import log, args
 from setup_new_linux.utils import constants as C
 from setup_new_linux.utils.constants import CheckInstallationBy as Cib
 from setup_new_linux.utils.helpers import check_if_cmd_present, run_cmd
-from setup_new_linux.utils.setup import log
 from setup_new_linux.classes import package_managers
 from setup_new_linux.classes.package_managers import PkgManagerABC
 
@@ -40,6 +39,8 @@ class Package():
         configure_func: Callable = None,
     ):
         """
+        :param group: all groups from cli must match the package groups in order
+            for it to be installed
         :param distros:
             {
                 'default'       : None,  # skip installation on not specified here distros
@@ -113,10 +114,8 @@ class Package():
         if configure_func:
             self.configure = configure_func
 
-        if args.groups & self.groups == args.groups:  # all groups from cli must match the package!
-            self.install_for_current_groups = True
-        else:
-            self.install_for_current_groups = False
+        # all groups from cli must match the package:
+        self.install_for_current_groups = args.groups & self.groups == args.groups
 
 
     # @property
@@ -150,6 +149,7 @@ class Package():
                     pass
             else:
                 raise e
+        info.pkg_installed.append(self.name)
 
     def install_if_not_installed(self) -> int:
         """
@@ -188,6 +188,13 @@ class Package():
 
     def __repr__(self):
         return f'<{self.__class__.__name__}: {self.name}>'
+
+    def get_group_names_str(self):
+        group_names_list = []
+        for v in C.Groups.__members__.values():
+            if v in self.groups:
+                group_names_list.append(v.name)
+        return ', '.join(g for g in group_names_list or ['-'])
 
 
 class OsPackage(Package):
@@ -241,5 +248,6 @@ class PipxPackage(Package):
         else:
             raise e
 
+        info.pkg_installed.append(self.name)
         if self.inject:
             self.pkg_manager.inject(self.pkg_name, self.inject)

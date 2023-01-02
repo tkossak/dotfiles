@@ -1,0 +1,17 @@
+ext zip|gz|rar|xz|tar|tgz, has dtrx = dtrx -- "$@"
+
+ext json|js = "$EDITOR" -- "$@"
+ext xls[xm]?|docx?|pdf, X = xdg-open "$@"
+ext flv|mp4|mkv|avi, X = xdg-open "$@"
+
+label o, X, flag f = xdg-open "$@"
+label vim = vim -- "$@"
+label emacs = emacs -- "$@"
+label onlyoffice, flag f = onlyoffice "$@"
+label libreoffice, flag f = libreoffice "$@"
+
+label goc, flag f  = go-chromecast --first load "$1"
+label gocs, flag f = go-chromecast --first slideshow "$@"
+label gocp, flag f = go-chromecast --first playlist "$@"
+
+label tod = tar -cvf - "${@##*/}" | xz -e9zf - | split -b 100MB -d - $1.tar.xz.

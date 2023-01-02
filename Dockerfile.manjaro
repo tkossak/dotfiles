@@ -1,7 +1,12 @@
 # For more information, please refer to https://aka.ms/vscode-docker-python
 # FROM python:3.8-slim
 # FROM manjarolinux/base
-FROM mymanjaro:updated
+
+# FROM mymanjaro:repos_updated
+FROM mymanjaro:latest
+# FROM mymanjaro:tmp1
+
+USER root
 
 # Keeps Python from generating .pyc files in the container
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -9,17 +14,19 @@ ENV PYTHONDONTWRITEBYTECODE=1
 # Turns off buffering for easier container logging
 ENV PYTHONUNBUFFERED=1
 
-# Install pip requirements
-# COPY requirements.txt .
-# RUN python -m pip install -r requirements.txt
+RUN grep kossak: /etc/passwd \
+    || useradd -mu 5678 kossak -G wheel \
+    && chown -R kossak:kossak /home/kossak
+RUN grep '^kossak ALL=(ALL:ALL) NOPASSWD: ALL' /etc/sudoers \
+    || echo 'kossak ALL=(ALL:ALL) NOPASSWD: ALL' >> /etc/sudoers
+
+RUN if [[ -d /app ]]; then rm -rf /app; fi
 
 WORKDIR /app
 COPY . /app
+RUN chown -R kossak:kossak /app
 
-# Creates a non-root user with an explicit UID and adds permission to access the /app folder
-# For more info, please refer to https://aka.ms/vscode-docker-python-configure-containers
-# RUN adduser -u 5678 --disabled-password --gecos "" kossak && chown -R appuser /app
-# USER kossak
+USER kossak
 
 # During debugging, this entry point will be overridden. For more information, please refer to https://aka.ms/vscode-docker-python-debug
 CMD ["python", "setup_new_linux/setup_new_linux/__main__.py"]

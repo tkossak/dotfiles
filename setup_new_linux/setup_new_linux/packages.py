@@ -4,11 +4,14 @@ import subprocess
 import re
 from packaging.version import Version
 import os
+import urllib.request
+from io import BytesIO
+import zipfile
 
 from setup_new_linux.classes.packagesc import Package, OsPackage, GuiOsPackage, PipxPackage
 from setup_new_linux.classes.servicesc import SystemDService
 from setup_new_linux.classes import package_managers as PM
-from setup_new_linux import dotfiles
+from setup_new_linux.dotfiles import ranger_pkg
 
 from setup_new_linux.utils import constants as C
 from setup_new_linux.utils.constants import CheckInstallationBy as Cib
@@ -30,7 +33,7 @@ class YayOsPackage(OsPackage):
 
     def configure(self) -> None:
         PM.os_pkg = PM.get_os_pkg_manager()
-        for pkg in Packages:
+        for pkg in packages:
             if pkg == PM.pacman:
                 pkg.pkg_manager = PM.os_pkg
 
@@ -124,7 +127,7 @@ class AsdfPackage(Package):
         )
 
         all_latest_versions = ' - '.join(v.public for v in sorted(self.py_versions.values(), reverse=True))
-        msg = f'Asdf python latest versions: {all_latest_versions}'
+        msg = f'asdf python latest versions: {all_latest_versions}'
         log.info(msg)
         info.verify.append(msg)
         # info.verify.append(f'asdf install python {self.py_versions[self.install_latest_python_branch]}')
@@ -158,7 +161,13 @@ class AsdfPackage(Package):
         run_cmd(
             [C.ASDF_BINARY_PATH, 'global', 'python', C.MAIN_PYTHON_VERSION],
             cwd=str(Path.home()),
-
+        )
+        run_cmd([
+                C.PYTHON_BINARY_MAIN_PATH, '-m', 'pip', 'install', '-U',
+                'pip', 'setuptools', 'wheel',  # needed if you have older tools
+                'pkgconfig',  # eg: for borgbackup
+            ],
+            cwd=str(Path.home()),
         )
 
     def install_python_version(self, version) -> None:
@@ -217,15 +226,6 @@ pamac = OsPackage(
     }
 )
 
-# class RangerPipxPackage(PipxPackage):
-#     def configure(self):
-#         dotfiles.ranger.install()
-# ranger = RangerPipxPackage('ranger-fm')
-ranger = PipxPackage(
-    'ranger-fm',
-    configure_func=dotfiles.ranger.install,
-    )
-
 
 class PoetryPipxPackage(PipxPackage):
     def configure(self):
@@ -235,48 +235,104 @@ class PoetryPipxPackage(PipxPackage):
 poetry = PoetryPipxPackage('poetry')
 
 
+class BitWarden(Package):
 
-Packages = [
-    ranger
-#     base_devel, 'cmake',
-#     yay,
-#     pamac,
-#     OsPackage('curl', groups=C.Groups.cli | C.Groups.home | C.Groups.work | C.Groups.server),
-#     OsPackage('wget', groups=C.Groups.cli | C.Groups.home | C.Groups.work | C.Groups.server),
-#     OsPackage('git', groups=C.Groups.cli | C.Groups.home | C.Groups.work | C.Groups.server),
-#     vim,
-#     sshd,
-#     emacs,
-#     'tmux', 'pass', 'fd', OsPackage('ripgrep', cmd_name='rg'),
-#     'exa', 'xsel', 'xclip',
-#     'gocryptfs', 'mtr', 'dos2unix', 'ethtool', 'ncdu',
-#     asdf, pipx, xonsh, ranger, poetry,
-#     # needed fo vscode xonsh e poetryn:
-#     PipxPackage('glances', inject='py-cpuinfo netifaces hddtemp python-dateutil'),
-#     PipxPackage('python-lsp-server', pkg_names_to_install='python-lsp-server[all]'),
-#     PipxPackage('pypiserver'),
-#     PipxPackage(
-#         'borgbackup',
-#         pkg_names_to_install=[
-#             'borgbackup[pyfuse3]',
-#             'borgbackup[llfuse]',
-#         ]
-#     ),
-#     PipxPackage('ps-mem'),
-#     PipxPackage('yt-dlp'),
-#     PipxPackage('visidata'),
-#     PipxPackage('magic-wormhole'),
-#     # TODO: copy pypi_packages to pendrive
-#     # TODO: pipxil kossak_cli_tools
-#     # TODO: pipxil  kossakhome
-#
-#     OsPackage('gnu-netcat', cmd_name='netcat'),
-#     OsPackage('bind-tools', cmd_name='dig'),
-#
-#     # GUI:
-#     GuiOsPackage('mpv'),
-#     GuiOsPackage('seahorse'),
-#     GuiOsPackage('visual-studio-code-bin', cmd_name='code'),
-#     # telegram,
-#     google_chrome,
+    def __init__(self):
+        super().__init__(
+            'bitwarden',
+            cmd_name='bw',
+        )
+
+    def install(self):
+        log.info(f'Download and install: {self.name}')
+        url = 'https://vault.bitwarden.com/download/?app=cli&platform=linux'
+        headers = {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "User-Agent": "python-urllib",
+        }
+        req = urllib.request.Request(url, None, headers)
+        with urllib.request.urlopen(req) as f:
+            zip_data = BytesIO(f.read())
+        zf = zipfile.ZipFile(zip_data)
+        file_data = zf.open('bw').read()
+        p = Path.home() / '.local/bin/bw'
+        p.write_bytes(file_data)
+        p.chmod(0o755)
+        info.pkg_installed.append(self.name)
+
+    def is_unlocked():
+        # TODO: finish
+        ...
+
+
+
+bitwarden = BitWarden()
+
+
+class VpnCiscoAnyConnect(Package):
+
+    def __init__(self):
+        super().__init__(
+            'CiscoAnyConnect',
+            cmd_name='vpn',
+        )
+
+    def install():
+        # TODO: finish
+        ...
+
+
+packages = [
+    # prod:
+    base_devel, 'cmake',
+    # openssl - ??? (included in base_devel)
+    yay,
+    pamac,
+    OsPackage('curl', groups=C.Groups.cli | C.Groups.home | C.Groups.work | C.Groups.server),
+    OsPackage('wget', groups=C.Groups.cli | C.Groups.home | C.Groups.work | C.Groups.server),
+    OsPackage('git', groups=C.Groups.cli | C.Groups.home | C.Groups.work | C.Groups.server),
+    vim,
+    sshd,
+    emacs,
+    'tmux', 'pass', 'fd', OsPackage('ripgrep', cmd_name='rg'),
+    OsPackage('zstd'),
+    'exa', 'xsel', 'xclip',
+    'gocryptfs', 'mtr', 'dos2unix', 'ethtool', 'ncdu',
+    asdf, pipx, xonsh, ranger_pkg, poetry,
+    # needed fo vscode xonsh e poetryn:
+    PipxPackage('glances', inject='py-cpuinfo netifaces hddtemp python-dateutil'),
+    PipxPackage('python-lsp-server', pkg_names_to_install='python-lsp-server[all]'),
+    PipxPackage('pypiserver'),
+    PipxPackage(
+        'borgbackup',
+        pkg_names_to_install=[
+            'borgbackup[fuse]',
+            'borgbackup[pyfuse3]',  # newer than llfuse
+            'borgbackup[llfuse]',   # older
+        ]
+    ),
+    PipxPackage('ps-mem'),
+    PipxPackage('yt-dlp'),
+    PipxPackage('visidata'),
+    PipxPackage('magic-wormhole'),
+    # TODO: copy pypi_packages to pendrive
+    # TODO: pipxil kossak_cli_tools
+    # TODO: pipxil  kossakhome
+
+    OsPackage('gnu-netcat', cmd_name='netcat'),
+    OsPackage('bind-tools', cmd_name='dig'),
+    bitwarden,
+
+    # GUI:
+    GuiOsPackage('mpv'),
+    GuiOsPackage('seahorse'),
+    GuiOsPackage('vscode', pkg_name='visual-studio-code-bin', cmd_name='code'),
+    # telegram,
+    google_chrome,
 ]
+
+for i, p in enumerate(packages):
+    if isinstance(p, str):
+        pkg = OsPackage(p)
+        packages[i] = pkg

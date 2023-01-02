@@ -1,6 +1,8 @@
 from enum import Enum, auto, unique, Flag
 import logging
 from pathlib import Path
+import operator
+from functools import reduce
 
 log = logging.getLogger(__name__)
 
@@ -17,29 +19,17 @@ class Distro(Enum):
     ubuntu = 'ubuntu'
     unknown = 'unknown'
 
-
-# # which group to install:
-# @unique
-# class InstallGroup(Enum):
-#     all = auto()
-#     home = auto()
-#     work = auto()
-#
-# @unique
-# class Group(Flag):  # default is cli + home + work
-#     all = 'all'     # install app in all groupes
-#     cli = 'cli'     # only console apps (no GUI)
-#     gui = 'gui'     # only GUI apps
-#     home = 'home'   # apps for home comp
-#     work = 'work'   # apps for work comp
-
 class Groups(Flag):   # default is cli + home + work
-    # all = auto()      # install app in all groupes
     cli = auto()      # only console apps (no GUI)
     gui = auto()      # only GUI apps
     home = auto()     # apps for home comp
     work = auto()     # apps for work comp
     server = auto()   # apps for server/VM
+
+GROUPS_ALL = reduce(operator.or_, Groups.__members__.values())
+# GROUPS_ALL = Groups(0)
+# for v in Groups.__members__.values():
+#     GROUPS_ALL |= v
 
 
 @unique
