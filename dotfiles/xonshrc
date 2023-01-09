@@ -49,14 +49,21 @@ abbrevs['free'] = ga('free -m')
 abbrevs['ntp'] = ga('sudo ntpdate pl.pool.ntp.org')
 aliases['monitor_off'] = 'xset dpms force off'
 
+# mounts
+abbrevs['mount.']    = ga('sudo mount -o uid=kossak,gid=kossak /dev/sdc1<edit> /mnt/a')
+abbrevs['mountuuid'] = ga('sudo mount -o uid=kossak,gid=kossak UUID=1234567890ABCDEF<edit> /mnt/a')
+abbrevs['mountntfs'] = ga('sudo mount -t ntfs -o uid=kossak,gid=kossak /dev/sdc<edit> /mnt/a')
+abbrevs['mountsmb']  = ga('sudo mount -t cifs -o credentials=/mnt/params/smb_cred_ja,uid=kossak,gid=kossak,vers=2.0 //SERVER/DIR<edit> /mnt/smb1')
+abbrevs['mountcd']   = ga('sudo mount -t iso9660 /dev/sr0 /mnt/cdrom')
+abbrevs['mountiso']  = ga('sudo mount -o loop <file><edit> /mnt/a')
+abbrevs['mountvb']   = ga('sudo mount -t vboxsf -o uid=kossak,gid=kossak vbox_shared /mnt/vs')
+
 abbrevs['mtro'] = ga('mtr -o "LRD N ABWV"')
 abbrevs['mtrg'] = ga('mtr -o "LRD N ABWV" 8.8.8.8')  # google
-abbrevs['smbm'] = ga('sudo mount -t cifs -o credentials=/mnt/params/smb_cred_ja,uid=kossak,gid=kossak,vers=2.0 //SERVER/DIR /mnt/smb1')
 abbrevs['smbl'] = ga('smbclient -A /mnt/params/smb_cred_ja -L //')
 abbrevs['smbi'] = ga('smbclient //192.168.1.1/folder -A /mnt/params/smb_cred_ja')
-abbrevs['mountvb'] = ga('sudo mount -t vboxsf -o uid=kossak,gid=kossak vbox_shared /mnt/vs')
 # aliases['reds'] = 'redshift -l 50.2648920:19.0237820 -t 3300:3300 &'
-abbrevs['rsyncc'] = ga('rsync -vr --progress AAA BBB/')
+abbrevs['rsync.'] = ga('rsync -vr --progress AAA<edit> BBB/')
 
 abbrevs['envb'] = ga('env | grep -Ei "display|xauth|gpg|^ssh|^op_session|^bw_session|^cloudsdk_active"')
 abbrevs['lsblkl'] = ga('sudo lsblk -fo "name,size,type,fstype,label,mountpoint,uuid"')
@@ -64,6 +71,7 @@ abbrevs['lsblkl'] = ga('sudo lsblk -fo "name,size,type,fstype,label,mountpoint,u
 # media
 abbrevs['dmp3']  = ga("yt-dlp -cx --audio-format mp3 -o '%(title)s.%(ext)s' $(xclip -o)")
 abbrevs['y']     = ga('yt-dlp $(xclip -o -sel c)')
+abbrevs['dyt']   = abbrevs['y']
 abbrevs['dtel']  = ga('yt-dlp -f "worstvideo[height>=480]+bestaudio[abr<=128]" -o ''%(title)s.%(ext)s'' (xclip -o)')
 abbrevs['dtel2'] = ga("yt-dlp -f 'bestvideo[ext=mp4][height=720]+bestaudio[ext=m4a][abr=128]/bestvideo[height<=720]+bestaudio[abr<=128]' -o '%(title)s.%(ext)s' $(xclip -o)")
 abbrevs['ffmpegct'] = ga('ffmpeg -i <edit> -c:v libx264 -c:a aac -pix_fmt yuv420p')
@@ -150,7 +158,6 @@ abbrevs['gmdl'] = ga("gcloud compute disks list")
 abbrevs['gms'] = ga("gcloud compute ssh")
 
 # różne
-abbrevs['mountiso'] = ga('sudo mount -o loop <file><edit> /mnt/a')
 abbrevs['bwu'] = ga("$BW_SESSION=$(bw unlock --raw)")
 abbrevs['bws'] = ga("bw status")
 abbrevs['passs'] = ga(r"pass show $(find -L ~/.password-store -iname '*.gpg' | sed -e 's_^/home/kossak/.password-store/__' -e 's_.gpg$__' | fzf | tr -d '\n')")
