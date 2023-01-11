@@ -37,13 +37,20 @@ class Dotfile:
             if install error occurs, do not add it to info.errors list if
             local dotfiles folder doesn't exist
 
-        :param groups: at least one group from cli must match one of the
-            dotfile group for dotfile be installed. Default: all groups.
+        :param groups: for installing only specific groups
+            At least one group from cli args must match one group from the
+            dotfile, for it to be installed.
+            Default: GROUPS_ALL
         """
         self.remove_dst_if_it_exists = remove_dst_if_it_exists
         self.src = Path(src) if src else None
         self.dst = Path(dst) if dst else None
-        self.name = name or self.src.name
+        if name:
+            self.name = name
+        elif self.src:
+            self.name = self.src.name
+        else:
+            self.name = self.dst.name
         if mode not in ('link', 'copy'):
             raise Exception(f'Wrong mode: {mode}')
         self.mode = mode
@@ -115,33 +122,35 @@ class LocalDotfile(Dotfile):
 
 class ReplaceSnippetDotfile(Dotfile):
     def __init__(self,
-        start_line: str = None,
-        end_line: str = None,
+        snippet: str = None,
         tag: str = None,
         sudo: bool = False,
+        start_line: str = None,
+        end_line: str = None,
         **kwargs,
     ):
         """Insert or replace snippet in `dst` file, instead of linking whole file
         :param src: file containing snippet to insert
         :param dst: insert (or replace) snippet in into file
+        :param snippet: use this snippet. If not provide, read snippet from src file
         :param start_line: snippet begins with this string
         :param end_line: snippet ends with this string
         :param tag: name used in `start_line` and `end_line`
         """
         kwargs['remove_dst_if_it_exists'] = False
         super().__init__(**kwargs)
-        self.start_line = start_line
-        self.end_line = end_line
+        self.snippet = snippet
         self.tag = tag
         self.sudo = sudo
+        self.start_line = start_line
+        self.end_line = end_line
         self.installed = False
-
 
     def install(self):
         if self.installed:
             log.debug(f'dotfile already installed: {self.src.name}')
             return
-        my_snippet = self.src.read_text()
+        my_snippet = self.snippet if self.snippet is not None else self.src.read_text()
         if H.insert_or_replace_snippet(
             snippet=my_snippet,
             file=self.dst,

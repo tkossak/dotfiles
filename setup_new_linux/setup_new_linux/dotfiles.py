@@ -16,17 +16,15 @@ dd = info.dotfiles_dir
 dl = info.dotfiles_local_dir
 hh = Path.home()
 
+xonshrc = Dotfile(
+        src=dd / 'xonshrc',
+        dst=hh / '.xonshrc',
+    )
 
 def get_xonsh_dotfiles():
-    """Get Paths for all xonsh dotfiles
+    """Get Paths for xonsh rc.d dotfiles
     """
-    if not (Path.home() / '.config/xonsh').exists:
-        return
-    dotfiles_list = []
-    yield Dotfile(
-            src=dd / 'xonshrc',
-            dst=hh / '.xonshrc',
-        )
+
     for file in (dl / 'xonsh').glob('*.xsh'):
         yield Dotfile(
                 src=file,
@@ -90,7 +88,7 @@ class RangerDotfile(Dotfile):
         replaces = [
             (  # open archives in vim
                 re.compile(r'(^# Define the editor for non-text files \+ pager as last action$)', re.MULTILINE),
-                r'# TK: archives:\next tar\|gz\|bzip2\|xz\|tgz\|tbzip2\|txz\|zip\|rar = vim -- "$@"\n\1'
+                r'# TK: archives:\next tar|gz|bzip2|xz|tgz|tbzip2|txz|zip|rar = vim -- "$@"\n\1'
             ),
             (  # add extensions: pls, sql
                 '!mime ^text, label editor, ext xml|json|csv|tex|py|pl|rb|js|sh|php = ${VISUAL:-$EDITOR} -- "$@"',
@@ -112,6 +110,11 @@ class RangerDotfile(Dotfile):
                 re.compile('(^' + re.escape('ext pdf, has qpdfview, X, flag f = qpdfview "$@"') + '$)', re.MULTILINE),
                 r'\1\next pdf, has xreader,  X, flag f = xreader -- "$@"'
             ))
+        if 'onlyoffice' not in rifle_file_text:
+            replaces.append((
+                re.compile('(^' + re.escape('ext pptx?|od[dfgpst]|docx?|sxc|xlsx?|xlt|xlw|gnm|gnumeric, has libreoffice, X, flag f = libreoffice "$@"') + '$)', re.MULTILINE),
+                r'ext pptx?|od[dfgpst]|docx?|sxc|xlsx?|xlt|xlw|gnm|gnumeric, has onlyoffice,  X, flag f = onlyoffice -- "$@"\n\1'
+            ))
 
         # # add options to feh
         # sed -i 's/mime ^image, has feh,       X, flag f = feh -- "$@"/mime ^image, has feh,       X, flag f = feh -. --auto-rotate -- "$@"/' "${rifleconf}"
@@ -130,14 +133,56 @@ ranger_dotfiles = [
     ReplaceSnippetDotfile(src=dd / 'rifle.conf.snippet', dst=ranger.rifle_file),
     ReplaceSnippetDotfile(
         src=dl / 'rifle.conf.h.snippet',
-        dst=ranger.rifle_file,
-        tag='Kossak home',
+        dst=ranger.rifle_file,        tag='Kossak home',
         groups=C.Groups.home,
         dont_add_errors_to_info_if_no_locals=True,
     )
 ]
 
+def get_bashrc_snippet_for_xonsh_aliases() -> str:
+    xonshrc_lines = xonshrc.src.read_text().splitlines()
+    bash_aliases_l = []
+    for line in xonshrc_lines:
+        if (
+            not (line.startswith('abbrevs[') or line.startswith('aliases['))
+            or '# nobash' in line
+        ):
+            continue
+
+        s = line
+        s = s.replace('<edit>', '')
+        name, _, s = s.partition('=')
+
+        # alias name:
+        name_quote = "'" if "'" in name else '"'
+        name = name.split(name_quote)[1]
+
+        # alias definition:
+        if '#' in s:
+            s = s.rpartition('#')[0]
+        s = s.strip(' ga()r')
+        q = s[0]  # quote type of the alias
+        s = s[1:-1]
+        if q not in '"\'':
+            log.debug(f'bashrc skip xonsh alias: {line}')
+            continue
+        s = s.replace('$', r'\$')
+        # replace quotes inside:
+        s = s.replace(q, f'{q}\\{q}{q}')
+        if s:
+            bash_aliases_l.append(f"alias {name}={q}{s}{q}")
+
+    return '\n'.join(bash_aliases_l) + '\n'
+
 bashrc = ReplaceSnippetDotfile(src=dd / 'bashrc.snippet', dst=hh / '.bashrc')
+bashrc_aliases = ReplaceSnippetDotfile(
+    name='bashrc aliases',
+    snippet=get_bashrc_snippet_for_xonsh_aliases(),
+    dst=hh / '.bashrc',
+    tag='Kossak aliases from xonsh',
+)
+
+
 bashprofile = ReplaceSnippetDotfile(src=dd / 'bash_profile.snippet', dst=hh / '.bash_profile')
 etc_environment = ReplaceSnippetDotfile(
     src=info.dotfiles_dir / 'environment.snippet',
@@ -157,7 +202,6 @@ def vim_install_plugins():
     if not vimplug_path.exists():
         log.info('Vim get Plug manager')
         H.run_cmd(['curl', '-fLo', str(vimplug_path), '--create-dirs', 'https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'])
-    # TODO: run :PlugUpdate if plugins are already installed? or --sync already handles it?
     if not (Path.home() / '.vim/plugged').exists():
         vimlog = Path('/tmp/vim_plugins.log')
         log.debug(f'Vim install plugins (output in {vimlog})')
@@ -191,27 +235,21 @@ vim_dotfiles = [
 
 def asdf_remove_unneeded_shims():
     log.info('Remove unneeded asdf shims')
-    shims_dir = C.ASDF_DIR / 'shims'
-
-    for g in (
-        'powerline*',
+    asdf_shims = C.ASDF_DIR / 'shims'
+    for f in (
+        'powerline*', 'xz', 'sqlite3', 'xmllint', 'iconv', 'envsubst', 'clear',
+        'gettext', 'gettext.sh', 'tput', 'envsubst', 'pandoc', 'pipx', 'bsdtar',
+        'reset', 'zstd', 'bzip2'
     ):
-        for f in shims_dir.glob(g):
-            f.unlink()
-
-    for s in (
-        'xz', 'sqlite3', 'xmllint', 'iconv', 'envsubst', 'clear', 'gettext',
-        'gettext.sh', 'tput', 'envsubst', 'pandoc', 'pipx', 'bsdtar', 'reset',
-        'zstd', 'bzip2',
-    ):
-        f = shims_dir / s
-        if f.exists():
-            f.unlink()
+        for file in asdf_shims.glob(f):
+            log.info(f'Removing: {file}')
+            file.unlink()
 
 
 dotfiles = [
     etc_environment,
     bashrc,
+    bashrc_aliases,
     bashprofile,
     Dotfile(
         src=dd / 'tmux.conf_2.9',
@@ -231,11 +269,17 @@ dotfiles = [
         dst=hh / '.gitconfig.local',
         groups=C.Groups.home,
     ),
+    # LocalDotfile(
+    #     src=dl / 'gitconfig.w.local',
+    #     dst=hh / '.gitconfig.local',
+    #     groups=C.Groups.work,
+    # ),
     *vim_dotfiles,
     Dotfile(
         src=dd / 'spacemacs',
         dst=hh / '.spacemacs',
     ),
+    xonshrc,
     *list(get_xonsh_dotfiles()),
     Dotfile(
         src=dd / 'visidatarc',
@@ -243,6 +287,3 @@ dotfiles = [
     ),
     asdf_remove_unneeded_shims,
 ]
-
-
-

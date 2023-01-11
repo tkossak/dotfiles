@@ -7,6 +7,7 @@ import os
 import urllib.request
 from io import BytesIO
 import zipfile
+import json
 
 from setup_new_linux.classes.packagesc import Package, OsPackage, GuiOsPackage, PipxPackage
 from setup_new_linux.classes.servicesc import SystemDService
@@ -45,14 +46,15 @@ sshd = OsPackage(
     pkg_name='openssh',
 )
 
-base_devel = OsPackage(
-    'base-devel',
-    cmd_name='gcc',
-    distros={
-        'default': None,
-        C.Distro.manjaro: 'base-devel',
-    },
-)
+base_devel = None
+if info.distro == C.Distro.manjaro:
+    base_devel = OsPackage(
+        'base-devel',
+        # cmd_name='gcc',
+        # TODO: fix: doesn't work for `distros` pkg!!!!
+        pkg_names_to_check_if_installed=['pkgconf'],
+        check_install_by=Cib.pkg,
+    )
 
 
 # class VimOsPackage(OsPackage):
@@ -163,7 +165,7 @@ class AsdfPackage(Package):
             cwd=str(Path.home()),
         )
         run_cmd([
-                C.PYTHON_BINARY_MAIN_PATH, '-m', 'pip', 'install', '-U',
+                C.PYTHON_ASDF_BINARY_MAIN_PATH, '-m', 'pip', 'install', '-U',
                 'pip', 'setuptools', 'wheel',  # needed if you have older tools
                 'pkgconfig',  # eg: for borgbackup
             ],
@@ -173,7 +175,7 @@ class AsdfPackage(Package):
     def install_python_version(self, version) -> None:
         # TODO: maybe run it in background and check when it ends?
 
-        python_binary_path = Path(C.PYTHON_BINARY_PATH_TEMPLATE.format(version=version))
+        python_binary_path = Path(C.PYTHON_ASDF_BINARY_PATH_TEMPLATE.format(version=version))
         if python_binary_path.exists():
             log.debug(f'Asdf python already installed: {version}')
             return
@@ -235,6 +237,8 @@ class PoetryPipxPackage(PipxPackage):
 poetry = PoetryPipxPackage('poetry')
 
 
+# If it throws cipher/ssl/dso error:
+# commount out: providers = provider_sect in /etc/ssl/openssl.cnf
 class BitWarden(Package):
 
     def __init__(self):
@@ -261,10 +265,17 @@ class BitWarden(Package):
         p.chmod(0o755)
         info.pkg_installed.append(self.name)
 
-    def is_unlocked():
-        # TODO: finish
-        ...
-
+    @property
+    def is_unlocked(self) -> False:
+        r = run_cmd(
+            ['bw', 'status'],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        j = json.loads(r.stdout)
+        if 'status' in j and j['status'] == 'unlocked':
+                return True
+        return False
 
 
 bitwarden = BitWarden()
@@ -283,29 +294,45 @@ class VpnCiscoAnyConnect(Package):
         ...
 
 
-packages = [
+packages = []
+
+if base_devel:
+    packages.append(base_devel)
+
+packages.extend((
     # prod:
-    base_devel, 'cmake',
+    'cmake',
     # openssl - ??? (included in base_devel)
     yay,
     pamac,
     OsPackage('curl', groups=C.Groups.cli | C.Groups.home | C.Groups.work | C.Groups.server),
     OsPackage('wget', groups=C.Groups.cli | C.Groups.home | C.Groups.work | C.Groups.server),
     OsPackage('git', groups=C.Groups.cli | C.Groups.home | C.Groups.work | C.Groups.server),
+    'jq',
     vim,
     sshd,
     emacs,
-    'tmux', 'pass', 'fd', OsPackage('ripgrep', cmd_name='rg'),
+    'tidy',
+    OsPackage(
+        'tmux',
+        groups=C.Groups.cli | C.Groups.home | C.Groups.work | C.Groups.server
+    ),
+    'pass', 'fd', OsPackage('ripgrep', cmd_name='rg'),
     OsPackage('zstd'),
     'exa', 'xsel', 'xclip',
     'gocryptfs', 'mtr', 'dos2unix', 'ethtool', 'ncdu',
     asdf, pipx, xonsh, ranger_pkg, poetry,
-    # needed fo vscode xonsh e poetryn:
+    bitwarden,
     PipxPackage('glances', inject='py-cpuinfo netifaces hddtemp python-dateutil'),
+
+    # needed fo vscode xonsh and poetry:
     PipxPackage('python-lsp-server', pkg_names_to_install='python-lsp-server[all]'),
+
     PipxPackage('pypiserver'),
     PipxPackage(
-        'borgbackup',
+        name='borg',
+        pkg_name='borgbackup',
+        cmd_name='borgbackup',
         pkg_names_to_install=[
             'borgbackup[fuse]',
             'borgbackup[pyfuse3]',  # newer than llfuse
@@ -322,7 +349,6 @@ packages = [
 
     OsPackage('gnu-netcat', cmd_name='netcat'),
     OsPackage('bind-tools', cmd_name='dig'),
-    bitwarden,
 
     # GUI:
     GuiOsPackage('mpv'),
@@ -330,7 +356,7 @@ packages = [
     GuiOsPackage('vscode', pkg_name='visual-studio-code-bin', cmd_name='code'),
     # telegram,
     google_chrome,
-]
+))
 
 for i, p in enumerate(packages):
     if isinstance(p, str):

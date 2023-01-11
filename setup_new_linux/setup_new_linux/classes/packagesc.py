@@ -29,6 +29,7 @@ class Package():
         groups: C.Groups = None,
         install_cmd: Union[str, Iterable] = None,
         pkg_manager: PkgManagerABC = None,
+        # TODO: make it only single string, not list (and update docs)
         pkg_name: Union[str, List[str]] = None,
         pkg_names_to_check_if_installed: Union[str, Iterable[str]] = None,
         pkg_names_to_install: Union[str, Iterable[str]] = None,

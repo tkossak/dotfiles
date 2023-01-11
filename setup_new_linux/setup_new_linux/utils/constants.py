@@ -4,13 +4,14 @@ from pathlib import Path
 import operator
 from functools import reduce
 
-log = logging.getLogger(__name__)
-
 MAIN_PYTHON_VERSION = '3.9.16'
 ASDF_DIR = Path.home() / '.asdf'
 ASDF_BINARY_PATH = ASDF_DIR / 'bin/asdf'
-PYTHON_BINARY_PATH_TEMPLATE = f'{ASDF_DIR}/installs/python/{{version}}/bin/python'
-PYTHON_BINARY_MAIN_PATH = Path(PYTHON_BINARY_PATH_TEMPLATE.format(version=MAIN_PYTHON_VERSION))
+PYTHON_ASDF_BINARY_PATH_TEMPLATE = f'{ASDF_DIR}/installs/python/{{version}}/bin/python'
+PYTHON_ASDF_BINARY_MAIN_PATH = Path(PYTHON_ASDF_BINARY_PATH_TEMPLATE.format(version=MAIN_PYTHON_VERSION))
+
+# it will be used for pipx installation and its packages
+PYTHON_BINARY_MAIN_PATH = PYTHON_ASDF_BINARY_MAIN_PATH  # may be changed via CLI options
 
 
 @unique
@@ -20,8 +21,8 @@ class Distro(Enum):
     unknown = 'unknown'
 
 class Groups(Flag):   # default is cli + home + work
-    cli = auto()      # only console apps (no GUI)
-    gui = auto()      # only GUI apps
+    cli = auto()      # apps CLI
+    gui = auto()      # apps GUI
     home = auto()     # apps for home comp
     work = auto()     # apps for work comp
     server = auto()   # apps for server/VM

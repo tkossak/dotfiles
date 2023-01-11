@@ -12,7 +12,7 @@ from setup_new_linux import (
 )
 
 
-def os_update_repos():
+def os_update_mirrors_and_repos():
     log.info(f'START os update repos: {info.distro.value}')
     if info.distro == C.Distro.manjaro:
         log.info('Setup manjaro/pacman mirrors')
@@ -164,11 +164,6 @@ def create_kossak_links():
 
 def configure_spacemacs():
     ...
-
-
-def configure_secrets():
-    ...
-    # import gpg keys
 
 
 def configure_gocryptfs():

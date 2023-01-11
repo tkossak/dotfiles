@@ -17,10 +17,11 @@ from setup_new_linux.utils.setup import args, log
 from setup_new_linux.utils import constants as C
 from setup_new_linux.utils import helpers as H
 
-# TODO: copy to pendrive
-# .emacs.d/
-# Kossak/org/
-# Kossak/obsidian/
+# TODO: add xonsh alias: is_uefi
+# TODO: debug borgbackup - strange error on laptop
+# TODO: make sure pkg-config exists
+# TODO: add --pkg CLI
+# TODO: add --except-pkg CLI
 
 
 def install_packages():
@@ -57,13 +58,6 @@ def install_dotfiles():
             else:
                 info.errors.append(msg)
 
-    # remove unwanted shims from asdf:
-    asdf_shims = Path.home() / '.asdf/shims'
-    for f in ['powerline*', 'xz', 'sqlite3', 'xmllint', 'iconv', 'envsubst', 'clear', 'gettext', 'gettext.sh', 'tput', 'envsubst', 'pandoc', 'pipx', 'bsdtar', 'reset', 'zstd', 'bzip2']:
-        for file in asdf_shims.glob(f):
-            log.info(f'Removing: {file}')
-            file.unlink()
-
     # maybe TODO: link fish files
 
     # TODO: create links to dirs
@@ -94,52 +88,7 @@ def print_groups_info():
     print()
 
 
-def main():
-    log.info(f'Main START, version: {__version__}')
-    log.info(f'Current user: {getpass.getuser()}')
-    log.info(f'distro: {info.distro}')
-    log.info(f'Systemd: {info.systemd}')
-    log.info(f'Dotfiles dir: {info.dotfiles_dir}')
-    log.info(f'Dotfiles local dir: {info.dotfiles_local_dir}')
-
-    if info.distro == C.Distro.unknown:
-        print()
-        H.run_cmd(['cat', '/etc/*release*'], check=False)
-        print()
-        ans = input('Distro unknown, do you want to continue? (y/n)')
-        if ans.lower() != 'y':
-            return
-
-    if args.os_repos or args.os_configure or args.install_packages or args.install_dotfiles:
-        if os.geteuid() == 0:
-            answer = input('You are running as root! You should switch to non-root user. Continue as root? (y/n) ')
-            if answer.lower() != 'y':
-                return
-
-        home_local_bin = Path.home() / '.local/bin'
-        home_local_bin.mkdir(parents=True, exist_ok=True)
-        paths = [
-            str(Path.home() / '.asdf/bin'),
-            str(home_local_bin),
-            str(Path.home() / '.poetry/bin'),
-        ]
-        paths_str = os.pathsep.join(paths)
-        os.environ['PATH'] = f'{paths_str}{os.pathsep}{os.environ["PATH"]}'
-
-    if args.groups_info:
-        print_groups_info()
-
-    if args.os_repos:
-        dos.os_update_repos()
-    if args.os_configure:
-        dos.os_configure()
-
-    if args.install_packages:
-        install_packages()
-    if args.install_dotfiles:
-        install_dotfiles()
-        dos.create_kossak_links()
-
+def print_all_logs():
     if info.pkg_installed:
         print('\n━━━━ INSTALLED PKGS: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
         info.pkg_installed.sort()
@@ -161,7 +110,75 @@ def main():
         for e in info.verify:
             log.info(e)
 
+
+def load_priv_method():
+    if not info.dotfiles_local_exists:
+        msg = f"Can't load priv method, local dotfiles not found"
+        log.error(msg)
+        info.errors.append(msg)
+
+    sys.path.insert(0, str(info.dotfiles_local_dir / 'local_setup_new_linux'))
+    import local_setup_new_linux as l
+    l.main()
+
+
+def main():
+    log.info(f'Main START, version: {__version__}')
+    # groups = []
+    # for v in C.Groups.__members__.values():
+    #     if v & args.groups:
+    #         groups.append(v.name)
+    # log.info(f'Groups: {", ".join(groups)}')
+    log.info(f'Current user: {getpass.getuser()}')
+    log.info(f'distro: {info.distro.name}')
+    log.info(f'Systemd: {info.systemd}')
+    log.info(f'Dotfiles dir: {info.dotfiles_dir}')
+    log.info(f'Dotfiles local dir: {info.dotfiles_local_dir}')
+
+
     # TODO: print my IP
+
+    if info.distro == C.Distro.unknown:
+        print()
+        H.run_cmd(['cat', '/etc/*release*'], check=False)
+        print()
+        ans = input('Distro unknown, do you want to continue? (y/n)')
+        if ans.lower() != 'y':
+            return
+
+    if args.os_repos or args.os_configure or args.install_packages or args.install_dotfiles:
+        if os.geteuid() == 0:
+            answer = input('You are running as root! You should switch to non-root user. Continue as root? (y/n) ')
+            if answer.lower() != 'y':
+                return
+
+        home_local_bin = Path.home() / '.local/bin'
+        home_local_bin.mkdir(parents=True, exist_ok=True)
+        for p in (  # reverse order
+            str(Path.home() / '.poetry/bin'),
+            str(home_local_bin),
+            str(Path.home() / '.asdf/bin'),
+        ):
+            if f'{os.pathsep}{p}{os.pathsep}' not in f'{os.pathsep}{os.environ["PATH"]}{os.pathsep}':
+                os.environ['PATH'] = f'{p}{os.pathsep}{os.environ["PATH"]}'
+
+    if args.groups_info:
+        print_groups_info()
+
+    if args.os_repos:
+        dos.os_update_mirrors_and_repos()
+    if args.os_configure:
+        dos.os_configure()
+
+    if args.install_packages:
+        install_packages()
+    if args.install_dotfiles:
+        install_dotfiles()
+        dos.create_kossak_links()
+    if args.priv:
+        load_priv_method()
+
+    print_all_logs()
 
     log.info('Main END')
 

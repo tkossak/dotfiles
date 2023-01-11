@@ -1,8 +1,8 @@
 import argparse
 import logging
 import sys
-import operator
-from functools import reduce
+from pathlib import Path
+import shutil
 
 from setup_new_linux.utils import constants as C
 
@@ -12,18 +12,21 @@ log = None
 
 def setup_args():
     p = argparse.ArgumentParser()
-    p.add_argument('--os-repos',         '-r', action='store_true', help='Configure os eg: update mirrors')
-    p.add_argument('--os-configure',     '-c', action='store_true', help='Configure os eg: $PATH in bash')
+    p.add_argument('--os-repos'        , '-r', action='store_true', help='Configure os eg: update mirrors')
+    p.add_argument('--os-configure'    , '-c', action='store_true', help='Configure os eg: $PATH in bash')
     p.add_argument('--install-packages', '-p', action='store_true', help='Install packages')
     p.add_argument('--install-dotfiles', '-d', action='store_true', help='Install dotfiles')
+    p.add_argument('--all'             , '-a', action='store_true', help='Do all steps (except priv)')
+    p.add_argument('--priv'            ,       action='store_true', help='Run method from local dotfiles')
+
     # if pkg should be installed: all args groups must match the package groups
-    p.add_argument('--groups',           '-g', help=f'which groups to install ({", ".join(C.Groups._member_names_)}) - they all must match for packages!')
-    p.add_argument('--groups-info',      '-i', action='store_true', help=f'Print info about groups')
-    p.add_argument('--verbose',          '-v', action='store_true', help='Set DEBUG lvl of logging')
-    p.add_argument('--ask',              '-k', action='store_true', help='display yes/no confirmations for pkg managers')
-    p.add_argument('--all',              '-a', action='store_true', help='Do all steps')
+    p.add_argument('--groups'          , '-g', help=f'which groups to install ({", ".join(C.Groups._member_names_)}) - they all must match for packages!')
+    # TODO: --pkg <PKG_NAME> - install only this
+    p.add_argument('--groups-info'     , '-i', action='store_true', help=f'Print info about groups')
+    p.add_argument('--verbose'         , '-v', action='store_true', help='Set DEBUG lvl of logging')
+    p.add_argument('--ask'             , '-k', action='store_true', help='display yes/no confirmations for pkg managers')
+    p.add_argument('--local-python'    , '-l', action='store_true', help='use local python for pipx packages')
     a = p.parse_args()
-    print(a.groups)
 
     if a.groups:
         for g in a.groups.split(','):
@@ -33,13 +36,16 @@ def setup_args():
             v |= C.Groups._member_map_[g]
         a.groups = v
     else:
-        a.groups = C.Groups(0)
+        a.groups = C.Groups.cli
 
     if a.all:
         a.os_repos = True
         a.os_configure = True
         a.install_packages = True
         a.install_dotfiles = True
+
+    if a.local_python:
+        C.PYTHON_BINARY_MAIN_PATH = Path(shutil.which('python'))
 
     return a
 

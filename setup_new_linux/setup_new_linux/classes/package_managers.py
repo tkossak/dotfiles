@@ -33,28 +33,48 @@ class OsPkgManagerGenerator(PkgManagerABC):
 
     def __init__(self,
         cmd: str,
-        install_options: Union[str, list],
-        is_installed_options: Union[str, list],
-        is_installed_template: Union[str, list] = None,
+        install_options: str,
+        is_installed_options: str = None,
+        is_installed_template: str = None,
         sudo_install: bool = False,
     ):
         """
+        :param cmd: pkg manager executable name or full path to it
+
+        :param is_installed_options: Options to check if package is installed.
+            Package name will appended.
+            Pass only 1 of:
+                is_installed_options
+                is_installed_template
+
+        :param is_installed_template: if provided, must contain {pkg} param
         :param sudo_install: if True: run installations with sudo
         """
+        if (
+            not (is_installed_options or is_installed_template)
+            or is_installed_options and is_installed_template
+        ):
+            raise Exception('One of the params must be set: is_installed_options / is_installed_template')
+
         self.pkg_manager = cmd
         self.pkg_manager_name = cmd.split('/')[-1]
 
-        self.install_options = shlex.split(install_options) if isinstance(install_options, str) else install_options
-        self.pkg_manager_run_install = (['sudo'] if sudo_install else []) + [self.pkg_manager] + self.install_options
+        # install_options = shlex.split(install_options) if isinstance(install_options, str) else install_options
+        # self.pkg_manager_run_install = (['sudo'] if sudo_install else []) + [self.pkg_manager] + self.install_options
+        self.cmd_install_template = f'{"sudo " if sudo_install else ""}{self.pkg_manager} {install_options} {{pkg}}'
 
         if is_installed_template:
-            self.is_installed_template = shlex.split(is_installed_template) if isinstance(is_installed_template, str) else is_installed_template
+            # self.is_installed_template = shlex.split(is_installed_template) if isinstance(is_installed_template, str) else is_installed_template
+            if '{pkg}' not in is_installed_template:
+                raise Exception(f'No "{{pkg}}" in is_installed_options: {is_installed_options}')
+            self.cmd_is_installed_template: str = is_installed_template
         elif is_installed_options:
-            is_installed_options = shlex.split(is_installed_options) if isinstance(is_installed_options, str) else is_installed_options
-            self.is_installed_template = [self.pkg_manager] + is_installed_options  + [os_pkg]
+            # is_installed_options = shlex.split(is_installed_options) if isinstance(is_installed_options, str) else is_installed_options
+            # self.is_installed_template = [self.pkg_manager] + is_installed_options  + [os_pkg]
+            is_installed_options: str = is_installed_options if isinstance(is_installed_options, str) else ' '.join(is_installed_options)
+            self.cmd_is_installed_template = f'{self.pkg_manager} {is_installed_options} {{pkg}}'
         else:
             raise Exception('provide either is_installed_options or is_installed_template')
-
 
     def install(self,
         pkg: str
@@ -65,7 +85,8 @@ class OsPkgManagerGenerator(PkgManagerABC):
             raise Exception(f'{self.pkg_manager_name}: empty pkg provided!')
 
         log.info(f'{self.pkg_manager_name} install: {pkg}')
-        run_cmd(self.pkg_manager_run_install + [pkg])
+        cmd = shlex.split(self.cmd_install_template.format(pkg=pkg))
+        run_cmd(cmd)
 
     def install_if_not_installed(self,
         pkg: str
@@ -80,7 +101,6 @@ class OsPkgManagerGenerator(PkgManagerABC):
         if not self.is_pkg_installed(pkg):
             log.info(f'{self.pkg_manager_name} install: {pkg}')
             self.install(pkg)
-            # run_cmd([self.pkg_manager,self.install_options, pkg])
             return 0
         else:
             log.debug(f'{self.pkg_manager_name} already installed: {pkg}')
@@ -91,12 +111,13 @@ class OsPkgManagerGenerator(PkgManagerABC):
         :returns: True - if pkg is installed
                   False - if pkg is NOT installed
         """
+
+        cmd = shlex.split(self.cmd_is_installed_template.format(pkg=pkg))
         p = run_cmd(
-            # [self.pkg_manager] + self.is_installed_options + [pkg],
-            self.is_installed_template,
+            cmd,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
-            # universal_newlines=True,
+            check=False,
         )
         if p.returncode == 0:
             return True
@@ -184,15 +205,17 @@ pipx = Pipx()
 
 yay = OsPkgManagerGenerator(
     cmd='yay',
-    install_options=['-S'] + ([] if setup.args.ask else ['--noconfirm']),
+    # install_options=['-S'] + ([] if setup.args.ask else ['--noconfirm']),
+    install_options=f'-S{"" if setup.args.ask else " --noconfirm"}',
     is_installed_options='-Q',
-    # is_installed_template="-Qs '^{pkg}$'"
+    # is_installed_template="-Qs '^{pkg}$'",
 )
 
 
 pacman = OsPkgManagerGenerator(
     cmd='pacman',
-    install_options=['-S'] + ([] if setup.args.ask else ['--noconfirm']),
+    # install_options=['-S'] + ([] if setup.args.ask else ['--noconfirm']),
+    install_options=f'-S{"" if setup.args.ask else " --noconfirm"}',
     is_installed_options='-Q',
     sudo_install=True,
 )

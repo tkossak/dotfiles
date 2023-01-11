@@ -20,7 +20,8 @@ class SystemDService:
             return False
         # full_name = f'{self.service}.service'
         p = H.run_cmd(
-            ['systemctl', 'list-units', '--full', '--all', '--no-legend', '--no-pager', self.service_name],
+            # ['systemctl', 'list-units', '--full', '--all', '--no-legend', '--no-pager', self.service_name],
+            ['systemctl', 'list-unit-files', '--no-legend', '--no-pager', self.service_name],
             stdout=subprocess.PIPE,
             universal_newlines=True,
         )

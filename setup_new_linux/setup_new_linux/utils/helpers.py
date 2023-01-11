@@ -79,7 +79,7 @@ def insert_or_replace_snippet(
 
     """
     if not tag:
-        tag = 'KOSSAK'
+        tag = 'Kossak'
 
     file_content = file.read_text().strip()
     if not start_line:
