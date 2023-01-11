@@ -14,7 +14,7 @@ xontrib load abbrevs argcomplete broot coreutils fzf-widgets vox # whole_word_ju
 # while running eg:
 #   poetry install
 #   poetry add click
-$PYTHON_KEYRING_BACKEND = "keyring.backends.fail.Keyring"
+$PYTHON_KEYRING_BACKEND = 'keyring.backends.fail.Keyring'
 
 $EDITOR='vim'
 $BROWSER='firefox'
@@ -30,12 +30,12 @@ def ga(text):
     """
     return lambda buffer, word: text if buffer.text.strip() == word else word
 
+# Różne:
 abbrevs['yay'] = ga('asdf_disable; yay')
 # abbrevs['teams.'] = 'teams --disable-seccomp-filter-sandbox'
 abbrevs['convertpng'] = ga('mogrify -format jpg -quality 80 *.png')
-
 # aliases['kittyt'] = 'kitty --config /home/kossak/.dotfiles/dotfiles/kitty_for_tmux.conf all>/dev/null &; disown 1'
-
+aliases['..'] = 'cd ..'
 aliases['l'] = 'exa -l --git'
 abbrevs['df'] = ga('df -h')
 abbrevs['ta'] = ga('tmux attach-session')
@@ -49,6 +49,15 @@ abbrevs['free'] = ga('free -m')
 abbrevs['ntp'] = ga('sudo ntpdate pl.pool.ntp.org')
 aliases['monitor_off'] = 'xset dpms force off'
 
+# archives
+abbrevs['zstdc'] = 'tar -cf - <edit>dir | zstd - -19 -vo file.tar.zstd'
+abbrevs['zstde'] = 'tar -xaf <edit>a.tar.zstd'
+abbrevs['zipc'] = 'zip -9r <edit>archive.zip FILES'
+abbrevs['zipe'] = 'unzip <edit>archive'
+abbrevs['gzc'] = 'tar cvf - <edit>DIR | gzip -9 - > archive.tar.gz'
+abbrevs['gze'] = ' tar -xavf <edit>ARCHIVE.TAR.GZ'
+abbrevs['tare'] = ' tar -xavf <edit>ARCHIVE.TAR.GZ'
+
 # mounts
 abbrevs['mount.']    = ga('sudo mount -o uid=kossak,gid=kossak /dev/sdc1<edit> /mnt/a')
 abbrevs['mountuuid'] = ga('sudo mount -o uid=kossak,gid=kossak UUID=1234567890ABCDEF<edit> /mnt/a')
@@ -57,6 +66,8 @@ abbrevs['mountsmb']  = ga('sudo mount -t cifs -o credentials=/mnt/params/smb_cre
 abbrevs['mountcd']   = ga('sudo mount -t iso9660 /dev/sr0 /mnt/cdrom')
 abbrevs['mountiso']  = ga('sudo mount -o loop <file><edit> /mnt/a')
 abbrevs['mountvb']   = ga('sudo mount -t vboxsf -o uid=kossak,gid=kossak vbox_shared /mnt/vs')
+abbrevs['gocryptfsi'] = 'gocryptfs -init <DIR>'
+abbrevs['gocryptfsm'] = 'gocryptfs SRC<edit> DST -extpass "bw get password <ID>"'
 
 abbrevs['mtro'] = ga('mtr -o "LRD N ABWV"')
 abbrevs['mtrg'] = ga('mtr -o "LRD N ABWV" 8.8.8.8')  # google
@@ -72,7 +83,7 @@ abbrevs['lsblkl'] = ga('sudo lsblk -fo "name,size,type,fstype,label,mountpoint,u
 abbrevs['dmp3']  = ga("yt-dlp -cx --audio-format mp3 -o '%(title)s.%(ext)s' $(xclip -o)")
 abbrevs['y']     = ga('yt-dlp $(xclip -o -sel c)')
 abbrevs['dyt']   = abbrevs['y']
-abbrevs['dtel']  = ga('yt-dlp -f "worstvideo[height>=480]+bestaudio[abr<=128]" -o ''%(title)s.%(ext)s'' (xclip -o)')
+abbrevs['dtel']  = ga('yt-dlp -f "worstvideo[height>=480]+bestaudio[abr<=128]" -o "%(title)s.%(ext)s" (xclip -o)')
 abbrevs['dtel2'] = ga("yt-dlp -f 'bestvideo[ext=mp4][height=720]+bestaudio[ext=m4a][abr=128]/bestvideo[height<=720]+bestaudio[abr<=128]' -o '%(title)s.%(ext)s' $(xclip -o)")
 abbrevs['ffmpegct'] = ga('ffmpeg -i <edit> -c:v libx264 -c:a aac -pix_fmt yuv420p')
 abbrevs['goc'] = ga('go-chromecast --first')
@@ -126,10 +137,10 @@ abbrevs['voxn'] = ga('vox new -p /home/kossak/.asdf/installs/python/')
 
 # abbrevs['asdfi']  = ga('env PYTHON_CONFIGURE_OPTS="--enable-shared --enable-optimizations" asdf install python')
 abbrevs['asdfi']  = ga('asdf install python')
-abbrevs['asdfs']  = ga('$ASDF_PYTHON_VERSION =')
+abbrevs['asdfs']  = ga('$ASDF_PYTHON_VERSION =')  # nobash
 abbrevs['asdfl']  = ga('asdf list-all python')
 abbrevs['asdfu']  = ga('asdf update')
-abbrevs['asdfup'] = ga('asdf plugin-update python')
+abbrevs['asdfuu'] = ga('asdf plugin-update python')
 abbrevs['poa']    = ga("poetry add")
 abbrevs['poav']   = ga("poetry add PKG=1.14.5")
 abbrevs['pipi']   = ga('pip install -U')
@@ -146,20 +157,20 @@ abbrevs['pipxup'] = ga('pipx upgrade --index-url http://localhost:8080 --pip-arg
 # gcp
 abbrevs['bqh'] = ga('bq head --format csv tk_tmp.LOAD_ERRORS | vd -f csv')
 abbrevs['gc'] = ga("$CLOUDSDK_ACTIVE_CONFIG_NAME='")
-abbrevs['gcl'] = ga("gcloud config list")
-abbrevs['gcca'] = ga("gcloud config configurations activate")
-abbrevs['gccl'] = ga("gcloud config configurations list")
-abbrevs['gal'] = ga("gcloud auth list")
-abbrevs['gar'] = ga("gcloud auth revoke")
-abbrevs['gpl'] = ga("gcloud projects list")
-abbrevs['gmil'] = ga("gcloud compute instances list")
-abbrevs['gmid'] = ga("gcloud compute instances delete")
-abbrevs['gmdl'] = ga("gcloud compute disks list")
-abbrevs['gms'] = ga("gcloud compute ssh")
+abbrevs['gcl'] = ga('gcloud config list')
+abbrevs['gcca'] = ga('gcloud config configurations activate')
+abbrevs['gccl'] = ga('gcloud config configurations list')
+abbrevs['gal'] = ga('gcloud auth list')
+abbrevs['gar'] = ga('gcloud auth revoke')
+abbrevs['gpl'] = ga('gcloud projects list')
+abbrevs['gmil'] = ga('gcloud compute instances list')
+abbrevs['gmid'] = ga('gcloud compute instances delete')
+abbrevs['gmdl'] = ga('gcloud compute disks list')
+abbrevs['gms'] = ga('gcloud compute ssh')
 
 # różne
-abbrevs['bwu'] = ga("$BW_SESSION=$(bw unlock --raw)")
-abbrevs['bws'] = ga("bw status")
+abbrevs['bwu'] = ga('$BW_SESSION=$(bw unlock --raw)')  # nobash
+abbrevs['bws'] = ga('bw status')
 abbrevs['passs'] = ga(r"pass show $(find -L ~/.password-store -iname '*.gpg' | sed -e 's_^/home/kossak/.password-store/__' -e 's_.gpg$__' | fzf | tr -d '\n')")
 abbrevs['passc'] = ga(r"pass -c $(find -L ~/.password-store -iname '*.gpg' | sed -e 's_^/home/kossak/.password-store/__' -e 's_.gpg$__' | fzf | tr -d '\n')")
 abbrevs['passe'] = ga(r"pass edit $(find -L ~/.password-store -iname '*.gpg' | sed -e 's_^/home/kossak/.password-store/__' -e 's_.gpg$__' | fzf | tr -d '\n')")
@@ -172,8 +183,8 @@ def _ranger_cd():
     ranger --choosedir @(f)
     if f.exists():
         cd @(f.read_text())
-aliases['ranger_cd'] = _ranger_cd
-aliases['r'] = _ranger_cd
+aliases['ranger_cd'] = _ranger_cd  # nobash
+aliases['r'] = _ranger_cd          # nobash
 
 # # KEYBINDINGS
 # from prompt_toolkit.keys import Keys

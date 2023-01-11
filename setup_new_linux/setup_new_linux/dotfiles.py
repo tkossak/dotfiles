@@ -269,11 +269,11 @@ dotfiles = [
         dst=hh / '.gitconfig.local',
         groups=C.Groups.home,
     ),
-    # LocalDotfile(
-    #     src=dl / 'gitconfig.w.local',
-    #     dst=hh / '.gitconfig.local',
-    #     groups=C.Groups.work,
-    # ),
+    LocalDotfile(
+        src=dl / 'gitconfig.w.local',
+        dst=hh / '.gitconfig.local',
+        groups=C.Groups.work,
+    ),
     *vim_dotfiles,
     Dotfile(
         src=dd / 'spacemacs',
