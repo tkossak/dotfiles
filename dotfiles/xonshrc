@@ -16,15 +16,14 @@ xontrib load abbrevs argcomplete broot coreutils fzf-widgets vox # whole_word_ju
 #   poetry add click
 $PYTHON_KEYRING_BACKEND = 'keyring.backends.fail.Keyring'
 
-$EDITOR='vim'
-$BROWSER='firefox'
+$EDITOR = 'vim'
+$BROWSER = 'firefox'
 # $RIGHT_PROMPT = '{#A0FF4C}{localtime}'
 $RIGHT_PROMPT = '{BOLD_GREEN}{localtime}'
 # $BOTTOM_TOOLBAR = '{BOLD_#A0FF4C}{user}{NO_COLOR} on {BOLD_#D6A6FF}{cwd}'
 $MULTILINE_PROMPT = ''
 
 # Aliases and abbrevs ##############################################################
-# use single quote ('), because they will be translated to bash (end "$()" would be expanded in double quotes)
 
 def ga(text):
     """Get abbrev that gets expanded only on the begining of line

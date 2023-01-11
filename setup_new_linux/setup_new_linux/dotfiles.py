@@ -176,9 +176,15 @@ def get_bashrc_snippet_for_xonsh_aliases() -> str:
             continue
         s = s[1:-1]
         s = s.replace('@$', '$')
-        s = s.replace(q, f'{q}\\{q}{q}')
+
+        # escape quotes:
+        s = s.replace(f'\\{q}', f'{q}\\{q}{q}')
+        if q == '"':
+            s = s.replace("'", f"'\\''")
+
+
         if s.strip(' \t;\':",./<>?[]\\{}|!@#$%^&*()_+`~'):
-            bash_aliases_l.append(f"alias {name}={q}{s}{q}")
+            bash_aliases_l.append(f"alias {name}='{s}'")
 
     return '\n'.join(bash_aliases_l) + '\n'
 
