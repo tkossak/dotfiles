@@ -160,16 +160,24 @@ def get_bashrc_snippet_for_xonsh_aliases() -> str:
         # alias definition:
         if '#' in s:
             s = s.rpartition('#')[0]
-        s = s.strip(' ga()r')
-        q = s[0]  # quote type of the alias
-        s = s[1:-1]
-        if q not in '"\'':
+        s = s.strip()
+        if (
+            s == "ga('''\\"
+            or s.startswith('abbrevs[')
+        ):
+            continue
+        s = s.strip('ga()rf')
+        q = s[0]  # quote style of the alias
+        if (
+            q not in '"\''
+            or s[-1] != q
+        ):
             log.debug(f'bashrc skip xonsh alias: {line}')
             continue
-        s = s.replace('$', r'\$')
-        # replace quotes inside:
+        s = s[1:-1]
+        s = s.replace('@$', '$')
         s = s.replace(q, f'{q}\\{q}{q}')
-        if s:
+        if s.strip(' \t;\':",./<>?[]\\{}|!@#$%^&*()_+`~'):
             bash_aliases_l.append(f"alias {name}={q}{s}{q}")
 
     return '\n'.join(bash_aliases_l) + '\n'
