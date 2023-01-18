@@ -19,11 +19,18 @@ $PYTHON_KEYRING_BACKEND = 'keyring.backends.fail.Keyring'
 $EDITOR = 'vim'
 $BROWSER = 'firefox'
 # $RIGHT_PROMPT = '{#A0FF4C}{localtime}'
-$RIGHT_PROMPT = '{BOLD_GREEN}{localtime}'
+# $RIGHT_PROMPT = '{BOLD_GREEN}{localtime}'
 # $BOTTOM_TOOLBAR = '{BOLD_#A0FF4C}{user}{NO_COLOR} on {BOLD_#D6A6FF}{cwd}'
 $MULTILINE_PROMPT = ''
 
-# Aliases and abbrevs ##############################################################
+# #############################################################################
+# ALIASES
+
+# mark alias to NOT be translated into bash with:
+#   # nobash
+# specify bash version in comments with:
+#   # bash : '<ALIAS>'
+#   # don't escape quotes, it will be done automatically!
 
 def ga(text):
     """Get abbrev that gets expanded only on the begining of line
@@ -49,14 +56,46 @@ abbrevs['free'] = ga('free -m')
 # aliases['tarb'] = 'tar -cavf DIR_(date +'%Y%m%d_%H%M%S').tar.gz DIR'
 abbrevs['ntp'] = ga('sudo ntpdate pl.pool.ntp.org')
 aliases['monitor_off'] = 'xset dpms force off'
+abbrevs['bwu'] = ga('$BW_SESSION=$(bw unlock --raw)')  # bash: 'export BW_SESSION="$(bw unlock --raw)"'
+abbrevs['bws'] = ga('bw status')
+abbrevs['passs'] = ga(r"pass show $(find -L ~/.password-store -iname '*.gpg' | sed -e 's_^/home/kossak/.password-store/__' -e 's_.gpg$__' | fzf | tr -d '\n')")
+abbrevs['passc'] = ga(r"pass -c $(find -L ~/.password-store -iname '*.gpg' | sed -e 's_^/home/kossak/.password-store/__' -e 's_.gpg$__' | fzf | tr -d '\n')")
+abbrevs['passe'] = ga(r"pass edit $(find -L ~/.password-store -iname '*.gpg' | sed -e 's_^/home/kossak/.password-store/__' -e 's_.gpg$__' | fzf | tr -d '\n')")
+abbrevs['sha256sum.'] = ga('echo "<edit>sum file" | sha256sum -c')
+abbrevs['md5sum.'] = ga('echo "<edit>sum file" | md5sum -c')
+abbrevs['sha512sum.'] = ga('echo "<edit>sum file" | sha512sum -c')
+abbrevs['sha1sum.'] = ga('echo "<edit>sum file" | sha1sum -c')
+
+# borg list archives in fzf:
+abbrevs['borgs'] = ga("$BORG_PASSPHRASE = '<edit>'")  # bash: 'export BORG_PASSPHRASE='
+abbrevs['borgc'] = ga("borg create -vsp -C zstd,22 '.::ONCE_{now:%Y-%m-%d_%H:%M:%S}'")
+abbrevs['borgli'] = ga("borg list . --short | sed -r 's/[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}:[0-9]{2}:[0-9]{2}//g' | sort | uniq -c | sort -k 2")
+abbrevs['borgla'] = ga("borg list --format '{name}{NL}<edit>' . | fzf")
+abbrevs['borglf'] = ga('borg list @(".::" + $(borg list --format "{name}{NL}" . | fzf).strip() ) | fzf')
+abbrevs['borgm'] = ga('borg mount f".::{$(borg list --format "{name}{NL}<edit>" . | fzf).strip()}" /mnt/borg')
+
+# docker
+abbrevs['sd'] = ga('sudo docker')
+abbrevs['di'] = ga('docker images')
+abbrevs['dp'] = ga('docker ps')
+abbrevs['dr'] = ga('docker container run -it --rm <edit> /bin/bash')
+abbrevs['dre'] = ga('docker container run -it --rm --entrypoint /bin/bash <>')
+abbrevs['de'] = ga('docker exec -it <edit> bash')
+abbrevs['dc'] = ga('docker commit')
+abbrevs['drmi'] = ga('docker rmi @$(docker images -f dangling=true -q)')
+# exec/commit in the only running container:
+abbrevs['dee'] = ga('docker exec -it @$(docker ps --format "{{.ID}}") bash')
+abbrevs['dcc'] = ga('docker commit @$(docker ps --format "{{.ID}}")')
 
 # archives
 abbrevs['zstdc'] = 'tar -cf - <edit>dir | zstd - -19 -vo file.tar.zstd'
+abbrevs['zstdcd'] = 'tar -cf - <edit>dir | zstd - -19 -vo @("archive_" + $(date +%Y%m%d_%H%M%S).strip() + ".tar.zstd")'  # bash: 'tar -cf - <edit>dir | zstd - -19 -vo "file_$(date +%Y%m%d_%H%M%s).tar.zstd"'
 abbrevs['zstde'] = 'tar -xaf <edit>a.tar.zstd'
+abbrevs['gzc'] = 'tar cvf - <edit>DIR | gzip -9 - > archive.tar.gz'
+abbrevs['gzcd'] = 'tar cvf - <edit>DIR | gzip -9 - > @("archive_" + $(date +%Y%m%d_%H%M%S).strip() + ".tar.gz")'  # bash: 'tar cvf - <edit>DIR | gzip -9 - > "archive_$(date +%Y%m%d_%H%M%s).tar.gz"'
+abbrevs['gze'] = ' tar -xavf <edit>ARCHIVE.TAR.GZ'
 abbrevs['zipc'] = 'zip -9r <edit>archive.zip FILES'
 abbrevs['zipe'] = 'unzip <edit>archive'
-abbrevs['gzc'] = 'tar cvf - <edit>DIR | gzip -9 - > archive.tar.gz'
-abbrevs['gze'] = ' tar -xavf <edit>ARCHIVE.TAR.GZ'
 abbrevs['tare'] = ' tar -xavf <edit>ARCHIVE.TAR.GZ'
 
 # mounts
@@ -67,6 +106,7 @@ abbrevs['mountsmb']  = ga('sudo mount -t cifs -o credentials=/mnt/params/smb_cre
 abbrevs['mountcd']   = ga('sudo mount -t iso9660 /dev/sr0 /mnt/cdrom')
 abbrevs['mountiso']  = ga('sudo mount -o loop <file><edit> /mnt/a')
 abbrevs['mountvb']   = ga('sudo mount -t vboxsf -o uid=kossak,gid=kossak vbox_shared /mnt/vs')
+abbrevs['mountborg'] = abbrevs['borgm']
 abbrevs['gocryptfsi'] = 'gocryptfs -init <DIR>'
 abbrevs['gocryptfsm'] = 'gocryptfs SRC<edit> DST -extpass "bw get password <ID>"'
 
@@ -86,21 +126,8 @@ abbrevs['y']     = ga('yt-dlp $(xclip -o -sel c)')
 abbrevs['dyt']   = abbrevs['y']
 abbrevs['dtel']  = ga('yt-dlp -f "worstvideo[height>=480]+bestaudio[abr<=128]" -o "%(title)s.%(ext)s" (xclip -o)')
 abbrevs['dtel2'] = ga('yt-dlp -f "bestvideo[ext=mp4][height=720]+bestaudio[ext=m4a][abr=128]/bestvideo[height<=720]+bestaudio[abr<=128]" -o "%(title)s.%(ext)s" $(xclip -o)')
-abbrevs['ffmpegct'] = ga('ffmpeg -i <edit> -c:v libx264 -c:a aac -pix_fmt yuv420p')
+abbrevs['ffmpegct'] = ga('ffmpeg -i <edit> -c:v libx264 -c:a aac -pix_fmt yuv420p -ac 2')
 abbrevs['goc'] = ga('go-chromecast --first')
-
-# różne
-abbrevs['sd'] = ga('sudo docker')
-abbrevs['di'] = ga('docker images')
-abbrevs['dp'] = ga('docker ps')
-abbrevs['dr'] = ga('docker container run -it --rm <edit> /bin/bash')
-abbrevs['dre'] = ga('docker container run -it --rm --entrypoint /bin/bash <>')
-abbrevs['de'] = ga('docker exec -it <edit> bash')
-abbrevs['dc'] = ga('docker commit')
-abbrevs['drmi'] = ga('docker rmi @$(docker images -f dangling=true -q)')
-# exec/commit in the only running container:
-abbrevs['dee'] = ga('docker exec -it @$(docker ps --format "{{.ID}}") bash')
-abbrevs['dcc'] = ga('docker commit @$(docker ps --format "{{.ID}}")')
 
 # vars for SSH/TMUX
 abbrevs['envss'] = ga('''\
@@ -138,7 +165,7 @@ abbrevs['voxn'] = ga('vox new -p /home/kossak/.asdf/installs/python/')
 
 # abbrevs['asdfi']  = ga('env PYTHON_CONFIGURE_OPTS="--enable-shared --enable-optimizations" asdf install python')
 abbrevs['asdfi']  = ga('asdf install python')
-abbrevs['asdfs']  = ga('$ASDF_PYTHON_VERSION =')  # nobash
+abbrevs['asdfs']  = ga('$ASDF_PYTHON_VERSION =')  # bash: 'export ASDF_PYTHON_VERSION='
 abbrevs['asdfl']  = ga('asdf list-all python')
 abbrevs['asdfu']  = ga('asdf update')
 abbrevs['asdfuu'] = ga('asdf plugin-update python')
@@ -157,7 +184,7 @@ abbrevs['pipxup'] = ga('pipx upgrade --index-url http://localhost:8080 --pip-arg
 
 # gcp
 abbrevs['bqh'] = ga('bq head --format csv tk_tmp.LOAD_ERRORS | vd -f csv')
-abbrevs['gc'] = ga("$CLOUDSDK_ACTIVE_CONFIG_NAME='")  # nobash
+abbrevs['gc'] = ga("$CLOUDSDK_ACTIVE_CONFIG_NAME='")  # bash: 'export CLOUDSDK_ACTIVE_CONFIG_NAME='
 abbrevs['gcl'] = ga('gcloud config list')
 abbrevs['gcca'] = ga('gcloud config configurations activate')
 abbrevs['gccl'] = ga('gcloud config configurations list')
@@ -169,25 +196,18 @@ abbrevs['gmid'] = ga('gcloud compute instances delete')
 abbrevs['gmdl'] = ga('gcloud compute disks list')
 abbrevs['gms'] = ga('gcloud compute ssh')
 
-# różne
-abbrevs['bwu'] = ga('$BW_SESSION=$(bw unlock --raw)')  # nobash
-abbrevs['bws'] = ga('bw status')
-abbrevs['passs'] = ga(r"pass show $(find -L ~/.password-store -iname '*.gpg' | sed -e 's_^/home/kossak/.password-store/__' -e 's_.gpg$__' | fzf | tr -d '\n')")
-abbrevs['passc'] = ga(r"pass -c $(find -L ~/.password-store -iname '*.gpg' | sed -e 's_^/home/kossak/.password-store/__' -e 's_.gpg$__' | fzf | tr -d '\n')")
-abbrevs['passe'] = ga(r"pass edit $(find -L ~/.password-store -iname '*.gpg' | sed -e 's_^/home/kossak/.password-store/__' -e 's_.gpg$__' | fzf | tr -d '\n')")
-abbrevs['borglf'] = ga("borg list --format '{name}{NL}<edit>' . | fzf")
-abbrevs['borgllf'] = ga('borg list f".::{$(borg list --format "{name}{NL}<edit>" . | fzf).strip()}" | less')
-abbrevs['borgmf'] = ga('borg mount f".::{$(borg list --format "{name}{NL}<edit>" . | fzf).strip()}" /mnt/borg')
-
 def _ranger_cd():
     f = p'/tmp/rangerdir'
     ranger --choosedir @(f)
     if f.exists():
         cd @(f.read_text())
 aliases['ranger_cd'] = _ranger_cd  # nobash
-aliases['r'] = _ranger_cd          # nobash
+aliases['r'] = _ranger_cd          # bash: 'ranger'
 
-# # KEYBINDINGS
+
+# #############################################################################
+# KEYBINDINGS
+
 # from prompt_toolkit.keys import Keys
 # from prompt_toolkit.filters import Condition, EmacsInsertMode, ViInsertMode
 #
@@ -204,10 +224,10 @@ aliases['r'] = _ranger_cd          # nobash
 #         # TODO: put cursor at the end of last prompt?
 #         # event.cli.renderer.erase()
 
-# Update different paths:
-# from pathlib import Path
 
-# # LD_LIBRARY_PATH
+# #############################################################################
+# $LD_LIBRARY_PATH
+
 # ld_paths = [
 #     p'/usr/lib',
 # ]
@@ -215,7 +235,9 @@ aliases['r'] = _ranger_cd          # nobash
 # ${...}['LD_LIBRARY_PATH'] = ${...}.get('LD_LIBRARY_PATH', [])
 # $LD_LIBRARY_PATH = [p for p in $LD_LIBRARY_PATH if Path(p) not in paths] + paths
 
-# PATHs
+# #############################################################################
+# $PATH
+
 paths = [
     p'~/.asdf/shims',
     p'~/.asdf/bin',
@@ -236,6 +258,19 @@ $PATH = paths + [p for p in $PATH if p not in paths]
 
 del paths
 
+# #############################################################################
+# ssh-agent
+# _SSH_AGENT_ENV=pf'{$XDG_RUNTIME_DIR}/ssh-agent.env'
+# if not $(pgrep -u $USER ssh-agent):
+#     _SSH_AGENT_ENV.write_text($(ssh-agent -s))
+#     source-bash @(_SSH_AGENT_ENV)
+# else:
+#   if _SSH_AGENT_ENV.exists():
+#       source-bash @(_SSH_AGENT_ENV)
+#   else:
+#       echo "ssh-agent is running but _SSH_AGENT_ENV not found! killall ssh-agent"
+
+# #############################################################################
 # fzf
 $fzf_history_binding = "c-r"
 $fzf_ssh_binding = "c-s"

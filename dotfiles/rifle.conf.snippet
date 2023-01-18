@@ -14,4 +14,6 @@ label goc, flag f  = go-chromecast --first load "$1"
 label gocs, flag f = go-chromecast --first slideshow "$@"
 label gocp, flag f = go-chromecast --first playlist "$@"
 
-label tod = tar -cvf - "${@##*/}" | xz -e9zf - | split -b 100MB -d - $1.tar.xz.
+# label tod = tar -cvf - "${@##*/}" | xz -e9zf - | split -b 100MB -d - $1.tar.xz.
+label tod = tar -cvf - "${@##*/}" | zstd - -19 -v | split -b 100MB -d - $1.tar.zstd.
+label zc = tar -cf - "$@" | zstd - -19 -vo "$1.tar.zstd"
