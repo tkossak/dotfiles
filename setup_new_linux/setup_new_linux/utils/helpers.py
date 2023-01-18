@@ -4,6 +4,7 @@ from subprocess import run
 from pathlib import Path
 import re
 import tempfile
+import os
 
 from setup_new_linux.utils.setup import log
 from setup_new_linux import info
@@ -30,9 +31,9 @@ def run_cmd(cmd: Union[str, list], *args, **kwargs):
     if not cmd:
         raise Exception('Empty cmd to run')
 
+    kwargs['universal_newlines'] = True
     if isinstance(cmd, str) and 'shell' not in kwargs:
         kwargs['shell'] = True
-        kwargs['universal_newlines'] = True
 
     p = run(cmd, *args, **kwargs, )
     if 'check' not in kwargs:
@@ -106,9 +107,20 @@ def insert_or_replace_snippet(
             with tempfile.NamedTemporaryFile(
                 mode='wt',
                 delete=False,
-            ) as fp:
-                fp.file.write(file_content_new)
-            run_cmd(['sudo', 'mv', fp.name, str(file)])
+            ) as tf:
+                tf.file.write(file_content_new)
+
+            # get original file owner/group
+            # f = Path(tf.name)
+            # owner = f.owner()
+            # group = f.group()
+
+
+            # move tmp file into original one
+            print(tf.name)
+            run_cmd(['sudo', 'chmod', '--reference', file, tf.name])
+            run_cmd(['sudo', 'chown', '--reference', file, tf.name])
+            run_cmd(['sudo', 'mv', tf.name, str(file)])
 
         else:
             file.write_text(file_content_new)

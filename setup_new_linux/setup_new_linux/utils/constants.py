@@ -26,8 +26,10 @@ class Groups(Flag):   # default is cli + home + work
     home = auto()     # apps for home comp
     work = auto()     # apps for work comp
     server = auto()   # apps for server/VM
+    liveusb = auto()  # apps for live usb
 
 GROUPS_ALL = reduce(operator.or_, Groups.__members__.values())
+GROUPS_DEFAULT_PKG = Groups.cli | Groups.home | Groups.work
 # GROUPS_ALL = Groups(0)
 # for v in Groups.__members__.values():
 #     GROUPS_ALL |= v

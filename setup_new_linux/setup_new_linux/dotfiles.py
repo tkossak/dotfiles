@@ -8,32 +8,201 @@ from setup_new_linux.utils import (
     helpers as H,
     constants as C,
 )
+from setup_new_linux.utils.constants import Groups as G
 from setup_new_linux.utils.setup import log
-from setup_new_linux.classes.packagesc import PipxPackage
+from setup_new_linux.classes.packagesc import PipxPackage, OsPackage
 
 
 dd = info.dotfiles_dir
 dl = info.dotfiles_local_dir
 hh = Path.home()
+xonsh_rc_d = hh / '.config/xonsh/rc.d/'
+xonsh_dotfiles_dir = dd.parent / 'xonsh'
+xonsh_dotfiles_local_dir = dl.parent / 'xonsh'
+
+
+# XONSH #######################################################################
 
 xonshrc = Dotfile(
         src=dd / 'xonshrc',
         dst=hh / '.xonshrc',
     )
 
+def xonsh_remove_broken_links():
+    for f in xonsh_rc_d.glob('*'):
+        if f.is_symlink() and not f.exists():
+            f.unlink()
+
 def get_xonsh_dotfiles():
     """Get Paths for xonsh rc.d dotfiles
     """
+    # get standard dotfiles:
+    if not xonsh_dotfiles_dir.exists():
+        msg = f"Dotfile folder for xonsh doesn't exist: {xonsh_dotfiles_dir}"
+        log.error(msg)
+        info.errors.append(msg)
+    else:
+        for file in xonsh_dotfiles_dir.glob('*.xsh'):
+            yield Dotfile(
+                    src=file,
+                    dst=xonsh_rc_d / file.name,
+                )
 
-    for file in (dl / 'xonsh').glob('*.xsh'):
-        yield Dotfile(
-                src=file,
-                dst=hh / f'.config/xonsh/rc.d/{file.name}',
-            )
+    # get local dotfiles:
+    if not xonsh_dotfiles_local_dir.exists():
+        msg = f"Local dotfiles folder for xonsh doesn't exist: {xonsh_dotfiles_local_dir}"
+        log.error(msg)
+        info.errors.append(msg)
+    else:
+        for file in xonsh_dotfiles_local_dir.glob('*'):
+            if file.name.endswith('.xsh'):
+                yield Dotfile(
+                        src=file,
+                        dst=xonsh_rc_d / file.name,
+                    )
+            elif file.name.endswith('xsh.h'):
+                yield Dotfile(
+                        src=file,
+                        dst=xonsh_rc_d / file.name.replace(".h", ""),
+                        groups=C.Groups.home,
+                    )
+            elif file.name.endswith('xsh.w'):
+                yield Dotfile(
+                        src=file,
+                        dst=xonsh_rc_d / file.name.replace(".w", ""),
+                        groups=C.Groups.work,
+                    )
+xonsh_local_dots = list(get_xonsh_dotfiles())
+
+xonsh_dots = [
+    xonsh_remove_broken_links,
+    xonshrc,
+    *xonsh_local_dots
+]
 
 
 # must be here instead of packages.py, because of circular import
-ranger_pkg = PipxPackage('ranger-fm')
+ranger_pkg = PipxPackage(
+    'ranger-fm',
+    groups=C.GROUPS_DEFAULT_PKG | G.liveusb,
+)
+
+
+# BASH ########################################################################
+
+def generate_bashrc_snippet_from_xonsh_file(xonsh_file_src: Path) -> str:
+    # xonshrc_lines = xonshrc.src.read_text().splitlines()
+    xonshrc_lines = xonsh_file_src.read_text().splitlines()
+    bash_aliases_l = []
+    for line in xonshrc_lines:
+        if (
+            not (line.startswith('abbrevs[') or line.startswith('aliases['))
+            or '# nobash' in line
+        ):
+            continue
+
+        s = line
+        s = s.replace('<edit>', '')
+        name, _, s = s.partition('=')
+
+        # alias name:
+        name_quote = "'" if "'" in name else '"'
+        name = name.split(name_quote)[1]
+
+        if '# bash: ' in line:
+            # bash version of the alias is written in comment
+            s = s.partition('# bash: ')[2]
+
+        else:
+            # convet xonsh alias to bash alias
+
+            if '#' in s:
+                s = s.rpartition('#')[0]
+
+        s = s.strip()
+        if (
+            s == "ga('''\\"
+            or s.startswith(('abbrevs[', '_'))
+        ):
+            continue
+        s = s.strip('ga()rf')
+        q = s[0]  # quote style of the alias
+        if (
+            q not in '"\''
+            or s[-1] != q
+        ):
+            log.debug(f'bashrc skip xonsh alias: {line}')
+            continue
+        s = s[1:-1]
+        s = s.replace('@$', '$')
+
+        # escape quotes:
+        s = s.replace(f'\\{q}', f'{q}\\{q}{q}')
+        if q == '"':
+            s = s.replace("'", f"'\\''")
+
+        if s.strip(' \t;\':",./<>?[]\\{}|!@#$%^&*()_+`~'):
+            bash_aliases_l.append(f"alias {name}='{s}'")
+
+    return '\n'.join(bash_aliases_l) + '\n'
+
+def get_all_bashrc_aliases_from_xonsh():
+    home_aliases = []
+    work_aliases = []
+    local_aliases = []
+    for d in xonsh_local_dots:
+        s = generate_bashrc_snippet_from_xonsh_file(d.src)
+        if s.strip():
+            if C.Groups.home in d.groups:
+                home_aliases.append(s)
+            elif C.Groups.work in d.groups:
+                work_aliases.append(s)
+            else:
+                local_aliases.append(s)
+    home_aliases_str = '\n'.join(home_aliases)
+    work_aliases_str = '\n'.join(work_aliases)
+    local_aliases_str = '\n'.join(local_aliases)
+    if home_aliases_str.strip():
+        yield ReplaceSnippetDotfile(
+            name='bashrc home aliases',
+            snippet=home_aliases_str,
+            dst=hh / '.bashrc',
+            tag='Kossak home aliases from xonsh',
+            groups=C.Groups.home,
+        )
+    if work_aliases_str.strip():
+        yield ReplaceSnippetDotfile(
+            name='bashrc work aliases',
+            snippet=work_aliases_str,
+            dst=hh / '.bashrc',
+            tag='Kossak work aliases from xonsh',
+            groups=C.Groups.work,
+        )
+    if local_aliases_str.strip():
+        yield ReplaceSnippetDotfile(
+            name='bashrc local aliases',
+            snippet=local_aliases_str,
+            dst=hh / '.bashrc',
+            tag='Kossak local aliases from xonsh',
+        )
+
+bashrc = ReplaceSnippetDotfile(src=dd / 'bashrc.snippet', dst=hh / '.bashrc')
+bashrc_aliases = ReplaceSnippetDotfile(
+    name='bashrc aliases',
+    snippet=generate_bashrc_snippet_from_xonsh_file(xonshrc.src),
+    dst=hh / '.bashrc',
+    tag='Kossak aliases from xonsh',
+)
+bashprofile = ReplaceSnippetDotfile(src=dd / 'bash_profile.snippet', dst=hh / '.bash_profile')
+bash_dots = [
+    bashrc,
+    bashrc_aliases,
+    bashprofile,
+    *get_all_bashrc_aliases_from_xonsh(),
+]
+
+
+# RANGER ######################################################################
 
 class RangerDotfile(Dotfile):
 
@@ -126,84 +295,66 @@ class RangerDotfile(Dotfile):
 
         log.info('Ranger dotfiles created')
 
-ranger = RangerDotfile(name='ranger')
-ranger_pkg.configure = ranger.install
-ranger_dotfiles = [
-    ranger,
-    ReplaceSnippetDotfile(src=dd / 'rifle.conf.snippet', dst=ranger.rifle_file),
+ranger_dot = RangerDotfile(name='ranger')
+ranger_pkg.configure = ranger_dot.install
+ranger_dots = [
+    ranger_dot,
+    ReplaceSnippetDotfile(src=dd / 'rifle.conf.snippet', dst=ranger_dot.rifle_file),
     ReplaceSnippetDotfile(
         src=dl / 'rifle.conf.h.snippet',
-        dst=ranger.rifle_file,        tag='Kossak home',
-        groups=C.Groups.home,
+        dst=ranger_dot.rifle_file,
+        tag='Kossak home',
+        groups=G.home,
         dont_add_errors_to_info_if_no_locals=True,
     )
 ]
 
-def get_bashrc_snippet_for_xonsh_aliases() -> str:
-    xonshrc_lines = xonshrc.src.read_text().splitlines()
-    bash_aliases_l = []
-    for line in xonshrc_lines:
-        if (
-            not (line.startswith('abbrevs[') or line.startswith('aliases['))
-            or '# nobash' in line
-        ):
-            continue
 
-        s = line
-        s = s.replace('<edit>', '')
-        name, _, s = s.partition('=')
+# TMUX ########################################################################
 
-        # alias name:
-        name_quote = "'" if "'" in name else '"'
-        name = name.split(name_quote)[1]
+tmux_dot = Dotfile(
+        src=dd / 'tmux.conf_2.9',
+        dst=hh / '.tmux.conf',
+    )
 
-        # alias definition:
-        if '#' in s:
-            s = s.rpartition('#')[0]
-        s = s.strip()
-        if (
-            s == "ga('''\\"
-            or s.startswith('abbrevs[')
-        ):
-            continue
-        s = s.strip('ga()rf')
-        q = s[0]  # quote style of the alias
-        if (
-            q not in '"\''
-            or s[-1] != q
-        ):
-            log.debug(f'bashrc skip xonsh alias: {line}')
-            continue
-        s = s[1:-1]
-        s = s.replace('@$', '$')
+# must be here, because of circular import
+class TmuxOsPackage(OsPackage):
 
-        # escape quotes:
-        s = s.replace(f'\\{q}', f'{q}\\{q}{q}')
-        if q == '"':
-            s = s.replace("'", f"'\\''")
+    def __init__(self):
+        super().__init__(
+            'tmux',
+            groups=C.GROUPS_DEFAULT_PKG | G.server | G.liveusb
+        )
 
+    def configure(self):
+        H.run_cmd(['git', 'clone', 'https://github.com/tmux-plugins/tpm', Path.home() / '.tmux/plugins/tpm'])
+        self.tmux_plugins_install_and_update()
 
-        if s.strip(' \t;\':",./<>?[]\\{}|!@#$%^&*()_+`~'):
-            bash_aliases_l.append(f"alias {name}='{s}'")
+    def tmux_plugins_install_and_update(self):
+        log.info('tmux configure')
+        tmux_dot.install()
 
-    return '\n'.join(bash_aliases_l) + '\n'
+        # TODO: see here if it asks to press enter to continue:
+        # https://github.com/tmux-plugins/tpm/issues/6
 
-bashrc = ReplaceSnippetDotfile(src=dd / 'bashrc.snippet', dst=hh / '.bashrc')
-bashrc_aliases = ReplaceSnippetDotfile(
-    name='bashrc aliases',
-    snippet=get_bashrc_snippet_for_xonsh_aliases(),
-    dst=hh / '.bashrc',
-    tag='Kossak aliases from xonsh',
+        script_install = Path.home() / '.tmux/plugins/tpm/scripts/install_plugins.sh'
+        if script_install.exists:
+            log.info('tmux install plugins')
+            H.run_cmd([str(script_install)])
+
+        script_update = Path.home() / '.tmux/plugins/tpm/bin/update_plugins'
+        if script_update.exists():
+            log.info('tmux update plugins')
+            H.run_cmd([str(script_update), 'all'])
+
+tmux_pkg = TmuxOsPackage()
+tmux_dots = (
+    tmux_dot,
+    tmux_pkg.tmux_plugins_install_and_update,
 )
 
 
-bashprofile = ReplaceSnippetDotfile(src=dd / 'bash_profile.snippet', dst=hh / '.bash_profile')
-etc_environment = ReplaceSnippetDotfile(
-    src=info.dotfiles_dir / 'environment.snippet',
-    dst='/etc/environment',
-    sudo=True,
-)
-
+# VIM #########################################################################
 
 vimrc_plugins = Dotfile(
         src=dd / 'vimrc.plugins',
@@ -259,17 +410,23 @@ def asdf_remove_unneeded_shims():
             log.info(f'Removing: {file}')
             file.unlink()
 
+# INNE ########################################################################
+
+etc_environment = ReplaceSnippetDotfile(
+    src=info.dotfiles_dir / 'environment.snippet',
+    dst='/etc/environment',
+    sudo=True,
+)
+
+
+# DOTFILES LIST ###############################################################
 
 dotfiles = [
     etc_environment,
-    bashrc,
-    bashrc_aliases,
-    bashprofile,
-    Dotfile(
-        src=dd / 'tmux.conf_2.9',
-        dst=hh / '.tmux.conf',
-    ),
-    *ranger_dotfiles,
+    *bash_dots,
+    *xonsh_dots,
+    *tmux_dots,
+    *ranger_dots,
     Dotfile(
         src=dd / 'broot.conf.hjson',
         dst=hh / '.config/broot/conf.hjson',
@@ -281,20 +438,18 @@ dotfiles = [
     LocalDotfile(
         src=dl / 'gitconfig.h.local',
         dst=hh / '.gitconfig.local',
-        groups=C.Groups.home,
+        groups=G.home,
     ),
     LocalDotfile(
         src=dl / 'gitconfig.w.local',
         dst=hh / '.gitconfig.local',
-        groups=C.Groups.work,
+        groups=G.work,
     ),
     *vim_dotfiles,
     Dotfile(
         src=dd / 'spacemacs',
         dst=hh / '.spacemacs',
     ),
-    xonshrc,
-    *list(get_xonsh_dotfiles()),
     Dotfile(
         src=dd / 'visidatarc',
         dst=hh / '.visidatarc',

@@ -12,9 +12,10 @@ import json
 from setup_new_linux.classes.packagesc import Package, OsPackage, GuiOsPackage, PipxPackage
 from setup_new_linux.classes.servicesc import SystemDService
 from setup_new_linux.classes import package_managers as PM
-from setup_new_linux.dotfiles import ranger_pkg
+from setup_new_linux.dotfiles import ranger_pkg, tmux_pkg
 
 from setup_new_linux.utils import constants as C
+from setup_new_linux.utils.constants import Groups as G
 from setup_new_linux.utils.constants import CheckInstallationBy as Cib
 from setup_new_linux.utils.helpers import run_cmd, check_if_cmd_present
 from setup_new_linux.utils.setup import log
@@ -30,6 +31,7 @@ class YayOsPackage(OsPackage):
                 'default': None,
                 C.Distro.manjaro: 'yay',
             },
+            groups=C.GROUPS_DEFAULT_PKG | G.liveusb,
         )
 
     def configure(self) -> None:
@@ -44,6 +46,7 @@ yay = YayOsPackage()
 sshd = OsPackage(
     'sshd',
     pkg_name='openssh',
+    groups=C.GROUPS_DEFAULT_PKG | G.liveusb,
 )
 
 base_devel = None
@@ -65,7 +68,7 @@ if info.distro == C.Distro.manjaro:
 #             distros={
 #                 C.Distro.manjaro: 'gvim',
 #             },
-#             groups=C.Groups.cli | C.Groups.home | C.Groups.work | C.Groups.server,
+#             groups=G.cli | G.home | G.work | G.server,
 #         )
 # vim = VimOsPackage()
 vim = OsPackage(
@@ -73,7 +76,8 @@ vim = OsPackage(
     distros={
         C.Distro.manjaro: 'gvim',
     },
-    groups=C.Groups.cli | C.Groups.home | C.Groups.work | C.Groups.server,
+    groups=C.GROUPS_DEFAULT_PKG | G.liveusb | G.server,
+
 )
 
 
@@ -83,8 +87,9 @@ telegram = GuiOsPackage(
     check_install_by=Cib.any,
     cmd_name='Telegram',
     file_locations={
-        '/home/kossak/apps/Telegram/Telegram',
+        Path.home() / 'apps/Telegram/Telegram',
     },
+    groups=G.home | G.work
 )
 
 google_chrome = GuiOsPackage(
@@ -128,6 +133,7 @@ class AsdfPackage(Package):
             [C.ASDF_BINARY_PATH, 'plugin-add', 'python'],
         )
 
+    def configure(self):
         all_latest_versions = ' - '.join(v.public for v in sorted(self.py_versions.values(), reverse=True))
         msg = f'asdf python latest versions: {all_latest_versions}'
         log.info(msg)
@@ -203,6 +209,7 @@ pipx = Package(
         Path.home() / '.local/bin/pipx',
     ),
     install_cmd=[C.PYTHON_BINARY_MAIN_PATH, '-m', 'pip', 'install', '-U', '--user', 'pipx'],
+    groups=C.GROUPS_DEFAULT_PKG | G.liveusb,
 )
 
 
@@ -210,24 +217,33 @@ xonsh = PipxPackage(
     'xonsh',
     pkg_names_to_install='xonsh[full]',
     inject='tabulate pdir2 pendulum xontrib-fzf-widgets xontrib-argcomplete xontrib-broot',
+    groups=C.GROUPS_DEFAULT_PKG | G.liveusb,
 )
 
 class EmacsOsPackage(OsPackage):
+
+    def __init__(self):
+        super().__init__(
+            'emacs',
+            groups=C.GROUPS_DEFAULT_PKG | G.liveusb,
+        )
+
     def configure(self):
         # git clone https://github.com/syl20bnr/spacemacs ~/.emacs.d
         # TODO: put ready .emacs.d/ on pendrive
         run_cmd(['git', 'clone', 'https://github.com/syl20bnr/spacemacs', str(Path.home() / '.emacs.d')])
         info.verify.append('Run emacs to finish installing spacemacs')
 
-emacs = EmacsOsPackage('emacs')
+emacs = EmacsOsPackage()
+
 pamac = OsPackage(
     'pamac',
     distros={
         'default': None,
         C.Distro.manjaro: 'pamac-cli',
-    }
+    },
+    groups=C.GROUPS_DEFAULT_PKG | G.liveusb,
 )
-
 
 class PoetryPipxPackage(PipxPackage):
     def configure(self):
@@ -300,24 +316,28 @@ if base_devel:
     packages.append(base_devel)
 
 packages.extend((
-    # prod:
-    'cmake',
+    'pkgconf',  # should be in base_devel
+    'make',     # should be in base_devel
+    'cmake',    # should be in base_devel
     # openssl - ??? (included in base_devel)
     yay,
     pamac,
-    OsPackage('curl', groups=C.Groups.cli | C.Groups.home | C.Groups.work | C.Groups.server),
-    OsPackage('wget', groups=C.Groups.cli | C.Groups.home | C.Groups.work | C.Groups.server),
-    OsPackage('git', groups=C.Groups.cli | C.Groups.home | C.Groups.work | C.Groups.server),
+    OsPackage('curl', groups=C.GROUPS_DEFAULT_PKG | G.server),
+    OsPackage('wget', groups=C.GROUPS_DEFAULT_PKG | G.server),
+    OsPackage('git', groups=C.GROUPS_DEFAULT_PKG | G.liveusb | G.server),
     'jq',
     vim,
     sshd,
     emacs,
     'tidy',
+    tmux_pkg,
+    'pass',
+    OsPackage('fd', groups=C.GROUPS_DEFAULT_PKG | G.liveusb),
     OsPackage(
-        'tmux',
-        groups=C.Groups.cli | C.Groups.home | C.Groups.work | C.Groups.server
+        'ripgrep',
+        cmd_name='rg',
+        groups=C.GROUPS_DEFAULT_PKG | G.liveusb
     ),
-    'pass', 'fd', OsPackage('ripgrep', cmd_name='rg'),
     OsPackage('zstd'),
     'exa', 'xsel', 'xclip',
     'gocryptfs', 'mtr', 'dos2unix', 'ethtool', 'ncdu',
@@ -337,7 +357,8 @@ packages.extend((
             'borgbackup[fuse]',
             'borgbackup[pyfuse3]',  # newer than llfuse
             'borgbackup[llfuse]',   # older
-        ]
+        ],
+        groups=C.GROUPS_DEFAULT_PKG | G.liveusb,
     ),
     PipxPackage('ps-mem'),
     PipxPackage('yt-dlp'),
@@ -347,7 +368,11 @@ packages.extend((
     # TODO: pipxil kossak_cli_tools
     # TODO: pipxil  kossakhome
 
-    OsPackage('gnu-netcat', cmd_name='netcat'),
+    OsPackage(
+        'gnu-netcat',
+        cmd_name='netcat',
+        groups=C.GROUPS_DEFAULT_PKG | G.liveusb,
+    ),
     OsPackage('bind-tools', cmd_name='dig'),
 
     # GUI:

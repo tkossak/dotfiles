@@ -58,9 +58,9 @@ def get_dotfiles_local_dir() -> Tuple[bool, Path]:
     global errors
 
     for p in (
-        Path.home() / '.dotfiles.local',
-        Path.home() / 'Kossak/files_not_synced/dotfiles.local',
-        Path.home() / 'apps/dotfiles.local',
+        Path.home() / '.dotfiles.local/dotfiles_local',
+        Path.home() / 'Kossak/files_not_synced/dotfiles.local/dotfiles_local',
+        Path.home() / 'apps/dotfiles.local/dotfiles_local',
     ):
         if p.is_dir():
             return True, p
@@ -68,7 +68,7 @@ def get_dotfiles_local_dir() -> Tuple[bool, Path]:
     p = Path(__file__)
     while True:
         p = p.parent
-        dotfile = p / 'dotfiles.local'
+        dotfile = p / 'dotfiles.local/dotfiles_local'
         if dotfile.is_dir():
             return True, dotfile
         if p == p.parent:
@@ -90,7 +90,7 @@ def get_dotfiles_local_info() -> Tuple[bool, Path, dict]:
     ret_local_config_json = {}
     ret_local_exists, ret_local_dir = get_dotfiles_local_dir()
     if ret_local_exists:
-        json_file = ret_local_dir / 'dotfiles.local.config.json'
+        json_file = ret_local_dir.parent / 'dotfiles.local.config.json'
         try:
             with json_file.open('rt') as fh:
                 ret_local_config_json = json.load(fh)
@@ -101,6 +101,16 @@ def get_dotfiles_local_info() -> Tuple[bool, Path, dict]:
 
     return ret_local_exists, ret_local_dir, ret_local_config_json
 
+def get_pendrive_dir() -> Path:
+    global errors
+    for p in (Path(s).expanduser() for s in (
+        '/mnt/a/Kossak_pendrive',
+        '~/Kossak_pndrive'
+    )):
+        ...
+        if p.exists() and p.is_dir():
+            return p
+
 
 # pouplated by other modules
 errors: list = []
@@ -108,13 +118,15 @@ verify: list = []
 pkg_installed: list = []
 
 # info variables:
-dotfiles_dir = get_dotfiles_path()
+pendrive_dir = get_pendrive_dir()   # eg: /mnt/a/Kossak_pendrive
+dotfiles_dir = get_dotfiles_path()  # eg: Kossak_pendrive/dotfiles/dotfiles
 
 (
     dotfiles_local_exists,
-    dotfiles_local_dir,
-    dotfiles_local_config,
+    dotfiles_local_dir,     # eg: Kossak_pendrive/dotfiles.local/dotfiles_local
+    dotfiles_local_config,  # json config file
 ) = get_dotfiles_local_info()
+
 
 distro: str = get_distro()
 systemd: bool = check_if_using_systemd()

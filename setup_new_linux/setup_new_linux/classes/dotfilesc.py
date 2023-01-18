@@ -92,6 +92,10 @@ class Dotfile:
             self.dst.parent.mkdir(parents=True)
             # raise Exception(f"dotfile: parent dir of dst doesn't exist, dst: {self.dst}")
 
+        # broken dst link:
+        if self.dst.is_symlink() and not self.dst.exists():
+            self.dst.unlink()
+
         if self.remove_dst_if_it_exists and self.dst.exists():
             if self.f_backup_first and not self.dst.is_symlink():
                 log.info(f'Dotfile backing up: {self.dst}')
@@ -150,6 +154,11 @@ class ReplaceSnippetDotfile(Dotfile):
         if self.installed:
             log.debug(f'dotfile already installed: {self.src.name}')
             return
+        elif not self.install_for_current_groups:
+            groups_names = ', '.join(v.name for v in C.Groups if v in args.groups)
+            log.debug(f"Dotfile {self.name} not installing, it doesn't match any group: {groups_names}")
+            return
+
         my_snippet = self.snippet if self.snippet is not None else self.src.read_text()
         if H.insert_or_replace_snippet(
             snippet=my_snippet,

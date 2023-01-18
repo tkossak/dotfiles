@@ -106,7 +106,7 @@ class Package():
         if not pkg_names[0]:
             self.install_for_current_distro = False
 
-        self.groups = groups if isinstance(groups, C.Groups) else C.Groups.cli | C.Groups.home | C.Groups.work
+        self.groups = groups if isinstance(groups, C.Groups) else C.GROUPS_DEFAULT_PKG
         self.install_cmd = install_cmd
         self.pkg_manager = pkg_manager if pkg_manager else package_managers.os_pkg
         self.cmd_name = cmd_name if cmd_name else name
@@ -142,18 +142,24 @@ class Package():
             log.info(f'Install: {self.name}')
             run_cmd(self.install_cmd)
         else:
+            last_error = None
             for p in self.pkg_names_to_install:
                 try:
                     self.pkg_manager.install(p)
                     break
                 except Exception as e:
-                    pass
+                    last_error = e
             else:
-                raise e
+                if last_error:
+                    raise last_error
         info.pkg_installed.append(self.name)
 
-    def install_if_not_installed(self) -> int:
+    def install_if_not_installed(
+        self,
+        force: bool = False,
+    ) -> int:
         """
+        :param force: if True, install pkg even if it is already installed
         :returns: 0 - pkg was just installed
                   1 - pkg was already installed
                   2 - not installing (eg. doesn't match groups)
@@ -168,7 +174,8 @@ class Package():
             return 2
         else:  # if self.pkg_name:
             if (
-                   self.check_install_by == Cib.any and not (  # 1 is enough to knows it's installed:
+                   force
+                or self.check_install_by == Cib.any and not (  # 1 is enough to knows it's installed:
                         any(f.exists() for f in self.file_locations)
                         or self.is_cmd_available
                         or self.is_pkg_installed
@@ -240,14 +247,15 @@ class PipxPackage(Package):
 
     def install(self):
         for p in self.pkg_names_to_install:
+            last_error = None
             try:
                 self.pkg_manager.install(p, self.python)
-                # self.pkg_manager.install(p)
                 break
             except Exception as e:
-                pass
+                last_error = e
         else:
-            raise e
+            if last_error:
+                raise last_error
 
         info.pkg_installed.append(self.name)
         if self.inject:

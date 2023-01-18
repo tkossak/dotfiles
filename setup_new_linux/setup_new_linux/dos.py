@@ -71,7 +71,7 @@ def create_kossak_links():
     kl_systemd = kl / 'systemd'
     kl_steam = kl / 'steam'
 
-    links_to_create: List[Tuple[Path, Path]] = []
+    links_to_create: List[Tuple[Path, Path]] = []  # DST, SRC
 
     # different links
     links_to_create.extend((
@@ -153,8 +153,19 @@ def create_kossak_links():
             Path(s),
         ))
 
+    # yay/pacman packages:
+    links_to_create.extend((
+        (kl / 'manjaro_pkgs/yay', hh / '.cache/yay/'),
+        (kl / 'manjaro_pkgs/pacman', '/var/cache/pacman/pkg'),
+    ))
+
+
     # create all links
     for link, file in links_to_create:
+        if isinstance(link, str):
+            link = Path(link)
+        if isinstance(file, str):
+            file = Path(file)
         if file.exists():
             if link.exists() and link.is_symlink():
                 link.unlink()
