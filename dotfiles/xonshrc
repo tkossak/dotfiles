@@ -38,7 +38,10 @@ def ga(text):
     """
     return lambda buffer, word: text if buffer.text.strip() == word else word
 
-# Różne:
+abbrevs['capslock_set'] = ga('bash /home/kossak/.dotfiles/dotfiles/etc_profile.snippet')
+abbrevs['capslock_restore'] = ga('xmodmap -e "keycode 0x42 = Caps_Lock"')
+abbrevs['xmodmapd'] = abbrevs['capslock_set']
+
 abbrevs['yay'] = ga('asdf_disable; yay')
 # abbrevs['teams.'] = 'teams --disable-seccomp-filter-sandbox'
 abbrevs['convertpng'] = ga('mogrify -format jpg -quality 80 *.png')
@@ -96,7 +99,8 @@ abbrevs['gzcd'] = 'tar cvf - <edit>DIR | gzip -9 - > @("archive_" + $(date +%Y%m
 abbrevs['gze'] = ' tar -xavf <edit>ARCHIVE.TAR.GZ'
 abbrevs['zipc'] = 'zip -9r <edit>archive.zip FILES'
 abbrevs['zipe'] = 'unzip <edit>archive'
-abbrevs['tare'] = ' tar -xavf <edit>ARCHIVE.TAR.GZ'
+abbrevs['tare'] = 'tar -xavf <edit>ARCHIVE.TAR.GZ'
+abbrevs['tarl'] = 'tar -tvf'
 
 # mounts
 abbrevs['mount.']    = ga('sudo mount -o uid=kossak,gid=kossak /dev/sdc1<edit> /mnt/a')
@@ -118,7 +122,8 @@ abbrevs['smbi'] = ga('smbclient //192.168.1.1/folder -A /mnt/params/smb_cred_ja'
 abbrevs['rsync.'] = ga('rsync -vr --progress AAA<edit> BBB/')
 
 abbrevs['envb'] = ga('env | grep -Ei "display|xauth|gpg|^ssh|^op_session|^bw_session|^cloudsdk_active"')
-abbrevs['lsblkl'] = ga('sudo lsblk -fo "name,size,type,fstype,label,mountpoint,uuid"')
+abbrevs['lsblkl'] = ga('sudo lsblk -fo "name,size,pttype,type,fstype,label,mountpoint,uuid"')
+abbrevs['lsblkll'] = ga('sudo lsblk -fo "name,size,pttype,type,fstype,label,mountpoints,uuid,model,parttypename,tran,subsystems"')
 
 # media
 abbrevs['dmp3']  = ga('yt-dlp -cx --audio-format mp3 -o "%(title)s.%(ext)s" $(xclip -o)')
@@ -132,26 +137,26 @@ abbrevs['goc'] = ga('go-chromecast --first')
 # vars for SSH/TMUX
 abbrevs['envss'] = ga('''\
 $DISPLAY = ':50.0'
-$XAUTHORITY = '/home/kossak/.Xauthority'
+$XAUTHORITY = f'{$HOME}/.Xauthority'
+$SSH_AUTH_SOCK = f'{$XDG_RUNTIME_DIR}/keyring/ssh'
 tmux setenv DISPLAY $DISPLAY
 tmux setenv XAUTHORITY $XAUTHORITY
-$SSH_AUTH_SOCK = '/run/user/1000/keyring/ssh'
 tmux setenv SSH_AUTH_SOCK $SSH_AUTH_SOCK''')
 
 abbrevs['envss50'] = ga('''\
 $DISPLAY = ':50.0'
 $XAUTHORITY = '/home/kossak/.Xauthority'
+$SSH_AUTH_SOCK = '/run/user/1000/keyring/ssh'
 tmux setenv DISPLAY $DISPLAY
 tmux setenv XAUTHORITY $XAUTHORITY
-$SSH_AUTH_SOCK = '/run/user/1000/keyring/ssh'
 tmux setenv SSH_AUTH_SOCK $SSH_AUTH_SOCK''')
 
 abbrevs['envss51'] = ga('''\
 $DISPLAY = ':51.0'
 $XAUTHORITY = '/home/kossak/.Xauthority'
+$SSH_AUTH_SOCK = '/run/user/1000/keyring/ssh'
 tmux setenv DISPLAY $DISPLAY
 tmux setenv XAUTHORITY $XAUTHORITY
-$SSH_AUTH_SOCK = '/run/user/1000/keyring/ssh'
 tmux setenv SSH_AUTH_SOCK $SSH_AUTH_SOCK''')
 
 # python

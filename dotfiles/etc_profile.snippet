@@ -1,0 +1,8 @@
+# make CapsLock a Mode_switch and map it as Escape   :
+file='/home/kossak/.xmodmap'
+if hash xmodmap && [[ -f "$file" ]]; then
+    xmodmap "$file"
+fi
+if hash xcape; then
+    xcape -e 'Mode_switch=Escape'
+fi

@@ -186,6 +186,7 @@ def get_all_bashrc_aliases_from_xonsh():
             tag='Kossak local aliases from xonsh',
         )
 
+
 bashrc = ReplaceSnippetDotfile(src=dd / 'bashrc.snippet', dst=hh / '.bashrc')
 bashrc_aliases = ReplaceSnippetDotfile(
     name='bashrc aliases',
@@ -417,12 +418,17 @@ etc_environment = ReplaceSnippetDotfile(
     dst='/etc/environment',
     sudo=True,
 )
+etc_profile = ReplaceSnippetDotfile(
+    src=dd / 'etc_profile.snippet',
+    dst='/etc/profile', sudo=True
+)
 
 
 # DOTFILES LIST ###############################################################
 
 dotfiles = [
     etc_environment,
+    etc_profile,
     *bash_dots,
     *xonsh_dots,
     *tmux_dots,
@@ -453,6 +459,10 @@ dotfiles = [
     Dotfile(
         src=dd / 'visidatarc',
         dst=hh / '.visidatarc',
+    ),
+    Dotfile(
+        src=dd / 'xmodmap_mine',
+        dst=hh / '.xmodmap',
     ),
     asdf_remove_unneeded_shims,
 ]

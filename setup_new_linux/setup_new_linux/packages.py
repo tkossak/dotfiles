@@ -209,7 +209,7 @@ pipx = Package(
         Path.home() / '.local/bin/pipx',
     ),
     install_cmd=[C.PYTHON_BINARY_MAIN_PATH, '-m', 'pip', 'install', '-U', '--user', 'pipx'],
-    groups=C.GROUPS_DEFAULT_PKG | G.liveusb,
+    groups=C.GROUPS_DEFAULT_PKG | G.liveusb | G.pipx,
 )
 
 

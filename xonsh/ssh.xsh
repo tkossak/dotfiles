@@ -1,19 +1,35 @@
 
 def _setup_ssh_agent(args):
-    _SSH_AGENT_ENV=pf'{$XDG_RUNTIME_DIR}/ssh-agent.env'
+    ssh_agent_env=pf'{$XDG_RUNTIME_DIR}/ssh-agent.env'
+    ssh_sockets = (
+        pf'{$XDG_RUNTIME_DIR}/keyring/ssh',
+        pf'{$XDG_RUNTIME_DIR}/keyring/.ssh'
+    )
+
     if not $(pgrep -u $USER ssh-agent):
         print('Create new ssh-agent')
-        _SSH_AGENT_ENV.write_text($(ssh-agent -s))
-        source-bash @(_SSH_AGENT_ENV)
+        ssh_agent_env.write_text($(ssh-agent -s -a @(ssh_sockets[0])))
+        source-bash --suppress-skip-message @(ssh_agent_env)
         tmux setenv SSH_AUTH_SOCK $SSH_AUTH_SOCK
         tmux setenv SSH_AGENT_PID $SSH_AGENT_PID
     else:
-        if _SSH_AGENT_ENV.exists():
-            print('Use existing variables')
-            source-bash @(_SSH_AGENT_ENV)
+        print('ssh-agent already running')
+        if ssh_agent_env.exists():
+            print(f'Use existing variables from {ssh_agent_env}')
+            source-bash --suppress-skip-message @(ssh_agent_env)
             tmux setenv SSH_AUTH_SOCK $SSH_AUTH_SOCK
             tmux setenv SSH_AGENT_PID $SSH_AGENT_PID
+            return
+
+        for p in ssh_sockets:
+            if p.exists():
+                # maybe: check if current user is the owner?
+                print(f'{ssh_agent_env} not found, but using existing socket: {p}')
+                $SSH_AUTH_SOCK = p
+                tmux setenv SSH_AUTH_SOCK $SSH_AUTH_SOCK
+                # TODO maybe: search which ssh-agent process is using the socket, and also export its PID to $SSH_AGENT_PID?
+                break
         else:
-            echo "ssh-agent is running but _SSH_AGENT_ENV not found! killall ssh-agent"
+            print(f'{ssh_agent_env} not found! killall ssh-agent')
 
 aliases['sshagent'] = _setup_ssh_agent

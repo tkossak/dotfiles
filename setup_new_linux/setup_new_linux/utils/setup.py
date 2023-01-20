@@ -26,6 +26,7 @@ def setup_args():
     p.add_argument('--except-pkg'      ,       help='Do NOT install these packages (comma separated)')
     p.add_argument('--force'           , '-f', action='store_true', help='Install packages even if they are already installed')
     p.add_argument('--local-python'    , '-l', action='store_true', help='use local python for pipx packages')
+    p.add_argument('--python'          ,       help='Path to python used for installing pipx packages')
     p.add_argument('--live-usb'        , '-u', action='store_true', help='Options and packages suitable for live usb (-l and without base-devel)')
 
     p.add_argument('--groups-info'     , '-i', action='store_true', help=f'Print info about groups')
@@ -72,6 +73,12 @@ def setup_args():
 
     if a.local_python:
         C.PYTHON_BINARY_MAIN_PATH = Path(shutil.which('python'))
+    elif a.python:
+        p = Path(a.python)
+        if p.exists():
+            C.PYTHON_BINARY_MAIN_PATH = p
+        else:
+            p.error(f'Python path does not exists: {p}')
 
     return a
 

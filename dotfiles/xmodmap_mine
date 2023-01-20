@@ -1,0 +1,15 @@
+! make Caps Lock as Mode_switch:
+keycode 66 = Mode_switch
+
+! Map keys for Mode_switch:
+keysym h = h H Left
+keysym l = l L Right
+keysym k = k K Up
+keysym j = j J Down
+
+keysym u = u U Prior
+keysym i = i I Home
+keysym o = o O End
+keysym p = p P Next
+
+keysym semicolon = semicolon colon Return

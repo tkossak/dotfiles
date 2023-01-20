@@ -321,6 +321,16 @@ set -g @plugin 'laktak/extrakto'
 set -g @plugin 'tmux-plugins/tmux-yank'
 # set -g @yank_selection_mouse 'clipboard' # or 'primary' or 'secondary', default for mouse is primary
 
+# Other examples:
+# set -g @plugin 'github_username/plugin_name'
+# set -g @plugin 'github_username/plugin_name#branch'
+# set -g @plugin 'git@github.com:user/plugin'
+# set -g @plugin 'git@bitbucket.com:user/plugin'
+
+
+#############################
+# PLUGIN: tmux-resurrect
+
 set -g @resurrect-processes '\
         "~ranger->r" \
 '
@@ -330,11 +340,10 @@ set -g @resurrect-processes '\
 set -g default-command ''
 set -g @resurrect-capture-pane-contents 'on'
 
-# Other examples:
-# set -g @plugin 'github_username/plugin_name'
-# set -g @plugin 'github_username/plugin_name#branch'
-# set -g @plugin 'git@github.com:user/plugin'
-# set -g @plugin 'git@bitbucket.com:user/plugin'
+# restore vim sessions: (tpope/vim-obsession must be installed in vim)
+set -g @resurrect-strategy-vim 'session'
+# restore neovim sessions: (tpope/vim-obsession must be installed in nvim)
+set -g @resurrect-strategy-nvim 'session'
 
 # Initialize TMUX plugin manager (keep this line at the very bottom of tmux.conf)
 run '~/.tmux/plugins/tpm/tpm'

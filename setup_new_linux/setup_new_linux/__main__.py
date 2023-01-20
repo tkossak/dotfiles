@@ -148,6 +148,8 @@ def print_header():
     log.info(f'systemd: {info.systemd}')
     log.info(f'dotfiles dir: {info.dotfiles_dir}')
     log.info(f'dotfiles local dir: {info.dotfiles_local_dir}')
+    log.info(f'main python: {C.PYTHON_BINARY_MAIN_PATH}')
+    log.info(f'main asdf python: {C.PYTHON_BINARY_MAIN_PATH}')
 
     # print IPs:
     p = H.run_cmd(

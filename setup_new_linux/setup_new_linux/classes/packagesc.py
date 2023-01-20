@@ -240,6 +240,10 @@ class PipxPackage(Package):
         kwargs['pkg_manager'] = package_managers.pipx
         kwargs['check_install_by'] = Cib.pkg
         kwargs['install_cmd'] = None
+        if 'groups' in kwargs:
+            kwargs['groups'] = kwargs['groups'] | C.Groups.pipx
+        else:
+            kwargs['groups'] = C.GROUPS_DEFAULT_PKG | C.Groups.pipx
         super().__init__(**kwargs)
 
         self.python = python
