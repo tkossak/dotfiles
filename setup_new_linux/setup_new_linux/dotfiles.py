@@ -83,7 +83,8 @@ xonsh_dots = [
 
 # must be here instead of packages.py, because of circular import
 ranger_pkg = PipxPackage(
-    'ranger-fm',
+    'ranger',
+    pkg_name='ranger-fm',
     groups=C.GROUPS_DEFAULT_PKG | G.liveusb,
 )
 
@@ -93,7 +94,7 @@ ranger_pkg = PipxPackage(
 def generate_bashrc_snippet_from_xonsh_file(xonsh_file_src: Path) -> str:
     # xonshrc_lines = xonshrc.src.read_text().splitlines()
     xonshrc_lines = xonsh_file_src.read_text().splitlines()
-    bash_aliases_l = []
+    bash_aliases_d = {}
     for line in xonshrc_lines:
         if (
             not (line.startswith('abbrevs[') or line.startswith('aliases['))
@@ -122,9 +123,18 @@ def generate_bashrc_snippet_from_xonsh_file(xonsh_file_src: Path) -> str:
         s = s.strip()
         if (
             s == "ga('''\\"
-            or s.startswith(('abbrevs[', '_'))
+            or s.startswith('_')
         ):
             continue
+
+        if s.startswith(('abbrevs[', 'aliases[')):
+            copy_from_name = s.strip('abrevs[]li')[1:-1]
+            if copy_from_name in bash_aliases_d:
+                bash_aliases_d[name] = bash_aliases_d[copy_from_name]
+            else:
+                log.debug('Alias {copy_from_name} does not exist')
+            continue
+
         s = s.strip('ga()rf')
         q = s[0]  # quote style of the alias
         if (
@@ -142,9 +152,15 @@ def generate_bashrc_snippet_from_xonsh_file(xonsh_file_src: Path) -> str:
             s = s.replace("'", f"'\\''")
 
         if s.strip(' \t;\':",./<>?[]\\{}|!@#$%^&*()_+`~'):
-            bash_aliases_l.append(f"alias {name}='{s}'")
+            bash_aliases_d[name] = s
 
-    return '\n'.join(bash_aliases_l) + '\n'
+    bash_aliases = '\n'.join(
+        f"alias {name}='{definition}'"
+        for name, definition
+        in bash_aliases_d.items()
+    ) + '\n'
+
+    return bash_aliases
 
 def get_all_bashrc_aliases_from_xonsh():
     home_aliases = []
@@ -418,17 +434,17 @@ etc_environment = ReplaceSnippetDotfile(
     dst='/etc/environment',
     sudo=True,
 )
-etc_profile = ReplaceSnippetDotfile(
-    src=dd / 'etc_profile.snippet',
-    dst='/etc/profile', sudo=True
-)
+# etc_profile = ReplaceSnippetDotfile(
+#     src=dd / 'etc_profile.snippet',
+#     dst='/etc/profile', sudo=True
+# )
 
 
 # DOTFILES LIST ###############################################################
 
 dotfiles = [
     etc_environment,
-    etc_profile,
+    # etc_profile,
     *bash_dots,
     *xonsh_dots,
     *tmux_dots,
@@ -466,3 +482,8 @@ dotfiles = [
     ),
     asdf_remove_unneeded_shims,
 ]
+
+# # TODO: remove
+# dotfiles = [
+#     *bash_dots
+# ]

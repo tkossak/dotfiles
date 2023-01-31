@@ -2,14 +2,14 @@
 keycode 66 = Mode_switch
 
 ! Map keys for Mode_switch:
-keysym h = h H Left
-keysym l = l L Right
-keysym k = k K Up
-keysym j = j J Down
+keysym h = h H Left H rightsinglequotemark U2022 rightsinglequotemark
+keysym l = l L Right L lstroke Lstroke lstroke
+keysym k = k K Up K ellipsis dead_stroke ellipsis
+keysym j = j J Down J schwa SCHWA schwa
 
-keysym u = u U Prior
-keysym i = i I Home
-keysym o = o O End
-keysym p = p P Next
+keysym u = u U Prior U downarrow uparrow downarrow
+keysym i = i I Home I rightarrow U2194 rightarrow
+keysym o = o O End O oacute Oacute oacute
+keysym p = p P Next P thorn THORN thorn
 
-keysym semicolon = semicolon colon Return
+keysym semicolon = semicolon colon Return colon dead_acute dead_doubleacute dead_acute

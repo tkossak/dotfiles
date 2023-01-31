@@ -8,16 +8,22 @@ import urllib.request
 from io import BytesIO
 import zipfile
 import json
+import shutil
 
 from setup_new_linux.classes.packagesc import Package, OsPackage, GuiOsPackage, PipxPackage
 from setup_new_linux.classes.servicesc import SystemDService
 from setup_new_linux.classes import package_managers as PM
 from setup_new_linux.dotfiles import ranger_pkg, tmux_pkg
 
-from setup_new_linux.utils import constants as C
-from setup_new_linux.utils.constants import Groups as G
-from setup_new_linux.utils.constants import CheckInstallationBy as Cib
-from setup_new_linux.utils.helpers import run_cmd, check_if_cmd_present
+from setup_new_linux.utils import (
+    constants as C,
+    helpers   as H
+)
+from setup_new_linux.utils.constants import (
+    Groups as G,
+    CheckInstallationBy as Cib
+
+)
 from setup_new_linux.utils.setup import log
 from setup_new_linux import info
 
@@ -35,10 +41,28 @@ class YayOsPackage(OsPackage):
         )
 
     def configure(self) -> None:
+        log.info('configure yay')
         PM.os_pkg = PM.get_os_pkg_manager()
         for pkg in packages:
             if pkg == PM.pacman:
                 pkg.pkg_manager = PM.os_pkg
+
+        # TODO: change colors for pacman/yay
+        pacman_conf = Path('/etc/pacman.conf')
+        if not pacman_conf.exists():
+            return
+        pacman_conf_text = pacman_conf.read_text()
+        if (
+            '\nColor' not in pacman_conf_text
+            and '\n#Color' in pacman_conf_text
+        ):
+            pacman_conf_text_new = pacman_conf_text.replace('\n#Color', '\nColor')
+            H.replace_file_with_text(
+                text = pacman_conf_text_new,
+                dst=pacman_conf,
+                sudo=True,
+            )
+
 
 yay = YayOsPackage()
 
@@ -58,6 +82,14 @@ if info.distro == C.Distro.manjaro:
         pkg_names_to_check_if_installed=['pkgconf'],
         check_install_by=Cib.pkg,
     )
+else:
+    pass
+    # different os:
+    # RHEL, centos, scientific linux, fedora ::
+    #   yum groupinstall "Development Tools"
+    # debian based ::
+    #   sudo apt-get install build-essential
+    #   sudo apt-get install checkinstall
 
 
 # class VimOsPackage(OsPackage):
@@ -81,17 +113,6 @@ vim = OsPackage(
 )
 
 
-# TODO: change to manual install (download binary)
-telegram = GuiOsPackage(
-    'telegram-desktop',
-    check_install_by=Cib.any,
-    cmd_name='Telegram',
-    file_locations={
-        Path.home() / 'apps/Telegram/Telegram',
-    },
-    groups=G.home | G.work
-)
-
 google_chrome = GuiOsPackage(
     'google-chrome',
     check_install_by=Cib.pkg,
@@ -105,8 +126,8 @@ class AsdfPackage(Package):
         self._py_versions = None
 
     def install(self):
-        run_cmd(shlex.split(f'git clone https://github.com/asdf-vm/asdf.git {C.ASDF_DIR}'))
-        p = run_cmd(
+        H.run_cmd(shlex.split(f'git clone https://github.com/asdf-vm/asdf.git {C.ASDF_DIR}'))
+        p = H.run_cmd(
             'git tag --list --sort v:refname',
             cwd=C.ASDF_DIR,
             stdout=subprocess.PIPE,
@@ -124,16 +145,17 @@ class AsdfPackage(Package):
         msg = f'ASDF git tag set: {newest_tag}'
         info.verify.append(msg)
         log.info(msg)
-        run_cmd(
+        H.run_cmd(
             ['git', 'checkout', newest_tag],
             cwd=C.ASDF_DIR,
         )
 
-        run_cmd(
+        H.run_cmd(
             [C.ASDF_BINARY_PATH, 'plugin-add', 'python'],
         )
 
     def configure(self):
+        log.info('configure asdf')
         all_latest_versions = ' - '.join(v.public for v in sorted(self.py_versions.values(), reverse=True))
         msg = f'asdf python latest versions: {all_latest_versions}'
         log.info(msg)
@@ -147,7 +169,7 @@ class AsdfPackage(Package):
         if not self._py_versions:
             # Update self._py_versions
             # Get only latest version for each minor version
-            p = run_cmd(
+            p = H.run_cmd(
                 f'{C.ASDF_BINARY_PATH} list-all python',
                 stdout=subprocess.PIPE,
             )
@@ -166,11 +188,11 @@ class AsdfPackage(Package):
 
     def install_main_python(self) -> None:
         self.install_python_version(C.MAIN_PYTHON_VERSION)
-        run_cmd(
+        H.run_cmd(
             [C.ASDF_BINARY_PATH, 'global', 'python', C.MAIN_PYTHON_VERSION],
             cwd=str(Path.home()),
         )
-        run_cmd([
+        H.run_cmd([
                 C.PYTHON_ASDF_BINARY_MAIN_PATH, '-m', 'pip', 'install', '-U',
                 'pip', 'setuptools', 'wheel',  # needed if you have older tools
                 'pkgconfig',  # eg: for borgbackup
@@ -186,10 +208,10 @@ class AsdfPackage(Package):
             log.debug(f'Asdf python already installed: {version}')
             return
         log.info(f'Asdf install python: {version}')
-        run_cmd(
+        H.run_cmd(
             [C.ASDF_BINARY_PATH, 'install', 'python', version]
         )
-        run_cmd(
+        H.run_cmd(
             [python_binary_path, '-m', 'pip', 'install', '-U', 'pip', 'pdir2'],
         )
 
@@ -215,7 +237,8 @@ pipx = Package(
 
 xonsh = PipxPackage(
     'xonsh',
-    pkg_names_to_install='xonsh[full]',
+    # pkg_names_to_install='xonsh[full]',
+    pkg_names_to_install='xonsh[full]==0.12.6',  # because 0.13.* have tmux+xonsh+ranger cwd problem when splitting panes
     inject='tabulate pdir2 pendulum xontrib-fzf-widgets xontrib-argcomplete xontrib-broot',
     groups=C.GROUPS_DEFAULT_PKG | G.liveusb,
 )
@@ -225,13 +248,14 @@ class EmacsOsPackage(OsPackage):
     def __init__(self):
         super().__init__(
             'emacs',
-            groups=C.GROUPS_DEFAULT_PKG | G.liveusb,
+            # groups=C.GROUPS_DEFAULT_PKG | G.liveusb,
         )
 
     def configure(self):
+        log.info('configure (spac)emacs')
         # git clone https://github.com/syl20bnr/spacemacs ~/.emacs.d
-        # TODO: put ready .emacs.d/ on pendrive
-        run_cmd(['git', 'clone', 'https://github.com/syl20bnr/spacemacs', str(Path.home() / '.emacs.d')])
+        # TODO: copy .emacs from Kossak_pendrive if it exists
+        H.run_cmd(['git', 'clone', 'https://github.com/syl20bnr/spacemacs', str(Path.home() / '.emacs.d')])
         info.verify.append('Run emacs to finish installing spacemacs')
 
 emacs = EmacsOsPackage()
@@ -247,8 +271,9 @@ pamac = OsPackage(
 
 class PoetryPipxPackage(PipxPackage):
     def configure(self):
-        run_cmd([str(Path.home() / '.local/bin/poetry'), 'config', 'virtualenvs.prefer-active-python', 'true'])
-        run_cmd([str(Path.home() / '.local/bin/poetry'), 'self', 'add', 'poetry-plugin-up'])
+        log.info('configure poetry')
+        H.run_cmd([str(Path.home() / '.local/bin/poetry'), 'config', 'virtualenvs.prefer-active-python', 'true'])
+        H.run_cmd([str(Path.home() / '.local/bin/poetry'), 'self', 'add', 'poetry-plugin-up'])
 
 poetry = PoetryPipxPackage('poetry')
 
@@ -283,7 +308,7 @@ class BitWarden(Package):
 
     @property
     def is_unlocked(self) -> False:
-        r = run_cmd(
+        r = H.run_cmd(
             ['bw', 'status'],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
@@ -297,6 +322,21 @@ class BitWarden(Package):
 bitwarden = BitWarden()
 
 
+# class ObsidianOsPackage(OsPackage):
+#
+#     def __init__(self):
+#         super().__init__(
+#             'obsidian',
+#             groups=C.Groups.gui | C.Groups.home | C.Groups.work | G.liveusb,
+#         )
+
+# TODO: during installation make separate exception for configure function
+obsidian = OsPackage(
+    'obsidian',
+    groups=C.GROUPS_DEFAULT_PKG | C.Groups.gui | C.Groups.liveusb,
+)
+
+
 class VpnCiscoAnyConnect(Package):
 
     def __init__(self):
@@ -308,6 +348,47 @@ class VpnCiscoAnyConnect(Package):
     def install():
         # TODO: finish
         ...
+
+
+# TODO: change to manual install (download binary)
+telegram = GuiOsPackage(
+    'telegram-desktop',
+    check_install_by=Cib.any,
+    cmd_name='Telegram',
+    file_locations={
+        Path.home() / 'apps/Telegram/Telegram',
+    },
+    groups=G.home | G.work
+)
+
+class Telegram(GuiOsPackage):
+
+    def __init__(self):
+        super().__init__(
+            'telegram',
+            cmd_name='Telegram',
+            pkg_name='telegram-desktop',
+            check_install_by=Cib.any,
+            file_locations=(
+                '/home/kossak/apps/Telegram/Telegram',
+            ),
+        )
+
+    def install(self):
+        url = 'https://telegram.org/dl/desktop/linux'
+        headers = {
+            "User-Agent": "python-urllib",
+        }
+        req = urllib.request.Request(url, None, headers)
+        with urllib.request.urlopen(req) as f:
+            tar_xz_data = BytesIO(f.read())
+        # TODO: finish
+        # zf = zipfile.ZipFile(zip_data)
+        # file_data = zf.open('bw').read()
+        # p = Path.home() / '.local/bin/bw'
+        # p.write_bytes(file_data)
+        # p.chmod(0o755)
+        # info.pkg_installed.append(self.name)
 
 
 packages = []
@@ -336,10 +417,21 @@ packages.extend((
     OsPackage(
         'ripgrep',
         cmd_name='rg',
-        groups=C.GROUPS_DEFAULT_PKG | G.liveusb
+        groups=C.GROUPS_DEFAULT_PKG | G.liveusb,
     ),
     OsPackage('zstd'),
-    'exa', 'xsel', 'xclip',
+    OsPackage(
+        'exa',
+        groups=C.GROUPS_DEFAULT_PKG | G.liveusb,
+    ),
+    OsPackage(
+        'xsel',
+        groups=C.GROUPS_DEFAULT_PKG | G.liveusb,
+    ),
+    OsPackage(
+        'xclip',
+        groups=C.GROUPS_DEFAULT_PKG | G.liveusb,
+    ),
     'gocryptfs', 'mtr', 'dos2unix', 'ethtool', 'ncdu',
     asdf, pipx, xonsh, ranger_pkg, poetry,
     bitwarden,
@@ -354,11 +446,11 @@ packages.extend((
         pkg_name='borgbackup',
         cmd_name='borgbackup',
         pkg_names_to_install=[
+            'borgbackup[pyfuse3]',  # newer than llfuse, works on manjaro
             'borgbackup[fuse]',
-            'borgbackup[pyfuse3]',  # newer than llfuse
             'borgbackup[llfuse]',   # older
         ],
-        groups=C.GROUPS_DEFAULT_PKG | G.liveusb,
+        # groups=C.GROUPS_DEFAULT_PKG | G.liveusb,
     ),
     PipxPackage('ps-mem'),
     PipxPackage('yt-dlp'),
@@ -371,16 +463,19 @@ packages.extend((
     OsPackage(
         'gnu-netcat',
         cmd_name='netcat',
-        groups=C.GROUPS_DEFAULT_PKG | G.liveusb,
+        # groups=C.GROUPS_DEFAULT_PKG | G.liveusb,
     ),
     OsPackage('bind-tools', cmd_name='dig'),
+    'xcape', 'mosh',
 
     # GUI:
+    obsidian,
     GuiOsPackage('mpv'),
     GuiOsPackage('seahorse'),
     GuiOsPackage('vscode', pkg_name='visual-studio-code-bin', cmd_name='code'),
     # telegram,
     google_chrome,
+    OsPackage('plex-media-server', groups=G.gui | G.home),
 ))
 
 for i, p in enumerate(packages):

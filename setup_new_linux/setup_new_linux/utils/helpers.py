@@ -40,6 +40,7 @@ def run_cmd(cmd: Union[str, list], *args, **kwargs):
         p.check_returncode()
     return p
 
+
 def do_regexp_replaces(
     text: str,
     replaces: Iterable[Union[str, re.Pattern]]
@@ -57,6 +58,56 @@ def do_regexp_replaces(
             log.warning(msg)
             info.errors.append(f'Warning: {msg}')
     return text
+
+
+def replace_file_with_text(
+    text: str,
+    dst: Union[Path, str],
+    sudo: bool = False,
+):
+    """
+    :param text: text to insert into dst file (instead of its content)
+    :param dst: dst file
+    :param sudo: use sudo
+    """
+    dst = Path(dst)
+    if sudo:
+        with tempfile.NamedTemporaryFile(
+            mode='wt',
+            delete=False,
+        ) as tf:
+            tf.file.write(text)
+
+        replace_file_with_file(
+            src=tf.name,
+            dst=dst,
+            sudo=sudo,
+        )
+    else:
+        dst.write_text(text)
+
+
+def replace_file_with_file(
+    src: Union[Path, str],
+    dst: Union[Path, str],
+    sudo: bool = False,
+):
+    """Move src to dst, keeping the same owner and permissions
+
+    :param src: source file (to copy/move to dst file)
+    :param dst: copy src file here
+    :param sudo: use sudo
+    """
+    src = Path(src)
+    dst = Path(dst)
+    if not src.exists():
+        raise Exception(f'File does not exist: {src}')
+
+    add_sudo = ['sudo'] if sudo else []
+    run_cmd(add_sudo + ['chmod', '--reference', dst, src])
+    run_cmd(add_sudo + ['chown', '--reference', dst, src])
+    run_cmd(add_sudo + ['mv', src, dst])
+
 
 def insert_or_replace_snippet(
     snippet: str,
@@ -103,26 +154,24 @@ def insert_or_replace_snippet(
         file_content_new = f'{file_content}\n\n{my_snippet}\n'
 
     if file_content != file_content_new:
-        if sudo:
-            with tempfile.NamedTemporaryFile(
-                mode='wt',
-                delete=False,
-            ) as tf:
-                tf.file.write(file_content_new)
-
-            # get original file owner/group
-            # f = Path(tf.name)
-            # owner = f.owner()
-            # group = f.group()
-
-
-            # move tmp file into original one
-            print(tf.name)
-            run_cmd(['sudo', 'chmod', '--reference', file, tf.name])
-            run_cmd(['sudo', 'chown', '--reference', file, tf.name])
-            run_cmd(['sudo', 'mv', tf.name, str(file)])
-
-        else:
-            file.write_text(file_content_new)
+        replace_file_with_text(
+            text=file_content_new,
+            dst=file,
+            sudo=sudo,
+        )
+#         if sudo:
+#             with tempfile.NamedTemporaryFile(
+#                 mode='wt',
+#                 delete=False,
+#             ) as tf:
+#                 tf.file.write(file_content_new)
+#
+#             # move tmp file into original one
+#             run_cmd(['sudo', 'chmod', '--reference', file, tf.name])
+#             run_cmd(['sudo', 'chown', '--reference', file, tf.name])
+#             run_cmd(['sudo', 'mv', tf.name, str(file)])
+#
+#         else:
+#             file.write_text(file_content_new)
         return True
     return False

@@ -28,6 +28,10 @@ class Groups(Flag):   # default is cli + home + work
     work = auto()     # apps for work comp
     server = auto()   # apps for server/VM
     liveusb = auto()  # apps for live usb
+    # TODO: mark packages as basic
+    basic = auto()    # basic apps - maybe for another comp
+    # TODO: assign packages to this
+    # livefast = auto() # for fast live usb setup
     pipx = auto()     # pipx and its apps (so you can remove pipx and install all apps at once)
 
 GROUPS_ALL = reduce(operator.or_, Groups.__members__.values())

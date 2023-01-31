@@ -111,6 +111,16 @@ def get_pendrive_dir() -> Path:
         if p.exists() and p.is_dir():
             return p
 
+    p = Path(__file__)
+    while True:
+        p = p.parent
+        pendrive = p / 'Kossak_pendrive'
+        if pendrive.is_dir():
+            return pendrive
+        if p == p.parent:
+            break
+
+    return Path('/tmp/NO_KOSSAK_PENDRIVE')
 
 # pouplated by other modules
 errors: list = []
@@ -130,4 +140,3 @@ dotfiles_dir = get_dotfiles_path()  # eg: Kossak_pendrive/dotfiles/dotfiles
 
 distro: str = get_distro()
 systemd: bool = check_if_using_systemd()
-

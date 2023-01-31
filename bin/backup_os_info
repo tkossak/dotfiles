@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+
+pwd=$(pwd)
+dir_root="$pwd/$(date +"%Y%m%d_%H%M%S")"
+echo "Backup location: $dir_root"
+mkdir "$dir_root"
+
+# ########################################################
+# Info
+
+cd "$dir_root" || exit
+
+
+echo "Inxi"
+sudo inxi -Fxxa > inxi_Fxxa.txt
+
+echo "Yay packages"
+yay -Q > yay_packages.txt
+
+echo "lsblk"
+sudo lsblk -fo "name,size,pttype,type,fstype,label,mountpoints,uuid,model,parttypename,tran,subsystems" > lsblkll.txt
+
+echo "df"
+df -h > df_h.txt
+
+# ########################################################
+# Backup Partition tables of disks:
+
+dir_table_partitions="${dir_root}/partition_tables"
+mkdir "$dir_table_partitions"
+cd "$dir_table_partitions" || exit
+
+while read -r pttype disk
+do
+    if [[ "$disk" == "" ]]; then
+        continue
+    fi
+
+    echo "$pttype => /dev/$disk"
+    if [[ "$pttype" == "gpt" ]]; then
+        sudo sgdisk -b "sgdisk-${pttype}-${disk}.bin" "/dev/${disk}"
+    elif [[ "$pttype" == "dos" ]]; then
+        sudo sfdisk -d "/dev/${disk}" > "sfdisk-${pttype}-${disk}.txt"
+    fi
+
+done < <(
+    sudo lsblk -no 'pttype,pkname' | sort -u | grep "\S"
+)
+
+
+######################################################
+# End
+
+sudo chown -R $USER:$USER "$dir_root"
+echo "All done"
+

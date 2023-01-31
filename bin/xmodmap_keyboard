@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+# make CapsLock a Mode_switch and map it as Escape   :
+if [[ -n "$DISPLAY" ]]; then
+    file='/home/kossak/.xmodmap'
+    if hash xmodmap 2>/dev/null && [[ -f "$file" ]]; then
+        xmodmap "$file"
+    fi
+    if hash xcape 2>/dev/null; then
+        xcape -e 'Mode_switch=Escape'
+    fi
+else
+    echo "DISPLAY env var not available - not running xmodmap"
+fi

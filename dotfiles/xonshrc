@@ -38,79 +38,86 @@ def ga(text):
     """
     return lambda buffer, word: text if buffer.text.strip() == word else word
 
-abbrevs['capslock_set'] = ga('bash /home/kossak/.dotfiles/dotfiles/etc_profile.snippet')
-abbrevs['capslock_restore'] = ga('xmodmap -e "keycode 0x42 = Caps_Lock"')
-abbrevs['xmodmapd'] = abbrevs['capslock_set']
-
-abbrevs['yay'] = ga('asdf_disable; yay')
-# abbrevs['teams.'] = 'teams --disable-seccomp-filter-sandbox'
-abbrevs['convertpng'] = ga('mogrify -format jpg -quality 80 *.png')
-# aliases['kittyt'] = 'kitty --config /home/kossak/.dotfiles/dotfiles/kitty_for_tmux.conf all>/dev/null &; disown 1'
-aliases['..'] = 'cd ..'
-aliases['l'] = 'exa -l --git'
-abbrevs['df'] = ga('df -h')
-abbrevs['ta'] = ga('tmux attach-session')
-abbrevs['tl'] = ga('tmux list-sessions')
-abbrevs['tn'] = ga('tmux new-session')
-abbrevs['rg'] = ga('rg -i')
-aliases['vim_tns'] = 'vim $ORACLE_HOME/network/admin/tnsnames.ora'
-abbrevs['pss'] = ga('ps -ef | grep -i')
-abbrevs['free'] = ga('free -m')
-# aliases['tarb'] = 'tar -cavf DIR_(date +'%Y%m%d_%H%M%S').tar.gz DIR'
-abbrevs['ntp'] = ga('sudo ntpdate pl.pool.ntp.org')
+abbrevs['capslock_on']  = ga('/home/kossak/apps/dotfiles/bin/xmodmap_keyboard')
+abbrevs['capslock_off'] = ga('xmodmap -e "keycode 0x42 = Caps_Lock"')
 aliases['monitor_off'] = 'xset dpms force off'
-abbrevs['bwu'] = ga('$BW_SESSION=$(bw unlock --raw)')  # bash: 'export BW_SESSION="$(bw unlock --raw)"'
-abbrevs['bws'] = ga('bw status')
-abbrevs['passs'] = ga(r"pass show $(find -L ~/.password-store -iname '*.gpg' | sed -e 's_^/home/kossak/.password-store/__' -e 's_.gpg$__' | fzf | tr -d '\n')")
-abbrevs['passc'] = ga(r"pass -c $(find -L ~/.password-store -iname '*.gpg' | sed -e 's_^/home/kossak/.password-store/__' -e 's_.gpg$__' | fzf | tr -d '\n')")
-abbrevs['passe'] = ga(r"pass edit $(find -L ~/.password-store -iname '*.gpg' | sed -e 's_^/home/kossak/.password-store/__' -e 's_.gpg$__' | fzf | tr -d '\n')")
-abbrevs['sha256sum.'] = ga('echo "<edit>sum file" | sha256sum -c')
-abbrevs['md5sum.'] = ga('echo "<edit>sum file" | md5sum -c')
-abbrevs['sha512sum.'] = ga('echo "<edit>sum file" | sha512sum -c')
-abbrevs['sha1sum.'] = ga('echo "<edit>sum file" | sha1sum -c')
+abbrevs['convertpng']  = ga('mogrify -format jpg -quality 80 *.png')
+
+abbrevs['yay']        = ga('asdf_disable; yay')
+# abbrevs['teams.']     = 'teams --disable-seccomp-filter-sandbox'
+# aliases['kittyt']     = 'kitty --config /home/kossak/.dotfiles/dotfiles/kitty_for_tmux.conf all>/dev/null &; disown 1'
+aliases['..']         = 'cd ..'
+aliases['l']          = 'exa -l --git'
+abbrevs['df']         = ga('df -h')
+abbrevs['ta']         = ga('tmux attach-session')
+abbrevs['tl']         = ga('tmux list-sessions')
+abbrevs['tn']         = ga('tmux new-session')
+abbrevs['rg']         = ga('rg -i')
+aliases['vim_tns']    = 'vim $ORACLE_HOME/network/admin/tnsnames.ora'
+abbrevs['pss']        = ga('ps -ef | grep -i')
+abbrevs['free']       = ga('free -m')
+# aliases['tarb']     = 'tar -cavf DIR_(date +'%Y%m%d_%H%M%S').tar.gz DIR'
+abbrevs['ntp']        = ga('sudo ntpdate pl.pool.ntp.org')
+abbrevs['bwu']        = ga('$BW_SESSION=$(bw unlock --raw)')  # bash: 'export BW_SESSION="$(bw unlock --raw)"'
+abbrevs['bws']        = ga('bw status')
+abbrevs['passs']      = ga(r"pass show $(find -L ~/.password-store -iname '*.gpg' | sed -e 's_^/home/kossak/.password-store/__' -e 's_.gpg$__' | fzf | tr -d '\n')")
+abbrevs['passc']      = ga(r"pass -c $(find -L ~/.password-store -iname '*.gpg' | sed -e 's_^/home/kossak/.password-store/__' -e 's_.gpg$__' | fzf | tr -d '\n')")
+abbrevs['passe']      = ga(r"pass edit $(find -L ~/.password-store -iname '*.gpg' | sed -e 's_^/home/kossak/.password-store/__' -e 's_.gpg$__' | fzf | tr -d '\n')")
+abbrevs['md5sumc']    = ga('echo "<edit>sum file" | md5sum -c')
+abbrevs['sha1sumc']   = ga('echo "<edit>sum file" | sha1sum -c')
+abbrevs['sha256sumc'] = ga('echo "<edit>sum file" | sha256sum -c')
+abbrevs['sha512sumc'] = ga('echo "<edit>sum file" | sha512sum -c')
+
+# docker
+abbrevs['sd']   = ga('sudo docker')
+abbrevs['di']   = ga('docker images')
+abbrevs['dp']   = ga('docker ps')
+abbrevs['dr']   = ga('docker container run -it --rm <edit> /bin/bash')
+abbrevs['dre']  = ga('docker container run -it --rm --entrypoint /bin/bash <>')
+abbrevs['de']   = ga('docker exec -it <edit> bash')
+abbrevs['dc']   = ga('docker commit')
+abbrevs['drmi'] = ga('docker rmi @$(docker images -f dangling=true -q)')
+# exec/commit in the only running container:
+abbrevs['dee']  = ga('docker exec -it @$(docker ps --format "{{.ID}}") bash')
+abbrevs['dcc']  = ga('docker commit @$(docker ps --format "{{.ID}}")')
+
+# archives
+abbrevs['zstdc']  = 'tar -cf - <edit>dir | zstd - -19 -vo file.tar.zstd'
+abbrevs['zstdcd'] = 'tar -cf - <edit>dir | zstd - -19 -vo @("archive_" + $(date +%Y%m%d_%H%M%S).strip() + ".tar.zstd")'  # bash: 'tar -cf - <edit>dir | zstd - -19 -vo "file_$(date +%Y%m%d_%H%M%s).tar.zstd"'
+abbrevs['zstde']  = 'tar -xaf <edit>a.tar.zstd'
+abbrevs['gzc']    = 'tar cvf - <edit>DIR | gzip -9 - > archive.tar.gz'
+abbrevs['gzcd']   = 'tar cvf - <edit>DIR | gzip -9 - > @("archive_" + $(date +%Y%m%d_%H%M%S).strip() + ".tar.gz")'  # bash: 'tar cvf - <edit>DIR | gzip -9 - > "archive_$(date +%Y%m%d_%H%M%s).tar.gz"'
+abbrevs['gze']    = ' tar -xavf <edit>ARCHIVE.TAR.GZ'
+abbrevs['zipc']   = 'zip -9r <edit>archive.zip FILES'
+abbrevs['zipe']   = 'unzip <edit>archive'
+abbrevs['tare']   = 'tar -xavf <edit>ARCHIVE.TAR.GZ'
+abbrevs['tarl']   = 'tar -tvf'
 
 # borg list archives in fzf:
-abbrevs['borgs'] = ga("$BORG_PASSPHRASE = '<edit>'")  # bash: 'export BORG_PASSPHRASE='
-abbrevs['borgc'] = ga("borg create -vsp -C zstd,22 '.::ONCE_{now:%Y-%m-%d_%H:%M:%S}'")
+abbrevs['borgs']  = ga("$BORG_PASSPHRASE = '<edit>'")  # bash: 'export BORG_PASSPHRASE='
+abbrevs['borgc']  = ga("borg create -vsp -C zstd,22 '.::ONCE_{now:%Y-%m-%d_%H:%M:%S}'")
 abbrevs['borgli'] = ga("borg list . --short | sed -r 's/[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}:[0-9]{2}:[0-9]{2}//g' | sort | uniq -c | sort -k 2")
 abbrevs['borgla'] = ga("borg list --format '{name}{NL}<edit>' . | fzf")
 abbrevs['borglf'] = ga('borg list @(".::" + $(borg list --format "{name}{NL}" . | fzf).strip() ) | fzf')
-abbrevs['borgm'] = ga('borg mount f".::{$(borg list --format "{name}{NL}<edit>" . | fzf).strip()}" /mnt/borg')
+abbrevs['borgm']  = ga('borg mount f\'.::{$(borg list --format "{name}{NL}<edit>" . | fzf).strip()}\' /mnt/borg')
 
-# docker
-abbrevs['sd'] = ga('sudo docker')
-abbrevs['di'] = ga('docker images')
-abbrevs['dp'] = ga('docker ps')
-abbrevs['dr'] = ga('docker container run -it --rm <edit> /bin/bash')
-abbrevs['dre'] = ga('docker container run -it --rm --entrypoint /bin/bash <>')
-abbrevs['de'] = ga('docker exec -it <edit> bash')
-abbrevs['dc'] = ga('docker commit')
-abbrevs['drmi'] = ga('docker rmi @$(docker images -f dangling=true -q)')
-# exec/commit in the only running container:
-abbrevs['dee'] = ga('docker exec -it @$(docker ps --format "{{.ID}}") bash')
-abbrevs['dcc'] = ga('docker commit @$(docker ps --format "{{.ID}}")')
+# mounts / file systems
+abbrevs['btrfsm']     = ga('sudo mount -o subvol=@<edit> /dev/sdX /mnt/a')
+abbrevs['btrfsml']    = ga('sudo mount -o subvol=@<edit> /dev/mapper/myd /mnt/a')
+abbrevs['btrfsl']     = ga('sudo btrfs subvolume list /')
+abbrevs['luksm']      = ga('sudo cryptsetup open /dev/sdaX<edit> myd')
+abbrevs['lukss']      = ga('sudo cryptsetup status myd')
 
-# archives
-abbrevs['zstdc'] = 'tar -cf - <edit>dir | zstd - -19 -vo file.tar.zstd'
-abbrevs['zstdcd'] = 'tar -cf - <edit>dir | zstd - -19 -vo @("archive_" + $(date +%Y%m%d_%H%M%S).strip() + ".tar.zstd")'  # bash: 'tar -cf - <edit>dir | zstd - -19 -vo "file_$(date +%Y%m%d_%H%M%s).tar.zstd"'
-abbrevs['zstde'] = 'tar -xaf <edit>a.tar.zstd'
-abbrevs['gzc'] = 'tar cvf - <edit>DIR | gzip -9 - > archive.tar.gz'
-abbrevs['gzcd'] = 'tar cvf - <edit>DIR | gzip -9 - > @("archive_" + $(date +%Y%m%d_%H%M%S).strip() + ".tar.gz")'  # bash: 'tar cvf - <edit>DIR | gzip -9 - > "archive_$(date +%Y%m%d_%H%M%s).tar.gz"'
-abbrevs['gze'] = ' tar -xavf <edit>ARCHIVE.TAR.GZ'
-abbrevs['zipc'] = 'zip -9r <edit>archive.zip FILES'
-abbrevs['zipe'] = 'unzip <edit>archive'
-abbrevs['tare'] = 'tar -xavf <edit>ARCHIVE.TAR.GZ'
-abbrevs['tarl'] = 'tar -tvf'
-
-# mounts
-abbrevs['mount.']    = ga('sudo mount -o uid=kossak,gid=kossak /dev/sdc1<edit> /mnt/a')
-abbrevs['mountuuid'] = ga('sudo mount -o uid=kossak,gid=kossak UUID=1234567890ABCDEF<edit> /mnt/a')
-abbrevs['mountntfs'] = ga('sudo mount -t ntfs -o uid=kossak,gid=kossak /dev/sdc<edit> /mnt/a')
-abbrevs['mountsmb']  = ga('sudo mount -t cifs -o credentials=/mnt/params/smb_cred_ja,uid=kossak,gid=kossak,vers=2.0 //SERVER/DIR<edit> /mnt/smb1')
-abbrevs['mountcd']   = ga('sudo mount -t iso9660 /dev/sr0 /mnt/cdrom')
-abbrevs['mountiso']  = ga('sudo mount -o loop <file><edit> /mnt/a')
-abbrevs['mountvb']   = ga('sudo mount -t vboxsf -o uid=kossak,gid=kossak vbox_shared /mnt/vs')
-abbrevs['mountborg'] = abbrevs['borgm']
+abbrevs['mount.']     = ga('sudo mount -o uid=kossak,gid=kossak /dev/sdc1<edit> /mnt/a')
+abbrevs['mountuuid']  = ga('sudo mount -o uid=kossak,gid=kossak UUID=1234567890ABCDEF<edit> /mnt/a')
+abbrevs['mountntfs']  = ga('sudo mount -t ntfs -o uid=kossak,gid=kossak /dev/sdc<edit> /mnt/a')
+abbrevs['mountsmb']   = ga('sudo mount -t cifs -o credentials=/mnt/params/smb_cred_ja,uid=kossak,gid=kossak,vers=2.0 //SERVER/DIR<edit> /mnt/smb1')
+abbrevs['mountcd']    = ga('sudo mount -t iso9660 /dev/sr0 /mnt/cdrom')
+abbrevs['mountiso']   = ga('sudo mount -o loop <file><edit> /mnt/a')
+abbrevs['mountvb']    = ga('sudo mount -t vboxsf -o uid=kossak,gid=kossak vbox_shared /mnt/vs')
+abbrevs['mountborg']  = abbrevs['borgm']
+abbrevs['mountluks']  = abbrevs['luksm']
+abbrevs['mountbtrfs'] = abbrevs['btrfsm']
 abbrevs['gocryptfsi'] = 'gocryptfs -init <DIR>'
 abbrevs['gocryptfsm'] = 'gocryptfs SRC<edit> DST -extpass "bw get password <ID>"'
 
@@ -122,7 +129,7 @@ abbrevs['smbi'] = ga('smbclient //192.168.1.1/folder -A /mnt/params/smb_cred_ja'
 abbrevs['rsync.'] = ga('rsync -vr --progress AAA<edit> BBB/')
 
 abbrevs['envb'] = ga('env | grep -Ei "display|xauth|gpg|^ssh|^op_session|^bw_session|^cloudsdk_active"')
-abbrevs['lsblkl'] = ga('sudo lsblk -fo "name,size,pttype,type,fstype,label,mountpoint,uuid"')
+abbrevs['lsblkl'] = ga('sudo lsblk -fo "name,size,pttype,type,fstype,label,mountpoints,uuid"')
 abbrevs['lsblkll'] = ga('sudo lsblk -fo "name,size,pttype,type,fstype,label,mountpoints,uuid,model,parttypename,tran,subsystems"')
 
 # media
@@ -179,11 +186,11 @@ abbrevs['poav']   = ga('poetry add PKG=1.14.5')
 abbrevs['pipi']   = ga('pip install -U')
 abbrevs['pipil']  = ga('pip install --extra-index-url http://localhost:8080 -U')
 abbrevs['pipxi']  = ga('pipx install')
+abbrevs['pipxip'] = ga('pipx install --python /home/kossak/.asdf/installs/python/3.9.16/bin/python')
+abbrevs['pipxiv'] = ga('pipx install --suffix=@1.2 module==1.2')
 abbrevs['pipxil'] = ga('pipx install --index-url http://localhost:8080')
 abbrevs['pipxu']  = ga('pipx upgrade')
 abbrevs['pipxul'] = ga('pipx upgrade --index-url http://localhost:8080')
-abbrevs['pipxu']  = ga('pipx upgrade')
-abbrevs['pipxup'] = ga('pipx upgrade --index-url http://localhost:8080 --pip-args="--pre"')
 # abbrevs['pipd']   = ga('pip download')
 # abbrevs['ipdbb']  = ga('export PYTHONBREAKPOINT=ipdb.set_trace')
 
@@ -203,11 +210,12 @@ abbrevs['gms'] = ga('gcloud compute ssh')
 
 def _ranger_cd():
     f = p'/tmp/rangerdir'
-    ranger --choosedir @(f)
+    ranger --choosedir @(str(f))
     if f.exists():
         cd @(f.read_text())
 aliases['ranger_cd'] = _ranger_cd  # nobash
-aliases['r'] = _ranger_cd          # bash: 'ranger'
+# aliases['r'] = _ranger_cd          # bash: 'ranger'
+aliases['r'] = 'ranger --choosedir /tmp/rangerdir; cd @(p"/tmp/rangerdir".read_text())'
 
 
 # #############################################################################

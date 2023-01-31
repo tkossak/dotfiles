@@ -6,6 +6,7 @@ import os
 import subprocess
 import re
 import socket
+from typing import Iterable
 
 from setup_new_linux import (
     __version__,
@@ -16,30 +17,35 @@ from setup_new_linux import (
 )
 from setup_new_linux.classes.packagesc import OsPackage
 from setup_new_linux.classes.dotfilesc import Dotfile
+from setup_new_linux.utils import setup
 from setup_new_linux.utils.setup import args, log
 from setup_new_linux.utils import constants as C
 from setup_new_linux.utils import helpers as H
 
-# TODO: install gcloud, obsidian
 # TODO: debug borgbackup - strange error on laptop
-# TODO: make sure pkg-config exists
 
-
-def install_packages():
-    for pkg in packages.packages:
+def install_packages(
+    packages: Iterable,
+    dry_run: bool = False
+):
+    for pkg in packages:
         if (
             args.pkg and pkg.name not in args.pkg
             or args.except_pkg and pkg.name in args.except_pkg
         ):
             continue
         try:
-            pkg.install_if_not_installed(force=args.force)
+            if dry_run:
+                if  pkg.install_for_current_groups and pkg.install_for_current_distro:
+                    print(f'dry run: install {pkg.name}')
+            else:
+                pkg.install_if_not_installed(force=args.force)
         except Exception as e:
             msg = f'Package {pkg.name} install error, type: {type(e).__name__}, e: {e}'
             log.error(f'{msg}, traceback: {traceback.format_exc()}')
             info.errors.append(msg)
 
-def configure_packages():
+def configure_packages(dry_run: bool = False):
     for pkg in packages.packages:
         if (
             args.pkg_configure and pkg.name not in args.pkg_configure
@@ -47,24 +53,36 @@ def configure_packages():
         ):
             continue
         try:
-            pkg.configure()
+            if dry_run:
+                print(f'dry run: configure {pkg.name}')
+            else:
+                pkg.configure()
         except Exception as e:
             msg = f'Package {pkg.name} configure error, type: {type(e).__name__}, e: {e}'
             log.error(f'{msg}, traceback: {traceback.format_exc()}')
             info.errors.append(msg)
 
 
-def install_dotfiles():
+def install_dotfiles(
+    dotfiles: Iterable,
+    dry_run: bool = False
+):
     if not info.dotfiles_dir:
         log.error('Not installing dotfiles, because no dotfiles dir found')
-    for d in dotfiles.dotfiles:
+    for d in dotfiles:
         try:
             if isinstance(d, Dotfile):
                 name = d.name
-                d.install()
+                if dry_run:
+                    print(f'dry run: dotfile {name}')
+                else:
+                    d.install()
             elif callable(d):
                 name = d.__name__
-                d()
+                if dry_run:
+                    print(f'dry run: dotfile {name}')
+                else:
+                    d()
             else:
                 raise Exception(f'Wrong type of dotfile: {type(d)}')
         except Exception as e:
@@ -78,7 +96,8 @@ def install_dotfiles():
 
 
 def print_groups_info():
-    if args.groups == C.Groups(0):
+    # if args.groups == C.Groups(0):
+    if setup.args_passed_no_groups:
         packages_to_print = packages.packages  # all packages
         groups_to_print_str = '<any/all packages>'
     else:
@@ -125,27 +144,31 @@ def print_all_logs():
             log.info(e)
 
 
-def load_priv_method():
+def load_priv_method(dry_run: bool = False):
     if not info.dotfiles_local_exists:
         msg = f"Can't load priv method, local dotfiles not found"
         log.error(msg)
         info.errors.append(msg)
 
-    sys.path.insert(0, str(info.dotfiles_local_dir / 'local_setup_new_linux'))
+    sys.path.insert(0, str(info.dotfiles_local_dir.parent / 'local_setup_new_linux'))
     import local_setup_new_linux as l
-    l.main()
+    if dry_run:
+        print('dry run: priv method from local dotfiles')
+    else:
+        l.main(what=args.priv_group)
 
 
 def print_header():
-    # groups = []
-    # for v in C.Groups.__members__.values():
-    #     if v & args.groups:
-    #         groups.append(v.name)
-    # log.info(f'Groups: {", ".join(groups)}')
     log.info(f'distro: {info.distro.name}')
     log.info(f'hostname: {socket.gethostname()}')
     log.info(f'user: {getpass.getuser()}')
     log.info(f'systemd: {info.systemd}')
+    groups = []
+    for v in C.Groups.__members__.values():
+        if v & args.groups:
+            groups.append(v.name)
+    log.info(f'Groups: {", ".join(groups)}')
+    log.info(f'Pkg: {", ".join(args.pkg)}')
     log.info(f'dotfiles dir: {info.dotfiles_dir}')
     log.info(f'dotfiles local dir: {info.dotfiles_local_dir}')
     log.info(f'main python: {C.PYTHON_BINARY_MAIN_PATH}')
@@ -166,6 +189,17 @@ def print_header():
             interface = fields[1]
             ip = fields[3]
             log.info(f'{interface}: {ip}')
+
+    home_dotfiles_link = Path.home() / '.dotfiles'
+    home_dotfiles_local_link = Path.home() / '.dotfiles.local'
+    if not home_dotfiles_link.exists():
+        msg = f'Warning: dir does not exist: {home_dotfiles_link}'
+        log.warning(msg)
+        info.verify.append(msg)
+    if not home_dotfiles_local_link.exists():
+        msg = f'Warning: dir does not exist: {home_dotfiles_local_link}'
+        log.warning(msg)
+        info.verify.append(msg)
 
 
 def is_everything_correct() -> bool:
@@ -222,6 +256,45 @@ def is_everything_correct() -> bool:
 
     return True
 
+def os_configure(dry_run: bool = False):
+    """One-time setup after installing Os
+    """
+    install_packages(
+        packages=(
+            packages.yay,
+            packages.sshd
+        ),
+        dry_run=dry_run
+    )
+
+    install_dotfiles(
+        dotfiles=(
+            *dotfiles.bash_dots,
+            dotfiles.etc_environment,
+        )
+    )
+
+    for m in (
+        dos.configure_ssh,
+        dos.configure_ntpdate,
+    ):
+        try:
+            name = m.__name__
+            if dry_run:
+                print(f'dry run os configure: {name}')
+            else:
+                m(dry_run=dry_run)
+        except Exception as e:
+            msg = f'{name} error, type: {type(e).__name__}, e: {e}'
+            log.error(f'{msg}, traceback: {traceback.format_exc()}')
+            # if isinstance(d, LocalDotfile) and not info.dotfiles_local_exists:
+            info.errors.append(msg)
+
+    # ntpdate in new Thread:
+    # for m in (
+    #     dos.configure_ntpdate,
+    # )
+
 
 def main():
     print_header()
@@ -234,19 +307,21 @@ def main():
         print_groups_info()
 
     if args.os_repos:
-        dos.os_update_mirrors_and_repos()
+        dos.os_update_mirrors_and_repos(dry_run=args.dry_run)
     if args.os_configure:
-        dos.os_configure()
+        os_configure(dry_run=args.dry_run)
 
     if args.install_packages:
-        install_packages()
+        install_packages(packages= packages.packages, dry_run=args.dry_run)
     if args.pkg_configure:
-        configure_packages()
+        configure_packages(dry_run=args.dry_run)
     if args.install_dotfiles:
-        install_dotfiles()
-        dos.create_kossak_links()
+        install_dotfiles(dotfiles=dotfiles.dotfiles, dry_run=args.dry_run)
+        dos.create_kossak_links(dry_run=args.dry_run)
+        dos.make_dotfiles_bin_executable(dry_run=args.dry_run)
+        dos.install_kde_autostart_scripts(dry_run=args.dry_run)
     if args.priv:
-        load_priv_method()
+        load_priv_method(dry_run=args.dry_run)
 
     print_all_logs()
 

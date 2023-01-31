@@ -30,7 +30,7 @@ class Dotfile:
         :param dst: destination file
         :param name: nice name, only for __repr__
         :param mode: link or copy file
-        :param f_backup_first: if dst already exists, back it up first
+        :param f_backup_first: if dst already exists, back it up first (if it's not symlink)
         :param f_raise_if_src_doesnt_exist:
 
         :param dont_add_errors_to_info_if_no_locals: for external functions:
